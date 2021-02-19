@@ -22,6 +22,8 @@ public class FillerFactory {
 			return new FloatFiller(clazz, field);
 		} else if (type == double.class || type == Double.class) {
 			return new DoubleFiller(clazz, field);
+		} else if (type == String.class) {
+			return new StringFiller(clazz, field);
 		} else {
 			return new ObjectFiller(clazz, field);
 		}

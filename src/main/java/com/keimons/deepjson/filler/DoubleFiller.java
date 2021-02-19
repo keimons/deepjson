@@ -19,9 +19,8 @@ public class DoubleFiller extends BaseFiller {
 
 	public int concat(Object object, byte[] code, byte coder, int writeIndex) {
 		String value = String.valueOf(unsafe.getDouble(object, offset));
-		byte valueCoder = unsafe.getByte(value, coderOffset);
 		byte[] bytes = (byte[]) unsafe.getObject(value, valueOffset);
-		if (valueCoder == coder) {
+		if (coder == FillerHelper.LATIN) {
 			System.arraycopy(value0, 0, code, writeIndex, sizeL);
 			writeIndex += sizeL;
 			int length = bytes.length;
@@ -31,14 +30,24 @@ public class DoubleFiller extends BaseFiller {
 		} else {
 			System.arraycopy(value1, 0, code, writeIndex << coder, sizeL << coder);
 			writeIndex += sizeL;
-			writeIndex <<= 1;
-			for (int i = 0; i < bytes.length; i++) {
-				byte b = bytes[i];
-				code[writeIndex++] = (byte) (b >> FillerHelper.HI_BYTE_SHIFT);
-				code[writeIndex++] = (byte) (b >> FillerHelper.LO_BYTE_SHIFT);
+
+			byte valueCoder = unsafe.getByte(value, coderOffset);
+			if (valueCoder == FillerHelper.LATIN) {
+				writeIndex <<= 1;
+				for (int i = 0; i < bytes.length; i++) {
+					byte b = bytes[i];
+					code[writeIndex++] = (byte) (b >> FillerHelper.HI_BYTE_SHIFT);
+					code[writeIndex++] = (byte) (b >> FillerHelper.LO_BYTE_SHIFT);
+				}
+				code[writeIndex++] = UTF16_SPLIT[0];
+				code[writeIndex] = UTF16_SPLIT[1];
+			} else {
+				System.arraycopy(bytes, 0, code, writeIndex << 1, bytes.length);
+				writeIndex += value.length();
+				writeIndex <<= 1;
+				code[writeIndex++] = UTF16_SPLIT[0];
+				code[writeIndex] = UTF16_SPLIT[1];
 			}
-			code[writeIndex++] = UTF16_SPLIT[0];
-			code[writeIndex] = UTF16_SPLIT[1];
 		}
 		return size + value.length();
 	}

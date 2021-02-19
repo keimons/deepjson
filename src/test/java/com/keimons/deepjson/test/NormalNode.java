@@ -12,11 +12,13 @@ public class NormalNode implements INode {
 
 	private boolean node5 = true;
 
-	private char node6 = '我';
+	private char node6 = 'k';
 
-	private float node7 = 1234.5678f;
-
+//	private float node7 = 1234.5678f;
+//
 //	private double node8 = 1234.5678d;
+
+	private String node9 = "monkey";
 
 	public byte getNode1() {
 		return node1;
@@ -66,14 +68,14 @@ public class NormalNode implements INode {
 		this.node6 = node6;
 	}
 
-	public float getNode7() {
-		return node7;
-	}
-
-	public void setNode7(float node7) {
-		this.node7 = node7;
-	}
-
+//	public float getNode7() {
+//		return node7;
+//	}
+//
+//	public void setNode7(float node7) {
+//		this.node7 = node7;
+//	}
+//
 //	public double getNode8() {
 //		return node8;
 //	}
@@ -81,4 +83,12 @@ public class NormalNode implements INode {
 //	public void setNode8(double node8) {
 //		this.node8 = node8;
 //	}
+
+	public String getNode9() {
+		return node9;
+	}
+
+	public void setNode9(String node9) {
+		this.node9 = node9;
+	}
 }

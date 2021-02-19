@@ -18,6 +18,8 @@ public class Tester {
 //	INode node = new BoolNode();
 	static INode node = new NormalNode();
 
+	static float number = 1234.5678f;
+
 	public static void main(String[] args) throws NoSuchFieldException {
 		Unsafe unsafe = UnsafeUtil.getUnsafe();
 		Field value = String.class.getDeclaredField("value");
@@ -30,14 +32,22 @@ public class Tester {
 		DeepJson.toJsonString(node);
 		JSONObject.toJSONString(node);
 
-		List<String> list = new ArrayList<>(times);
+		List<String> list = new ArrayList<>(times * 2);
 		long deepStart = System.nanoTime();
 		for (int i = 0; i < times; i++) {
-			list.add(JSONObject.toJSONString(node));
-//			list.add(DeepJson.toJsonString(node));
+//			list.add(JSONObject.toJSONString(node));
+			list.add(DeepJson.toJsonString(node));
 		}
 		long deepTime = System.nanoTime() - deepStart;
 
 		System.out.println("deep json using time: " + deepTime / 1000000f);
+
+		long floatStart = System.nanoTime();
+		for (int i = 0; i < times; i++) {
+			list.add(String.valueOf(times));
+		}
+		long floatTime = System.nanoTime() - floatStart;
+
+		System.out.println("float using time: " + floatTime / 1000000f);
 	}
 }
