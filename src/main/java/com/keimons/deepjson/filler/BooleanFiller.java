@@ -1,33 +1,30 @@
-package com.keimons.deepjson;
+package com.keimons.deepjson.filler;
 
 import java.lang.reflect.Field;
 
-public class BooleanFiller extends BaseNumberFiller {
-
-	private static final byte[] LATIN_TRUE = {'t', 'r', 'u', 'e'};
-	private static final byte[] LATIN_FALSE = {'f', 'a', 'l', 's', 'e'};
+public class BooleanFiller extends BaseFiller {
 
 	private static final byte[] UTF16_TRUE = {
-			(byte) ('t' >> DeepHelper.HI_BYTE_SHIFT),
-			(byte) ('t' >> DeepHelper.LO_BYTE_SHIFT),
-			(byte) ('r' >> DeepHelper.HI_BYTE_SHIFT),
-			(byte) ('r' >> DeepHelper.LO_BYTE_SHIFT),
-			(byte) ('u' >> DeepHelper.HI_BYTE_SHIFT),
-			(byte) ('u' >> DeepHelper.LO_BYTE_SHIFT),
-			(byte) ('e' >> DeepHelper.HI_BYTE_SHIFT),
-			(byte) ('e' >> DeepHelper.LO_BYTE_SHIFT)
+			(byte) ('t' >> FillerHelper.HI_BYTE_SHIFT),
+			(byte) ('t' >> FillerHelper.LO_BYTE_SHIFT),
+			(byte) ('r' >> FillerHelper.HI_BYTE_SHIFT),
+			(byte) ('r' >> FillerHelper.LO_BYTE_SHIFT),
+			(byte) ('u' >> FillerHelper.HI_BYTE_SHIFT),
+			(byte) ('u' >> FillerHelper.LO_BYTE_SHIFT),
+			(byte) ('e' >> FillerHelper.HI_BYTE_SHIFT),
+			(byte) ('e' >> FillerHelper.LO_BYTE_SHIFT)
 	};
 	private static final byte[] UTF16_FALSE = {
-			(byte) ('f' >> DeepHelper.HI_BYTE_SHIFT),
-			(byte) ('f' >> DeepHelper.LO_BYTE_SHIFT),
-			(byte) ('a' >> DeepHelper.HI_BYTE_SHIFT),
-			(byte) ('a' >> DeepHelper.LO_BYTE_SHIFT),
-			(byte) ('l' >> DeepHelper.HI_BYTE_SHIFT),
-			(byte) ('l' >> DeepHelper.LO_BYTE_SHIFT),
-			(byte) ('s' >> DeepHelper.HI_BYTE_SHIFT),
-			(byte) ('s' >> DeepHelper.LO_BYTE_SHIFT),
-			(byte) ('e' >> DeepHelper.HI_BYTE_SHIFT),
-			(byte) ('e' >> DeepHelper.LO_BYTE_SHIFT)
+			(byte) ('f' >> FillerHelper.HI_BYTE_SHIFT),
+			(byte) ('f' >> FillerHelper.LO_BYTE_SHIFT),
+			(byte) ('a' >> FillerHelper.HI_BYTE_SHIFT),
+			(byte) ('a' >> FillerHelper.LO_BYTE_SHIFT),
+			(byte) ('l' >> FillerHelper.HI_BYTE_SHIFT),
+			(byte) ('l' >> FillerHelper.LO_BYTE_SHIFT),
+			(byte) ('s' >> FillerHelper.HI_BYTE_SHIFT),
+			(byte) ('s' >> FillerHelper.LO_BYTE_SHIFT),
+			(byte) ('e' >> FillerHelper.HI_BYTE_SHIFT),
+			(byte) ('e' >> FillerHelper.LO_BYTE_SHIFT)
 	};
 
 	public BooleanFiller(Class<?> clazz, Field field) throws NoSuchFieldException, IllegalAccessException {
@@ -43,7 +40,7 @@ public class BooleanFiller extends BaseNumberFiller {
 	public int concat(Object object, byte[] code, byte coder, int writeIndex) {
 		writeIndex <<= coder;
 		boolean value = unsafe.getBoolean(object, offset);
-		if (coder == DeepHelper.LATIN) {
+		if (coder == FillerHelper.LATIN) {
 			System.arraycopy(value0, 0, code, writeIndex, sizeL);
 			writeIndex += sizeL;
 			if (value) {

@@ -1,4 +1,4 @@
-package com.keimons.deepjson;
+package com.keimons.deepjson.filler;
 
 import java.lang.reflect.Field;
 
@@ -25,9 +25,5 @@ public class FillerFactory {
 		} else {
 			return new ObjectFiller(clazz, field);
 		}
-	}
-
-	public static IFiller create(String context) throws Throwable {
-		return new ContextFiller(context);
 	}
 }

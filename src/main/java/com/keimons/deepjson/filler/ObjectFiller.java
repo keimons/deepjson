@@ -1,4 +1,6 @@
-package com.keimons.deepjson;
+package com.keimons.deepjson.filler;
+
+import com.keimons.deepjson.ISerializer;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;

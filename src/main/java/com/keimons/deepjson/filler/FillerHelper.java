@@ -1,6 +1,11 @@
-package com.keimons.deepjson;
+package com.keimons.deepjson.filler;
 
-public class DeepHelper {
+import com.keimons.deepjson.UnsafeUtil;
+import sun.misc.Unsafe;
+
+import java.lang.reflect.Field;
+
+public class FillerHelper {
 
 	static final byte[] DigitOnes = {
 			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
@@ -28,28 +33,45 @@ public class DeepHelper {
 			'9', '9', '9', '9', '9', '9', '9', '9', '9', '9',
 	};
 
-	/**
-	 * 字节编码是否大端序
-	 */
-	public static final boolean BIG_ENDIAN;
-
 	public static final int LATIN = 0;
 
 	public static final int UTF16 = 1;
 
-	static final int HI_BYTE_SHIFT;
-	static final int LO_BYTE_SHIFT;
+	/**
+	 * 非常诡异的是，Java中几乎都采用了大端序，但是，在JDK9+的String内部
+	 * 编码{@link String#value}中，却采用了小端序。
+	 * <p>
+	 * char类型占用两个byte，低8位在前，高8位在后
+	 */
+	public static final int HI_BYTE_SHIFT; // 0
+	public static final int LO_BYTE_SHIFT; // 8
 
 	static {
-		BIG_ENDIAN = !('a' >>> 8 == 0);
-		// 虽然绝大部分设备都是大端序，但是，不排除有小端序的可能
-		if (BIG_ENDIAN) {
-			HI_BYTE_SHIFT = 8;
-			LO_BYTE_SHIFT = 0;
-		} else {
-			HI_BYTE_SHIFT = 0;
-			LO_BYTE_SHIFT = 8;
+		Class<?> clazz = null;
+		Unsafe unsafe = UnsafeUtil.getUnsafe();
+		try {
+			clazz = Class.forName("java.lang.StringUTF16");
+			unsafe.ensureClassInitialized(clazz);
+		} catch (ClassNotFoundException e) {
+			// ignore 确保 java.lang.StringUTF16 已经被初始化
+			"蒙奇".getChars(0, 2, new char[2], 0);
 		}
+		int hi_byte_shift;
+		int lo_byte_shift;
+		try {
+			Field f_hi_byte_shift = clazz.getDeclaredField("HI_BYTE_SHIFT");
+			Field f_lo_byte_shift = clazz.getDeclaredField("LO_BYTE_SHIFT");
+			long hi_byte_shift_offset = unsafe.staticFieldOffset(f_hi_byte_shift);
+			long lo_byte_shift_offset = unsafe.staticFieldOffset(f_lo_byte_shift);
+			hi_byte_shift = unsafe.getInt(clazz, hi_byte_shift_offset);
+			lo_byte_shift = unsafe.getInt(clazz, lo_byte_shift_offset);
+		} catch (NoSuchFieldException e) {
+			// ignore default 低8位在前 高8位在后
+			hi_byte_shift = 0;
+			lo_byte_shift = 8;
+		}
+		HI_BYTE_SHIFT = hi_byte_shift;
+		LO_BYTE_SHIFT = lo_byte_shift;
 	}
 
 	public static int size(int j) {
@@ -196,7 +218,7 @@ public class DeepHelper {
 		return charPos;
 	}
 
-	static int putUTF16(byte[] buf, int index, long i) {
+	public static int putUTF16(byte[] buf, int index, long i) {
 		long q;
 		int r;
 		int charPos = index;

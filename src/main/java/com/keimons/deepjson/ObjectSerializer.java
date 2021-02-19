@@ -1,5 +1,7 @@
 package com.keimons.deepjson;
 
+import com.keimons.deepjson.filler.FillerHelper;
+import com.keimons.deepjson.filler.IFiller;
 import sun.misc.Unsafe;
 
 import java.lang.invoke.MethodHandle;
@@ -69,7 +71,7 @@ public class ObjectSerializer implements ISerializer {
 	@Override
 	public int concat(Object object, byte[] value, byte coder, int writeIndex) {
 		int index = writeIndex << coder;
-		if (coder == DeepHelper.LATIN) {
+		if (coder == FillerHelper.LATIN) {
 			value[index] = '{';
 		} else {
 			value[index] = UTF16_L[0];
@@ -80,7 +82,7 @@ public class ObjectSerializer implements ISerializer {
 			writeIndex += filler.concat(object, value, coder, writeIndex);
 		}
 		index = writeIndex - 1 << coder;
-		if (coder == DeepHelper.LATIN) {
+		if (coder == FillerHelper.LATIN) {
 			value[index] = '}';
 		} else {
 			value[index] = UTF16_R[0];

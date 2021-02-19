@@ -1,8 +1,9 @@
-package com.keimons.deepjson;
+package com.keimons.deepjson.filler;
 
 import java.lang.reflect.Field;
 
-public class StringFiller extends BaseNumberFiller {
+public class StringFiller extends BaseFiller {
+
 	long coderOffset;
 	long valueOffset;
 

@@ -1,16 +1,16 @@
-package com.keimons.deepjson;
+package com.keimons.deepjson.filler;
 
 import java.lang.reflect.Field;
 
-public class ByteFiller extends BaseNumberFiller {
+public class ByteFiller extends BaseFiller {
 
-	public ByteFiller(Class<?> clazz, Field field) throws NoSuchFieldException, IllegalAccessException {
+	public ByteFiller(Class<?> clazz, Field field) {
 		super(clazz, field);
 	}
 
 	@Override
 	public int length(Object object) {
-		return DeepHelper.size(unsafe.getByte(object, offset)) + size;
+		return FillerHelper.size(unsafe.getByte(object, offset)) + size;
 	}
 
 	@Override

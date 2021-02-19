@@ -1,8 +1,8 @@
-package com.keimons.deepjson;
+package com.keimons.deepjson.filler;
 
 import java.lang.reflect.Field;
 
-public class FloatFiller extends BaseNumberFiller {
+public class FloatFiller extends BaseFiller {
 
 	public FloatFiller(Class<?> clazz, Field field) throws NoSuchFieldException, IllegalAccessException {
 		super(clazz, field);

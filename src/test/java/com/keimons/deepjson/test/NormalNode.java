@@ -1,4 +1,4 @@
-package com.keimons.deepjson;
+package com.keimons.deepjson.test;
 
 public class NormalNode implements INode {
 
@@ -12,7 +12,7 @@ public class NormalNode implements INode {
 
 	private boolean node5 = true;
 
-	private char 我 = 'c';
+	private char node6 = '我';
 
 //	private float node7 = 1234.5678f;
 //
@@ -58,12 +58,12 @@ public class NormalNode implements INode {
 		this.node5 = node5;
 	}
 
-	public char get我() {
-		return 我;
+	public char getNode6() {
+		return node6;
 	}
 
-	public void set我(char 我) {
-		this.我 = 我;
+	public void setNode6(char node6) {
+		this.node6 = node6;
 	}
 
 //	public float getNode7() {

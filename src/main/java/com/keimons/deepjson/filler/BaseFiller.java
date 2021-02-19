@@ -1,11 +1,8 @@
-package com.keimons.deepjson;
+package com.keimons.deepjson.filler;
 
 import java.lang.reflect.Field;
 
-public abstract class BaseNumberFiller implements IFiller {
-
-	public static final String STRING_UTF_1 = "java.lang.StringLatin1";
-	public static final String STRING_UTF_2 = "java.lang.StringUTF16";
+public abstract class BaseFiller implements IFiller {
 
 	protected byte coder;
 
@@ -24,7 +21,7 @@ public abstract class BaseNumberFiller implements IFiller {
 	 */
 	protected long offset;
 
-	public BaseNumberFiller(Class<?> clazz, Field field) {
+	public BaseFiller(Class<?> clazz, Field field) {
 		offset = unsafe.objectFieldOffset(field);
 		String key = "\"" + field.getName() + "\":";
 		initKey(key);
@@ -35,7 +32,7 @@ public abstract class BaseNumberFiller implements IFiller {
 		try {
 			coder = String.class.getDeclaredField("coder");
 		} catch (NoSuchFieldException e) {
-			e.printStackTrace();
+			// JDK9- ignore
 		}
 		Field value = null;
 		try {
@@ -44,12 +41,12 @@ public abstract class BaseNumberFiller implements IFiller {
 			e.printStackTrace();
 		}
 		this.coder = unsafe.getByte(context, unsafe.objectFieldOffset(coder));
-		if (this.coder == DeepHelper.LATIN) {
+		if (this.coder == FillerHelper.LATIN) {
 			this.value0 = (byte[]) unsafe.getObject(context, unsafe.objectFieldOffset(value));
 			this.sizeL = value0.length;
 			this.value1 = new byte[sizeL << 1];
 			for (int i = 0; i < sizeL; i++) {
-				DeepHelper.putChar2(this.value1, i, value0[i]);
+				FillerHelper.putChar2(this.value1, i, value0[i]);
 			}
 		} else {
 			this.value1 = (byte[]) unsafe.getObject(context, unsafe.objectFieldOffset(value));
@@ -59,13 +56,13 @@ public abstract class BaseNumberFiller implements IFiller {
 	}
 
 	public int concat(byte[] code, byte coder, int writeIndex, int value) {
-		int length = DeepHelper.size(value);
-		if (coder == DeepHelper.LATIN) {
+		int length = FillerHelper.size(value);
+		if (coder == FillerHelper.LATIN) {
 			for (byte b : value0) {
 				code[writeIndex++] = b;
 			}
 			writeIndex += length;
-			DeepHelper.putLATIN(code, writeIndex, value);
+			FillerHelper.putLATIN(code, writeIndex, value);
 			code[writeIndex] = ',';
 		} else {
 			int index = writeIndex << 1;
@@ -73,7 +70,7 @@ public abstract class BaseNumberFiller implements IFiller {
 				code[index++] = b;
 			}
 			writeIndex += sizeL + length;
-			DeepHelper.putUTF16(code, writeIndex, value);
+			FillerHelper.putUTF16(code, writeIndex, value);
 			writeIndex <<= 1;
 			code[writeIndex++] = UTF16_SPLIT[0];
 			code[writeIndex] = UTF16_SPLIT[1];

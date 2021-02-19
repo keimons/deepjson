@@ -1,16 +1,16 @@
-package com.keimons.deepjson;
+package com.keimons.deepjson.filler;
 
 import java.lang.reflect.Field;
 
-public class ShortFiller extends BaseNumberFiller {
+public class ShortFiller extends BaseFiller {
 
-	public ShortFiller(Class<?> clazz, Field field) throws NoSuchFieldException, IllegalAccessException {
+	public ShortFiller(Class<?> clazz, Field field) {
 		super(clazz, field);
 	}
 
 	@Override
 	public int length(Object object) {
-		return DeepHelper.size(unsafe.getShort(object, offset)) + sizeL;
+		return FillerHelper.size(unsafe.getShort(object, offset)) + sizeL;
 	}
 
 	@Override

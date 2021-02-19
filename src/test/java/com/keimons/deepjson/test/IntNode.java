@@ -1,7 +1,5 @@
 package com.keimons.deepjson.test;
 
-import com.keimons.deepjson.INode;
-
 public class IntNode implements INode {
 
 	private int index0;

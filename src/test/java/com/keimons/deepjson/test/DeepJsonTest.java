@@ -2,8 +2,6 @@ package com.keimons.deepjson.test;
 
 import com.alibaba.fastjson.JSONObject;
 import com.keimons.deepjson.DeepJson;
-import com.keimons.deepjson.INode;
-import com.keimons.deepjson.NormalNode;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;

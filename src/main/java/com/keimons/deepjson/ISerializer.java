@@ -1,18 +1,21 @@
 package com.keimons.deepjson;
 
+import com.keimons.deepjson.filler.FillerHelper;
+import com.keimons.deepjson.filler.IFiller;
+
 /**
  * 序列化工具
  */
 public interface ISerializer {
 
 	byte[] UTF16_L = {
-			(byte) ('{' >> DeepHelper.HI_BYTE_SHIFT),
-			(byte) ('{' >> DeepHelper.LO_BYTE_SHIFT),
+			(byte) ('{' >> FillerHelper.HI_BYTE_SHIFT),
+			(byte) ('{' >> FillerHelper.LO_BYTE_SHIFT),
 	};
 
 	byte[] UTF16_R = {
-			(byte) ('}' >> DeepHelper.HI_BYTE_SHIFT),
-			(byte) ('}' >> DeepHelper.LO_BYTE_SHIFT),
+			(byte) ('}' >> FillerHelper.HI_BYTE_SHIFT),
+			(byte) ('}' >> FillerHelper.LO_BYTE_SHIFT),
 	};
 
 	int size(Object object);

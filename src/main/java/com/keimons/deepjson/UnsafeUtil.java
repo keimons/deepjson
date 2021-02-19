@@ -26,7 +26,6 @@ public class UnsafeUtil {
 				theUnsafe.setAccessible(true);
 				return (Unsafe) theUnsafe.get(null);
 			};
-
 			UNSAFE = AccessController.doPrivileged(action);
 		} catch (Exception e) {
 			throw new RuntimeException("Unable to load unsafe", e);
