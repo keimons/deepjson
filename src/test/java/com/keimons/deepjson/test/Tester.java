@@ -1,7 +1,6 @@
 package com.keimons.deepjson.test;
 
 import com.alibaba.fastjson.JSONObject;
-import com.keimons.deepjson.filler.FillerHelper;
 import com.keimons.deepjson.DeepJson;
 import com.keimons.deepjson.UnsafeUtil;
 import sun.misc.Unsafe;
@@ -19,17 +18,10 @@ public class Tester {
 //	INode node = new BoolNode();
 	static INode node = new NormalNode();
 
-	public static void main(String[] args) throws NoSuchFieldException, ClassNotFoundException {
+	public static void main(String[] args) throws NoSuchFieldException {
 		Unsafe unsafe = UnsafeUtil.getUnsafe();
 		Field value = String.class.getDeclaredField("value");
 		long offset = unsafe.objectFieldOffset(value);
-		System.out.println(Arrays.toString((byte[]) unsafe.getObject("我们a的", offset)));
-
-		Class<?> clazz = Class.forName("java.lang.StringUTF16");
-		System.out.println(unsafe.getInt(clazz, unsafe.staticFieldOffset(clazz.getDeclaredField("LO_BYTE_SHIFT"))));
-		System.out.println(FillerHelper.LO_BYTE_SHIFT);
-
-		System.out.println('a' & 0xFFFF);
 
 		System.out.println(DeepJson.toJsonString(node));
 		System.out.println(JSONObject.toJSONString(node));

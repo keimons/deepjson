@@ -14,8 +14,8 @@ public class NormalNode implements INode {
 
 	private char node6 = '我';
 
-//	private float node7 = 1234.5678f;
-//
+	private float node7 = 1234.5678f;
+
 //	private double node8 = 1234.5678d;
 
 	public byte getNode1() {
@@ -66,14 +66,14 @@ public class NormalNode implements INode {
 		this.node6 = node6;
 	}
 
-//	public float getNode7() {
-//		return node7;
-//	}
-//
-//	public void setNode7(float node7) {
-//		this.node7 = node7;
-//	}
-//
+	public float getNode7() {
+		return node7;
+	}
+
+	public void setNode7(float node7) {
+		this.node7 = node7;
+	}
+
 //	public double getNode8() {
 //		return node8;
 //	}

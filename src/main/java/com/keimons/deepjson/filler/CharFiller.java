@@ -12,7 +12,12 @@ public class CharFiller extends BaseFiller {
 
 	@Override
 	public byte coder(Object object) {
-		return (byte) (coder | ((unsafe.getChar(object, offset) >>> 8) == 0 ? FillerHelper.LATIN : FillerHelper.UTF16));
+		if (FillerHelper.COMPACT_STRINGS) {
+			int i = unsafe.getChar(object, offset) >>> 8;
+			return (byte) (coder | (i == 0 ? FillerHelper.LATIN : FillerHelper.UTF16));
+		} else {
+			return FillerHelper.UTF16;
+		}
 	}
 
 	@Override

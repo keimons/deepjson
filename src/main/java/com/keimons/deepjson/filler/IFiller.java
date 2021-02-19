@@ -27,7 +27,7 @@ public interface IFiller {
 	Unsafe unsafe = UnsafeUtil.getUnsafe();
 
 	default byte coder(Object object) {
-		return 1;
+		return (byte) (FillerHelper.COMPACT_STRINGS ? 0 : 1);
 	}
 
 	int length(Object object);

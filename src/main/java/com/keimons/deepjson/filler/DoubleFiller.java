@@ -2,23 +2,23 @@ package com.keimons.deepjson.filler;
 
 import java.lang.reflect.Field;
 
-public class FloatFiller extends BaseFiller {
+public class DoubleFiller extends BaseFiller {
 
 	long valueOffset;
 	long coderOffset;
 
-	public FloatFiller(Class<?> clazz, Field field) throws NoSuchFieldException, IllegalAccessException {
+	public DoubleFiller(Class<?> clazz, Field field) throws NoSuchFieldException, IllegalAccessException {
 		super(clazz, field);
 		valueOffset = unsafe.objectFieldOffset(String.class.getDeclaredField("value"));
 		coderOffset = unsafe.objectFieldOffset(String.class.getDeclaredField("coder"));
 	}
 
 	public int length(Object object) {
-		return size + String.valueOf(IFiller.unsafe.getFloat(object, offset)).length();
+		return size + String.valueOf(IFiller.unsafe.getDouble(object, offset)).length();
 	}
 
 	public int concat(Object object, byte[] code, byte coder, int writeIndex) {
-		String value = String.valueOf(unsafe.getFloat(object, offset));
+		String value = String.valueOf(unsafe.getDouble(object, offset));
 		byte valueCoder = unsafe.getByte(value, coderOffset);
 		byte[] bytes = (byte[]) unsafe.getObject(value, valueOffset);
 		if (valueCoder == coder) {

@@ -33,9 +33,14 @@ public class FillerHelper {
 			'9', '9', '9', '9', '9', '9', '9', '9', '9', '9',
 	};
 
-	public static final int LATIN = 0;
+	public static final byte LATIN = 0;
 
-	public static final int UTF16 = 1;
+	public static final byte UTF16 = 1;
+
+	/**
+	 * 是否开启字符串压缩
+	 */
+	public static final boolean COMPACT_STRINGS;
 
 	/**
 	 * 非常诡异的是，Java中几乎都采用了大端序，但是，在JDK9+的String内部
@@ -72,6 +77,15 @@ public class FillerHelper {
 		}
 		HI_BYTE_SHIFT = hi_byte_shift;
 		LO_BYTE_SHIFT = lo_byte_shift;
+		boolean compact_strings = true;
+		try {
+			Field compactStrings = String.class.getDeclaredField("COMPACT_STRINGS");
+			long offset = unsafe.staticFieldOffset(compactStrings);
+			compact_strings = unsafe.getBoolean(String.class, offset);
+		} catch (NoSuchFieldException e) {
+			e.printStackTrace();
+		}
+		COMPACT_STRINGS = compact_strings;
 	}
 
 	public static int size(int j) {
