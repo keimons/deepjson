@@ -35,8 +35,8 @@ public class Tester {
 		List<String> list = new ArrayList<>(times * 2);
 		long deepStart = System.nanoTime();
 		for (int i = 0; i < times; i++) {
-//			list.add(JSONObject.toJSONString(node));
-			list.add(DeepJson.toJsonString(node));
+			list.add(JSONObject.toJSONString(node));
+//			list.add(DeepJson.toJsonString(node));
 		}
 		long deepTime = System.nanoTime() - deepStart;
 

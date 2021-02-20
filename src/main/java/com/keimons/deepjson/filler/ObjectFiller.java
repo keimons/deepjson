@@ -1,6 +1,6 @@
 package com.keimons.deepjson.filler;
 
-import com.keimons.deepjson.ISerializer;
+import com.keimons.deepjson.serializer.ISerializer;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -26,7 +26,7 @@ public class ObjectFiller implements IFiller {
 	@Override
 	public int length(Object object) {
 		try {
-			return serializer.size(handle.invoke(object));
+			return serializer.length(handle.invoke(object));
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
@@ -36,7 +36,7 @@ public class ObjectFiller implements IFiller {
 	@Override
 	public int concat(Object object, byte[] code, byte coder, int writeIndex) {
 		try {
-			return serializer.concat(handle.invoke(object), code, coder, writeIndex);
+			return serializer.write(handle.invoke(object), code, coder, writeIndex);
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}

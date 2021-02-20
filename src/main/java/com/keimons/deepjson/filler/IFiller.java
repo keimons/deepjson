@@ -9,7 +9,7 @@ import sun.misc.Unsafe;
 public interface IFiller {
 
 	/**
-	 * 使用两个字节的分隔符
+	 * 逗号
 	 */
 	byte[] UTF16_SPLIT = {
 			(byte) (',' >> FillerHelper.HI_BYTE_SHIFT),
@@ -17,11 +17,27 @@ public interface IFiller {
 	};
 
 	/**
-	 * 包装
+	 * 双引号
 	 */
 	byte[] UTF16_QUOTATION = {
 			(byte) ('"' >> FillerHelper.HI_BYTE_SHIFT),
 			(byte) ('"' >> FillerHelper.LO_BYTE_SHIFT),
+	};
+
+	/**
+	 * 中括号左
+	 */
+	byte[] UTF16_BRACKET_L = {
+			(byte) ('[' >> FillerHelper.HI_BYTE_SHIFT),
+			(byte) ('[' >> FillerHelper.LO_BYTE_SHIFT),
+	};
+
+	/**
+	 * 中括号右
+	 */
+	byte[] UTF16_BRACKET_R = {
+			(byte) (']' >> FillerHelper.HI_BYTE_SHIFT),
+			(byte) (']' >> FillerHelper.LO_BYTE_SHIFT),
 	};
 
 	Unsafe unsafe = UnsafeUtil.getUnsafe();
