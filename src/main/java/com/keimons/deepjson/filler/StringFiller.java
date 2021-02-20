@@ -25,7 +25,7 @@ public class StringFiller extends BaseFiller {
 	}
 
 	@Override
-	public byte coder(Object object) {
+	public byte coder(Object object, long options) {
 		String value = (String) unsafe.getObject(object, offset);
 		if (value == null) {
 			return FillerHelper.LATIN;
@@ -35,7 +35,7 @@ public class StringFiller extends BaseFiller {
 	}
 
 	@Override
-	public int length(Object object) {
+	public int length(Object object, long options) {
 		String value = (String) unsafe.getObject(object, offset);
 		if (value == null) {
 			return 0;
@@ -45,7 +45,7 @@ public class StringFiller extends BaseFiller {
 	}
 
 	@Override
-	public int concat(Object object, byte[] code, byte coder, int writeIndex) {
+	public int concat(Object object, byte[] code, byte coder, int writeIndex, long options) {
 		String value = (String) unsafe.getObject(object, offset);
 		byte[] bytes = (byte[]) unsafe.getObject(value, OFFSET_VALUE);
 		if (coder == FillerHelper.LATIN) {

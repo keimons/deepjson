@@ -1,5 +1,6 @@
 package com.keimons.deepjson.serializer;
 
+import com.keimons.deepjson.SerializerOptions;
 import com.keimons.deepjson.filler.FillerHelper;
 
 /**
@@ -17,11 +18,18 @@ public interface ISerializer {
 			(byte) ('}' >> FillerHelper.LO_BYTE_SHIFT),
 	};
 
-	int length(Object object);
+	int length(Object object, long options);
 
-	byte coder(Object object);
+	byte coder(Object object, long options);
 
-	String write(Object object);
+	/**
+	 * 序列化
+	 *
+	 * @param object  要序列化的对象
+	 * @param options 序列化选项
+	 * @return 序列化结果
+	 */
+	String write(Object object, SerializerOptions... options);
 
 	/**
 	 * 连接字符串
@@ -30,7 +38,8 @@ public interface ISerializer {
 	 * @param buf        新的字节码
 	 * @param coder      编码方式
 	 * @param writeIndex 写入位置
+	 * @param options    序列化选项
 	 * @return 写入的byte数量
 	 */
-	int write(Object object, byte[] buf, byte coder, int writeIndex);
+	int write(Object object, byte[] buf, byte coder, int writeIndex, long options);
 }

@@ -9,12 +9,12 @@ public class ByteFiller extends BaseFiller {
 	}
 
 	@Override
-	public int length(Object object) {
+	public int length(Object object, long options) {
 		return FillerHelper.size(unsafe.getByte(object, offset)) + size;
 	}
 
 	@Override
-	public int concat(Object object, byte[] code, byte coder, int writeIndex) {
+	public int concat(Object object, byte[] code, byte coder, int writeIndex, long options) {
 		byte value = unsafe.getByte(object, offset);
 		return concat(code, coder, writeIndex, value);
 	}

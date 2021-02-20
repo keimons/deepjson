@@ -27,17 +27,17 @@ public class BooleanFiller extends BaseFiller {
 			(byte) ('e' >> FillerHelper.LO_BYTE_SHIFT)
 	};
 
-	public BooleanFiller(Class<?> clazz, Field field) throws NoSuchFieldException, IllegalAccessException {
+	public BooleanFiller(Class<?> clazz, Field field) {
 		super(clazz, field);
 	}
 
 	@Override
-	public int length(Object object) {
+	public int length(Object object, long options) {
 		return (unsafe.getBoolean(object, offset) ? 4 : 5) + size;
 	}
 
 	@Override
-	public int concat(Object object, byte[] code, byte coder, int writeIndex) {
+	public int concat(Object object, byte[] code, byte coder, int writeIndex, long options) {
 		writeIndex <<= coder;
 		boolean value = unsafe.getBoolean(object, offset);
 		if (coder == FillerHelper.LATIN) {

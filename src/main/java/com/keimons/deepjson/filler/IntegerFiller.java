@@ -8,11 +8,11 @@ public class IntegerFiller extends BaseFiller {
 		super(clazz, field);
 	}
 
-	public int length(Object object) {
+	public int length(Object object, long options) {
 		return FillerHelper.size(unsafe.getInt(object, offset)) + size;
 	}
 
-	public int concat(Object object, byte[] code, byte coder, int writeIndex) {
+	public int concat(Object object, byte[] code, byte coder, int writeIndex, long options) {
 		int value = unsafe.getInt(object, offset);
 		return concat(code, coder, writeIndex, value);
 	}

@@ -11,7 +11,7 @@ public class CharFiller extends BaseFiller {
 	}
 
 	@Override
-	public byte coder(Object object) {
+	public byte coder(Object object, long options) {
 		if (FillerHelper.COMPACT_STRINGS) {
 			int i = unsafe.getChar(object, offset) >>> 8;
 			return (byte) (coder | (i == 0 ? FillerHelper.LATIN : FillerHelper.UTF16));
@@ -21,12 +21,12 @@ public class CharFiller extends BaseFiller {
 	}
 
 	@Override
-	public int length(Object object) {
+	public int length(Object object, long options) {
 		return 2 + size;
 	}
 
 	@Override
-	public int concat(Object object, byte[] code, byte coder, int writeIndex) {
+	public int concat(Object object, byte[] code, byte coder, int writeIndex, long options) {
 		char value = unsafe.getChar(object, offset);
 		if (coder == FillerHelper.LATIN) {
 			System.arraycopy(value0, 0, code, writeIndex, sizeL);

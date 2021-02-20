@@ -13,11 +13,13 @@ public class DoubleFiller extends BaseFiller {
 		coderOffset = unsafe.objectFieldOffset(String.class.getDeclaredField("coder"));
 	}
 
-	public int length(Object object) {
+	@Override
+	public int length(Object object, long options) {
 		return size + String.valueOf(IFiller.unsafe.getDouble(object, offset)).length();
 	}
 
-	public int concat(Object object, byte[] code, byte coder, int writeIndex) {
+	@Override
+	public int concat(Object object, byte[] code, byte coder, int writeIndex, long options) {
 		String value = String.valueOf(unsafe.getDouble(object, offset));
 		byte[] bytes = (byte[]) unsafe.getObject(value, valueOffset);
 		if (coder == FillerHelper.LATIN) {

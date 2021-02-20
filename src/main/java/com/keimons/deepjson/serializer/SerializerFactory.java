@@ -8,7 +8,7 @@ public class SerializerFactory {
 	private static final Map<Class<?>, ISerializer> CACHE = new ConcurrentHashMap<>();
 
 	static {
-		CACHE.put(int[].class, new IntegerArraySerializer());
+		CACHE.put(int[].class, new IArraySerializer());
 		CACHE.put(Integer[].class, new IntegerArraySerializer());
 	}
 

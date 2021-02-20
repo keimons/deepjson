@@ -79,7 +79,7 @@ public abstract class BaseFiller implements IFiller {
 	}
 
 	@Override
-	public byte coder(Object object) {
+	public byte coder(Object object, long options) {
 		return FillerHelper.COMPACT_STRINGS ? coder : FillerHelper.UTF16;
 	}
 }

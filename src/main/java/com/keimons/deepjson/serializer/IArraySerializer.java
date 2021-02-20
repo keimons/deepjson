@@ -5,13 +5,13 @@ import com.keimons.deepjson.filler.FillerHelper;
 import com.keimons.deepjson.filler.IFiller;
 
 /**
- * Integer[]序列化方案
+ * 适用int[]的序列化方案
  *
  * @author monkey
  * @version 1.0
  * @since 1.8
  **/
-public class IntegerArraySerializer extends BaseSerializer {
+public class IArraySerializer extends BaseSerializer {
 
 	@Override
 	public int length(Object object, long options) {
@@ -23,7 +23,7 @@ public class IntegerArraySerializer extends BaseSerializer {
 			}
 		}
 		int length = 0;
-		Integer[] ints = (Integer[]) object;
+		int[] ints = (int[]) object;
 		for (int i : ints) {
 			length += FillerHelper.size(i);
 		}
@@ -43,7 +43,7 @@ public class IntegerArraySerializer extends BaseSerializer {
 	public int write(Object object, byte[] buf, byte coder, int writeIndex, long options) {
 		if (coder == FillerHelper.LATIN) {
 			buf[writeIndex++] = '[';
-			Integer[] ints = (Integer[]) object;
+			int[] ints = (int[]) object;
 			for (int i : ints) {
 				int length = FillerHelper.size(i);
 				writeIndex += length;
@@ -60,8 +60,8 @@ public class IntegerArraySerializer extends BaseSerializer {
 			buf[index++] = IFiller.UTF16_BRACKET_L[0];
 			buf[index] = IFiller.UTF16_BRACKET_L[1];
 			writeIndex++;
-			Integer[] ints = (Integer[]) object;
-			for (Integer i : ints) {
+			int[] ints = (int[]) object;
+			for (int i : ints) {
 				int length = FillerHelper.size(i);
 				writeIndex += length;
 				FillerHelper.putUTF16(buf, writeIndex, i);

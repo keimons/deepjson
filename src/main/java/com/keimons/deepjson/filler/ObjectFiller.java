@@ -19,14 +19,14 @@ public class ObjectFiller implements IFiller {
 	}
 
 	@Override
-	public byte coder(Object object) {
-		return serializer.coder(object);
+	public byte coder(Object object, long options) {
+		return serializer.coder(object, options);
 	}
 
 	@Override
-	public int length(Object object) {
+	public int length(Object object, long options) {
 		try {
-			return serializer.length(handle.invoke(object));
+			return serializer.length(handle.invoke(object), options);
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
@@ -34,9 +34,9 @@ public class ObjectFiller implements IFiller {
 	}
 
 	@Override
-	public int concat(Object object, byte[] code, byte coder, int writeIndex) {
+	public int concat(Object object, byte[] code, byte coder, int writeIndex, long options) {
 		try {
-			return serializer.write(handle.invoke(object), code, coder, writeIndex);
+			return serializer.write(handle.invoke(object), code, coder, writeIndex, options);
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}

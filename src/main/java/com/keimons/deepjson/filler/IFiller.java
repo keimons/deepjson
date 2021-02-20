@@ -42,11 +42,11 @@ public interface IFiller {
 
 	Unsafe unsafe = UnsafeUtil.getUnsafe();
 
-	default byte coder(Object object) {
+	default byte coder(Object object, long options) {
 		return (byte) (FillerHelper.COMPACT_STRINGS ? 0 : 1);
 	}
 
-	int length(Object object);
+	int length(Object object, long options);
 
-	int concat(Object object, byte[] code, byte coder, int writeIndex);
+	int concat(Object object, byte[] code, byte coder, int writeIndex, long options);
 }

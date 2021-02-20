@@ -7,17 +7,17 @@ public class FloatFiller extends BaseFiller {
 	long valueOffset;
 	long coderOffset;
 
-	public FloatFiller(Class<?> clazz, Field field) throws NoSuchFieldException, IllegalAccessException {
+	public FloatFiller(Class<?> clazz, Field field) throws NoSuchFieldException {
 		super(clazz, field);
 		valueOffset = unsafe.objectFieldOffset(String.class.getDeclaredField("value"));
 		coderOffset = unsafe.objectFieldOffset(String.class.getDeclaredField("coder"));
 	}
 
-	public int length(Object object) {
+	public int length(Object object, long options) {
 		return size + String.valueOf(IFiller.unsafe.getFloat(object, offset)).length();
 	}
 
-	public int concat(Object object, byte[] code, byte coder, int writeIndex) {
+	public int concat(Object object, byte[] code, byte coder, int writeIndex, long options) {
 		String value = String.valueOf(unsafe.getFloat(object, offset));
 		byte[] bytes = (byte[]) unsafe.getObject(value, valueOffset);
 		if (coder == FillerHelper.LATIN) {

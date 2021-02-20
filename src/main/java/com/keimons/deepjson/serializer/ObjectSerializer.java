@@ -34,21 +34,21 @@ public class ObjectSerializer extends BaseSerializer {
 	}
 
 	@Override
-	public int length(Object object) {
+	public int length(Object object, long options) {
 		if (object == null) {
 			return 0;
 		}
 		int length = 2;
 		for (IFiller filler : fillers) {
-			length += filler.length(object);
+			length += filler.length(object, options);
 		}
 		return length;
 	}
 
 	@Override
-	public byte coder(Object object) {
+	public byte coder(Object object, long options) {
 		for (IFiller filler : fillers) {
-			byte coder = filler.coder(object);
+			byte coder = filler.coder(object, options);
 			if (coder == 1) {
 				return 1;
 			}
@@ -57,16 +57,7 @@ public class ObjectSerializer extends BaseSerializer {
 	}
 
 	@Override
-	public String write(Object object) {
-		int length = length(object);
-		byte coder = coder(object);
-		byte[] buf = new byte[length << coder];
-		write(object, buf, coder, 0);
-		return newString(buf, coder);
-	}
-
-	@Override
-	public int write(Object object, byte[] buf, byte coder, int writeIndex) {
+	public int write(Object object, byte[] buf, byte coder, int writeIndex, long options) {
 		int index = writeIndex << coder;
 		if (coder == FillerHelper.LATIN) {
 			buf[index] = '{';
@@ -76,7 +67,7 @@ public class ObjectSerializer extends BaseSerializer {
 		}
 		writeIndex++;
 		for (IFiller filler : fillers) {
-			writeIndex += filler.concat(object, buf, coder, writeIndex);
+			writeIndex += filler.concat(object, buf, coder, writeIndex, options);
 		}
 		index = writeIndex - 1 << coder;
 		if (coder == FillerHelper.LATIN) {

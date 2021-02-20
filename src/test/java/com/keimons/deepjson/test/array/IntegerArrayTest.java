@@ -1,4 +1,4 @@
-package com.keimons.deepjson.test;
+package com.keimons.deepjson.test.array;
 
 import com.alibaba.fastjson.JSONObject;
 import com.keimons.deepjson.DeepJson;
@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Random;
 
 /**
- * integer array test
+ * Integer[] test
  *
  * @author monkey1993
  * @version 1.0
@@ -21,13 +21,14 @@ public class IntegerArrayTest {
 
 	static {
 		Random random = new Random();
-		for (int i = 0; i < 1000; i++) {
+		for (int i = 0; i < array.length; i++) {
 			array[i] = random.nextInt();
 		}
 	}
 
 	@Test
 	public void test() {
+		System.out.println("Integer[] 基础测试");
 		System.out.println(DeepJson.toJsonString(array));
 		System.out.println(JSONObject.toJSONString(array));
 	}
@@ -39,7 +40,7 @@ public class IntegerArrayTest {
 			DeepJson.toJsonString(array);
 		}
 		long deepTime = System.nanoTime() - deepStart;
-		System.out.println("[integer array] deep json using time: " + deepTime / 1000000f);
+		System.out.println("Integer[] deep json using time: " + deepTime / 1000000f);
 	}
 
 	@Test
@@ -49,6 +50,6 @@ public class IntegerArrayTest {
 			DeepJson.toJsonString(array);
 		}
 		long fastTime = System.nanoTime() - fastStart;
-		System.out.println("[integer array] fast json using time: " + fastTime / 1000000f);
+		System.out.println("Integer[] fast json using time: " + fastTime / 1000000f);
 	}
 }

@@ -1,5 +1,6 @@
 package com.keimons.deepjson.serializer;
 
+import com.keimons.deepjson.SerializerOptions;
 import com.keimons.deepjson.UnsafeUtil;
 import sun.misc.Unsafe;
 
@@ -43,11 +44,12 @@ public abstract class BaseSerializer implements ISerializer {
 	}
 
 	@Override
-	public String write(Object object) {
-		int size = length(object);
-		byte coder = coder(object);
+	public String write(Object object, SerializerOptions... options) {
+		long option = SerializerOptions.getOptions(options);
+		int size = length(object, option);
+		byte coder = coder(object, option);
 		byte[] value = new byte[size << coder];
-		write(object, value, coder, 0);
+		write(object, value, coder, 0, option);
 		return newString(value, coder);
 	}
 }

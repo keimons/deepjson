@@ -8,11 +8,11 @@ public class LongFiller extends BaseFiller {
 		super(clazz, field);
 	}
 
-	public int length(Object object) {
+	public int length(Object object, long options) {
 		return FillerHelper.size(unsafe.getLong(object, offset)) + size;
 	}
 
-	public int concat(Object object, byte[] code, byte coder, int writeIndex) {
+	public int concat(Object object, byte[] code, byte coder, int writeIndex, long options) {
 		long value = unsafe.getLong(object, offset);
 		int length = FillerHelper.size(value);
 		if (coder == FillerHelper.LATIN) {
