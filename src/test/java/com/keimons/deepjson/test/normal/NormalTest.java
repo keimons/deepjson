@@ -1,23 +1,34 @@
-package com.keimons.deepjson.test;
+package com.keimons.deepjson.test.normal;
 
 import com.alibaba.fastjson.JSONObject;
 import com.keimons.deepjson.DeepJson;
+import com.keimons.deepjson.SerializerOptions;
+import com.keimons.deepjson.test.BoolNode;
+import com.keimons.deepjson.test.INode;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
 // -verbose:gc -Xms8192m -Xmx8192m
-public class DeepJsonTest {
+public class NormalTest {
 
 	int times = 100_0000;
 
-//	INode node = new IntNode();
-//	INode node = new BoolNode();
 	INode node = new NormalNode();
 
 	@Test
-	public void fastTest1() {
+	public void test() {
+		Integer[] integers = new Integer[10];
+		integers[5] = 0;
+		System.out.println(JSONObject.toJSONString(integers));
+		System.out.println(DeepJson.toJsonString(new BoolNode()));
+		System.out.println(DeepJson.toJsonString(node, SerializerOptions.IgnoreNonField));
+		System.out.println(JSONObject.toJSONString(node));
+	}
+
+	@Test
+	public void fastTest() {
 		System.out.println(DeepJson.toJsonString(node));
 		System.out.println(JSONObject.toJSONString(node));
 		DeepJson.toJsonString(node);
@@ -32,7 +43,7 @@ public class DeepJsonTest {
 	}
 
 	@Test
-	public void deepTest2() {
+	public void deepTest() {
 		System.out.println(DeepJson.toJsonString(node));
 		System.out.println(JSONObject.toJSONString(node));
 		DeepJson.toJsonString(node);

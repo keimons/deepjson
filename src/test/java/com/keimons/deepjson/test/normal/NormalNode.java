@@ -1,8 +1,10 @@
-package com.keimons.deepjson.test;
+package com.keimons.deepjson.test.normal;
+
+import com.keimons.deepjson.test.INode;
 
 public class NormalNode implements INode {
 
-	private byte node1 = 'c';
+	private byte node1 = 'k';
 
 	private short node2 = 23;
 
@@ -14,11 +16,17 @@ public class NormalNode implements INode {
 
 	private char node6 = 'k';
 
-//	private float node7 = 1234.5678f;
-//
-//	private double node8 = 1234.5678d;
+	private float node7 = 1234.5678f;
 
-	private String node9 = "monkey";
+	private double node8 = 1234.5678d;
+
+	private String node9 = "蒙奇";
+
+	private LinkNode node10 = new LinkNode();
+
+	private int[] node11 = new int[10];
+
+	private Integer[] node12 = new Integer[10];
 
 	public byte getNode1() {
 		return node1;
@@ -68,21 +76,21 @@ public class NormalNode implements INode {
 		this.node6 = node6;
 	}
 
-//	public float getNode7() {
-//		return node7;
-//	}
-//
-//	public void setNode7(float node7) {
-//		this.node7 = node7;
-//	}
-//
-//	public double getNode8() {
-//		return node8;
-//	}
-//
-//	public void setNode8(double node8) {
-//		this.node8 = node8;
-//	}
+	public float getNode7() {
+		return node7;
+	}
+
+	public void setNode7(float node7) {
+		this.node7 = node7;
+	}
+
+	public double getNode8() {
+		return node8;
+	}
+
+	public void setNode8(double node8) {
+		this.node8 = node8;
+	}
 
 	public String getNode9() {
 		return node9;
@@ -90,5 +98,29 @@ public class NormalNode implements INode {
 
 	public void setNode9(String node9) {
 		this.node9 = node9;
+	}
+
+	public LinkNode getNode10() {
+		return node10;
+	}
+
+	public void setNode10(LinkNode node10) {
+		this.node10 = node10;
+	}
+
+	public int[] getNode11() {
+		return node11;
+	}
+
+	public void setNode11(int[] node11) {
+		this.node11 = node11;
+	}
+
+	public Integer[] getNode12() {
+		return node12;
+	}
+
+	public void setNode12(Integer[] node12) {
+		this.node12 = node12;
 	}
 }

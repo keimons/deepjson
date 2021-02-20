@@ -41,17 +41,20 @@ public class IArraySerializer extends BaseSerializer {
 
 	@Override
 	public int write(Object object, byte[] buf, byte coder, int writeIndex, long options) {
+		int[] value = (int[]) object;
+		int writeLength = 2;
 		if (coder == FillerHelper.LATIN) {
 			buf[writeIndex++] = '[';
-			int[] ints = (int[]) object;
-			for (int i : ints) {
+			for (int i : value) {
 				int length = FillerHelper.size(i);
 				writeIndex += length;
+				writeLength += length;
 				FillerHelper.putLATIN(buf, writeIndex, i);
 				buf[writeIndex++] = ',';
 			}
-			if (ints.length > 0) {
+			if (value.length > 0) {
 				buf[--writeIndex] = ']';
+				writeLength += value.length - 1;
 			} else {
 				buf[writeIndex] = ']';
 			}
@@ -60,24 +63,25 @@ public class IArraySerializer extends BaseSerializer {
 			buf[index++] = IFiller.UTF16_BRACKET_L[0];
 			buf[index] = IFiller.UTF16_BRACKET_L[1];
 			writeIndex++;
-			int[] ints = (int[]) object;
-			for (int i : ints) {
+			for (int i : value) {
 				int length = FillerHelper.size(i);
 				writeIndex += length;
+				writeLength += length;
 				FillerHelper.putUTF16(buf, writeIndex, i);
 				index = writeIndex << 1;
 				buf[index++] = IFiller.UTF16_SPLIT[0];
 				buf[index] = IFiller.UTF16_SPLIT[1];
 				writeIndex++;
 			}
-			if (ints.length > 0) {
+			if (value.length > 0) {
 				index = (--writeIndex) << 1;
+				writeLength += value.length - 1;
 			} else {
 				index = writeIndex << 1;
 			}
 			buf[index++] = IFiller.UTF16_BRACKET_R[0];
 			buf[index] = IFiller.UTF16_BRACKET_R[1];
 		}
-		return buf.length;
+		return writeLength;
 	}
 }

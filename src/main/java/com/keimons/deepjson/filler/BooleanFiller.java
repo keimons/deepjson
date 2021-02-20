@@ -55,7 +55,7 @@ public class BooleanFiller extends BaseFiller {
 				code[writeIndex++] = 'a';
 				code[writeIndex++] = 'l';
 				code[writeIndex++] = 's';
-				code[writeIndex] = 'e';
+				code[writeIndex++] = 'e';
 				code[writeIndex] = ',';
 				return 5 + size;
 			}
@@ -84,7 +84,7 @@ public class BooleanFiller extends BaseFiller {
 				code[writeIndex++] = UTF16_FALSE[6];
 				code[writeIndex++] = UTF16_FALSE[7];
 				code[writeIndex++] = UTF16_FALSE[8];
-				code[writeIndex] = UTF16_FALSE[9];
+				code[writeIndex++] = UTF16_FALSE[9];
 				code[writeIndex++] = UTF16_SPLIT[0];
 				code[writeIndex] = UTF16_SPLIT[1];
 				return 5 + size;

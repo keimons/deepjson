@@ -24,8 +24,12 @@ public class IntegerArraySerializer extends BaseSerializer {
 		}
 		int length = 0;
 		Integer[] ints = (Integer[]) object;
-		for (int i : ints) {
-			length += FillerHelper.size(i);
+		for (Integer i : ints) {
+			if (i == null) {
+				length += 4; // null
+			} else {
+				length += FillerHelper.size(i);
+			}
 		}
 		if (ints.length > 0) {
 			length += ints.length - 1; // ","
@@ -41,17 +45,28 @@ public class IntegerArraySerializer extends BaseSerializer {
 
 	@Override
 	public int write(Object object, byte[] buf, byte coder, int writeIndex, long options) {
+		Integer[] value = (Integer[]) object;
+		int writeLength = 2;
 		if (coder == FillerHelper.LATIN) {
 			buf[writeIndex++] = '[';
-			Integer[] ints = (Integer[]) object;
-			for (int i : ints) {
-				int length = FillerHelper.size(i);
-				writeIndex += length;
-				FillerHelper.putLATIN(buf, writeIndex, i);
+			for (Integer i : value) {
+				if (i == null) {
+					buf[writeIndex++] = 'n';
+					buf[writeIndex++] = 'u';
+					buf[writeIndex++] = 'l';
+					buf[writeIndex++] = 'l';
+					writeLength += 4;
+				} else {
+					int length = FillerHelper.size(i);
+					writeIndex += length;
+					writeLength += length;
+					FillerHelper.putLATIN(buf, writeIndex, i);
+				}
 				buf[writeIndex++] = ',';
 			}
-			if (ints.length > 0) {
+			if (value.length > 0) {
 				buf[--writeIndex] = ']';
+				writeLength += value.length - 1;
 			} else {
 				buf[writeIndex] = ']';
 			}
@@ -60,24 +75,33 @@ public class IntegerArraySerializer extends BaseSerializer {
 			buf[index++] = IFiller.UTF16_BRACKET_L[0];
 			buf[index] = IFiller.UTF16_BRACKET_L[1];
 			writeIndex++;
-			Integer[] ints = (Integer[]) object;
-			for (Integer i : ints) {
-				int length = FillerHelper.size(i);
-				writeIndex += length;
-				FillerHelper.putUTF16(buf, writeIndex, i);
+			for (Integer i : value) {
+				if (i == null) {
+					FillerHelper.putChar2(buf, writeIndex++, 'n');
+					FillerHelper.putChar2(buf, writeIndex++, 'u');
+					FillerHelper.putChar2(buf, writeIndex++, 'l');
+					FillerHelper.putChar2(buf, writeIndex++, 'l');
+					writeLength += 4;
+				} else {
+					int length = FillerHelper.size(i);
+					writeIndex += length;
+					writeLength += length;
+					FillerHelper.putUTF16(buf, writeIndex, i);
+				}
 				index = writeIndex << 1;
 				buf[index++] = IFiller.UTF16_SPLIT[0];
 				buf[index] = IFiller.UTF16_SPLIT[1];
 				writeIndex++;
 			}
-			if (ints.length > 0) {
+			if (value.length > 0) {
 				index = (--writeIndex) << 1;
+				writeLength += value.length - 1;
 			} else {
 				index = writeIndex << 1;
 			}
 			buf[index++] = IFiller.UTF16_BRACKET_R[0];
 			buf[index] = IFiller.UTF16_BRACKET_R[1];
 		}
-		return buf.length;
+		return writeLength;
 	}
 }

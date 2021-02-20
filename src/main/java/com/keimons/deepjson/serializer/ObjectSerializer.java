@@ -58,6 +58,7 @@ public class ObjectSerializer extends BaseSerializer {
 
 	@Override
 	public int write(Object object, byte[] buf, byte coder, int writeIndex, long options) {
+		int writeLength = 2;
 		int index = writeIndex << coder;
 		if (coder == FillerHelper.LATIN) {
 			buf[index] = '{';
@@ -67,7 +68,9 @@ public class ObjectSerializer extends BaseSerializer {
 		}
 		writeIndex++;
 		for (IFiller filler : fillers) {
-			writeIndex += filler.concat(object, buf, coder, writeIndex, options);
+			int length = filler.concat(object, buf, coder, writeIndex, options);
+			writeIndex += length;
+			writeLength += length;
 		}
 		index = writeIndex - 1 << coder;
 		if (coder == FillerHelper.LATIN) {
@@ -76,8 +79,7 @@ public class ObjectSerializer extends BaseSerializer {
 			buf[index] = UTF16_R[0];
 			buf[++index] = UTF16_R[1];
 		}
-		writeIndex++;
-		return writeIndex;
+		return writeLength;
 	}
 
 	public void addLast(IFiller filler) {
