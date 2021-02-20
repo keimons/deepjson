@@ -20,7 +20,7 @@ public class NormalNode implements INode {
 
 	private double node8 = 1234.5678d;
 
-	private String node9 = "蒙奇";
+	private transient String node9 = "蒙奇";
 
 	private LinkNode node10 = new LinkNode();
 

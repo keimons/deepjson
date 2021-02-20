@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 
 public class FillerFactory {
 
-	public static IFiller create(Class<?> clazz, Field field) throws NoSuchFieldException, IllegalAccessException {
+	public static IFiller create(Class<?> clazz, Field field) throws NoSuchFieldException {
 		Class<?> type = field.getType();
 		if (type == byte.class || type == Byte.class) {
 			return new ByteFiller(clazz, field);

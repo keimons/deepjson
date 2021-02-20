@@ -5,6 +5,7 @@ import com.keimons.deepjson.filler.FillerHelper;
 import com.keimons.deepjson.filler.IFiller;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,18 +15,29 @@ public class ObjectSerializer extends BaseSerializer {
 
 	public ObjectSerializer(Class<?> clazz) {
 		try {
-			for (Field field : clazz.getFields()) {
-				try {
-					fillers.add(FillerFactory.create(clazz, field));
-				} catch (NoSuchFieldException | IllegalAccessException e) {
-					e.printStackTrace();
-				}
-			}
-			for (Field field : clazz.getDeclaredFields()) {
-				try {
-					fillers.add(FillerFactory.create(clazz, field));
-				} catch (NoSuchFieldException | IllegalAccessException e) {
-					e.printStackTrace();
+			List<Class<?>> classes = new ArrayList<>();
+			Class<?> current = clazz;
+			do {
+				classes.add(current);
+				current = current.getSuperclass();
+			} while (current != Object.class);
+
+			for (int i = classes.size() - 1; i >= 0; i--) {
+				// public default protected private fields
+				for (Field field : classes.get(i).getDeclaredFields()) {
+					// jump static field
+					if (Modifier.isStatic(field.getModifiers())) {
+						continue;
+					}
+					// jump transient field
+					if (Modifier.isTransient(field.getModifiers())) {
+						continue;
+					}
+					try {
+						fillers.add(FillerFactory.create(clazz, field));
+					} catch (NoSuchFieldException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		} catch (Throwable e) {

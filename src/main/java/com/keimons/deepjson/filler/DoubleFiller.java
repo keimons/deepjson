@@ -7,7 +7,7 @@ public class DoubleFiller extends BaseFiller {
 	long valueOffset;
 	long coderOffset;
 
-	public DoubleFiller(Class<?> clazz, Field field) throws NoSuchFieldException, IllegalAccessException {
+	public DoubleFiller(Class<?> clazz, Field field) throws NoSuchFieldException {
 		super(clazz, field);
 		valueOffset = unsafe.objectFieldOffset(String.class.getDeclaredField("value"));
 		coderOffset = unsafe.objectFieldOffset(String.class.getDeclaredField("coder"));

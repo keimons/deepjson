@@ -1,9 +1,9 @@
 package com.keimons.deepjson.test.normal;
 
 import com.alibaba.fastjson.JSONObject;
+import com.google.gson.Gson;
 import com.keimons.deepjson.DeepJson;
 import com.keimons.deepjson.SerializerOptions;
-import com.keimons.deepjson.test.BoolNode;
 import com.keimons.deepjson.test.INode;
 import org.junit.jupiter.api.Test;
 
@@ -22,7 +22,8 @@ public class NormalTest {
 		Integer[] integers = new Integer[10];
 		integers[5] = 0;
 		System.out.println(JSONObject.toJSONString(integers));
-		System.out.println(DeepJson.toJsonString(new BoolNode()));
+		System.out.println(DeepJson.toJsonString(integers));
+		System.out.println(new Gson().toJson(integers));
 		System.out.println(DeepJson.toJsonString(node, SerializerOptions.IgnoreNonField));
 		System.out.println(JSONObject.toJSONString(node));
 	}
