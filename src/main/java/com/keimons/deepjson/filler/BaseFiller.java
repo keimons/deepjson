@@ -16,6 +16,10 @@ public abstract class BaseFiller implements IFiller {
 
 	protected byte[] value1;
 
+	protected byte[] utf16Key;
+
+	protected byte[] latinKey;
+
 	/**
 	 * 字段偏移地址
 	 */
@@ -81,5 +85,20 @@ public abstract class BaseFiller implements IFiller {
 	@Override
 	public byte coder(Object object, long options) {
 		return FillerHelper.COMPACT_STRINGS ? coder : FillerHelper.UTF16;
+	}
+
+	@Override
+	public byte[] getFieldNameByUtf16() {
+		return utf16Key;
+	}
+
+	@Override
+	public byte[] getFieldNameByLatin() {
+		return latinKey;
+	}
+
+	@Override
+	public int size() {
+		return size;
 	}
 }

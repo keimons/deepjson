@@ -12,17 +12,22 @@ public enum SerializerOptions {
 	/**
 	 * (序列化/反序列化)忽略空字段
 	 */
-	IgnoreNonField(1 << 0),
+	IgnoreNonField,
+
+	/**
+	 * 包含类名
+	 */
+	IncludeClassName,
 
 	/**
 	 * (反序列化)忽略final字段
 	 */
-	IncludeFinalField(1 << 1);
+	IncludeFinalField;
 
 	long optional;
 
-	SerializerOptions(long optional) {
-		this.optional = optional;
+	SerializerOptions() {
+		this.optional = 1L << ordinal();
 	}
 
 	public static long getOptions(SerializerOptions... options) {

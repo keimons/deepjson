@@ -6,7 +6,7 @@ import sun.misc.Unsafe;
 /**
  * 填充数据
  */
-public interface IFiller {
+public interface IFiller extends IFieldName {
 
 	/**
 	 * 逗号

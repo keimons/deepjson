@@ -37,6 +37,10 @@ public class FillerHelper {
 
 	public static final byte UTF16 = 1;
 
+	public static final long VALUE_OFFSET_STRING;
+
+	public static final long CODER_OFFSET_STRING;
+
 	/**
 	 * 是否开启字符串压缩
 	 */
@@ -78,14 +82,20 @@ public class FillerHelper {
 		HI_BYTE_SHIFT = hi_byte_shift;
 		LO_BYTE_SHIFT = lo_byte_shift;
 		boolean compact_strings = true;
+		long value_offset_string = 0;
+		long coder_offset_string = 0;
 		try {
 			Field compactStrings = String.class.getDeclaredField("COMPACT_STRINGS");
 			long offset = unsafe.staticFieldOffset(compactStrings);
 			compact_strings = unsafe.getBoolean(String.class, offset);
+			value_offset_string = unsafe.objectFieldOffset(String.class.getDeclaredField("value"));
+			coder_offset_string = unsafe.objectFieldOffset(String.class.getDeclaredField("coder"));
 		} catch (NoSuchFieldException e) {
 			e.printStackTrace();
 		}
 		COMPACT_STRINGS = compact_strings;
+		VALUE_OFFSET_STRING = value_offset_string;
+		CODER_OFFSET_STRING = coder_offset_string;
 	}
 
 	public static int size(int j) {
