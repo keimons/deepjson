@@ -1,7 +1,6 @@
 package com.keimons.deepjson.serializer;
 
 import com.keimons.deepjson.filler.FillerFactory;
-import com.keimons.deepjson.filler.FillerHelper;
 import com.keimons.deepjson.filler.IFiller;
 
 import java.lang.reflect.Field;
@@ -50,9 +49,12 @@ public class ObjectSerializer extends BaseSerializer {
 		if (object == null) {
 			return 0;
 		}
-		int length = 2;
+		int length = 1;
 		for (IFiller filler : fillers) {
 			length += filler.length(object, options);
+		}
+		if (length == 1) {
+			length++;
 		}
 		return length;
 	}
@@ -69,28 +71,14 @@ public class ObjectSerializer extends BaseSerializer {
 	}
 
 	@Override
-	public int write(Object object, byte[] buf, byte coder, int writeIndex, long options) {
-		int writeLength = 2;
-		int index = writeIndex << coder;
-		if (coder == FillerHelper.LATIN) {
-			buf[index] = '{';
-		} else {
-			buf[index] = UTF16_L[0];
-			buf[++index] = UTF16_L[1];
-		}
-		writeIndex++;
+	public int write(Object object, ByteBuf buf) {
+		int writeLength = 0;
+		writeLength += buf.writeStartObject();
+		int markIndex = buf.getWriteIndex();
 		for (IFiller filler : fillers) {
-			int length = filler.concat(object, buf, coder, writeIndex, options);
-			writeIndex += length;
-			writeLength += length;
+			writeLength += filler.concat(object, buf);
 		}
-		index = writeIndex - 1 << coder;
-		if (coder == FillerHelper.LATIN) {
-			buf[index] = '}';
-		} else {
-			buf[index] = UTF16_R[0];
-			buf[++index] = UTF16_R[1];
-		}
+		writeLength += buf.writeEndObject(markIndex != buf.getWriteIndex());
 		return writeLength;
 	}
 

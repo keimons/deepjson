@@ -1,16 +1,13 @@
 package com.keimons.deepjson.filler;
 
+import com.keimons.deepjson.serializer.ByteBuf;
+
 import java.lang.reflect.Field;
 
 public class DoubleFiller extends BaseFiller {
 
-	long valueOffset;
-	long coderOffset;
-
-	public DoubleFiller(Class<?> clazz, Field field) throws NoSuchFieldException {
+	public DoubleFiller(Class<?> clazz, Field field) {
 		super(clazz, field);
-		valueOffset = unsafe.objectFieldOffset(String.class.getDeclaredField("value"));
-		coderOffset = unsafe.objectFieldOffset(String.class.getDeclaredField("coder"));
 	}
 
 	@Override
@@ -19,38 +16,8 @@ public class DoubleFiller extends BaseFiller {
 	}
 
 	@Override
-	public int concat(Object object, byte[] code, byte coder, int writeIndex, long options) {
-		String value = String.valueOf(unsafe.getDouble(object, offset));
-		byte[] bytes = (byte[]) unsafe.getObject(value, valueOffset);
-		if (coder == FillerHelper.LATIN) {
-			System.arraycopy(value0, 0, code, writeIndex, sizeL);
-			writeIndex += sizeL;
-			int length = bytes.length;
-			System.arraycopy(bytes, 0, code, writeIndex, length);
-			writeIndex += length;
-			code[writeIndex] = ',';
-		} else {
-			System.arraycopy(value1, 0, code, writeIndex << coder, sizeL << coder);
-			writeIndex += sizeL;
-
-			byte valueCoder = unsafe.getByte(value, coderOffset);
-			if (valueCoder == FillerHelper.LATIN) {
-				writeIndex <<= 1;
-				for (int i = 0; i < bytes.length; i++) {
-					byte b = bytes[i];
-					code[writeIndex++] = (byte) (b >> FillerHelper.HI_BYTE_SHIFT);
-					code[writeIndex++] = (byte) (b >> FillerHelper.LO_BYTE_SHIFT);
-				}
-				code[writeIndex++] = UTF16_SPLIT[0];
-				code[writeIndex] = UTF16_SPLIT[1];
-			} else {
-				System.arraycopy(bytes, 0, code, writeIndex << 1, bytes.length);
-				writeIndex += value.length();
-				writeIndex <<= 1;
-				code[writeIndex++] = UTF16_SPLIT[0];
-				code[writeIndex] = UTF16_SPLIT[1];
-			}
-		}
-		return size + value.length();
+	public int concat(Object object, ByteBuf buf) {
+		double value = unsafe.getDouble(object, offset);
+		return buf.writeStringWithNoMark(this, String.valueOf(value));
 	}
 }

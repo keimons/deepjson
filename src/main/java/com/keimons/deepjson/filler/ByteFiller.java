@@ -1,5 +1,7 @@
 package com.keimons.deepjson.filler;
 
+import com.keimons.deepjson.serializer.ByteBuf;
+
 import java.lang.reflect.Field;
 
 public class ByteFiller extends BaseFiller {
@@ -14,8 +16,8 @@ public class ByteFiller extends BaseFiller {
 	}
 
 	@Override
-	public int concat(Object object, byte[] code, byte coder, int writeIndex, long options) {
+	public int concat(Object object, ByteBuf buf) {
 		byte value = unsafe.getByte(object, offset);
-		return concat(code, coder, writeIndex, value);
+		return buf.writeInt(this, value);
 	}
 }

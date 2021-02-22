@@ -46,10 +46,10 @@ public abstract class BaseSerializer implements ISerializer {
 	@Override
 	public String write(Object object, SerializerOptions... options) {
 		long option = SerializerOptions.getOptions(options);
-		int size = length(object, option);
+		int capacity = length(object, option);
 		byte coder = coder(object, option);
-		byte[] value = new byte[size << coder];
-		write(object, value, coder, 0, option);
-		return newString(value, coder);
+		ByteBuf buf = ByteBuf.buffer(option, capacity, coder);
+		write(object, buf);
+		return buf.newString();
 	}
 }

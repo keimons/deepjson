@@ -1,6 +1,7 @@
 package com.keimons.deepjson.filler;
 
 import com.keimons.deepjson.UnsafeUtil;
+import com.keimons.deepjson.serializer.ByteBuf;
 import sun.misc.Unsafe;
 
 /**
@@ -48,5 +49,5 @@ public interface IFiller extends IFieldName {
 
 	int length(Object object, long options);
 
-	int concat(Object object, byte[] code, byte coder, int writeIndex, long options);
+	int concat(Object object, ByteBuf buf);
 }

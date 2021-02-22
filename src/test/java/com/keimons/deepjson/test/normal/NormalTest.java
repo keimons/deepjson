@@ -1,31 +1,44 @@
 package com.keimons.deepjson.test.normal;
 
 import com.alibaba.fastjson.JSONObject;
-import com.google.gson.Gson;
 import com.keimons.deepjson.DeepJson;
 import com.keimons.deepjson.SerializerOptions;
+import com.keimons.deepjson.UnsafeUtil;
 import com.keimons.deepjson.test.INode;
 import org.junit.jupiter.api.Test;
+import sun.misc.Unsafe;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 // -verbose:gc -Xms8192m -Xmx8192m
 public class NormalTest {
 
-	int times = 100_0000;
+	Unsafe unsafe = UnsafeUtil.getUnsafe();
+
+	long offset;
+
+	{
+		try {
+			offset = unsafe.objectFieldOffset(String.class.getDeclaredField("value"));
+		} catch (NoSuchFieldException e) {
+			e.printStackTrace();
+		}
+	}
+
+	int times = 1000_0000;
 
 	INode node = new NormalNode();
 
 	@Test
 	public void test() {
-		Integer[] integers = new Integer[10];
-		integers[5] = 0;
-		System.out.println(JSONObject.toJSONString(integers));
-		System.out.println(DeepJson.toJsonString(integers));
-		System.out.println(new Gson().toJson(integers));
+		String json = JSONObject.toJSONString(node);
+		System.out.println(json);
+		byte[] object = (byte[]) unsafe.getObject(json, offset);
+		System.out.println(object.length);
+		System.out.println(Arrays.toString(object));
 		System.out.println(DeepJson.toJsonString(node, SerializerOptions.IgnoreNonField));
-		System.out.println(JSONObject.toJSONString(node));
 	}
 
 	@Test
@@ -34,13 +47,16 @@ public class NormalTest {
 		System.out.println(JSONObject.toJSONString(node));
 		DeepJson.toJsonString(node);
 		JSONObject.toJSONString(node);
-		List<String> list = new ArrayList<>(times);
-		long fastStart = System.nanoTime();
-		for (int i = 0; i < times; i++) {
-			list.add(JSONObject.toJSONString(node));
+
+		for (int j = 0; j < 10; j++) {
+			List<String> list = new ArrayList<>(times);
+			long fastStart = System.nanoTime();
+			for (int i = 0; i < times; i++) {
+				list.add(JSONObject.toJSONString(node));
+			}
+			long fastTime = System.nanoTime() - fastStart;
+			System.out.println("fast json using time: " + fastTime / 1000000f);
 		}
-		long fastTime = System.nanoTime() - fastStart;
-		System.out.println("fast json using time: " + fastTime / 1000000f);
 	}
 
 	@Test
@@ -50,13 +66,14 @@ public class NormalTest {
 		DeepJson.toJsonString(node);
 		JSONObject.toJSONString(node);
 
-		List<String> list = new ArrayList<>(times);
-		long deepStart = System.nanoTime();
-		for (int i = 0; i < times; i++) {
-			list.add(DeepJson.toJsonString(node));
+		for (int j = 0; j < 10; j++) {
+			List<String> list = new ArrayList<>(times);
+			long deepStart = System.nanoTime();
+			for (int i = 0; i < times; i++) {
+				list.add(DeepJson.toJsonString(node));
+			}
+			long deepTime = System.nanoTime() - deepStart;
+			System.out.println("deep json using time: " + deepTime / 1000000f);
 		}
-		long deepTime = System.nanoTime() - deepStart;
-
-		System.out.println("deep json using time: " + deepTime / 1000000f);
 	}
 }

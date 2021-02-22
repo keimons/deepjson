@@ -2,7 +2,6 @@ package com.keimons.deepjson.serializer;
 
 import com.keimons.deepjson.SerializerOptions;
 import com.keimons.deepjson.filler.FillerHelper;
-import com.keimons.deepjson.filler.IFiller;
 
 /**
  * 适用int[]的序列化方案
@@ -40,48 +39,52 @@ public class IArraySerializer extends BaseSerializer {
 	}
 
 	@Override
-	public int write(Object object, byte[] buf, byte coder, int writeIndex, long options) {
+	public int write(Object object, ByteBuf buf) {
 		int[] value = (int[]) object;
 		int writeLength = 2;
-		if (coder == FillerHelper.LATIN) {
-			buf[writeIndex++] = '[';
-			for (int i : value) {
-				int length = FillerHelper.size(i);
-				writeIndex += length;
-				writeLength += length;
-				FillerHelper.putLATIN(buf, writeIndex, i);
-				buf[writeIndex++] = ',';
-			}
-			if (value.length > 0) {
-				buf[--writeIndex] = ']';
-				writeLength += value.length - 1;
-			} else {
-				buf[writeIndex] = ']';
-			}
-		} else {
-			int index = writeIndex << 1;
-			buf[index++] = IFiller.UTF16_BRACKET_L[0];
-			buf[index] = IFiller.UTF16_BRACKET_L[1];
-			writeIndex++;
-			for (int i : value) {
-				int length = FillerHelper.size(i);
-				writeIndex += length;
-				writeLength += length;
-				FillerHelper.putUTF16(buf, writeIndex, i);
-				index = writeIndex << 1;
-				buf[index++] = IFiller.UTF16_SPLIT[0];
-				buf[index] = IFiller.UTF16_SPLIT[1];
-				writeIndex++;
-			}
-			if (value.length > 0) {
-				index = (--writeIndex) << 1;
-				writeLength += value.length - 1;
-			} else {
-				index = writeIndex << 1;
-			}
-			buf[index++] = IFiller.UTF16_BRACKET_R[0];
-			buf[index] = IFiller.UTF16_BRACKET_R[1];
-		}
+		buf.writeStartArray();
+//		int markIndex = buf.getWriteIndex();
+//		buf.writeInts();
+//		buf.writeEndArray();
+//		if (coder == FillerHelper.LATIN) {
+//			buf[writeIndex++] = '[';
+//			for (int i : value) {
+//				int length = FillerHelper.size(i);
+//				writeIndex += length;
+//				writeLength += length;
+//				FillerHelper.putLATIN(buf, writeIndex, i);
+//				buf[writeIndex++] = ',';
+//			}
+//			if (value.length > 0) {
+//				buf[--writeIndex] = ']';
+//				writeLength += value.length - 1;
+//			} else {
+//				buf[writeIndex] = ']';
+//			}
+//		} else {
+//			int index = writeIndex << 1;
+//			buf[index++] = IFiller.UTF16_BRACKET_L[0];
+//			buf[index] = IFiller.UTF16_BRACKET_L[1];
+//			writeIndex++;
+//			for (int i : value) {
+//				int length = FillerHelper.size(i);
+//				writeIndex += length;
+//				writeLength += length;
+//				FillerHelper.putUTF16(buf, writeIndex, i);
+//				index = writeIndex << 1;
+//				buf[index++] = IFiller.UTF16_SPLIT[0];
+//				buf[index] = IFiller.UTF16_SPLIT[1];
+//				writeIndex++;
+//			}
+//			if (value.length > 0) {
+//				index = (--writeIndex) << 1;
+//				writeLength += value.length - 1;
+//			} else {
+//				index = writeIndex << 1;
+//			}
+//			buf[index++] = IFiller.UTF16_BRACKET_R[0];
+//			buf[index] = IFiller.UTF16_BRACKET_R[1];
+//		}
 		return writeLength;
 	}
 }

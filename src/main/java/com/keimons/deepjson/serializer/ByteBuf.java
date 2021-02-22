@@ -10,32 +10,12 @@ public class ByteBuf {
 
 	private static final Unsafe unsafe = UnsafeUtil.getUnsafe();
 
-	private static final byte HI_BYTE_L_BRACES = (byte) ('{' << FillerHelper.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_L_BRACES = (byte) ('{' << FillerHelper.LO_BYTE_SHIFT);
-
-	private static final byte HI_BYTE_R_BRACES = (byte) ('}' << FillerHelper.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_R_BRACES = (byte) ('}' << FillerHelper.LO_BYTE_SHIFT);
-
-	private static final byte HI_BYTE_L_BRACKET = (byte) ('[' << FillerHelper.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_L_BRACKET = (byte) ('[' << FillerHelper.LO_BYTE_SHIFT);
-
-	private static final byte HI_BYTE_R_BRACKET = (byte) (']' << FillerHelper.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_R_BRACKET = (byte) (']' << FillerHelper.LO_BYTE_SHIFT);
-
-	private static final byte HI_BYTE_E = (byte) ('e' << FillerHelper.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_E = (byte) ('e' << FillerHelper.LO_BYTE_SHIFT);
-	private static final byte HI_BYTE_L = (byte) ('l' << FillerHelper.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_L = (byte) ('l' << FillerHelper.LO_BYTE_SHIFT);
-	private static final byte HI_BYTE_N = (byte) ('n' << FillerHelper.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_N = (byte) ('n' << FillerHelper.LO_BYTE_SHIFT);
-	private static final byte HI_BYTE_R = (byte) ('r' << FillerHelper.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_R = (byte) ('r' << FillerHelper.LO_BYTE_SHIFT);
-	private static final byte HI_BYTE_T = (byte) ('t' << FillerHelper.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_T = (byte) ('t' << FillerHelper.LO_BYTE_SHIFT);
-	private static final byte HI_BYTE_U = (byte) ('u' << FillerHelper.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_U = (byte) ('u' << FillerHelper.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_MARK1 = (byte) (',' << FillerHelper.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_MARK1 = (byte) (',' << FillerHelper.LO_BYTE_SHIFT);
 
 	private final long options;
+
+	private IWriter<byte[]> writer;
 
 	private byte[] buf;
 
@@ -47,70 +27,116 @@ public class ByteBuf {
 		this.buf = new byte[capacity << coder];
 		this.options = options;
 		this.coder = coder;
+		if (coder == FillerHelper.LATIN) {
+			writer = new WriterLatin();
+		} else {
+			writer = new WriterUtf16();
+		}
+	}
+
+	public int writeBoolean(IFieldName field, boolean value) {
+		int writable = field.size() + (value ? 4 : 5);
+		ensureWritable(writable);
+		this.writeIndex += writer.writeField(buf, options, writeIndex, field);
+		this.writeIndex += writer.writeBoolean(buf, options, writeIndex, value);
+		return writable;
+	}
+
+	public int writeChar(IFieldName field, char value) {
+		int writable = field.size() + 3;
+		ensureWritable(writable);
+		ensureCoder((byte) (coder | (value >>> 8 == 0 ? FillerHelper.LATIN : FillerHelper.UTF16)));
+		this.writeIndex += writer.writeField(buf, options, writeIndex, field);
+		this.writeIndex += writer.writeChar(buf, options, writeIndex, value);
+		return writable;
 	}
 
 	public int writeInt(IFieldName field, int value) {
 		int length = FillerHelper.size(value);
 		int writable = field.size() + length;
 		ensureWritable(writable);
-		if (coder == FillerHelper.LATIN) {
+		if (coder == 0) {
 			for (byte b : field.getFieldNameByLatin()) {
 				buf[writeIndex++] = b;
 			}
-			writeIndex += length;
+			this.writeIndex += length;
 			FillerHelper.putLATIN(buf, writeIndex, value);
-			if (SerializerOptions.IncludeClassName.isOptions(options)) {
-				buf[writeIndex++] = 'I';
-			}
-			buf[writeIndex] = ',';
+			buf[writeIndex++] = ',';
 		} else {
-			for (int i = 0; i < field.getFieldNameByUtf16().length; i++) {
-
-			}
-			for (byte b : field.getFieldNameByLatin()) {
+			int writeIndex = this.writeIndex << 1;
+			byte[] bytes = field.getFieldNameByLatin();
+			for (byte b : bytes) {
 				buf[writeIndex++] = b;
 			}
-			writeIndex += length;
-			FillerHelper.putUTF16(buf, writeIndex, value);
-			buf[writeIndex++] = HI_BYTE_L_BRACES;
-			buf[writeIndex] = LO_BYTE_L_BRACES;
+			this.writeIndex += bytes.length >> 1;
+			this.writeIndex += length;
+			FillerHelper.putUTF16(buf, this.writeIndex, value);
+			writeIndex <<= 1;
+			buf[writeIndex++] = HI_BYTE_MARK1;
+			buf[writeIndex] = LO_BYTE_MARK1;
+			this.writeIndex++;
 		}
+//		this.writeIndex += writer.writeField(buf, options, writeIndex, field);
+//		this.writeIndex += length;
+//		this.writeIndex += writer.writeInt(buf, options, writeIndex, value);
 		return writable;
 	}
 
-	public int writeNumber(IFieldName filler, Number object) {
-		long value = object.longValue();
+	public int writeLong(IFieldName field, long value) {
 		int length = FillerHelper.size(value);
-		int writable = filler.size() + length;
+		int writable = field.size() + length;
 		ensureWritable(writable);
-		if (coder == FillerHelper.LATIN) {
-			for (byte b : filler.getFieldNameByLatin()) {
-				buf[writeIndex++] = b;
-			}
-			writeIndex += length;
-			FillerHelper.putLATIN(buf, writeIndex, value);
-			if (SerializerOptions.IncludeClassName.isOptions(options)) {
-				buf[writeIndex++] = 'L';
-			}
-			buf[writeIndex] = ',';
-		} else {
-			FillerHelper.putUTF16(buf, writeIndex, value);
-			buf[writeIndex++] = HI_BYTE_L_BRACES;
-			buf[writeIndex] = LO_BYTE_L_BRACES;
-		}
+		this.writeIndex += writer.writeField(buf, options, writeIndex, field);
+		this.writeIndex += length;
+		this.writeIndex += writer.writeLong(buf, options, writeIndex, value);
 		return writable;
+	}
+
+	public int writeStringWithNoMark(IFieldName field, String value) {
+		int writable = field.size() + value.length();
+		ensureWritable(writable);
+		this.writeIndex += writer.writeField(buf, options, writeIndex, field);
+		this.writeIndex += writer.writeString(buf, options, writeIndex, value);
+		return writable;
+	}
+
+	public int writeDouble(IFieldName field, double value) {
+		String s = String.valueOf(value);
+		int writable = field.size() + s.length();
+		ensureWritable(writable);
+		this.writeIndex += writer.writeField(buf, options, writeIndex, field);
+		this.writeIndex += writer.writeString(buf, options, writeIndex, s);
+		return writable;
+	}
+
+	public int writeString(IFieldName field, String value) {
+		int writable = field.size() + value.length() + 2;
+		ensureWritable(writable);
+		ensureCoder(unsafe.getByte(value, FillerHelper.CODER_OFFSET_STRING));
+		this.writeIndex += writer.writeField(buf, options, writeIndex, field);
+		this.writeIndex += writer.writeStringWithMark(buf, options, writeIndex, value);
+		return writable;
+	}
+
+	public int writeObject(IFieldName field, Object value) {
+		int writable = field.size();
+		ensureWritable(writable);
+		this.writeIndex += writer.writeField(buf, options, writeIndex, field);
+
+		ISerializer writer = SerializerFactory.getWriter(value.getClass());
+		int write = writer.write(value, this);
+
+		this.writeIndex += this.writer.writeMark(buf, options, writeIndex);
+		return writable + write;
+	}
+
+	public int writeInts(int[] value) {
+		return writer.writeInts(buf, options, writeIndex, value);
 	}
 
 	public int writeStartObject() {
 		ensureWritable(1);
-		int writeIndex = (this.writeIndex << coder) - 1; // 强迫症害死人，抖个机灵算了
-		if (coder == FillerHelper.LATIN) {
-			buf[++writeIndex] = '{';
-		} else {
-			buf[++writeIndex] = HI_BYTE_L_BRACES;
-			buf[++writeIndex] = LO_BYTE_L_BRACES;
-		}
-		this.writeIndex += 1;
+		this.writeIndex += writer.writeStartObject(buf, options, writeIndex);
 		return 1;
 	}
 
@@ -126,27 +152,13 @@ public class ByteBuf {
 		} else {
 			ensureWritable(1);
 		}
-		int writeIndex = (this.writeIndex << coder) - 1; // 强迫症害死人，抖个机灵算了
-		if (coder == FillerHelper.LATIN) {
-			buf[++writeIndex] = '}';
-		} else {
-			buf[++writeIndex] = HI_BYTE_R_BRACES;
-			buf[++writeIndex] = LO_BYTE_R_BRACES;
-		}
-		this.writeIndex += 1;
+		this.writeIndex += writer.writeEndObject(buf, options, writeIndex);
 		return override ? 0 : 1;
 	}
 
 	public int writeStartArray() {
 		ensureWritable(1);
-		int writeIndex = (this.writeIndex << coder) - 1; // 强迫症害死人，抖个机灵算了
-		if (coder == FillerHelper.LATIN) {
-			buf[++writeIndex] = '[';
-		} else {
-			buf[++writeIndex] = HI_BYTE_L_BRACKET;
-			buf[++writeIndex] = LO_BYTE_L_BRACKET;
-		}
-		this.writeIndex += 1;
+		this.writeIndex += writer.writeStartArray(buf, options, writeIndex);
 		return 1;
 	}
 
@@ -162,14 +174,7 @@ public class ByteBuf {
 		} else {
 			ensureWritable(1);
 		}
-		int writeIndex = (this.writeIndex << coder) - 1; // 强迫症害死人，抖个机灵算了
-		if (coder == FillerHelper.LATIN) {
-			buf[++writeIndex] = ']';
-		} else {
-			buf[++writeIndex] = HI_BYTE_R_BRACKET;
-			buf[++writeIndex] = LO_BYTE_R_BRACKET;
-		}
-		this.writeIndex += 1;
+		this.writeIndex += writer.writeEndArray(buf, options, writeIndex);
 		return override ? 0 : 1;
 	}
 
@@ -219,25 +224,13 @@ public class ByteBuf {
 //	}
 
 	public int writeNull() {
-		ensureWritable(4);
-		int writeIndex = (this.writeIndex << coder) - 1; // 强迫症害死人，抖个机灵算了
-		if (coder == FillerHelper.LATIN) {
-			buf[++writeIndex] = 'n';
-			buf[++writeIndex] = 'u';
-			buf[++writeIndex] = 'l';
-			buf[++writeIndex] = 'l';
+		if (SerializerOptions.IgnoreNonField.isOptions(options)) {
+			ensureWritable(5);
+			this.writeIndex += writer.writeNull(buf, options, writeIndex);
+			return 5;
 		} else {
-			buf[++writeIndex] = HI_BYTE_N;
-			buf[++writeIndex] = LO_BYTE_N;
-			buf[++writeIndex] = HI_BYTE_U;
-			buf[++writeIndex] = LO_BYTE_U;
-			buf[++writeIndex] = HI_BYTE_L;
-			buf[++writeIndex] = LO_BYTE_L;
-			buf[++writeIndex] = HI_BYTE_L;
-			buf[++writeIndex] = LO_BYTE_L;
+			return 0;
 		}
-		this.writeIndex += 4;
-		return 4;
 	}
 
 	/**
@@ -282,8 +275,43 @@ public class ByteBuf {
 		buf = newBuf;
 	}
 
-	@Override
-	public String toString() {
+	public long getOptions() {
+		return options;
+	}
+
+	public IWriter<byte[]> getWriter() {
+		return writer;
+	}
+
+	public void setWriter(IWriter<byte[]> writer) {
+		this.writer = writer;
+	}
+
+	public byte[] getBuf() {
+		return buf;
+	}
+
+	public void setBuf(byte[] buf) {
+		this.buf = buf;
+	}
+
+	public byte getCoder() {
+		return coder;
+	}
+
+	public void setCoder(byte coder) {
+		this.coder = coder;
+	}
+
+	public int getWriteIndex() {
+		return writeIndex;
+	}
+
+	public void setWriteIndex(int writeIndex) {
+		this.writeIndex = writeIndex;
+	}
+
+	public String newString() {
 		try {
 			String str = (String) unsafe.allocateInstance(String.class);
 			unsafe.putObject(str, FillerHelper.VALUE_OFFSET_STRING, buf);

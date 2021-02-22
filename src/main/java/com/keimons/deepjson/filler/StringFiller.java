@@ -1,5 +1,7 @@
 package com.keimons.deepjson.filler;
 
+import com.keimons.deepjson.serializer.ByteBuf;
+
 import java.lang.reflect.Field;
 
 public class StringFiller extends BaseFiller {
@@ -45,47 +47,8 @@ public class StringFiller extends BaseFiller {
 	}
 
 	@Override
-	public int concat(Object object, byte[] code, byte coder, int writeIndex, long options) {
+	public int concat(Object object, ByteBuf buf) {
 		String value = (String) unsafe.getObject(object, offset);
-		byte[] bytes = (byte[]) unsafe.getObject(value, OFFSET_VALUE);
-		if (coder == FillerHelper.LATIN) {
-			System.arraycopy(value0, 0, code, writeIndex, sizeL);
-			writeIndex += sizeL;
-			code[writeIndex++] = '"';
-			System.arraycopy(bytes, 0, code, writeIndex, bytes.length);
-			writeIndex += bytes.length;
-			code[writeIndex++] = '"';
-			code[writeIndex] = ',';
-		} else {
-			// 写入key
-			System.arraycopy(value1, 0, code, writeIndex << coder, sizeL << coder);
-			writeIndex += sizeL;
-			int index = writeIndex << 1;
-			code[index++] = UTF16_QUOTATION[0];
-			code[index] = UTF16_QUOTATION[1];
-			writeIndex++;
-			byte valueCoder = unsafe.getByte(value, OFFSET_CODER);
-			if (valueCoder == FillerHelper.LATIN) {
-				writeIndex <<= 1;
-				for (int i = 0; i < bytes.length; i++) {
-					byte b = bytes[i];
-					code[writeIndex++] = (byte) (b >> FillerHelper.HI_BYTE_SHIFT);
-					code[writeIndex++] = (byte) (b >> FillerHelper.LO_BYTE_SHIFT);
-				}
-				code[writeIndex++] = UTF16_QUOTATION[0];
-				code[writeIndex++] = UTF16_QUOTATION[1];
-				code[writeIndex++] = UTF16_SPLIT[0];
-				code[writeIndex] = UTF16_SPLIT[1];
-			} else {
-				System.arraycopy(bytes, 0, code, writeIndex << coder, bytes.length);
-				writeIndex += value.length();
-				writeIndex <<= 1;
-				code[writeIndex++] = UTF16_QUOTATION[0];
-				code[writeIndex++] = UTF16_QUOTATION[1];
-				code[writeIndex++] = UTF16_SPLIT[0];
-				code[writeIndex] = UTF16_SPLIT[1];
-			}
-		}
-		return value.length() + 2 + size;
+		return buf.writeString(this, value);
 	}
 }

@@ -1,13 +1,13 @@
 package com.keimons.deepjson.filler;
 
+import com.keimons.deepjson.serializer.ByteBuf;
+
 import java.lang.reflect.Field;
 
 public class CharFiller extends BaseFiller {
 
 	public CharFiller(Class<?> clazz, Field field) {
 		super(clazz, field);
-		String key = "\"" + field.getName() + "\":\"";
-		initKey(key);
 	}
 
 	@Override
@@ -22,28 +22,12 @@ public class CharFiller extends BaseFiller {
 
 	@Override
 	public int length(Object object, long options) {
-		return 2 + size;
+		return 3 + size;
 	}
 
 	@Override
-	public int concat(Object object, byte[] code, byte coder, int writeIndex, long options) {
+	public int concat(Object object, ByteBuf buf) {
 		char value = unsafe.getChar(object, offset);
-		if (coder == FillerHelper.LATIN) {
-			System.arraycopy(value0, 0, code, writeIndex, sizeL);
-			writeIndex += sizeL;
-			FillerHelper.putChar1(code, writeIndex++, value);
-			code[writeIndex++] = '"';
-			code[writeIndex] = ',';
-		} else {
-			System.arraycopy(value1, 0, code, writeIndex << coder, sizeL << coder);
-			writeIndex += sizeL;
-			FillerHelper.putChar2(code, writeIndex++, value);
-			writeIndex <<= 1;
-			code[writeIndex++] = UTF16_QUOTATION[0];
-			code[writeIndex++] = UTF16_QUOTATION[1];
-			code[writeIndex++] = UTF16_SPLIT[0];
-			code[writeIndex] = UTF16_SPLIT[1];
-		}
-		return 2 + size;
+		return buf.writeChar(this, value);
 	}
 }

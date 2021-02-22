@@ -34,12 +34,9 @@ public interface ISerializer {
 	/**
 	 * 连接字符串
 	 *
-	 * @param object     对象
-	 * @param buf        新的字节码
-	 * @param coder      编码方式
-	 * @param writeIndex 写入位置
-	 * @param options    序列化选项
+	 * @param object 对象
+	 * @param buf    新的字节码
 	 * @return 写入的byte数量
 	 */
-	int write(Object object, byte[] buf, byte coder, int writeIndex, long options);
+	int write(Object object, ByteBuf buf);
 }
