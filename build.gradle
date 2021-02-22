@@ -23,6 +23,7 @@ dependencies {
 }
 
 test {
+    jvmArgs "-verbose:gc -Xms8192m -Xmx8192m"
     useJUnitPlatform()
 }
 

@@ -108,10 +108,10 @@ class WriterUtf16 implements IWriter<byte[]> {
 	@Override
 	public int writeField(byte[] buf, long options, int writeIndex, IFieldName filler) {
 		writeIndex <<= 1;
-		for (byte b : filler.getFieldNameByLatin()) {
+		for (byte b : filler.getFieldNameByUtf16()) {
 			buf[writeIndex++] = b;
 		}
-		return filler.size();
+		return filler.size() - 1;
 	}
 
 	@Override
@@ -170,8 +170,8 @@ class WriterUtf16 implements IWriter<byte[]> {
 	public int writeLong(byte[] buf, long options, int writeIndex, long value) {
 		FillerHelper.putUTF16(buf, writeIndex, value);
 		writeIndex <<= 1;
-		buf[writeIndex++] = HI_BYTE_L_BRACES;
-		buf[writeIndex] = LO_BYTE_L_BRACES;
+		buf[writeIndex++] = HI_BYTE_MARK1;
+		buf[writeIndex] = LO_BYTE_MARK1;
 		return 1;
 	}
 

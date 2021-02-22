@@ -1,4 +1,4 @@
-package com.keimons.deepjson.test.normal;
+package com.keimons.deepjson.serializer;
 
 /**
  * 测试节点

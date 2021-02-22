@@ -70,16 +70,19 @@ public class ObjectSerializer extends BaseSerializer {
 		return 0;
 	}
 
+	NormalNode$DeepJson deep = new NormalNode$DeepJson();
+
 	@Override
 	public int write(Object object, ByteBuf buf) {
-		int writeLength = 0;
-		writeLength += buf.writeStartObject();
-		int markIndex = buf.getWriteIndex();
-		for (IFiller filler : fillers) {
-			writeLength += filler.concat(object, buf);
-		}
-		writeLength += buf.writeEndObject(markIndex != buf.getWriteIndex());
-		return writeLength;
+		return deep.write((NormalNode) object, buf);
+//		int writeLength = 0;
+//		writeLength += buf.writeStartObject();
+//		int markIndex = buf.getWriteIndex();
+//		for (IFiller filler : fillers) {
+//			writeLength += filler.concat(object, buf);
+//		}
+//		writeLength += buf.writeEndObject(markIndex != buf.getWriteIndex());
+//		return writeLength;
 	}
 
 	public void addLast(IFiller filler) {

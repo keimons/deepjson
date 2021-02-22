@@ -7,7 +7,7 @@ import java.lang.reflect.Field;
 
 public class FillerHelper {
 
-	static final byte[] DigitOnes = {
+	public static final byte[] DigitOnes = {
 			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
 			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
 			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
@@ -20,7 +20,7 @@ public class FillerHelper {
 			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
 	};
 
-	static final byte[] DigitTens = {
+	public static final byte[] DigitTens = {
 			'0', '0', '0', '0', '0', '0', '0', '0', '0', '0',
 			'1', '1', '1', '1', '1', '1', '1', '1', '1', '1',
 			'2', '2', '2', '2', '2', '2', '2', '2', '2', '2',

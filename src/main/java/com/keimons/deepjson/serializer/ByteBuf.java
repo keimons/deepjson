@@ -10,8 +10,42 @@ public class ByteBuf {
 
 	private static final Unsafe unsafe = UnsafeUtil.getUnsafe();
 
+	private static final byte HI_BYTE_L_BRACES = (byte) ('{' << FillerHelper.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_L_BRACES = (byte) ('{' << FillerHelper.LO_BYTE_SHIFT);
+
+	private static final byte HI_BYTE_R_BRACES = (byte) ('}' << FillerHelper.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_R_BRACES = (byte) ('}' << FillerHelper.LO_BYTE_SHIFT);
+
+	private static final byte HI_BYTE_L_BRACKET = (byte) ('[' << FillerHelper.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_L_BRACKET = (byte) ('[' << FillerHelper.LO_BYTE_SHIFT);
+
+	private static final byte HI_BYTE_R_BRACKET = (byte) (']' << FillerHelper.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_R_BRACKET = (byte) (']' << FillerHelper.LO_BYTE_SHIFT);
+
 	private static final byte HI_BYTE_MARK1 = (byte) (',' << FillerHelper.HI_BYTE_SHIFT);
 	private static final byte LO_BYTE_MARK1 = (byte) (',' << FillerHelper.LO_BYTE_SHIFT);
+
+	private static final byte HI_BYTE_MARK = (byte) ('"' << FillerHelper.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_MARK = (byte) ('"' << FillerHelper.LO_BYTE_SHIFT);
+
+	private static final byte HI_BYTE_A = (byte) ('a' << FillerHelper.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_A = (byte) ('a' << FillerHelper.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_E = (byte) ('e' << FillerHelper.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_E = (byte) ('e' << FillerHelper.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_F = (byte) ('f' << FillerHelper.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_F = (byte) ('f' << FillerHelper.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_L = (byte) ('l' << FillerHelper.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_L = (byte) ('l' << FillerHelper.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_N = (byte) ('n' << FillerHelper.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_N = (byte) ('n' << FillerHelper.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_R = (byte) ('r' << FillerHelper.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_R = (byte) ('r' << FillerHelper.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_S = (byte) ('s' << FillerHelper.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_S = (byte) ('s' << FillerHelper.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_T = (byte) ('t' << FillerHelper.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_T = (byte) ('t' << FillerHelper.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_U = (byte) ('u' << FillerHelper.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_U = (byte) ('u' << FillerHelper.LO_BYTE_SHIFT);
 
 	private final long options;
 
@@ -24,7 +58,7 @@ public class ByteBuf {
 	private int writeIndex;
 
 	private ByteBuf(long options, int capacity, byte coder) {
-		this.buf = new byte[capacity << coder];
+		this.buf = new byte[630];
 		this.options = options;
 		this.coder = coder;
 		if (coder == FillerHelper.LATIN) {
@@ -51,31 +85,71 @@ public class ByteBuf {
 		return writable;
 	}
 
+	public void writeBytes(byte[] values) {
+		int length = values.length;
+		System.arraycopy(values, 0, buf, writeIndex, length);
+		writeIndex += length;
+	}
+
+	public void writeInt(int value) {
+		int length = FillerHelper.size(value) << 1;
+		this.writeIndex += length;
+		int q, r;
+		int charPos = writeIndex;
+
+		boolean negative = (value < 0);
+		if (!negative) {
+			value = -value;
+		}
+
+		// Get 2 digits/iteration using ints
+		while (value <= -100) {
+			q = value / 100;
+			r = (q * 100) - value;
+			value = q;
+			buf[--charPos] = (byte) (FillerHelper.DigitOnes[r] >> FillerHelper.LO_BYTE_SHIFT);
+			buf[--charPos] = (byte) (FillerHelper.DigitOnes[r] >> FillerHelper.HI_BYTE_SHIFT);
+			buf[--charPos] = (byte) (FillerHelper.DigitTens[r] >> FillerHelper.LO_BYTE_SHIFT);
+			buf[--charPos] = (byte) (FillerHelper.DigitTens[r] >> FillerHelper.HI_BYTE_SHIFT);
+		}
+
+		// We know there are at most two digits left at this point.
+		q = value / 10;
+		r = (q * 10) - value;
+		buf[--charPos] = (byte) ('0' + r >> FillerHelper.LO_BYTE_SHIFT);
+		buf[--charPos] = (byte) ('0' + r >> FillerHelper.HI_BYTE_SHIFT);
+
+		// Whatever left is the remaining digit.
+		if (q < 0) {
+			buf[--charPos] = (byte) ('0' - q >> FillerHelper.LO_BYTE_SHIFT);
+			buf[--charPos] = (byte) ('0' - q >> FillerHelper.HI_BYTE_SHIFT);
+		}
+
+		if (negative) {
+			buf[--charPos] = (byte) ('-'>> FillerHelper.HI_BYTE_SHIFT);
+			buf[--charPos] = (byte) ('-'>> FillerHelper.LO_BYTE_SHIFT);
+		}
+		buf[writeIndex++] = HI_BYTE_MARK1;
+		buf[writeIndex++] = LO_BYTE_MARK1;
+	}
+
 	public int writeInt(IFieldName field, int value) {
 		int length = FillerHelper.size(value);
 		int writable = field.size() + length;
 		ensureWritable(writable);
-		if (coder == 0) {
-			for (byte b : field.getFieldNameByLatin()) {
-				buf[writeIndex++] = b;
-			}
-			this.writeIndex += length;
-			FillerHelper.putLATIN(buf, writeIndex, value);
-			buf[writeIndex++] = ',';
-		} else {
-			int writeIndex = this.writeIndex << 1;
-			byte[] bytes = field.getFieldNameByLatin();
-			for (byte b : bytes) {
-				buf[writeIndex++] = b;
-			}
-			this.writeIndex += bytes.length >> 1;
-			this.writeIndex += length;
-			FillerHelper.putUTF16(buf, this.writeIndex, value);
-			writeIndex <<= 1;
-			buf[writeIndex++] = HI_BYTE_MARK1;
-			buf[writeIndex] = LO_BYTE_MARK1;
-			this.writeIndex++;
-		}
+		int writeIndex = this.writeIndex << 1;
+		byte[] bytes = field.getFieldNameByUtf16();
+		System.arraycopy(bytes, 0, buf, writeIndex, bytes.length);
+//		for (byte b : bytes) {
+//			buf[writeIndex++] = b;
+//		}
+		this.writeIndex += bytes.length >> 1;
+		this.writeIndex += length;
+		FillerHelper.putUTF16(buf, this.writeIndex, value);
+		writeIndex = this.writeIndex << 1;
+		buf[writeIndex++] = HI_BYTE_MARK1;
+		buf[writeIndex] = LO_BYTE_MARK1;
+		this.writeIndex++;
 //		this.writeIndex += writer.writeField(buf, options, writeIndex, field);
 //		this.writeIndex += length;
 //		this.writeIndex += writer.writeInt(buf, options, writeIndex, value);
@@ -134,10 +208,10 @@ public class ByteBuf {
 		return writer.writeInts(buf, options, writeIndex, value);
 	}
 
-	public int writeStartObject() {
-		ensureWritable(1);
-		this.writeIndex += writer.writeStartObject(buf, options, writeIndex);
-		return 1;
+	public void writeStartObject() {
+		ensureWritable(2);
+		buf[writeIndex++] = HI_BYTE_L_BRACES;
+		buf[writeIndex++] = LO_BYTE_L_BRACES;
 	}
 
 	/**
@@ -146,14 +220,14 @@ public class ByteBuf {
 	 * @param override 是否重写最后一个字符
 	 * @return 写入字符数量
 	 */
-	public int writeEndObject(boolean override) {
+	public void writeEndObject(boolean override) {
 		if (override) {
-			writeIndex--;
+			writeIndex -= 2;
 		} else {
-			ensureWritable(1);
+			ensureWritable(2);
 		}
-		this.writeIndex += writer.writeEndObject(buf, options, writeIndex);
-		return override ? 0 : 1;
+		buf[writeIndex++] = HI_BYTE_R_BRACES;
+		buf[writeIndex++] = LO_BYTE_R_BRACES;
 	}
 
 	public int writeStartArray() {
