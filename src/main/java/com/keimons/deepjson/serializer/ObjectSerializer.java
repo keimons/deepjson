@@ -1,18 +1,29 @@
 package com.keimons.deepjson.serializer;
 
+import com.keimons.deepjson.compiler.JdkCompiler;
 import com.keimons.deepjson.filler.FillerFactory;
 import com.keimons.deepjson.filler.IFiller;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ObjectSerializer extends BaseSerializer {
 
+	ISerializerWriter writer;
+
 	private List<IFiller> fillers = new ArrayList<>();
 
 	public ObjectSerializer(Class<?> clazz) {
+		String source = JavacSerializerFactory.create(clazz);
+		Class<? extends ISerializerWriter> writerClass = JdkCompiler.compiler(source);
+		try {
+			writer = writerClass.getDeclaredConstructor().newInstance();
+		} catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+			e.printStackTrace();
+		}
 		try {
 			List<Class<?>> classes = new ArrayList<>();
 			Class<?> current = clazz;
@@ -46,17 +57,7 @@ public class ObjectSerializer extends BaseSerializer {
 
 	@Override
 	public int length(Object object, long options) {
-		if (object == null) {
-			return 0;
-		}
-		int length = 1;
-		for (IFiller filler : fillers) {
-			length += filler.length(object, options);
-		}
-		if (length == 1) {
-			length++;
-		}
-		return length;
+		return writer.length(object, options);
 	}
 
 	@Override
@@ -70,11 +71,10 @@ public class ObjectSerializer extends BaseSerializer {
 		return 0;
 	}
 
-	NormalNode$DeepJson deep = new NormalNode$DeepJson();
-
 	@Override
 	public int write(Object object, ByteBuf buf) {
-		return deep.write((NormalNode) object, buf);
+		writer.write(object, buf);
+		return 0;
 //		int writeLength = 0;
 //		writeLength += buf.writeStartObject();
 //		int markIndex = buf.getWriteIndex();

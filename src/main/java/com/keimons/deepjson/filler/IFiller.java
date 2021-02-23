@@ -13,38 +13,38 @@ public interface IFiller extends IFieldName {
 	 * 逗号
 	 */
 	byte[] UTF16_SPLIT = {
-			(byte) (',' >> FillerHelper.HI_BYTE_SHIFT),
-			(byte) (',' >> FillerHelper.LO_BYTE_SHIFT),
+			(byte) (',' >> SerializerUtil.HI_BYTE_SHIFT),
+			(byte) (',' >> SerializerUtil.LO_BYTE_SHIFT),
 	};
 
 	/**
 	 * 双引号
 	 */
 	byte[] UTF16_QUOTATION = {
-			(byte) ('"' >> FillerHelper.HI_BYTE_SHIFT),
-			(byte) ('"' >> FillerHelper.LO_BYTE_SHIFT),
+			(byte) ('"' >> SerializerUtil.HI_BYTE_SHIFT),
+			(byte) ('"' >> SerializerUtil.LO_BYTE_SHIFT),
 	};
 
 	/**
 	 * 中括号左
 	 */
 	byte[] UTF16_BRACKET_L = {
-			(byte) ('[' >> FillerHelper.HI_BYTE_SHIFT),
-			(byte) ('[' >> FillerHelper.LO_BYTE_SHIFT),
+			(byte) ('[' >> SerializerUtil.HI_BYTE_SHIFT),
+			(byte) ('[' >> SerializerUtil.LO_BYTE_SHIFT),
 	};
 
 	/**
 	 * 中括号右
 	 */
 	byte[] UTF16_BRACKET_R = {
-			(byte) (']' >> FillerHelper.HI_BYTE_SHIFT),
-			(byte) (']' >> FillerHelper.LO_BYTE_SHIFT),
+			(byte) (']' >> SerializerUtil.HI_BYTE_SHIFT),
+			(byte) (']' >> SerializerUtil.LO_BYTE_SHIFT),
 	};
 
 	Unsafe unsafe = UnsafeUtil.getUnsafe();
 
 	default byte coder(Object object, long options) {
-		return (byte) (FillerHelper.COMPACT_STRINGS ? 0 : 1);
+		return (byte) (SerializerUtil.COMPACT_STRINGS ? 0 : 1);
 	}
 
 	int length(Object object, long options);

@@ -12,7 +12,7 @@ public class ShortFiller extends BaseFiller {
 
 	@Override
 	public int length(Object object, long options) {
-		return FillerHelper.size(unsafe.getShort(object, offset)) + size;
+		return SerializerUtil.size(unsafe.getShort(object, offset)) + size;
 	}
 
 	@Override

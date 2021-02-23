@@ -8,7 +8,7 @@ public class NormalNode implements INode {
 
 	private transient int node3 = 10000;
 
-	private int 我 = 10000;
+	private int node3_1 = 10000;
 	private int node3_2 = 10000;
 	private int node3_3 = 10000;
 	private int node3_4 = 10000;
@@ -143,12 +143,12 @@ public class NormalNode implements INode {
 //	}
 
 
-	public int get我() {
-		return 我;
+	public int getNode3_1() {
+		return node3_1;
 	}
 
-	public void set我(int 我) {
-		this.我 = 我;
+	public void setNode3_1(int node3_1) {
+		this.node3_1 = node3_1;
 	}
 
 	public int getNode3_2() {

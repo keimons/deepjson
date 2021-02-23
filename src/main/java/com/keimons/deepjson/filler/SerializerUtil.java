@@ -1,11 +1,12 @@
 package com.keimons.deepjson.filler;
 
 import com.keimons.deepjson.UnsafeUtil;
+import jdk.internal.vm.annotation.ForceInline;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
 
-public class FillerHelper {
+public class SerializerUtil {
 
 	public static final byte[] DigitOnes = {
 			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
@@ -98,6 +99,7 @@ public class FillerHelper {
 		CODER_OFFSET_STRING = coder_offset_string;
 	}
 
+	@ForceInline
 	public static int size(int j) {
 		int d = 1;
 		if (j >= 0) {

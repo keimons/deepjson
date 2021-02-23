@@ -1,7 +1,7 @@
 package com.keimons.deepjson.serializer;
 
 import com.keimons.deepjson.UnsafeUtil;
-import com.keimons.deepjson.filler.FillerHelper;
+import com.keimons.deepjson.filler.SerializerUtil;
 import com.keimons.deepjson.filler.IFieldName;
 import sun.misc.Unsafe;
 
@@ -59,7 +59,7 @@ class WriterLatin implements IWriter<byte[]> {
 		for (byte b : filler.getFieldNameByLatin()) {
 			buf[writeIndex++] = b;
 		}
-		return filler.size() - 1;
+		return filler.length() - 1;
 	}
 
 	@Override
@@ -91,23 +91,23 @@ class WriterLatin implements IWriter<byte[]> {
 
 	@Override
 	public int writeInt(byte[] buf, long options, int writeIndex, int value) {
-		FillerHelper.putLATIN(buf, writeIndex, value);
+		SerializerUtil.putLATIN(buf, writeIndex, value);
 		buf[writeIndex] = ',';
 		return 1;
 	}
 
 	@Override
 	public int writeLong(byte[] buf, long options, int writeIndex, long value) {
-		FillerHelper.putLATIN(buf, writeIndex, value);
+		SerializerUtil.putLATIN(buf, writeIndex, value);
 		buf[writeIndex] = ',';
 		return 1;
 	}
 
 	@Override
 	public int writeString(byte[] buf, long options, int writeIndex, String value) {
-		assert unsafe.getByte(value, FillerHelper.CODER_OFFSET_STRING) == 0 : "error call for compact strings";
+		assert unsafe.getByte(value, SerializerUtil.CODER_OFFSET_STRING) == 0 : "error call for compact strings";
 		int length = value.length();
-		byte[] bytes = (byte[]) unsafe.getObject(value, FillerHelper.VALUE_OFFSET_STRING);
+		byte[] bytes = (byte[]) unsafe.getObject(value, SerializerUtil.VALUE_OFFSET_STRING);
 		for (byte b : bytes) {
 			buf[writeIndex++] = b;
 		}
@@ -117,10 +117,10 @@ class WriterLatin implements IWriter<byte[]> {
 
 	@Override
 	public int writeStringWithMark(byte[] buf, long options, int writeIndex, String value) {
-		assert unsafe.getByte(value, FillerHelper.CODER_OFFSET_STRING) == 0 : "error call for compact strings";
+		assert unsafe.getByte(value, SerializerUtil.CODER_OFFSET_STRING) == 0 : "error call for compact strings";
 		buf[writeIndex++] = '"';
 		int length = value.length();
-		byte[] bytes = (byte[]) unsafe.getObject(value, FillerHelper.VALUE_OFFSET_STRING);
+		byte[] bytes = (byte[]) unsafe.getObject(value, SerializerUtil.VALUE_OFFSET_STRING);
 		for (byte b : bytes) {
 			buf[writeIndex++] = b;
 		}

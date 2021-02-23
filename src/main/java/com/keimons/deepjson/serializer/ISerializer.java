@@ -1,7 +1,7 @@
 package com.keimons.deepjson.serializer;
 
 import com.keimons.deepjson.SerializerOptions;
-import com.keimons.deepjson.filler.FillerHelper;
+import com.keimons.deepjson.filler.SerializerUtil;
 
 /**
  * 序列化工具
@@ -9,13 +9,13 @@ import com.keimons.deepjson.filler.FillerHelper;
 public interface ISerializer {
 
 	byte[] UTF16_L = {
-			(byte) ('{' >> FillerHelper.HI_BYTE_SHIFT),
-			(byte) ('{' >> FillerHelper.LO_BYTE_SHIFT),
+			(byte) ('{' >> SerializerUtil.HI_BYTE_SHIFT),
+			(byte) ('{' >> SerializerUtil.LO_BYTE_SHIFT),
 	};
 
 	byte[] UTF16_R = {
-			(byte) ('}' >> FillerHelper.HI_BYTE_SHIFT),
-			(byte) ('}' >> FillerHelper.LO_BYTE_SHIFT),
+			(byte) ('}' >> SerializerUtil.HI_BYTE_SHIFT),
+			(byte) ('}' >> SerializerUtil.LO_BYTE_SHIFT),
 	};
 
 	int length(Object object, long options);

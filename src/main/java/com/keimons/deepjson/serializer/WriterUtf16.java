@@ -1,7 +1,7 @@
 package com.keimons.deepjson.serializer;
 
 import com.keimons.deepjson.UnsafeUtil;
-import com.keimons.deepjson.filler.FillerHelper;
+import com.keimons.deepjson.filler.SerializerUtil;
 import com.keimons.deepjson.filler.IFieldName;
 import sun.misc.Unsafe;
 
@@ -14,42 +14,42 @@ class WriterUtf16 implements IWriter<byte[]> {
 
 	private static final Unsafe unsafe = UnsafeUtil.getUnsafe();
 
-	private static final byte HI_BYTE_L_BRACES = (byte) ('{' << FillerHelper.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_L_BRACES = (byte) ('{' << FillerHelper.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_L_BRACES = (byte) ('{' << SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_L_BRACES = (byte) ('{' << SerializerUtil.LO_BYTE_SHIFT);
 
-	private static final byte HI_BYTE_R_BRACES = (byte) ('}' << FillerHelper.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_R_BRACES = (byte) ('}' << FillerHelper.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_R_BRACES = (byte) ('}' << SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_R_BRACES = (byte) ('}' << SerializerUtil.LO_BYTE_SHIFT);
 
-	private static final byte HI_BYTE_L_BRACKET = (byte) ('[' << FillerHelper.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_L_BRACKET = (byte) ('[' << FillerHelper.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_L_BRACKET = (byte) ('[' << SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_L_BRACKET = (byte) ('[' << SerializerUtil.LO_BYTE_SHIFT);
 
-	private static final byte HI_BYTE_R_BRACKET = (byte) (']' << FillerHelper.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_R_BRACKET = (byte) (']' << FillerHelper.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_R_BRACKET = (byte) (']' << SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_R_BRACKET = (byte) (']' << SerializerUtil.LO_BYTE_SHIFT);
 
-	private static final byte HI_BYTE_MARK1 = (byte) (',' << FillerHelper.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_MARK1 = (byte) (',' << FillerHelper.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_MARK1 = (byte) (',' << SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_MARK1 = (byte) (',' << SerializerUtil.LO_BYTE_SHIFT);
 
-	private static final byte HI_BYTE_MARK = (byte) ('"' << FillerHelper.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_MARK = (byte) ('"' << FillerHelper.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_MARK = (byte) ('"' << SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_MARK = (byte) ('"' << SerializerUtil.LO_BYTE_SHIFT);
 
-	private static final byte HI_BYTE_A = (byte) ('a' << FillerHelper.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_A = (byte) ('a' << FillerHelper.LO_BYTE_SHIFT);
-	private static final byte HI_BYTE_E = (byte) ('e' << FillerHelper.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_E = (byte) ('e' << FillerHelper.LO_BYTE_SHIFT);
-	private static final byte HI_BYTE_F = (byte) ('f' << FillerHelper.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_F = (byte) ('f' << FillerHelper.LO_BYTE_SHIFT);
-	private static final byte HI_BYTE_L = (byte) ('l' << FillerHelper.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_L = (byte) ('l' << FillerHelper.LO_BYTE_SHIFT);
-	private static final byte HI_BYTE_N = (byte) ('n' << FillerHelper.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_N = (byte) ('n' << FillerHelper.LO_BYTE_SHIFT);
-	private static final byte HI_BYTE_R = (byte) ('r' << FillerHelper.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_R = (byte) ('r' << FillerHelper.LO_BYTE_SHIFT);
-	private static final byte HI_BYTE_S = (byte) ('s' << FillerHelper.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_S = (byte) ('s' << FillerHelper.LO_BYTE_SHIFT);
-	private static final byte HI_BYTE_T = (byte) ('t' << FillerHelper.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_T = (byte) ('t' << FillerHelper.LO_BYTE_SHIFT);
-	private static final byte HI_BYTE_U = (byte) ('u' << FillerHelper.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_U = (byte) ('u' << FillerHelper.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_A = (byte) ('a' << SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_A = (byte) ('a' << SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_E = (byte) ('e' << SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_E = (byte) ('e' << SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_F = (byte) ('f' << SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_F = (byte) ('f' << SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_L = (byte) ('l' << SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_L = (byte) ('l' << SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_N = (byte) ('n' << SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_N = (byte) ('n' << SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_R = (byte) ('r' << SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_R = (byte) ('r' << SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_S = (byte) ('s' << SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_S = (byte) ('s' << SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_T = (byte) ('t' << SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_T = (byte) ('t' << SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_U = (byte) ('u' << SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_U = (byte) ('u' << SerializerUtil.LO_BYTE_SHIFT);
 
 	@Override
 	public int writeStartObject(byte[] buf, long options, int writeIndex) {
@@ -111,7 +111,7 @@ class WriterUtf16 implements IWriter<byte[]> {
 		for (byte b : filler.getFieldNameByUtf16()) {
 			buf[writeIndex++] = b;
 		}
-		return filler.size() - 1;
+		return filler.length() - 1;
 	}
 
 	@Override
@@ -148,8 +148,8 @@ class WriterUtf16 implements IWriter<byte[]> {
 		writeIndex <<= 1;
 		buf[writeIndex++] = HI_BYTE_MARK;
 		buf[writeIndex++] = LO_BYTE_MARK;
-		buf[writeIndex++] = (byte) (value >> FillerHelper.HI_BYTE_SHIFT);
-		buf[writeIndex++] = (byte) (value >> FillerHelper.LO_BYTE_SHIFT);
+		buf[writeIndex++] = (byte) (value >> SerializerUtil.HI_BYTE_SHIFT);
+		buf[writeIndex++] = (byte) (value >> SerializerUtil.LO_BYTE_SHIFT);
 		buf[writeIndex++] = HI_BYTE_MARK;
 		buf[writeIndex++] = LO_BYTE_MARK;
 		buf[writeIndex++] = HI_BYTE_L_BRACES;
@@ -159,7 +159,7 @@ class WriterUtf16 implements IWriter<byte[]> {
 
 	@Override
 	public int writeInt(byte[] buf, long options, int writeIndex, int value) {
-		FillerHelper.putUTF16(buf, writeIndex, value);
+		SerializerUtil.putUTF16(buf, writeIndex, value);
 		writeIndex <<= 1;
 		buf[writeIndex++] = HI_BYTE_L_BRACES;
 		buf[writeIndex] = LO_BYTE_L_BRACES;
@@ -168,7 +168,7 @@ class WriterUtf16 implements IWriter<byte[]> {
 
 	@Override
 	public int writeLong(byte[] buf, long options, int writeIndex, long value) {
-		FillerHelper.putUTF16(buf, writeIndex, value);
+		SerializerUtil.putUTF16(buf, writeIndex, value);
 		writeIndex <<= 1;
 		buf[writeIndex++] = HI_BYTE_MARK1;
 		buf[writeIndex] = LO_BYTE_MARK1;
@@ -178,12 +178,12 @@ class WriterUtf16 implements IWriter<byte[]> {
 	@Override
 	public int writeString(byte[] buf, long options, int writeIndex, String value) {
 		writeIndex <<= 1;
-		byte coder = unsafe.getByte(value, FillerHelper.CODER_OFFSET_STRING);
-		byte[] bytes = (byte[]) unsafe.getObject(value, FillerHelper.VALUE_OFFSET_STRING);
-		if (coder == FillerHelper.LATIN) {
+		byte coder = unsafe.getByte(value, SerializerUtil.CODER_OFFSET_STRING);
+		byte[] bytes = (byte[]) unsafe.getObject(value, SerializerUtil.VALUE_OFFSET_STRING);
+		if (coder == SerializerUtil.LATIN) {
 			for (byte b : bytes) {
-				buf[writeIndex++] = (byte) (b >> FillerHelper.HI_BYTE_SHIFT);
-				buf[writeIndex++] = (byte) (b >> FillerHelper.LO_BYTE_SHIFT);
+				buf[writeIndex++] = (byte) (b >> SerializerUtil.HI_BYTE_SHIFT);
+				buf[writeIndex++] = (byte) (b >> SerializerUtil.LO_BYTE_SHIFT);
 			}
 		} else {
 			for (byte b : bytes) {
@@ -200,12 +200,12 @@ class WriterUtf16 implements IWriter<byte[]> {
 		writeIndex <<= 1;
 		buf[writeIndex++] = HI_BYTE_MARK;
 		buf[writeIndex++] = LO_BYTE_MARK;
-		byte coder = unsafe.getByte(value, FillerHelper.CODER_OFFSET_STRING);
-		byte[] bytes = (byte[]) unsafe.getObject(value, FillerHelper.VALUE_OFFSET_STRING);
-		if (coder == FillerHelper.LATIN) {
+		byte coder = unsafe.getByte(value, SerializerUtil.CODER_OFFSET_STRING);
+		byte[] bytes = (byte[]) unsafe.getObject(value, SerializerUtil.VALUE_OFFSET_STRING);
+		if (coder == SerializerUtil.LATIN) {
 			for (byte b : bytes) {
-				buf[writeIndex++] = (byte) (b >> FillerHelper.HI_BYTE_SHIFT);
-				buf[writeIndex++] = (byte) (b >> FillerHelper.LO_BYTE_SHIFT);
+				buf[writeIndex++] = (byte) (b >> SerializerUtil.HI_BYTE_SHIFT);
+				buf[writeIndex++] = (byte) (b >> SerializerUtil.LO_BYTE_SHIFT);
 			}
 		} else {
 			for (byte b : bytes) {

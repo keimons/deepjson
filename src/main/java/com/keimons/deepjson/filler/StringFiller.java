@@ -30,7 +30,7 @@ public class StringFiller extends BaseFiller {
 	public byte coder(Object object, long options) {
 		String value = (String) unsafe.getObject(object, offset);
 		if (value == null) {
-			return FillerHelper.LATIN;
+			return SerializerUtil.LATIN;
 		} else {
 			return unsafe.getByte(value, OFFSET_CODER);
 		}

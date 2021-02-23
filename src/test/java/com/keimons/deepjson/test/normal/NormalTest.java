@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-// -verbose:gc -Xms8192m -Xmx8192m
+// -Xlog:gc*=info -verbose:gc -XX:G1HeapRegionSize=32m -Xms2048m -Xmx2048m
 public class NormalTest {
 
 	Unsafe unsafe = UnsafeUtil.getUnsafe();
@@ -28,7 +28,7 @@ public class NormalTest {
 		}
 	}
 
-	int times = 1000_0000;
+	int times = 100_0000;
 
 	INode node = new NormalNode();
 
@@ -44,12 +44,12 @@ public class NormalTest {
 
 	@Test
 	public void fastTest() {
-		System.out.println(DeepJson.toJsonString(node));
 		System.out.println(JSONObject.toJSONString(node));
+		System.out.println(DeepJson.toJsonString(node));
 		DeepJson.toJsonString(node);
 		JSONObject.toJSONString(node);
 
-//		for (int j = 0; j < 10; j++) {
+		for (int j = 0; j < 10; j++) {
 			List<String> list = new ArrayList<>(times);
 			long fastStart = System.nanoTime();
 			for (int i = 0; i < times; i++) {
@@ -57,17 +57,17 @@ public class NormalTest {
 			}
 			long fastTime = System.nanoTime() - fastStart;
 			System.out.println("fast json using time: " + fastTime / 1000000f);
-//		}
+		}
 	}
 
 	@Test
 	public void deepTest() {
-		System.out.println(DeepJson.toJsonString(node) == DeepJson.toJsonString(node));
-		System.out.println(JSONObject.toJSONString(node) == JSONObject.toJSONString(node));
+		System.out.println(DeepJson.toJsonString(node));
+		System.out.println(JSONObject.toJSONString(node));
 		DeepJson.toJsonString(node);
 		JSONObject.toJSONString(node);
 
-//		for (int j = 0; j < 10; j++) {
+		for (int j = 0; j < 10; j++) {
 			long deepStart = System.nanoTime();
 			List<String> list = new ArrayList<>(times);
 			for (int i = 0; i < times; i++) {
@@ -75,7 +75,7 @@ public class NormalTest {
 			}
 			long deepTime = System.nanoTime() - deepStart;
 			System.out.println("deep json using time: " + deepTime / 1000000f);
-//		}
+		}
 	}
 
 	public static void main(String[] args) {

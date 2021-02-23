@@ -11,7 +11,7 @@ public class LongFiller extends BaseFiller {
 	}
 
 	public int length(Object object, long options) {
-		return FillerHelper.size(unsafe.getLong(object, offset)) + size;
+		return SerializerUtil.size(unsafe.getLong(object, offset)) + size;
 	}
 
 	public int concat(Object object, ByteBuf buf) {

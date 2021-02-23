@@ -2,50 +2,79 @@ package com.keimons.deepjson.serializer;
 
 import com.keimons.deepjson.SerializerOptions;
 import com.keimons.deepjson.UnsafeUtil;
-import com.keimons.deepjson.filler.FillerHelper;
+import com.keimons.deepjson.filler.SerializerUtil;
 import com.keimons.deepjson.filler.IFieldName;
+import jdk.internal.vm.annotation.ForceInline;
 import sun.misc.Unsafe;
 
 public class ByteBuf {
 
 	private static final Unsafe unsafe = UnsafeUtil.getUnsafe();
 
-	private static final byte HI_BYTE_L_BRACES = (byte) ('{' << FillerHelper.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_L_BRACES = (byte) ('{' << FillerHelper.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_L_BRACES = (byte) ('{' << SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_L_BRACES = (byte) ('{' << SerializerUtil.LO_BYTE_SHIFT);
 
-	private static final byte HI_BYTE_R_BRACES = (byte) ('}' << FillerHelper.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_R_BRACES = (byte) ('}' << FillerHelper.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_R_BRACES = (byte) ('}' << SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_R_BRACES = (byte) ('}' << SerializerUtil.LO_BYTE_SHIFT);
 
-	private static final byte HI_BYTE_L_BRACKET = (byte) ('[' << FillerHelper.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_L_BRACKET = (byte) ('[' << FillerHelper.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_L_BRACKET = (byte) ('[' << SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_L_BRACKET = (byte) ('[' << SerializerUtil.LO_BYTE_SHIFT);
 
-	private static final byte HI_BYTE_R_BRACKET = (byte) (']' << FillerHelper.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_R_BRACKET = (byte) (']' << FillerHelper.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_R_BRACKET = (byte) (']' << SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_R_BRACKET = (byte) (']' << SerializerUtil.LO_BYTE_SHIFT);
 
-	private static final byte HI_BYTE_MARK1 = (byte) (',' << FillerHelper.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_MARK1 = (byte) (',' << FillerHelper.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_MARK1 = (byte) (',' << SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_MARK1 = (byte) (',' << SerializerUtil.LO_BYTE_SHIFT);
 
-	private static final byte HI_BYTE_MARK = (byte) ('"' << FillerHelper.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_MARK = (byte) ('"' << FillerHelper.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_NEGATIVE = (byte) ('-' << SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_NEGATIVE = (byte) ('-' << SerializerUtil.LO_BYTE_SHIFT);
 
-	private static final byte HI_BYTE_A = (byte) ('a' << FillerHelper.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_A = (byte) ('a' << FillerHelper.LO_BYTE_SHIFT);
-	private static final byte HI_BYTE_E = (byte) ('e' << FillerHelper.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_E = (byte) ('e' << FillerHelper.LO_BYTE_SHIFT);
-	private static final byte HI_BYTE_F = (byte) ('f' << FillerHelper.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_F = (byte) ('f' << FillerHelper.LO_BYTE_SHIFT);
-	private static final byte HI_BYTE_L = (byte) ('l' << FillerHelper.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_L = (byte) ('l' << FillerHelper.LO_BYTE_SHIFT);
-	private static final byte HI_BYTE_N = (byte) ('n' << FillerHelper.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_N = (byte) ('n' << FillerHelper.LO_BYTE_SHIFT);
-	private static final byte HI_BYTE_R = (byte) ('r' << FillerHelper.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_R = (byte) ('r' << FillerHelper.LO_BYTE_SHIFT);
-	private static final byte HI_BYTE_S = (byte) ('s' << FillerHelper.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_S = (byte) ('s' << FillerHelper.LO_BYTE_SHIFT);
-	private static final byte HI_BYTE_T = (byte) ('t' << FillerHelper.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_T = (byte) ('t' << FillerHelper.LO_BYTE_SHIFT);
-	private static final byte HI_BYTE_U = (byte) ('u' << FillerHelper.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_U = (byte) ('u' << FillerHelper.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_MARK = (byte) ('"' << SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_MARK = (byte) ('"' << SerializerUtil.LO_BYTE_SHIFT);
+
+	private static final byte HI_BYTE_A = (byte) ('a' << SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_A = (byte) ('a' << SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_E = (byte) ('e' << SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_E = (byte) ('e' << SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_F = (byte) ('f' << SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_F = (byte) ('f' << SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_L = (byte) ('l' << SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_L = (byte) ('l' << SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_N = (byte) ('n' << SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_N = (byte) ('n' << SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_R = (byte) ('r' << SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_R = (byte) ('r' << SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_S = (byte) ('s' << SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_S = (byte) ('s' << SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_T = (byte) ('t' << SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_T = (byte) ('t' << SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_U = (byte) ('u' << SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_U = (byte) ('u' << SerializerUtil.LO_BYTE_SHIFT);
+
+
+	private static final byte[] BOOLEAN_TRUE_UTF16 = {
+			(byte) ('t' << SerializerUtil.HI_BYTE_SHIFT),
+			(byte) ('t' << SerializerUtil.LO_BYTE_SHIFT),
+			(byte) ('r' << SerializerUtil.HI_BYTE_SHIFT),
+			(byte) ('r' << SerializerUtil.LO_BYTE_SHIFT),
+			(byte) ('u' << SerializerUtil.HI_BYTE_SHIFT),
+			(byte) ('u' << SerializerUtil.LO_BYTE_SHIFT),
+			(byte) ('e' << SerializerUtil.HI_BYTE_SHIFT),
+			(byte) ('e' << SerializerUtil.LO_BYTE_SHIFT),
+	};
+
+	private static final byte[] BOOLEAN_FALSE_UTF16 = {
+			(byte) ('f' << SerializerUtil.HI_BYTE_SHIFT),
+			(byte) ('f' << SerializerUtil.LO_BYTE_SHIFT),
+			(byte) ('a' << SerializerUtil.HI_BYTE_SHIFT),
+			(byte) ('a' << SerializerUtil.LO_BYTE_SHIFT),
+			(byte) ('l' << SerializerUtil.HI_BYTE_SHIFT),
+			(byte) ('l' << SerializerUtil.LO_BYTE_SHIFT),
+			(byte) ('s' << SerializerUtil.HI_BYTE_SHIFT),
+			(byte) ('s' << SerializerUtil.LO_BYTE_SHIFT),
+			(byte) ('e' << SerializerUtil.HI_BYTE_SHIFT),
+			(byte) ('e' << SerializerUtil.LO_BYTE_SHIFT),
+	};
 
 	private final long options;
 
@@ -53,15 +82,17 @@ public class ByteBuf {
 
 	private byte[] buf;
 
-	private byte coder;
+	private byte coder = 1;
 
 	private int writeIndex;
+
+	boolean marked;
 
 	private ByteBuf(long options, int capacity, byte coder) {
 		this.buf = new byte[630];
 		this.options = options;
 		this.coder = coder;
-		if (coder == FillerHelper.LATIN) {
+		if (coder == SerializerUtil.LATIN) {
 			writer = new WriterLatin();
 		} else {
 			writer = new WriterUtf16();
@@ -69,7 +100,7 @@ public class ByteBuf {
 	}
 
 	public int writeBoolean(IFieldName field, boolean value) {
-		int writable = field.size() + (value ? 4 : 5);
+		int writable = field.length() + (value ? 4 : 5);
 		ensureWritable(writable);
 		this.writeIndex += writer.writeField(buf, options, writeIndex, field);
 		this.writeIndex += writer.writeBoolean(buf, options, writeIndex, value);
@@ -77,22 +108,109 @@ public class ByteBuf {
 	}
 
 	public int writeChar(IFieldName field, char value) {
-		int writable = field.size() + 3;
+		int writable = field.length() + 3;
 		ensureWritable(writable);
-		ensureCoder((byte) (coder | (value >>> 8 == 0 ? FillerHelper.LATIN : FillerHelper.UTF16)));
+		ensureCoder((byte) (coder | (value >>> 8 == 0 ? SerializerUtil.LATIN : SerializerUtil.UTF16)));
 		this.writeIndex += writer.writeField(buf, options, writeIndex, field);
 		this.writeIndex += writer.writeChar(buf, options, writeIndex, value);
 		return writable;
 	}
 
-	public void writeBytes(byte[] values) {
+	public void mark() {
+		marked = true;
+	}
+
+	@ForceInline
+	public void writeValue(byte mark, byte[] fieldName, boolean value) {
+		if (coder == 0) {
+			buf[writeIndex++] = mark;
+		} else {
+			buf[writeIndex++] = (byte) (mark << SerializerUtil.HI_BYTE_SHIFT);
+			buf[writeIndex++] = (byte) (mark << SerializerUtil.LO_BYTE_SHIFT);
+			int length = fieldName.length;
+			System.arraycopy(fieldName, 0, buf, writeIndex, length);
+			writeIndex += length;
+			if (value) {
+				System.arraycopy(BOOLEAN_TRUE_UTF16, 0, buf, writeIndex, 8);
+				writeIndex += 8;
+			} else {
+				System.arraycopy(BOOLEAN_FALSE_UTF16, 0, buf, writeIndex, 10);
+				writeIndex += 10;
+			}
+		}
+	}
+
+	@ForceInline
+	public void writeValue(byte mark, byte[] fieldName, int value) {
+		if (coder == 0) {
+			buf[writeIndex++] = mark;
+		} else {
+			buf[writeIndex++] = (byte) (mark << SerializerUtil.HI_BYTE_SHIFT);
+			buf[writeIndex++] = (byte) (mark << SerializerUtil.LO_BYTE_SHIFT);
+			int length = fieldName.length;
+			System.arraycopy(fieldName, 0, buf, writeIndex, length);
+			writeIndex += length;
+			length = SerializerUtil.size(value) << 1;
+			this.writeIndex += length;
+			int q, r;
+			int charPos = writeIndex;
+
+			boolean negative = (value < 0);
+			if (!negative) {
+				value = -value;
+			}
+
+			// Get 2 digits/iteration using ints
+			while (value <= -100) {
+				q = value / 100;
+				r = (q * 100) - value;
+				value = q;
+				buf[--charPos] = (byte) (SerializerUtil.DigitOnes[r] >> SerializerUtil.LO_BYTE_SHIFT);
+				buf[--charPos] = (byte) (SerializerUtil.DigitOnes[r] >> SerializerUtil.HI_BYTE_SHIFT);
+				buf[--charPos] = (byte) (SerializerUtil.DigitTens[r] >> SerializerUtil.LO_BYTE_SHIFT);
+				buf[--charPos] = (byte) (SerializerUtil.DigitTens[r] >> SerializerUtil.HI_BYTE_SHIFT);
+			}
+
+			// We know there are at most two digits left at this point.
+			q = value / 10;
+			r = (q * 10) - value;
+			buf[--charPos] = (byte) ('0' + r >> SerializerUtil.LO_BYTE_SHIFT);
+			buf[--charPos] = (byte) ('0' + r >> SerializerUtil.HI_BYTE_SHIFT);
+
+			// Whatever left is the remaining digit.
+			if (q < 0) {
+				buf[--charPos] = (byte) ('0' - q >> SerializerUtil.LO_BYTE_SHIFT);
+				buf[--charPos] = (byte) ('0' - q >> SerializerUtil.HI_BYTE_SHIFT);
+			}
+
+			if (negative) {
+				buf[--charPos] = HI_BYTE_NEGATIVE;
+				buf[--charPos] = HI_BYTE_NEGATIVE;
+			}
+		}
+	}
+
+	@ForceInline
+	public void writeValue(byte mark, byte[] fieldName, long value) {
+
+	}
+
+	@ForceInline
+	public void writeValue(byte mark, byte[] fieldName, float value) {
+
+	}
+
+	@ForceInline
+	public void writeValue(byte mark, byte[] fieldName, double value) {
+
+	}
+
+	@ForceInline
+	public void writeBytes(byte[] values, int value) {
 		int length = values.length;
 		System.arraycopy(values, 0, buf, writeIndex, length);
 		writeIndex += length;
-	}
-
-	public void writeInt(int value) {
-		int length = FillerHelper.size(value) << 1;
+		length = SerializerUtil.size(value) << 1;
 		this.writeIndex += length;
 		int q, r;
 		int charPos = writeIndex;
@@ -107,35 +225,78 @@ public class ByteBuf {
 			q = value / 100;
 			r = (q * 100) - value;
 			value = q;
-			buf[--charPos] = (byte) (FillerHelper.DigitOnes[r] >> FillerHelper.LO_BYTE_SHIFT);
-			buf[--charPos] = (byte) (FillerHelper.DigitOnes[r] >> FillerHelper.HI_BYTE_SHIFT);
-			buf[--charPos] = (byte) (FillerHelper.DigitTens[r] >> FillerHelper.LO_BYTE_SHIFT);
-			buf[--charPos] = (byte) (FillerHelper.DigitTens[r] >> FillerHelper.HI_BYTE_SHIFT);
+			buf[--charPos] = (byte) (SerializerUtil.DigitOnes[r] >> SerializerUtil.LO_BYTE_SHIFT);
+			buf[--charPos] = (byte) (SerializerUtil.DigitOnes[r] >> SerializerUtil.HI_BYTE_SHIFT);
+			buf[--charPos] = (byte) (SerializerUtil.DigitTens[r] >> SerializerUtil.LO_BYTE_SHIFT);
+			buf[--charPos] = (byte) (SerializerUtil.DigitTens[r] >> SerializerUtil.HI_BYTE_SHIFT);
 		}
 
 		// We know there are at most two digits left at this point.
 		q = value / 10;
 		r = (q * 10) - value;
-		buf[--charPos] = (byte) ('0' + r >> FillerHelper.LO_BYTE_SHIFT);
-		buf[--charPos] = (byte) ('0' + r >> FillerHelper.HI_BYTE_SHIFT);
+		buf[--charPos] = (byte) ('0' + r >> SerializerUtil.LO_BYTE_SHIFT);
+		buf[--charPos] = (byte) ('0' + r >> SerializerUtil.HI_BYTE_SHIFT);
 
 		// Whatever left is the remaining digit.
 		if (q < 0) {
-			buf[--charPos] = (byte) ('0' - q >> FillerHelper.LO_BYTE_SHIFT);
-			buf[--charPos] = (byte) ('0' - q >> FillerHelper.HI_BYTE_SHIFT);
+			buf[--charPos] = (byte) ('0' - q >> SerializerUtil.LO_BYTE_SHIFT);
+			buf[--charPos] = (byte) ('0' - q >> SerializerUtil.HI_BYTE_SHIFT);
 		}
 
 		if (negative) {
-			buf[--charPos] = (byte) ('-'>> FillerHelper.HI_BYTE_SHIFT);
-			buf[--charPos] = (byte) ('-'>> FillerHelper.LO_BYTE_SHIFT);
+			buf[--charPos] = HI_BYTE_NEGATIVE;
+			buf[--charPos] = HI_BYTE_NEGATIVE;
+		}
+		buf[writeIndex++] = HI_BYTE_MARK1;
+		buf[writeIndex++] = LO_BYTE_MARK1;
+	}
+
+	@ForceInline
+	public void writeInt(int value) {
+		int length = SerializerUtil.size(value) << 1;
+		this.writeIndex += length;
+		int q, r;
+		int charPos = writeIndex;
+
+		boolean negative = (value < 0);
+		if (!negative) {
+			value = -value;
+		}
+
+		// Get 2 digits/iteration using ints
+		while (value <= -100) {
+			q = value / 100;
+			r = (q * 100) - value;
+			value = q;
+			buf[--charPos] = (byte) (SerializerUtil.DigitOnes[r] >> SerializerUtil.LO_BYTE_SHIFT);
+			buf[--charPos] = (byte) (SerializerUtil.DigitOnes[r] >> SerializerUtil.HI_BYTE_SHIFT);
+			buf[--charPos] = (byte) (SerializerUtil.DigitTens[r] >> SerializerUtil.LO_BYTE_SHIFT);
+			buf[--charPos] = (byte) (SerializerUtil.DigitTens[r] >> SerializerUtil.HI_BYTE_SHIFT);
+		}
+
+		// We know there are at most two digits left at this point.
+		q = value / 10;
+		r = (q * 10) - value;
+		buf[--charPos] = (byte) ('0' + r >> SerializerUtil.LO_BYTE_SHIFT);
+		buf[--charPos] = (byte) ('0' + r >> SerializerUtil.HI_BYTE_SHIFT);
+
+		// Whatever left is the remaining digit.
+		if (q < 0) {
+			buf[--charPos] = (byte) ('0' - q >> SerializerUtil.LO_BYTE_SHIFT);
+			buf[--charPos] = (byte) ('0' - q >> SerializerUtil.HI_BYTE_SHIFT);
+		}
+
+		if (negative) {
+			buf[--charPos] = (byte) ('-' >> SerializerUtil.HI_BYTE_SHIFT);
+			buf[--charPos] = (byte) ('-' >> SerializerUtil.LO_BYTE_SHIFT);
 		}
 		buf[writeIndex++] = HI_BYTE_MARK1;
 		buf[writeIndex++] = LO_BYTE_MARK1;
 	}
 
 	public int writeInt(IFieldName field, int value) {
-		int length = FillerHelper.size(value);
-		int writable = field.size() + length;
+		int length = SerializerUtil.size(value);
+		int writable = field.length() + length;
 		ensureWritable(writable);
 		int writeIndex = this.writeIndex << 1;
 		byte[] bytes = field.getFieldNameByUtf16();
@@ -145,7 +306,7 @@ public class ByteBuf {
 //		}
 		this.writeIndex += bytes.length >> 1;
 		this.writeIndex += length;
-		FillerHelper.putUTF16(buf, this.writeIndex, value);
+		SerializerUtil.putUTF16(buf, this.writeIndex, value);
 		writeIndex = this.writeIndex << 1;
 		buf[writeIndex++] = HI_BYTE_MARK1;
 		buf[writeIndex] = LO_BYTE_MARK1;
@@ -157,8 +318,8 @@ public class ByteBuf {
 	}
 
 	public int writeLong(IFieldName field, long value) {
-		int length = FillerHelper.size(value);
-		int writable = field.size() + length;
+		int length = SerializerUtil.size(value);
+		int writable = field.length() + length;
 		ensureWritable(writable);
 		this.writeIndex += writer.writeField(buf, options, writeIndex, field);
 		this.writeIndex += length;
@@ -167,7 +328,7 @@ public class ByteBuf {
 	}
 
 	public int writeStringWithNoMark(IFieldName field, String value) {
-		int writable = field.size() + value.length();
+		int writable = field.length() + value.length();
 		ensureWritable(writable);
 		this.writeIndex += writer.writeField(buf, options, writeIndex, field);
 		this.writeIndex += writer.writeString(buf, options, writeIndex, value);
@@ -176,7 +337,7 @@ public class ByteBuf {
 
 	public int writeDouble(IFieldName field, double value) {
 		String s = String.valueOf(value);
-		int writable = field.size() + s.length();
+		int writable = field.length() + s.length();
 		ensureWritable(writable);
 		this.writeIndex += writer.writeField(buf, options, writeIndex, field);
 		this.writeIndex += writer.writeString(buf, options, writeIndex, s);
@@ -184,16 +345,16 @@ public class ByteBuf {
 	}
 
 	public int writeString(IFieldName field, String value) {
-		int writable = field.size() + value.length() + 2;
+		int writable = field.length() + value.length() + 2;
 		ensureWritable(writable);
-		ensureCoder(unsafe.getByte(value, FillerHelper.CODER_OFFSET_STRING));
+		ensureCoder(unsafe.getByte(value, SerializerUtil.CODER_OFFSET_STRING));
 		this.writeIndex += writer.writeField(buf, options, writeIndex, field);
 		this.writeIndex += writer.writeStringWithMark(buf, options, writeIndex, value);
 		return writable;
 	}
 
 	public int writeObject(IFieldName field, Object value) {
-		int writable = field.size();
+		int writable = field.length();
 		ensureWritable(writable);
 		this.writeIndex += writer.writeField(buf, options, writeIndex, field);
 
@@ -216,16 +377,9 @@ public class ByteBuf {
 
 	/**
 	 * 写入对象结尾标识。
-	 *
-	 * @param override 是否重写最后一个字符
-	 * @return 写入字符数量
 	 */
-	public void writeEndObject(boolean override) {
-		if (override) {
-			writeIndex -= 2;
-		} else {
-			ensureWritable(2);
-		}
+	public void writeEndObject() {
+		ensureWritable(2);
 		buf[writeIndex++] = HI_BYTE_R_BRACES;
 		buf[writeIndex++] = LO_BYTE_R_BRACES;
 	}
@@ -388,8 +542,8 @@ public class ByteBuf {
 	public String newString() {
 		try {
 			String str = (String) unsafe.allocateInstance(String.class);
-			unsafe.putObject(str, FillerHelper.VALUE_OFFSET_STRING, buf);
-			unsafe.putByte(str, FillerHelper.CODER_OFFSET_STRING, coder);
+			unsafe.putObject(str, SerializerUtil.VALUE_OFFSET_STRING, buf);
+			unsafe.putByte(str, SerializerUtil.CODER_OFFSET_STRING, coder);
 			return str;
 		} catch (InstantiationException e) {
 			e.printStackTrace();

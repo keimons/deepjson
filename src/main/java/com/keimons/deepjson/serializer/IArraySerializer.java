@@ -1,7 +1,7 @@
 package com.keimons.deepjson.serializer;
 
 import com.keimons.deepjson.SerializerOptions;
-import com.keimons.deepjson.filler.FillerHelper;
+import com.keimons.deepjson.filler.SerializerUtil;
 
 /**
  * 适用int[]的序列化方案
@@ -24,7 +24,7 @@ public class IArraySerializer extends BaseSerializer {
 		int length = 0;
 		int[] ints = (int[]) object;
 		for (int i : ints) {
-			length += FillerHelper.size(i);
+			length += SerializerUtil.size(i);
 		}
 		if (ints.length > 0) {
 			length += ints.length - 1; // ","
@@ -35,7 +35,7 @@ public class IArraySerializer extends BaseSerializer {
 
 	@Override
 	public byte coder(Object object, long options) {
-		return (byte) (FillerHelper.COMPACT_STRINGS ? 0 : 1);
+		return (byte) (SerializerUtil.COMPACT_STRINGS ? 0 : 1);
 	}
 
 	@Override

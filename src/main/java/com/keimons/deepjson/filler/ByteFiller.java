@@ -12,7 +12,7 @@ public class ByteFiller extends BaseFiller {
 
 	@Override
 	public int length(Object object, long options) {
-		return FillerHelper.size(unsafe.getByte(object, offset)) + size;
+		return SerializerUtil.size(unsafe.getByte(object, offset)) + size;
 	}
 
 	@Override

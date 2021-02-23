@@ -41,12 +41,12 @@ public abstract class BaseFiller implements IFiller {
 			e.printStackTrace();
 		}
 		this.coder = unsafe.getByte(context, unsafe.objectFieldOffset(coder));
-		if (this.coder == FillerHelper.LATIN) {
+		if (this.coder == SerializerUtil.LATIN) {
 			this.latinKey = (byte[]) unsafe.getObject(context, unsafe.objectFieldOffset(value));
 			this.sizeL = latinKey.length;
 			this.utf16Key = new byte[sizeL << 1];
 			for (int i = 0; i < sizeL; i++) {
-				FillerHelper.putChar2(this.utf16Key, i, latinKey[i]);
+				SerializerUtil.putChar2(this.utf16Key, i, latinKey[i]);
 			}
 		} else {
 			this.utf16Key = (byte[]) unsafe.getObject(context, unsafe.objectFieldOffset(value));
@@ -57,7 +57,7 @@ public abstract class BaseFiller implements IFiller {
 
 	@Override
 	public byte coder(Object object, long options) {
-		return FillerHelper.COMPACT_STRINGS ? coder : FillerHelper.UTF16;
+		return SerializerUtil.COMPACT_STRINGS ? coder : SerializerUtil.UTF16;
 	}
 
 	@Override
@@ -71,7 +71,12 @@ public abstract class BaseFiller implements IFiller {
 	}
 
 	@Override
-	public int size() {
+	public int length() {
 		return size;
+	}
+
+	@Override
+	public byte coder() {
+		return coder;
 	}
 }
