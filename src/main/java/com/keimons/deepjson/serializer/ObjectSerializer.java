@@ -1,12 +1,9 @@
 package com.keimons.deepjson.serializer;
 
-import com.keimons.deepjson.compiler.JdkCompiler;
-import com.keimons.deepjson.filler.FillerFactory;
+import com.keimons.deepjson.compiler.SourceCodeCompiler;
 import com.keimons.deepjson.filler.IFiller;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,41 +14,12 @@ public class ObjectSerializer extends BaseSerializer {
 	private List<IFiller> fillers = new ArrayList<>();
 
 	public ObjectSerializer(Class<?> clazz) {
-		String source = JavacSerializerFactory.create(clazz);
-		Class<? extends ISerializerWriter> writerClass = JdkCompiler.compiler(source);
+		String source = SourceCodeFactory.create(clazz);
+		Class<? extends ISerializerWriter> writerClass = SourceCodeCompiler.compiler(source, clazz.getSimpleName() + "$DeepJson");
 		try {
 			writer = writerClass.getDeclaredConstructor().newInstance();
 		} catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
 			e.printStackTrace();
-		}
-		try {
-			List<Class<?>> classes = new ArrayList<>();
-			Class<?> current = clazz;
-			do {
-				classes.add(current);
-				current = current.getSuperclass();
-			} while (current != Object.class);
-
-			for (int i = classes.size() - 1; i >= 0; i--) {
-				// public default protected private fields
-				for (Field field : classes.get(i).getDeclaredFields()) {
-					// jump static field
-					if (Modifier.isStatic(field.getModifiers())) {
-						continue;
-					}
-					// jump transient field
-					if (Modifier.isTransient(field.getModifiers())) {
-						continue;
-					}
-					try {
-						fillers.add(FillerFactory.create(clazz, field));
-					} catch (NoSuchFieldException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		} catch (Throwable e) {
-			throw new RuntimeException(e);
 		}
 	}
 

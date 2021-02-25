@@ -1,8 +1,8 @@
 open module deepjson {
-	requires java.base;
-	requires java.sql;
 	requires java.compiler; // 编译java代码
 	requires jdk.unsupported;
-	requires fastjson;
-	exports com.keimons.deepjson;
+	requires jprotobuf;
+	exports com.keimons.deepjson.filler;
+	exports com.keimons.deepjson.serializer;
+	exports com.keimons.deepjson.compiler;
 }

@@ -2,6 +2,15 @@ package com.keimons.deepjson;
 
 /**
  * 序列化选项
+ * <p>
+ * {@link sun.misc.Unsafe Unsafe)功能过于强大。既要充分利用，也需要一些限制。
+ * <p>
+ * 命名规则：
+ * <ul>
+ *     <li>Ignore*  忽略</li>
+ *     <li>Include* 包含</li>
+ *     <li>Force*   无视规则</li>
+ * </ul>
  *
  * @author monkey1993
  * @version 1.0
@@ -10,19 +19,39 @@ package com.keimons.deepjson;
 public enum SerializerOptions {
 
 	/**
-	 * (序列化/反序列化)忽略空字段
+	 * 忽略空字段
+	 * <p>
+	 * decode: true, encode: false
 	 */
 	IgnoreNonField,
 
 	/**
 	 * 包含类名
+	 * <p>
+	 * decode: false, encode: true
 	 */
 	IncludeClassName,
 
 	/**
-	 * (反序列化)忽略final字段
+	 * 包含final字段
+	 * <p>
+	 * decode: false, encode: true
 	 */
-	IncludeFinalField;
+	ForceFinalField,
+
+	/**
+	 * 包含transient字段
+	 * <p>
+	 * decode: true, encode: true
+	 */
+	ForceTransientField,
+
+	/**
+	 * 包含同名字段
+	 * <p>
+	 * decode: true, encode: true
+	 */
+	ForceSameNameField;
 
 	long optional;
 

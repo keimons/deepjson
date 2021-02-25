@@ -6,6 +6,8 @@ public interface IFieldName {
 
 	int length();
 
+	long offset();
+
 	byte[] getFieldNameByUtf16();
 
 	byte[] getFieldNameByLatin();

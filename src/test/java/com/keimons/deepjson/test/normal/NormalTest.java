@@ -3,7 +3,7 @@ package com.keimons.deepjson.test.normal;
 import com.alibaba.fastjson.JSONObject;
 import com.keimons.deepjson.DeepJson;
 import com.keimons.deepjson.SerializerOptions;
-import com.keimons.deepjson.UnsafeUtil;
+import com.keimons.deepjson.util.UnsafeUtil;
 import com.keimons.deepjson.serializer.INode;
 import com.keimons.deepjson.serializer.NormalNode;
 import org.junit.jupiter.api.Test;

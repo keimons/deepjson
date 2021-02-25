@@ -79,4 +79,9 @@ public abstract class BaseFiller implements IFiller {
 	public byte coder() {
 		return coder;
 	}
+
+	@Override
+	public long offset() {
+		return 0;
+	}
 }

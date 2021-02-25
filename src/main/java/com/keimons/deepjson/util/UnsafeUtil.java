@@ -1,4 +1,4 @@
-package com.keimons.deepjson;
+package com.keimons.deepjson.util;
 
 import sun.misc.Unsafe;
 
@@ -9,7 +9,6 @@ import java.security.PrivilegedExceptionAction;
 /**
  * @author monkey1993
  * @version 1.0
- * @date 2020-05-18
  * @since 1.8
  **/
 public class UnsafeUtil {

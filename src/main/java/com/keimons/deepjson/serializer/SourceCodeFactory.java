@@ -1,56 +1,38 @@
 package com.keimons.deepjson.serializer;
 
-import com.keimons.deepjson.UnsafeUtil;
-import com.keimons.deepjson.compiler.JdkCompiler;
+import com.keimons.deepjson.compiler.SourceCodeCompiler;
 import com.keimons.deepjson.filler.FieldInfo;
-import sun.misc.Unsafe;
+import com.keimons.deepjson.util.ClassUtil;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 /**
- * ASM字节码工厂
+ * 源代码工厂
+ * <p>
+ * 根据类中的字段，生成类的序列化工具。
  *
  * @author monkey
  * @version 1.0
  * @since 1.8
  **/
-public class JavacSerializerFactory {
+public class SourceCodeFactory {
 
-	private static final Unsafe unsafe = UnsafeUtil.getUnsafe();
-
+	/**
+	 * 构造一个序列化工具类
+	 *
+	 * @param clazz 类名
+	 * @return 工具类
+	 */
 	public static String create(Class<?> clazz) {
 		List<FieldInfo> fields = new ArrayList<>();
-		try {
-			List<Class<?>> classes = new ArrayList<>();
-			Class<?> current = clazz;
-			do {
-				classes.add(current);
-				current = current.getSuperclass();
-			} while (current != Object.class);
-
-			for (int i = classes.size() - 1; i >= 0; i--) {
-				// public default protected private fields
-				for (Field field : classes.get(i).getDeclaredFields()) {
-					// jump static field
-					if (Modifier.isStatic(field.getModifiers())) {
-						continue;
-					}
-					// jump transient field
-					if (Modifier.isTransient(field.getModifiers())) {
-						continue;
-					}
-					fields.add(new FieldInfo(field));
-				}
-			}
-		} catch (Throwable e) {
-			throw new RuntimeException(e);
+		for (Field field : ClassUtil.getFields(clazz)) {
+			fields.add(new FieldInfo(field));
 		}
-		return build(clazz.getSimpleName(), fields);
+		return create(clazz.getSimpleName(), fields);
 	}
 
 	/**
@@ -60,12 +42,12 @@ public class JavacSerializerFactory {
 	 * @param fields    字段
 	 * @return 工具类
 	 */
-	public static String build(String className, List<FieldInfo> fields) {
+	private static String create(String className, List<FieldInfo> fields) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("package com.keimons.deepjson.serializer;\n");
 		sb.append("\n");
 		sb.append("import com.keimons.deepjson.SerializerOptions;\n");
-		sb.append("import com.keimons.deepjson.UnsafeUtil;\n");
+		sb.append("import com.keimons.deepjson.util.UnsafeUtil;\n");
 		sb.append("import com.keimons.deepjson.filler.SerializerUtil;\n");
 		sb.append("import sun.misc.Unsafe;\n");
 		sb.append("\n");
@@ -113,7 +95,7 @@ public class JavacSerializerFactory {
 				sb.append("\t\tboolean ")
 						.append(fieldName)
 						.append(" = unsafe.getBoolean(object, ")
-						.append(unsafe.objectFieldOffset(field.getField()))
+						.append(field.offset())
 						.append("L);\n")
 				;
 				sb.append("\t\tlength += (")
@@ -126,7 +108,7 @@ public class JavacSerializerFactory {
 				sb.append("\t\tbyte ")
 						.append(fieldName)
 						.append(" = unsafe.getByte(object, ")
-						.append(unsafe.objectFieldOffset(field.getField()))
+						.append(field.offset())
 						.append("L);\n")
 				;
 				sb.append("\t\tlength += SerializerUtil.size(")
@@ -141,7 +123,7 @@ public class JavacSerializerFactory {
 				sb.append("\t\tshort ")
 						.append(fieldName)
 						.append(" = unsafe.getShort(object, ")
-						.append(unsafe.objectFieldOffset(field.getField()))
+						.append(field.offset())
 						.append("L);\n")
 				;
 				sb.append("\t\tlength += SerializerUtil.size(")
@@ -154,7 +136,7 @@ public class JavacSerializerFactory {
 				sb.append("\t\tint ")
 						.append(fieldName)
 						.append(" = unsafe.getInt(object, ")
-						.append(unsafe.objectFieldOffset(field.getField()))
+						.append(field.offset())
 						.append("L);\n")
 				;
 				sb.append("\t\tlength += SerializerUtil.size(")
@@ -167,7 +149,7 @@ public class JavacSerializerFactory {
 				sb.append("\t\tlong ")
 						.append(fieldName)
 						.append(" = unsafe.getLong(object, ")
-						.append(unsafe.objectFieldOffset(field.getField()))
+						.append(field.offset())
 						.append("L);\n")
 				;
 				sb.append("\t\tlength += SerializerUtil.size(")
@@ -180,7 +162,7 @@ public class JavacSerializerFactory {
 				sb.append("\t\tfloat ")
 						.append(fieldName)
 						.append(" = unsafe.getFloat(object, ")
-						.append(unsafe.objectFieldOffset(field.getField()))
+						.append(field.offset())
 						.append("L);\n")
 				;
 				sb.append("\t\tlength += format.format(")
@@ -193,7 +175,7 @@ public class JavacSerializerFactory {
 				sb.append("\t\tdouble ")
 						.append(fieldName)
 						.append(" = unsafe.getDouble(object, ")
-						.append(unsafe.objectFieldOffset(field.getField()))
+						.append(field.offset())
 						.append("L);\n")
 				;
 				sb.append("\t\tlength += format.format(")
@@ -229,56 +211,56 @@ public class JavacSerializerFactory {
 				sb.append("\t\t\tboolean ")
 						.append(fieldName)
 						.append(" = unsafe.getBoolean(object, ")
-						.append(unsafe.objectFieldOffset(field.getField()))
+						.append(field.offset())
 						.append("L);\n")
 				;
 			} else if (type == byte.class) {
 				sb.append("\t\t\tbyte ")
 						.append(fieldName)
 						.append(" = unsafe.getByte(object, ")
-						.append(unsafe.objectFieldOffset(field.getField()))
+						.append(field.offset())
 						.append("L);\n")
 				;
 			} else if (type == char.class) {
 				sb.append("\t\t\tchar ")
 						.append(fieldName)
 						.append(" = unsafe.getChar(object, ")
-						.append(unsafe.objectFieldOffset(field.getField()))
+						.append(field.offset())
 						.append("L);\n")
 				;
 			} else if (type == short.class) {
 				sb.append("\t\t\tshort ")
 						.append(fieldName)
 						.append(" = unsafe.getShort(object, ")
-						.append(unsafe.objectFieldOffset(field.getField()))
+						.append(field.offset())
 						.append("L);\n")
 				;
 			} else if (type == int.class) {
 				sb.append("\t\t\tint ")
 						.append(fieldName)
 						.append(" = unsafe.getInt(object, ")
-						.append(unsafe.objectFieldOffset(field.getField()))
+						.append(field.offset())
 						.append("L);\n")
 				;
 			} else if (type == long.class) {
 				sb.append("\t\t\tlong ")
 						.append(fieldName)
 						.append(" = unsafe.getLong(object, ")
-						.append(unsafe.objectFieldOffset(field.getField()))
+						.append(field.offset())
 						.append("L);\n")
 				;
 			} else if (type == float.class) {
 				sb.append("\t\t\tfloat ");
 				sb.append(fieldName)
 						.append(" = unsafe.getFloat(object, ")
-						.append(unsafe.objectFieldOffset(field.getField()))
+						.append(field.offset())
 						.append("L);\n")
 				;
 			} else if (type == double.class) {
 				sb.append("\t\t\tdouble ")
 						.append(fieldName)
 						.append(" = unsafe.getDouble(object, ")
-						.append(unsafe.objectFieldOffset(field.getField()))
+						.append(field.offset())
 						.append("L);\n")
 				;
 			}
@@ -299,15 +281,14 @@ public class JavacSerializerFactory {
 	}
 
 	public static void main(String[] args) {
-		ISerializerWriter writer = null;
-		String source = JavacSerializerFactory.create(Template.class);
+		String source = SourceCodeFactory.create(Template.class);
 		System.out.println(source);
-		Class<? extends ISerializerWriter> writerClass = JdkCompiler.compiler(source);
+		Class<? extends ISerializerWriter> clazz = SourceCodeCompiler.compiler(source, "Template$DeepJson");
 		try {
-			writer = writerClass.getDeclaredConstructor().newInstance();
+			ISerializerWriter writer = clazz.getDeclaredConstructor().newInstance();
+			System.out.println(writer.length(new Template(), 0));
 		} catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
 			e.printStackTrace();
 		}
-		System.out.println(writer.length(new Template(), 0));
 	}
 }

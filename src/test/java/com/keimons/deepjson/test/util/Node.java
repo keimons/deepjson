@@ -1,0 +1,15 @@
+package com.keimons.deepjson.test.util;
+
+/**
+ * Test class for ClassUtil.
+ *
+ * @author monkey1993
+ * @version 1.0
+ * @since 1.8
+ **/
+public class Node extends BaseNode {
+
+	public int value2;
+
+	private double value3;
+}

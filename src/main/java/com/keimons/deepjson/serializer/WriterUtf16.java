@@ -1,6 +1,6 @@
 package com.keimons.deepjson.serializer;
 
-import com.keimons.deepjson.UnsafeUtil;
+import com.keimons.deepjson.util.UnsafeUtil;
 import com.keimons.deepjson.filler.SerializerUtil;
 import com.keimons.deepjson.filler.IFieldName;
 import sun.misc.Unsafe;
