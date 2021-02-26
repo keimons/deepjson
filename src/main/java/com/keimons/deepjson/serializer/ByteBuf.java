@@ -87,7 +87,7 @@ public class ByteBuf {
 	private int writeIndex;
 
 	private ByteBuf(long options, int capacity, byte coder) {
-		this.buf = new byte[630];
+		this.buf = new byte[capacity << coder];
 		this.options = options;
 		this.coder = coder;
 		if (coder == SerializerUtil.LATIN) {
