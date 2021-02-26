@@ -244,28 +244,28 @@ public class SerializerUtil {
 		return charPos;
 	}
 
-	public static int putUTF16(byte[] buf, int index, long i) {
+	public static int putUTF16(byte[] buf, int writeIndex, long value) {
 		long q;
 		int r;
-		int charPos = index;
+		int charPos = writeIndex;
 
-		boolean negative = (i < 0);
+		boolean negative = (value < 0);
 		if (!negative) {
-			i = -i;
+			value = -value;
 		}
 
 		// Get 2 digits/iteration using longs until quotient fits into an int
-		while (i <= Integer.MIN_VALUE) {
-			q = i / 100;
-			r = (int) ((q * 100) - i);
-			i = q;
+		while (value <= Integer.MIN_VALUE) {
+			q = value / 100;
+			r = (int) ((q * 100) - value);
+			value = q;
 			putChar2(buf, --charPos, DigitOnes[r]);
 			putChar2(buf, --charPos, DigitTens[r]);
 		}
 
 		// Get 2 digits/iteration using ints
 		int q2;
-		int i2 = (int) i;
+		int i2 = (int) value;
 		while (i2 <= -100) {
 			q2 = i2 / 100;
 			r = (q2 * 100) - i2;

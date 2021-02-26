@@ -86,8 +86,6 @@ public class ByteBuf {
 
 	private int writeIndex;
 
-	boolean marked;
-
 	private ByteBuf(long options, int capacity, byte coder) {
 		this.buf = new byte[630];
 		this.options = options;
@@ -116,10 +114,6 @@ public class ByteBuf {
 		return writable;
 	}
 
-	public void mark() {
-		marked = true;
-	}
-
 	@ForceInline
 	public void writeValue(byte mark, byte[] fieldName, boolean value) {
 		if (coder == 0) {
@@ -141,6 +135,25 @@ public class ByteBuf {
 	}
 
 	@ForceInline
+	public void writeValue(byte mark, byte[] fieldName, char value) {
+		if (coder == 0) {
+			buf[writeIndex++] = mark;
+		} else {
+			buf[writeIndex++] = (byte) (mark << SerializerUtil.HI_BYTE_SHIFT);
+			buf[writeIndex++] = (byte) (mark << SerializerUtil.LO_BYTE_SHIFT);
+			int length = fieldName.length;
+			System.arraycopy(fieldName, 0, buf, writeIndex, length);
+			writeIndex += length;
+			buf[writeIndex++] = HI_BYTE_MARK;
+			buf[writeIndex++] = LO_BYTE_MARK;
+			buf[writeIndex++] = (byte) (value << SerializerUtil.HI_BYTE_SHIFT);
+			buf[writeIndex++] = (byte) (value << SerializerUtil.LO_BYTE_SHIFT);
+			buf[writeIndex++] = HI_BYTE_MARK;
+			buf[writeIndex++] = LO_BYTE_MARK;
+		}
+	}
+
+	@ForceInline
 	public void writeValue(byte mark, byte[] fieldName, int value) {
 		if (coder == 0) {
 			buf[writeIndex++] = mark;
@@ -153,7 +166,7 @@ public class ByteBuf {
 			length = SerializerUtil.size(value) << 1;
 			this.writeIndex += length;
 			int q, r;
-			int charPos = writeIndex;
+			int position = writeIndex;
 
 			boolean negative = (value < 0);
 			if (!negative) {
@@ -165,133 +178,150 @@ public class ByteBuf {
 				q = value / 100;
 				r = (q * 100) - value;
 				value = q;
-				buf[--charPos] = (byte) (SerializerUtil.DigitOnes[r] >> SerializerUtil.LO_BYTE_SHIFT);
-				buf[--charPos] = (byte) (SerializerUtil.DigitOnes[r] >> SerializerUtil.HI_BYTE_SHIFT);
-				buf[--charPos] = (byte) (SerializerUtil.DigitTens[r] >> SerializerUtil.LO_BYTE_SHIFT);
-				buf[--charPos] = (byte) (SerializerUtil.DigitTens[r] >> SerializerUtil.HI_BYTE_SHIFT);
+				buf[--position] = (byte) (SerializerUtil.DigitOnes[r] >> SerializerUtil.LO_BYTE_SHIFT);
+				buf[--position] = (byte) (SerializerUtil.DigitOnes[r] >> SerializerUtil.HI_BYTE_SHIFT);
+				buf[--position] = (byte) (SerializerUtil.DigitTens[r] >> SerializerUtil.LO_BYTE_SHIFT);
+				buf[--position] = (byte) (SerializerUtil.DigitTens[r] >> SerializerUtil.HI_BYTE_SHIFT);
 			}
 
 			// We know there are at most two digits left at this point.
 			q = value / 10;
 			r = (q * 10) - value;
-			buf[--charPos] = (byte) ('0' + r >> SerializerUtil.LO_BYTE_SHIFT);
-			buf[--charPos] = (byte) ('0' + r >> SerializerUtil.HI_BYTE_SHIFT);
+			buf[--position] = (byte) ('0' + r >> SerializerUtil.LO_BYTE_SHIFT);
+			buf[--position] = (byte) ('0' + r >> SerializerUtil.HI_BYTE_SHIFT);
 
 			// Whatever left is the remaining digit.
 			if (q < 0) {
-				buf[--charPos] = (byte) ('0' - q >> SerializerUtil.LO_BYTE_SHIFT);
-				buf[--charPos] = (byte) ('0' - q >> SerializerUtil.HI_BYTE_SHIFT);
+				buf[--position] = (byte) ('0' - q >> SerializerUtil.LO_BYTE_SHIFT);
+				buf[--position] = (byte) ('0' - q >> SerializerUtil.HI_BYTE_SHIFT);
 			}
 
 			if (negative) {
-				buf[--charPos] = HI_BYTE_NEGATIVE;
-				buf[--charPos] = HI_BYTE_NEGATIVE;
+				buf[--position] = HI_BYTE_NEGATIVE;
+				buf[--position] = HI_BYTE_NEGATIVE;
 			}
 		}
 	}
 
 	@ForceInline
 	public void writeValue(byte mark, byte[] fieldName, long value) {
+		if (coder == 0) {
+			buf[writeIndex++] = mark;
+		} else {
+			buf[writeIndex++] = (byte) (mark << SerializerUtil.HI_BYTE_SHIFT);
+			buf[writeIndex++] = (byte) (mark << SerializerUtil.LO_BYTE_SHIFT);
+			int length = fieldName.length;
+			System.arraycopy(fieldName, 0, buf, writeIndex, length);
+			writeIndex += length;
+			length = SerializerUtil.size(value) << 1;
+			this.writeIndex += length;
 
+			long q;
+			int r;
+			int position = writeIndex;
+
+			boolean negative = (value < 0);
+			if (!negative) {
+				value = -value;
+			}
+
+			// Get 2 digits/iteration using longs until quotient fits into an int
+			while (value <= Integer.MIN_VALUE) {
+				q = value / 100;
+				r = (int) ((q * 100) - value);
+				value = q;
+				buf[--position] = (byte) (SerializerUtil.DigitOnes[r] >> SerializerUtil.LO_BYTE_SHIFT);
+				buf[--position] = (byte) (SerializerUtil.DigitOnes[r] >> SerializerUtil.HI_BYTE_SHIFT);
+				buf[--position] = (byte) (SerializerUtil.DigitTens[r] >> SerializerUtil.LO_BYTE_SHIFT);
+				buf[--position] = (byte) (SerializerUtil.DigitTens[r] >> SerializerUtil.HI_BYTE_SHIFT);
+			}
+
+			// Get 2 digits/iteration using ints
+			int q2;
+			int i2 = (int) value;
+			while (i2 <= -100) {
+				q2 = i2 / 100;
+				r = (q2 * 100) - i2;
+				i2 = q2;
+				buf[--position] = (byte) (SerializerUtil.DigitOnes[r] >> SerializerUtil.LO_BYTE_SHIFT);
+				buf[--position] = (byte) (SerializerUtil.DigitOnes[r] >> SerializerUtil.HI_BYTE_SHIFT);
+				buf[--position] = (byte) (SerializerUtil.DigitTens[r] >> SerializerUtil.LO_BYTE_SHIFT);
+				buf[--position] = (byte) (SerializerUtil.DigitTens[r] >> SerializerUtil.HI_BYTE_SHIFT);
+			}
+
+			// We know there are at most two digits left at this point.
+			q2 = i2 / 10;
+			r = (q2 * 10) - i2;
+			buf[--position] = (byte) ('0' + r >> SerializerUtil.LO_BYTE_SHIFT);
+			buf[--position] = (byte) ('0' + r >> SerializerUtil.HI_BYTE_SHIFT);
+
+			// Whatever left is the remaining digit.
+			if (q2 < 0) {
+				buf[--position] = (byte) ('0' - q2 >> SerializerUtil.LO_BYTE_SHIFT);
+				buf[--position] = (byte) ('0' - q2 >> SerializerUtil.HI_BYTE_SHIFT);
+			}
+
+			if (negative) {
+				buf[--position] = HI_BYTE_NEGATIVE;
+				buf[--position] = HI_BYTE_NEGATIVE;
+			}
+		}
 	}
 
 	@ForceInline
 	public void writeValue(byte mark, byte[] fieldName, float value) {
-
+		String s = String.valueOf(value);
+		int writable = fieldName.length + s.length();
+		ensureWritable(writable);
+		if (coder == 0) {
+			buf[writeIndex++] = mark;
+		} else {
+			buf[writeIndex++] = (byte) (mark << SerializerUtil.HI_BYTE_SHIFT);
+			buf[writeIndex++] = (byte) (mark << SerializerUtil.LO_BYTE_SHIFT);
+			int length = fieldName.length;
+			System.arraycopy(fieldName, 0, buf, writeIndex, length);
+			writeIndex += length;
+			byte[] stringBytes = (byte[]) unsafe.getObject(s, SerializerUtil.VALUE_OFFSET_STRING);
+			byte stringCoder = unsafe.getByte(s, SerializerUtil.CODER_OFFSET_STRING);
+			if (stringCoder == SerializerUtil.LATIN) {
+				for (byte b : stringBytes) {
+					buf[writeIndex++] = (byte) (b << SerializerUtil.HI_BYTE_SHIFT);
+					buf[writeIndex++] = (byte) (b << SerializerUtil.LO_BYTE_SHIFT);
+				}
+			} else {
+				length = stringBytes.length;
+				System.arraycopy(stringBytes, 0, buf, writeIndex, length);
+				writeIndex += length;
+			}
+		}
 	}
 
 	@ForceInline
 	public void writeValue(byte mark, byte[] fieldName, double value) {
-
-	}
-
-	@ForceInline
-	public void writeBytes(byte[] values, int value) {
-		int length = values.length;
-		System.arraycopy(values, 0, buf, writeIndex, length);
-		writeIndex += length;
-		length = SerializerUtil.size(value) << 1;
-		this.writeIndex += length;
-		int q, r;
-		int charPos = writeIndex;
-
-		boolean negative = (value < 0);
-		if (!negative) {
-			value = -value;
+		String s = String.valueOf(value);
+		int writable = fieldName.length + s.length();
+		ensureWritable(writable);
+		if (coder == 0) {
+			buf[writeIndex++] = mark;
+		} else {
+			buf[writeIndex++] = (byte) (mark << SerializerUtil.HI_BYTE_SHIFT);
+			buf[writeIndex++] = (byte) (mark << SerializerUtil.LO_BYTE_SHIFT);
+			int length = fieldName.length;
+			System.arraycopy(fieldName, 0, buf, writeIndex, length);
+			writeIndex += length;
+			byte[] stringBytes = (byte[]) unsafe.getObject(s, SerializerUtil.VALUE_OFFSET_STRING);
+			byte stringCoder = unsafe.getByte(s, SerializerUtil.CODER_OFFSET_STRING);
+			if (stringCoder == SerializerUtil.LATIN) {
+				for (byte b : stringBytes) {
+					buf[writeIndex++] = (byte) (b << SerializerUtil.HI_BYTE_SHIFT);
+					buf[writeIndex++] = (byte) (b << SerializerUtil.LO_BYTE_SHIFT);
+				}
+			} else {
+				length = stringBytes.length;
+				System.arraycopy(stringBytes, 0, buf, writeIndex, length);
+				writeIndex += length;
+			}
 		}
-
-		// Get 2 digits/iteration using ints
-		while (value <= -100) {
-			q = value / 100;
-			r = (q * 100) - value;
-			value = q;
-			buf[--charPos] = (byte) (SerializerUtil.DigitOnes[r] >> SerializerUtil.LO_BYTE_SHIFT);
-			buf[--charPos] = (byte) (SerializerUtil.DigitOnes[r] >> SerializerUtil.HI_BYTE_SHIFT);
-			buf[--charPos] = (byte) (SerializerUtil.DigitTens[r] >> SerializerUtil.LO_BYTE_SHIFT);
-			buf[--charPos] = (byte) (SerializerUtil.DigitTens[r] >> SerializerUtil.HI_BYTE_SHIFT);
-		}
-
-		// We know there are at most two digits left at this point.
-		q = value / 10;
-		r = (q * 10) - value;
-		buf[--charPos] = (byte) ('0' + r >> SerializerUtil.LO_BYTE_SHIFT);
-		buf[--charPos] = (byte) ('0' + r >> SerializerUtil.HI_BYTE_SHIFT);
-
-		// Whatever left is the remaining digit.
-		if (q < 0) {
-			buf[--charPos] = (byte) ('0' - q >> SerializerUtil.LO_BYTE_SHIFT);
-			buf[--charPos] = (byte) ('0' - q >> SerializerUtil.HI_BYTE_SHIFT);
-		}
-
-		if (negative) {
-			buf[--charPos] = HI_BYTE_NEGATIVE;
-			buf[--charPos] = HI_BYTE_NEGATIVE;
-		}
-		buf[writeIndex++] = HI_BYTE_MARK1;
-		buf[writeIndex++] = LO_BYTE_MARK1;
-	}
-
-	@ForceInline
-	public void writeInt(int value) {
-		int length = SerializerUtil.size(value) << 1;
-		this.writeIndex += length;
-		int q, r;
-		int charPos = writeIndex;
-
-		boolean negative = (value < 0);
-		if (!negative) {
-			value = -value;
-		}
-
-		// Get 2 digits/iteration using ints
-		while (value <= -100) {
-			q = value / 100;
-			r = (q * 100) - value;
-			value = q;
-			buf[--charPos] = (byte) (SerializerUtil.DigitOnes[r] >> SerializerUtil.LO_BYTE_SHIFT);
-			buf[--charPos] = (byte) (SerializerUtil.DigitOnes[r] >> SerializerUtil.HI_BYTE_SHIFT);
-			buf[--charPos] = (byte) (SerializerUtil.DigitTens[r] >> SerializerUtil.LO_BYTE_SHIFT);
-			buf[--charPos] = (byte) (SerializerUtil.DigitTens[r] >> SerializerUtil.HI_BYTE_SHIFT);
-		}
-
-		// We know there are at most two digits left at this point.
-		q = value / 10;
-		r = (q * 10) - value;
-		buf[--charPos] = (byte) ('0' + r >> SerializerUtil.LO_BYTE_SHIFT);
-		buf[--charPos] = (byte) ('0' + r >> SerializerUtil.HI_BYTE_SHIFT);
-
-		// Whatever left is the remaining digit.
-		if (q < 0) {
-			buf[--charPos] = (byte) ('0' - q >> SerializerUtil.LO_BYTE_SHIFT);
-			buf[--charPos] = (byte) ('0' - q >> SerializerUtil.HI_BYTE_SHIFT);
-		}
-
-		if (negative) {
-			buf[--charPos] = (byte) ('-' >> SerializerUtil.HI_BYTE_SHIFT);
-			buf[--charPos] = (byte) ('-' >> SerializerUtil.LO_BYTE_SHIFT);
-		}
-		buf[writeIndex++] = HI_BYTE_MARK1;
-		buf[writeIndex++] = LO_BYTE_MARK1;
 	}
 
 	public int writeInt(IFieldName field, int value) {
@@ -358,11 +388,11 @@ public class ByteBuf {
 		ensureWritable(writable);
 		this.writeIndex += writer.writeField(buf, options, writeIndex, field);
 
-		ISerializer writer = SerializerFactory.getWriter(value.getClass());
-		int write = writer.write(value, this);
+//		ISerializer writer = SerializerFactory.getSerializer(value.getClass());
+//		int write = writer.write(value, this);
 
 		this.writeIndex += this.writer.writeMark(buf, options, writeIndex);
-		return writable + write;
+		return writable;
 	}
 
 	public int writeInts(int[] value) {
@@ -545,7 +575,7 @@ public class ByteBuf {
 			unsafe.putObject(str, SerializerUtil.VALUE_OFFSET_STRING, buf);
 			unsafe.putByte(str, SerializerUtil.CODER_OFFSET_STRING, coder);
 			return str;
-		} catch (InstantiationException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
 		}

@@ -19,8 +19,9 @@ public class ObjectFiller extends BaseFiller {
 		if (value == null) {
 			return 0;
 		}
-		ISerializer writer = SerializerFactory.getWriter(value.getClass());
-		return (byte) (coder | writer.coder(value, options));
+		ISerializer writer = SerializerFactory.getSerializer(value.getClass());
+//		return (byte) (coder | writer.coder(value, options));
+		return 0;
 	}
 
 	@Override
@@ -33,7 +34,7 @@ public class ObjectFiller extends BaseFiller {
 				return 0;
 			}
 		}
-		ISerializer writer = SerializerFactory.getWriter(value.getClass());
+		ISerializer writer = SerializerFactory.getSerializer(value.getClass());
 		return size + writer.length(value, options);
 	}
 

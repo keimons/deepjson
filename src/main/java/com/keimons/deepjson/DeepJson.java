@@ -1,5 +1,6 @@
 package com.keimons.deepjson;
 
+import com.keimons.deepjson.serializer.ByteBuf;
 import com.keimons.deepjson.serializer.ISerializer;
 import com.keimons.deepjson.serializer.SerializerFactory;
 
@@ -15,20 +16,20 @@ public class DeepJson {
 		if (object == null) {
 			return "null";
 		}
-		ISerializer serializer = SerializerFactory.getWriter(object.getClass());
-		return serializer.write(object, options);
+		long option = SerializerOptions.getOptions(options);
+		return toJsonString(object, option);
 	}
 
 	private static String toJsonString(Object object, long options) {
 		if (object == null) {
 			return "null";
 		}
-
-//		int capacity = length(object, option);
-//		byte coder = 1;// coder(object, option);
-//		ByteBuf buf = ByteBuf.buffer(option, capacity, coder);
-//		write(object, buf);
-//		return buf.newString();
-		return null;
+		Class<?> clazz = object.getClass();
+		ISerializer serializer = SerializerFactory.getSerializer(clazz);
+		int capacity = serializer.length(object, options);
+		byte coder = 1;// coder(object, option);
+		ByteBuf buf = ByteBuf.buffer(options, capacity, coder);
+		serializer.write(object, buf);
+		return buf.newString();
 	}
 }

@@ -1,11 +1,9 @@
 package com.keimons.deepjson.serializer;
 
-import com.keimons.deepjson.compiler.SourceCodeCompiler;
 import com.keimons.deepjson.filler.FieldInfo;
 import com.keimons.deepjson.util.ClassUtil;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -24,28 +22,33 @@ public class SourceCodeFactory {
 	/**
 	 * 构造一个序列化工具类
 	 *
-	 * @param clazz 类名
+	 * @param packageName 生成的包名
+	 * @param className   生成的类名
+	 * @param clazz       要序列化的类
 	 * @return 工具类
 	 */
-	public static String create(Class<?> clazz) {
+	public static String create(String packageName, String className, Class<?> clazz) {
 		List<FieldInfo> fields = new ArrayList<>();
 		for (Field field : ClassUtil.getFields(clazz)) {
 			fields.add(new FieldInfo(field));
 		}
-		return create(clazz.getSimpleName(), fields);
+		return create(packageName, className, fields);
 	}
 
 	/**
 	 * 构造一个序列化工具类型
 	 *
-	 * @param className 类名
-	 * @param fields    字段
+	 * @param packageName 包名
+	 * @param className   类名
+	 * @param fields      字段
 	 * @return 工具类
 	 */
-	private static String create(String className, List<FieldInfo> fields) {
+	private static String create(String packageName, String className, List<FieldInfo> fields) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("package com.keimons.deepjson.serializer;\n");
+		sb.append("package ").append(packageName).append(";\n");
 		sb.append("\n");
+		sb.append("import com.keimons.deepjson.serializer.ISerializer;\n");
+		sb.append("import com.keimons.deepjson.serializer.ByteBuf;\n");
 		sb.append("import com.keimons.deepjson.SerializerOptions;\n");
 		sb.append("import com.keimons.deepjson.util.UnsafeUtil;\n");
 		sb.append("import com.keimons.deepjson.filler.SerializerUtil;\n");
@@ -53,7 +56,7 @@ public class SourceCodeFactory {
 		sb.append("\n");
 		sb.append("import java.text.DecimalFormat;\n");
 		sb.append("\n");
-		sb.append("public class ").append(className).append("$DeepJson").append(" implements ISerializerWriter {\n");
+		sb.append("public class ").append(className).append(" implements ISerializer {\n");
 		sb.append("\n");
 		sb.append("\tprivate static final Unsafe unsafe = UnsafeUtil.getUnsafe();\n");
 		sb.append("\n");
@@ -278,17 +281,5 @@ public class SourceCodeFactory {
 		sb.append("\t}\n");
 		sb.append("}");
 		return sb.toString();
-	}
-
-	public static void main(String[] args) {
-		String source = SourceCodeFactory.create(Template.class);
-		System.out.println(source);
-		Class<? extends ISerializerWriter> clazz = SourceCodeCompiler.compiler(source, "Template$DeepJson");
-		try {
-			ISerializerWriter writer = clazz.getDeclaredConstructor().newInstance();
-			System.out.println(writer.length(new Template(), 0));
-		} catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-			e.printStackTrace();
-		}
 	}
 }

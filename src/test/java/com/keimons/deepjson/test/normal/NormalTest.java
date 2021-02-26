@@ -49,7 +49,7 @@ public class NormalTest {
 		DeepJson.toJsonString(node);
 		JSONObject.toJSONString(node);
 
-		for (int j = 0; j < 10; j++) {
+		for (int j = 0; j < 20; j++) {
 			List<String> list = new ArrayList<>(times);
 			long fastStart = System.nanoTime();
 			for (int i = 0; i < times; i++) {
@@ -67,7 +67,7 @@ public class NormalTest {
 		DeepJson.toJsonString(node);
 		JSONObject.toJSONString(node);
 
-		for (int j = 0; j < 10; j++) {
+		for (int j = 0; j < 20; j++) {
 			long deepStart = System.nanoTime();
 			List<String> list = new ArrayList<>(times);
 			for (int i = 0; i < times; i++) {

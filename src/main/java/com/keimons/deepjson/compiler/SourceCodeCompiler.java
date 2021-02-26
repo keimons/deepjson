@@ -1,6 +1,6 @@
 package com.keimons.deepjson.compiler;
 
-import com.keimons.deepjson.serializer.ISerializerWriter;
+import com.keimons.deepjson.serializer.ISerializer;
 
 import javax.tools.*;
 import java.net.URL;
@@ -19,13 +19,8 @@ public class SourceCodeCompiler {
 
 	private static final String PACKAGE = "com/keimons/deepjson/compiler/";
 
-	/**
-	 * 编译诊断收集器
-	 */
-	private static final DiagnosticCollector<JavaFileObject> DIAGNOSTIC_COLLECTOR = new DiagnosticCollector<>();
-
 	@SuppressWarnings("unchecked")
-	public static Class<? extends ISerializerWriter> compiler(String source, String className) {
+	public Class<? extends ISerializer> compiler(String packageName, String className, String source) {
 		// 获取系统编译器实例
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		// 设置编译参数 - 指定编译版本为 JDK 11
@@ -44,14 +39,17 @@ public class SourceCodeCompiler {
 			path += classes.getPath().replace(PACKAGE, "");
 		}
 		options.add(path);
+
+		// 编译诊断收集器
+		DiagnosticCollector<JavaFileObject> collector = new DiagnosticCollector<>();
+
 		// 获取标准的Java文件管理器实例
-		StandardJavaFileManager manager = compiler.getStandardFileManager(DIAGNOSTIC_COLLECTOR, null, null);
+		StandardJavaFileManager manager = compiler.getStandardFileManager(collector, null, null);
 		// 初始化自定义类加载器
 		SourceCodeClassLoader classLoader = new SourceCodeClassLoader(Thread.currentThread().getContextClassLoader());
 		// 初始化自定义Java文件管理器实例
 		SourceCodeJavaFileManager fileManager = new SourceCodeJavaFileManager(manager, classLoader);
-		String packageName = "com.keimons.deepjson.serializer";
-		String qualifiedName = packageName + "." + className;
+		String fullName = packageName + "." + className;
 		SourceCodeJavaFileObject javaFileObject = new SourceCodeJavaFileObject(className, source);
 		// 添加Java源文件实例到自定义Java文件管理器实例中
 		fileManager.addJavaFileObject(
@@ -64,7 +62,7 @@ public class SourceCodeCompiler {
 		JavaCompiler.CompilationTask compilationTask = compiler.getTask(
 				null,
 				fileManager,
-				DIAGNOSTIC_COLLECTOR,
+				collector,
 				options,
 				null,
 				Collections.singletonList(javaFileObject)
@@ -72,15 +70,15 @@ public class SourceCodeCompiler {
 		// 执行编译任务
 		Boolean result = compilationTask.call();
 		if (result == null || !result) {
-			System.out.println("Compiler Fail.");
-			DIAGNOSTIC_COLLECTOR.getDiagnostics();
+			throw new IllegalStateException(
+					"Compilation failed. class: " + className + ", diagnostics: " + collector.getDiagnostics());
 		}
 		Class<?> clazz = null;
 		try {
-			clazz = classLoader.loadClass(qualifiedName);
+			clazz = classLoader.loadClass(fullName);
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
-		return (Class<? extends ISerializerWriter>) clazz;
+		return (Class<? extends ISerializer>) clazz;
 	}
 }
