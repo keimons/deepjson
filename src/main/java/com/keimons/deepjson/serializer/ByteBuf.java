@@ -11,69 +11,69 @@ public class ByteBuf {
 
 	private static final Unsafe unsafe = UnsafeUtil.getUnsafe();
 
-	private static final byte HI_BYTE_L_BRACES = (byte) ('{' << SerializerUtil.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_L_BRACES = (byte) ('{' << SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_L_BRACES = (byte) ('{' >> SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_L_BRACES = (byte) ('{' >> SerializerUtil.LO_BYTE_SHIFT);
 
-	private static final byte HI_BYTE_R_BRACES = (byte) ('}' << SerializerUtil.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_R_BRACES = (byte) ('}' << SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_R_BRACES = (byte) ('}' >> SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_R_BRACES = (byte) ('}' >> SerializerUtil.LO_BYTE_SHIFT);
 
-	private static final byte HI_BYTE_L_BRACKET = (byte) ('[' << SerializerUtil.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_L_BRACKET = (byte) ('[' << SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_L_BRACKET = (byte) ('[' >> SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_L_BRACKET = (byte) ('[' >> SerializerUtil.LO_BYTE_SHIFT);
 
-	private static final byte HI_BYTE_R_BRACKET = (byte) (']' << SerializerUtil.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_R_BRACKET = (byte) (']' << SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_R_BRACKET = (byte) (']' >> SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_R_BRACKET = (byte) (']' >> SerializerUtil.LO_BYTE_SHIFT);
 
-	private static final byte HI_BYTE_MARK1 = (byte) (',' << SerializerUtil.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_MARK1 = (byte) (',' << SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_MARK1 = (byte) (',' >> SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_MARK1 = (byte) (',' >> SerializerUtil.LO_BYTE_SHIFT);
 
-	private static final byte HI_BYTE_NEGATIVE = (byte) ('-' << SerializerUtil.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_NEGATIVE = (byte) ('-' << SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_NEGATIVE = (byte) ('-' >> SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_NEGATIVE = (byte) ('-' >> SerializerUtil.LO_BYTE_SHIFT);
 
-	private static final byte HI_BYTE_MARK = (byte) ('"' << SerializerUtil.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_MARK = (byte) ('"' << SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_MARK = (byte) ('"' >> SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_MARK = (byte) ('"' >> SerializerUtil.LO_BYTE_SHIFT);
 
-	private static final byte HI_BYTE_A = (byte) ('a' << SerializerUtil.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_A = (byte) ('a' << SerializerUtil.LO_BYTE_SHIFT);
-	private static final byte HI_BYTE_E = (byte) ('e' << SerializerUtil.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_E = (byte) ('e' << SerializerUtil.LO_BYTE_SHIFT);
-	private static final byte HI_BYTE_F = (byte) ('f' << SerializerUtil.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_F = (byte) ('f' << SerializerUtil.LO_BYTE_SHIFT);
-	private static final byte HI_BYTE_L = (byte) ('l' << SerializerUtil.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_L = (byte) ('l' << SerializerUtil.LO_BYTE_SHIFT);
-	private static final byte HI_BYTE_N = (byte) ('n' << SerializerUtil.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_N = (byte) ('n' << SerializerUtil.LO_BYTE_SHIFT);
-	private static final byte HI_BYTE_R = (byte) ('r' << SerializerUtil.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_R = (byte) ('r' << SerializerUtil.LO_BYTE_SHIFT);
-	private static final byte HI_BYTE_S = (byte) ('s' << SerializerUtil.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_S = (byte) ('s' << SerializerUtil.LO_BYTE_SHIFT);
-	private static final byte HI_BYTE_T = (byte) ('t' << SerializerUtil.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_T = (byte) ('t' << SerializerUtil.LO_BYTE_SHIFT);
-	private static final byte HI_BYTE_U = (byte) ('u' << SerializerUtil.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_U = (byte) ('u' << SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_A = (byte) ('a' >> SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_A = (byte) ('a' >> SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_E = (byte) ('e' >> SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_E = (byte) ('e' >> SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_F = (byte) ('f' >> SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_F = (byte) ('f' >> SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_L = (byte) ('l' >> SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_L = (byte) ('l' >> SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_N = (byte) ('n' >> SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_N = (byte) ('n' >> SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_R = (byte) ('r' >> SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_R = (byte) ('r' >> SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_S = (byte) ('s' >> SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_S = (byte) ('s' >> SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_T = (byte) ('t' >> SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_T = (byte) ('t' >> SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_U = (byte) ('u' >> SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_U = (byte) ('u' >> SerializerUtil.LO_BYTE_SHIFT);
 
 
 	private static final byte[] BOOLEAN_TRUE_UTF16 = {
-			(byte) ('t' << SerializerUtil.HI_BYTE_SHIFT),
-			(byte) ('t' << SerializerUtil.LO_BYTE_SHIFT),
-			(byte) ('r' << SerializerUtil.HI_BYTE_SHIFT),
-			(byte) ('r' << SerializerUtil.LO_BYTE_SHIFT),
-			(byte) ('u' << SerializerUtil.HI_BYTE_SHIFT),
-			(byte) ('u' << SerializerUtil.LO_BYTE_SHIFT),
-			(byte) ('e' << SerializerUtil.HI_BYTE_SHIFT),
-			(byte) ('e' << SerializerUtil.LO_BYTE_SHIFT),
+			(byte) ('t' >> SerializerUtil.HI_BYTE_SHIFT),
+			(byte) ('t' >> SerializerUtil.LO_BYTE_SHIFT),
+			(byte) ('r' >> SerializerUtil.HI_BYTE_SHIFT),
+			(byte) ('r' >> SerializerUtil.LO_BYTE_SHIFT),
+			(byte) ('u' >> SerializerUtil.HI_BYTE_SHIFT),
+			(byte) ('u' >> SerializerUtil.LO_BYTE_SHIFT),
+			(byte) ('e' >> SerializerUtil.HI_BYTE_SHIFT),
+			(byte) ('e' >> SerializerUtil.LO_BYTE_SHIFT),
 	};
 
 	private static final byte[] BOOLEAN_FALSE_UTF16 = {
-			(byte) ('f' << SerializerUtil.HI_BYTE_SHIFT),
-			(byte) ('f' << SerializerUtil.LO_BYTE_SHIFT),
-			(byte) ('a' << SerializerUtil.HI_BYTE_SHIFT),
-			(byte) ('a' << SerializerUtil.LO_BYTE_SHIFT),
-			(byte) ('l' << SerializerUtil.HI_BYTE_SHIFT),
-			(byte) ('l' << SerializerUtil.LO_BYTE_SHIFT),
-			(byte) ('s' << SerializerUtil.HI_BYTE_SHIFT),
-			(byte) ('s' << SerializerUtil.LO_BYTE_SHIFT),
-			(byte) ('e' << SerializerUtil.HI_BYTE_SHIFT),
-			(byte) ('e' << SerializerUtil.LO_BYTE_SHIFT),
+			(byte) ('f' >> SerializerUtil.HI_BYTE_SHIFT),
+			(byte) ('f' >> SerializerUtil.LO_BYTE_SHIFT),
+			(byte) ('a' >> SerializerUtil.HI_BYTE_SHIFT),
+			(byte) ('a' >> SerializerUtil.LO_BYTE_SHIFT),
+			(byte) ('l' >> SerializerUtil.HI_BYTE_SHIFT),
+			(byte) ('l' >> SerializerUtil.LO_BYTE_SHIFT),
+			(byte) ('s' >> SerializerUtil.HI_BYTE_SHIFT),
+			(byte) ('s' >> SerializerUtil.LO_BYTE_SHIFT),
+			(byte) ('e' >> SerializerUtil.HI_BYTE_SHIFT),
+			(byte) ('e' >> SerializerUtil.LO_BYTE_SHIFT),
 	};
 
 	private final long options;
@@ -119,8 +119,8 @@ public class ByteBuf {
 		if (coder == 0) {
 			buf[writeIndex++] = mark;
 		} else {
-			buf[writeIndex++] = (byte) (mark << SerializerUtil.HI_BYTE_SHIFT);
-			buf[writeIndex++] = (byte) (mark << SerializerUtil.LO_BYTE_SHIFT);
+			buf[writeIndex++] = (byte) (mark >> SerializerUtil.HI_BYTE_SHIFT);
+			buf[writeIndex++] = (byte) (mark >> SerializerUtil.LO_BYTE_SHIFT);
 			int length = fieldName.length;
 			System.arraycopy(fieldName, 0, buf, writeIndex, length);
 			writeIndex += length;
@@ -139,15 +139,15 @@ public class ByteBuf {
 		if (coder == 0) {
 			buf[writeIndex++] = mark;
 		} else {
-			buf[writeIndex++] = (byte) (mark << SerializerUtil.HI_BYTE_SHIFT);
-			buf[writeIndex++] = (byte) (mark << SerializerUtil.LO_BYTE_SHIFT);
+			buf[writeIndex++] = (byte) (mark >> SerializerUtil.HI_BYTE_SHIFT);
+			buf[writeIndex++] = (byte) (mark >> SerializerUtil.LO_BYTE_SHIFT);
 			int length = fieldName.length;
 			System.arraycopy(fieldName, 0, buf, writeIndex, length);
 			writeIndex += length;
 			buf[writeIndex++] = HI_BYTE_MARK;
 			buf[writeIndex++] = LO_BYTE_MARK;
-			buf[writeIndex++] = (byte) (value << SerializerUtil.HI_BYTE_SHIFT);
-			buf[writeIndex++] = (byte) (value << SerializerUtil.LO_BYTE_SHIFT);
+			buf[writeIndex++] = (byte) (value >> SerializerUtil.HI_BYTE_SHIFT);
+			buf[writeIndex++] = (byte) (value >> SerializerUtil.LO_BYTE_SHIFT);
 			buf[writeIndex++] = HI_BYTE_MARK;
 			buf[writeIndex++] = LO_BYTE_MARK;
 		}
@@ -158,8 +158,8 @@ public class ByteBuf {
 		if (coder == 0) {
 			buf[writeIndex++] = mark;
 		} else {
-			buf[writeIndex++] = (byte) (mark << SerializerUtil.HI_BYTE_SHIFT);
-			buf[writeIndex++] = (byte) (mark << SerializerUtil.LO_BYTE_SHIFT);
+			buf[writeIndex++] = (byte) (mark >> SerializerUtil.HI_BYTE_SHIFT);
+			buf[writeIndex++] = (byte) (mark >> SerializerUtil.LO_BYTE_SHIFT);
 			int length = fieldName.length;
 			System.arraycopy(fieldName, 0, buf, writeIndex, length);
 			writeIndex += length;
@@ -208,8 +208,8 @@ public class ByteBuf {
 		if (coder == 0) {
 			buf[writeIndex++] = mark;
 		} else {
-			buf[writeIndex++] = (byte) (mark << SerializerUtil.HI_BYTE_SHIFT);
-			buf[writeIndex++] = (byte) (mark << SerializerUtil.LO_BYTE_SHIFT);
+			buf[writeIndex++] = (byte) (mark >> SerializerUtil.HI_BYTE_SHIFT);
+			buf[writeIndex++] = (byte) (mark >> SerializerUtil.LO_BYTE_SHIFT);
 			int length = fieldName.length;
 			System.arraycopy(fieldName, 0, buf, writeIndex, length);
 			writeIndex += length;
@@ -270,14 +270,14 @@ public class ByteBuf {
 
 	@ForceInline
 	public void writeValue(byte mark, byte[] fieldName, float value) {
-		String s = String.valueOf(value);
+		String s = Float.toString(value);
 		int writable = fieldName.length + s.length();
 		ensureWritable(writable);
 		if (coder == 0) {
 			buf[writeIndex++] = mark;
 		} else {
-			buf[writeIndex++] = (byte) (mark << SerializerUtil.HI_BYTE_SHIFT);
-			buf[writeIndex++] = (byte) (mark << SerializerUtil.LO_BYTE_SHIFT);
+			buf[writeIndex++] = (byte) (mark >> SerializerUtil.HI_BYTE_SHIFT);
+			buf[writeIndex++] = (byte) (mark >> SerializerUtil.LO_BYTE_SHIFT);
 			int length = fieldName.length;
 			System.arraycopy(fieldName, 0, buf, writeIndex, length);
 			writeIndex += length;
@@ -285,8 +285,8 @@ public class ByteBuf {
 			byte stringCoder = unsafe.getByte(s, SerializerUtil.CODER_OFFSET_STRING);
 			if (stringCoder == SerializerUtil.LATIN) {
 				for (byte b : stringBytes) {
-					buf[writeIndex++] = (byte) (b << SerializerUtil.HI_BYTE_SHIFT);
-					buf[writeIndex++] = (byte) (b << SerializerUtil.LO_BYTE_SHIFT);
+					buf[writeIndex++] = (byte) (b >> SerializerUtil.HI_BYTE_SHIFT);
+					buf[writeIndex++] = (byte) (b >> SerializerUtil.LO_BYTE_SHIFT);
 				}
 			} else {
 				length = stringBytes.length;
@@ -298,14 +298,14 @@ public class ByteBuf {
 
 	@ForceInline
 	public void writeValue(byte mark, byte[] fieldName, double value) {
-		String s = String.valueOf(value);
+		String s = Double.toString(value);
 		int writable = fieldName.length + s.length();
 		ensureWritable(writable);
 		if (coder == 0) {
 			buf[writeIndex++] = mark;
 		} else {
-			buf[writeIndex++] = (byte) (mark << SerializerUtil.HI_BYTE_SHIFT);
-			buf[writeIndex++] = (byte) (mark << SerializerUtil.LO_BYTE_SHIFT);
+			buf[writeIndex++] = (byte) (mark >> SerializerUtil.HI_BYTE_SHIFT);
+			buf[writeIndex++] = (byte) (mark >> SerializerUtil.LO_BYTE_SHIFT);
 			int length = fieldName.length;
 			System.arraycopy(fieldName, 0, buf, writeIndex, length);
 			writeIndex += length;
@@ -313,8 +313,8 @@ public class ByteBuf {
 			byte stringCoder = unsafe.getByte(s, SerializerUtil.CODER_OFFSET_STRING);
 			if (stringCoder == SerializerUtil.LATIN) {
 				for (byte b : stringBytes) {
-					buf[writeIndex++] = (byte) (b << SerializerUtil.HI_BYTE_SHIFT);
-					buf[writeIndex++] = (byte) (b << SerializerUtil.LO_BYTE_SHIFT);
+					buf[writeIndex++] = (byte) (b >> SerializerUtil.HI_BYTE_SHIFT);
+					buf[writeIndex++] = (byte) (b >> SerializerUtil.LO_BYTE_SHIFT);
 				}
 			} else {
 				length = stringBytes.length;
@@ -322,6 +322,23 @@ public class ByteBuf {
 				writeIndex += length;
 			}
 		}
+	}
+
+	@ForceInline
+	public void writeValue(byte mark, byte[] fieldName, Object value) {
+		int writable = fieldName.length;
+		ensureWritable(writable);
+		if (coder == 0) {
+			buf[writeIndex++] = mark;
+		} else {
+			buf[writeIndex++] = (byte) (mark >> SerializerUtil.HI_BYTE_SHIFT);
+			buf[writeIndex++] = (byte) (mark >> SerializerUtil.LO_BYTE_SHIFT);
+			int length = fieldName.length;
+			System.arraycopy(fieldName, 0, buf, writeIndex, length);
+			writeIndex += length;
+		}
+		ISerializer serializer = SerializerFactory.getSerializer(value.getClass());
+		serializer.write(value, this);
 	}
 
 	public int writeInt(IFieldName field, int value) {
@@ -372,6 +389,14 @@ public class ByteBuf {
 		this.writeIndex += writer.writeField(buf, options, writeIndex, field);
 		this.writeIndex += writer.writeString(buf, options, writeIndex, s);
 		return writable;
+	}
+
+	public void writeString(String value) {
+		int writable = value.length() + 2;
+		ensureWritable(writable);
+		byte coder = unsafe.getByte(value, SerializerUtil.CODER_OFFSET_STRING);
+		ensureCoder(coder);
+		this.writeIndex += writer.writeStringWithMark(buf, options, writeIndex, value);
 	}
 
 	public int writeString(IFieldName field, String value) {
@@ -435,51 +460,6 @@ public class ByteBuf {
 		this.writeIndex += writer.writeEndArray(buf, options, writeIndex);
 		return override ? 0 : 1;
 	}
-
-//	public int writeTrue() {
-//		int writeIndex = (this.writeIndex << coder) - 1; // 强迫症害死人，抖个机灵算了
-//		if (coder == FillerHelper.LATIN) {
-//			buf[++writeIndex] = 't';
-//			buf[++writeIndex] = 'r';
-//			buf[++writeIndex] = 'u';
-//			buf[++writeIndex] = 'e';
-//		} else {
-//			buf[++writeIndex] = HI_BYTE_T;
-//			buf[++writeIndex] = LO_BYTE_T;
-//			buf[++writeIndex] = HI_BYTE_R;
-//			buf[++writeIndex] = LO_BYTE_R;
-//			buf[++writeIndex] = HI_BYTE_U;
-//			buf[++writeIndex] = LO_BYTE_U;
-//			buf[++writeIndex] = HI_BYTE_E;
-//			buf[++writeIndex] = LO_BYTE_E;
-//		}
-//		this.writeIndex += 4;
-//		return 4;
-//	}
-//
-//	public int writeFalse() {
-//		int writeIndex = (this.writeIndex << coder) - 1; // 强迫症害死人，抖个机灵算了
-//		if (coder == FillerHelper.LATIN) {
-//			buf[++writeIndex] = 'f';
-//			buf[++writeIndex] = 'a';
-//			buf[++writeIndex] = 'l';
-//			buf[++writeIndex] = 's';
-//			buf[++writeIndex] = 'e';
-//		} else {
-//			buf[++writeIndex] = HI_BYTE_F;
-//			buf[++writeIndex] = LO_BYTE_F;
-//			buf[++writeIndex] = HI_BYTE_A;
-//			buf[++writeIndex] = LO_BYTE_A;
-//			buf[++writeIndex] = HI_BYTE_L;
-//			buf[++writeIndex] = LO_BYTE_L;
-//			buf[++writeIndex] = HI_BYTE_S;
-//			buf[++writeIndex] = LO_BYTE_S;
-//			buf[++writeIndex] = HI_BYTE_E;
-//			buf[++writeIndex] = LO_BYTE_E;
-//		}
-//		this.writeIndex += 5;
-//		return 5;
-//	}
 
 	public int writeNull() {
 		if (SerializerOptions.IgnoreNonField.isOptions(options)) {

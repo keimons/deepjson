@@ -9,6 +9,7 @@ import com.keimons.deepjson.serializer.NormalNode;
 import org.junit.jupiter.api.Test;
 import sun.misc.Unsafe;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -34,12 +35,14 @@ public class NormalTest {
 
 	@Test
 	public void test() {
+		byte b = 'a';
+		char c = 'a';
+		System.out.println((int) b);
+		System.out.println((int) c);
 		String json = JSONObject.toJSONString(node);
 		System.out.println(json);
-		byte[] object = (byte[]) unsafe.getObject(json, offset);
-		System.out.println(object.length);
-		System.out.println(Arrays.toString(object));
-		System.out.println(DeepJson.toJsonString(node, SerializerOptions.IgnoreNonField));
+		json = DeepJson.toJsonString(node);
+		System.out.println(json);
 	}
 
 	@Test

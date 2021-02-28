@@ -14,42 +14,42 @@ class WriterUtf16 implements IWriter<byte[]> {
 
 	private static final Unsafe unsafe = UnsafeUtil.getUnsafe();
 
-	private static final byte HI_BYTE_L_BRACES = (byte) ('{' << SerializerUtil.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_L_BRACES = (byte) ('{' << SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_L_BRACES = (byte) ('{' >> SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_L_BRACES = (byte) ('{' >> SerializerUtil.LO_BYTE_SHIFT);
 
-	private static final byte HI_BYTE_R_BRACES = (byte) ('}' << SerializerUtil.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_R_BRACES = (byte) ('}' << SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_R_BRACES = (byte) ('}' >> SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_R_BRACES = (byte) ('}' >> SerializerUtil.LO_BYTE_SHIFT);
 
-	private static final byte HI_BYTE_L_BRACKET = (byte) ('[' << SerializerUtil.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_L_BRACKET = (byte) ('[' << SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_L_BRACKET = (byte) ('[' >> SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_L_BRACKET = (byte) ('[' >> SerializerUtil.LO_BYTE_SHIFT);
 
-	private static final byte HI_BYTE_R_BRACKET = (byte) (']' << SerializerUtil.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_R_BRACKET = (byte) (']' << SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_R_BRACKET = (byte) (']' >> SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_R_BRACKET = (byte) (']' >> SerializerUtil.LO_BYTE_SHIFT);
 
-	private static final byte HI_BYTE_MARK1 = (byte) (',' << SerializerUtil.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_MARK1 = (byte) (',' << SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_MARK1 = (byte) (',' >> SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_MARK1 = (byte) (',' >> SerializerUtil.LO_BYTE_SHIFT);
 
-	private static final byte HI_BYTE_MARK = (byte) ('"' << SerializerUtil.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_MARK = (byte) ('"' << SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_MARK = (byte) ('"' >> SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_MARK = (byte) ('"' >> SerializerUtil.LO_BYTE_SHIFT);
 
-	private static final byte HI_BYTE_A = (byte) ('a' << SerializerUtil.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_A = (byte) ('a' << SerializerUtil.LO_BYTE_SHIFT);
-	private static final byte HI_BYTE_E = (byte) ('e' << SerializerUtil.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_E = (byte) ('e' << SerializerUtil.LO_BYTE_SHIFT);
-	private static final byte HI_BYTE_F = (byte) ('f' << SerializerUtil.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_F = (byte) ('f' << SerializerUtil.LO_BYTE_SHIFT);
-	private static final byte HI_BYTE_L = (byte) ('l' << SerializerUtil.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_L = (byte) ('l' << SerializerUtil.LO_BYTE_SHIFT);
-	private static final byte HI_BYTE_N = (byte) ('n' << SerializerUtil.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_N = (byte) ('n' << SerializerUtil.LO_BYTE_SHIFT);
-	private static final byte HI_BYTE_R = (byte) ('r' << SerializerUtil.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_R = (byte) ('r' << SerializerUtil.LO_BYTE_SHIFT);
-	private static final byte HI_BYTE_S = (byte) ('s' << SerializerUtil.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_S = (byte) ('s' << SerializerUtil.LO_BYTE_SHIFT);
-	private static final byte HI_BYTE_T = (byte) ('t' << SerializerUtil.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_T = (byte) ('t' << SerializerUtil.LO_BYTE_SHIFT);
-	private static final byte HI_BYTE_U = (byte) ('u' << SerializerUtil.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_U = (byte) ('u' << SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_A = (byte) ('a' >> SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_A = (byte) ('a' >> SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_E = (byte) ('e' >> SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_E = (byte) ('e' >> SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_F = (byte) ('f' >> SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_F = (byte) ('f' >> SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_L = (byte) ('l' >> SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_L = (byte) ('l' >> SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_N = (byte) ('n' >> SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_N = (byte) ('n' >> SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_R = (byte) ('r' >> SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_R = (byte) ('r' >> SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_S = (byte) ('s' >> SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_S = (byte) ('s' >> SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_T = (byte) ('t' >> SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_T = (byte) ('t' >> SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte HI_BYTE_U = (byte) ('u' >> SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_U = (byte) ('u' >> SerializerUtil.LO_BYTE_SHIFT);
 
 	@Override
 	public int writeStartObject(byte[] buf, long options, int writeIndex) {

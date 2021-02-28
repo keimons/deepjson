@@ -1,5 +1,6 @@
 package com.keimons.deepjson.serializer;
 
+import com.keimons.deepjson.SerializerOptions;
 import com.keimons.deepjson.filler.FieldInfo;
 import com.keimons.deepjson.util.ClassUtil;
 
@@ -47,14 +48,13 @@ public class SourceCodeFactory {
 		StringBuilder sb = new StringBuilder();
 		sb.append("package ").append(packageName).append(";\n");
 		sb.append("\n");
-		sb.append("import com.keimons.deepjson.serializer.ISerializer;\n");
 		sb.append("import com.keimons.deepjson.serializer.ByteBuf;\n");
+		sb.append("import com.keimons.deepjson.serializer.ISerializer;\n");
+		sb.append("import com.keimons.deepjson.serializer.SerializerFactory;\n");
 		sb.append("import com.keimons.deepjson.SerializerOptions;\n");
 		sb.append("import com.keimons.deepjson.util.UnsafeUtil;\n");
 		sb.append("import com.keimons.deepjson.filler.SerializerUtil;\n");
 		sb.append("import sun.misc.Unsafe;\n");
-		sb.append("\n");
-		sb.append("import java.text.DecimalFormat;\n");
 		sb.append("\n");
 		sb.append("public class ").append(className).append(" implements ISerializer {\n");
 		sb.append("\n");
@@ -80,9 +80,6 @@ public class SourceCodeFactory {
 			;
 			sb.append("\n");
 		}
-
-		sb.append("\tprivate final DecimalFormat format = new DecimalFormat();\n");
-		sb.append("\n");
 
 		sb.append("\t@Override\n");
 		sb.append("\tpublic int length(Object object, long options) {\n");
@@ -168,7 +165,7 @@ public class SourceCodeFactory {
 						.append(field.offset())
 						.append("L);\n")
 				;
-				sb.append("\t\tlength += format.format(")
+				sb.append("\t\tlength += Float.toString(")
 						.append(fieldName)
 						.append(").length() + ")
 						.append(field.length() + 1)
@@ -181,12 +178,33 @@ public class SourceCodeFactory {
 						.append(field.offset())
 						.append("L);\n")
 				;
-				sb.append("\t\tlength += format.format(")
+				sb.append("\t\tlength += Double.toString(")
 						.append(fieldName)
 						.append(").length() + ")
 						.append(field.length() + 1)
 						.append(";\n")
 				;
+			} else {
+				sb.append("\t\tObject ")
+						.append(fieldName)
+						.append(" = unsafe.getObject(object, ")
+						.append(field.offset())
+						.append("L);\n")
+				;
+				sb.append("\t\tif (").append(fieldName).append(" == null) {\n");
+				sb.append("\t\t\tif (!SerializerOptions.IgnoreNonField.isOptions(options)) {\n");
+				sb.append("\t\t\t\tlength += ").append(field.length() + 5).append(";\n");
+				sb.append("\t\t\t}\n");
+				sb.append("\t\t} else {\n");
+				sb.append("\t\t\tISerializer serializer = SerializerFactory.getSerializer(")
+						.append(fieldName)
+						.append(".getClass());\n")
+				;
+				sb.append("\t\t\tlength += serializer.length(")
+						.append(fieldName)
+						.append(", options) + 9;\n")
+				;
+				sb.append("\t\t}\n");
 			}
 		}
 		sb.append("\t\tif (length == 0) {\n");
@@ -211,6 +229,7 @@ public class SourceCodeFactory {
 			FieldInfo field = fields.get(i);
 			Class<?> type = field.getField().getType();
 			if (type == boolean.class) {
+//				writeValue(sb, fieldName, "Boolean", field.offset());
 				sb.append("\t\t\tboolean ")
 						.append(fieldName)
 						.append(" = unsafe.getBoolean(object, ")
@@ -266,6 +285,13 @@ public class SourceCodeFactory {
 						.append(field.offset())
 						.append("L);\n")
 				;
+			} else {
+				sb.append("\t\t\tObject ")
+						.append(fieldName)
+						.append(" = unsafe.getObject(object, ")
+						.append(field.offset())
+						.append("L);\n")
+				;
 			}
 			sb.append("\t\t\tbuf.writeValue(mark, ")
 					.append(field.getField().getName())
@@ -281,5 +307,19 @@ public class SourceCodeFactory {
 		sb.append("\t}\n");
 		sb.append("}");
 		return sb.toString();
+	}
+
+	private static void writeValue(StringBuilder sb, String fieldName, String type, long offset) {
+		sb.append("\t\t\tbuf.writeValue(mark, ")
+				.append(fieldName)
+				.append("$UTF16")
+				.append(", ")
+				.append("unsafe.get")
+				.append(type)
+				.append("(object, ")
+				.append(offset)
+				.append("L));\n")
+		;
+		sb.append("\t\t\tmark = ',';\n");
 	}
 }

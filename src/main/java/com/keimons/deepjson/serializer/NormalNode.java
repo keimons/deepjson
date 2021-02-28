@@ -17,13 +17,13 @@ public class NormalNode implements INode {
 //	private float node7 = 1234.5678f;
 //
 //	private double node8 = 1234.5678d;
-//
+
 //	private String node9 = "蒙奇";
-//
-//	private LinkNode node10 = new LinkNode();
-//
+
+	private LinkNode node10 = new LinkNode();
+
 //	private int[] node11 = new int[10];
-//
+
 //	private Integer[] node12 = new Integer[10];
 
 
@@ -73,5 +73,13 @@ public class NormalNode implements INode {
 
 	public void setNode6(char node6) {
 		this.node6 = node6;
+	}
+
+	public LinkNode getNode10() {
+		return node10;
+	}
+
+	public void setNode10(LinkNode node10) {
+		this.node10 = node10;
 	}
 }
