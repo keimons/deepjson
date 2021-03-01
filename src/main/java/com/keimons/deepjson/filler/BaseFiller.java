@@ -1,5 +1,7 @@
 package com.keimons.deepjson.filler;
 
+import com.keimons.deepjson.util.SerializerUtil;
+
 import java.lang.reflect.Field;
 
 public abstract class BaseFiller implements IFiller {

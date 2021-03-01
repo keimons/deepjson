@@ -3,6 +3,9 @@ package com.keimons.deepjson.serializer;
 import com.keimons.deepjson.SerializerOptions;
 import com.keimons.deepjson.filler.FieldInfo;
 import com.keimons.deepjson.util.ClassUtil;
+import com.keimons.deepjson.util.SerializerUtil;
+import com.keimons.deepjson.util.UnsafeUtil;
+import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -19,6 +22,16 @@ import java.util.List;
  * @since 1.8
  **/
 public class SourceCodeFactory {
+
+	private static final List<Class<?>> IMPORT = Arrays.asList(
+			ByteBuf.class,
+			ISerializer.class,
+			SerializerFactory.class,
+			SerializerOptions.class,
+			UnsafeUtil.class,
+			SerializerUtil.class,
+			Unsafe.class
+	);
 
 	/**
 	 * 构造一个序列化工具类
@@ -45,271 +58,326 @@ public class SourceCodeFactory {
 	 * @return 工具类
 	 */
 	private static String create(String packageName, String className, List<FieldInfo> fields) {
-		StringBuilder sb = new StringBuilder();
-		sb.append("package ").append(packageName).append(";\n");
-		sb.append("\n");
-		sb.append("import com.keimons.deepjson.serializer.ByteBuf;\n");
-		sb.append("import com.keimons.deepjson.serializer.ISerializer;\n");
-		sb.append("import com.keimons.deepjson.serializer.SerializerFactory;\n");
-		sb.append("import com.keimons.deepjson.SerializerOptions;\n");
-		sb.append("import com.keimons.deepjson.util.UnsafeUtil;\n");
-		sb.append("import com.keimons.deepjson.filler.SerializerUtil;\n");
-		sb.append("import sun.misc.Unsafe;\n");
-		sb.append("\n");
-		sb.append("public class ").append(className).append(" implements ISerializer {\n");
-		sb.append("\n");
-		sb.append("\tprivate static final Unsafe unsafe = UnsafeUtil.getUnsafe();\n");
-		sb.append("\n");
+		StringBuilder source = new StringBuilder();
+		packageClass(source, packageName);
+		importClass(source);
+		source.append("public class ").append(className).append(" implements ISerializer {\n");
+		source.append("\n");
+		source.append("\tprivate static final Unsafe unsafe = UnsafeUtil.getUnsafe();\n");
+		source.append("\n");
 
 		for (FieldInfo field : fields) {
 			String latin = Arrays.toString(field.getFieldNameByLatin());
 			String utf16 = Arrays.toString(field.getFieldNameByUtf16());
-			sb.append("\tprivate final byte[] ")
+			source.append("\tprivate final byte[] ")
 					.append(field.getField().getName())
 					.append("$LATIN")
 					.append(" = {")
 					.append(latin, 1, latin.length() - 1)
 					.append("};\n")
 			;
-			sb.append("\tprivate final byte[] ")
+			source.append("\tprivate final byte[] ")
 					.append(field.getField().getName())
 					.append("$UTF16")
 					.append(" = {")
 					.append(utf16, 1, utf16.length() - 1)
 					.append("};\n")
 			;
-			sb.append("\n");
+			source.append("\n");
 		}
 
-		sb.append("\t@Override\n");
-		sb.append("\tpublic int length(Object object, long options) {\n");
-		sb.append("\t\tif (object == null || SerializerOptions.IgnoreNonField.isOptions(options)) {\n");
-		sb.append("\t\t\treturn 4;\n");
-		sb.append("\t\t}\n");
-		sb.append("\t\tint length = 0;\n");
+		source.append("\t@Override\n");
+		source.append("\tpublic int length(Object object, long options) {\n");
+		source.append("\t\tif (object == null || SerializerOptions.IgnoreNonField.isOptions(options)) {\n");
+		source.append("\t\t\treturn 4;\n");
+		source.append("\t\t}\n");
+		source.append("\t\tint length = 0;\n");
 		for (int i = 0; i < fields.size(); i++) {
 			String fieldName = "value" + i;
 			FieldInfo field = fields.get(i);
 			Class<?> type = field.getField().getType();
 			if (type == boolean.class) {
-				sb.append("\t\tboolean ")
+				source.append("\t\tboolean ")
 						.append(fieldName)
 						.append(" = unsafe.getBoolean(object, ")
 						.append(field.offset())
 						.append("L);\n")
 				;
-				sb.append("\t\tlength += (")
+				source.append("\t\tlength += (")
 						.append(fieldName)
 						.append(" ? 4 : 5) + ")
 						.append(field.length() + 1)
 						.append(";\n")
 				;
 			} else if (type == byte.class) {
-				sb.append("\t\tbyte ")
+				source.append("\t\tbyte ")
 						.append(fieldName)
 						.append(" = unsafe.getByte(object, ")
 						.append(field.offset())
 						.append("L);\n")
 				;
-				sb.append("\t\tlength += SerializerUtil.size(")
+				source.append("\t\tlength += SerializerUtil.size(")
 						.append(fieldName)
 						.append(") + ")
 						.append(field.length() + 1)
 						.append(";\n")
 				;
 			} else if (type == char.class) {
-				sb.append("\t\tlength += ").append(field.length() + 3).append(";\n");
+				source.append("\t\tlength += ").append(field.length() + 4).append(";\n");
 			} else if (type == short.class) {
-				sb.append("\t\tshort ")
+				source.append("\t\tshort ")
 						.append(fieldName)
 						.append(" = unsafe.getShort(object, ")
 						.append(field.offset())
 						.append("L);\n")
 				;
-				sb.append("\t\tlength += SerializerUtil.size(")
+				source.append("\t\tlength += SerializerUtil.size(")
 						.append(fieldName)
 						.append(") + ")
 						.append(field.length() + 1)
 						.append(";\n")
 				;
 			} else if (type == int.class) {
-				sb.append("\t\tint ")
+				source.append("\t\tint ")
 						.append(fieldName)
 						.append(" = unsafe.getInt(object, ")
 						.append(field.offset())
 						.append("L);\n")
 				;
-				sb.append("\t\tlength += SerializerUtil.size(")
+				source.append("\t\tlength += SerializerUtil.size(")
 						.append(fieldName)
 						.append(") + ")
 						.append(field.length() + 1)
 						.append(";\n")
 				;
 			} else if (type == long.class) {
-				sb.append("\t\tlong ")
+				source.append("\t\tlong ")
 						.append(fieldName)
 						.append(" = unsafe.getLong(object, ")
 						.append(field.offset())
 						.append("L);\n")
 				;
-				sb.append("\t\tlength += SerializerUtil.size(")
+				source.append("\t\tlength += SerializerUtil.size(")
 						.append(fieldName)
 						.append(") + ")
 						.append(field.length() + 1)
 						.append(";\n")
 				;
 			} else if (type == float.class) {
-				sb.append("\t\tfloat ")
+				source.append("\t\tfloat ")
 						.append(fieldName)
 						.append(" = unsafe.getFloat(object, ")
 						.append(field.offset())
 						.append("L);\n")
 				;
-				sb.append("\t\tlength += Float.toString(")
+				source.append("\t\tlength += Float.toString(")
 						.append(fieldName)
 						.append(").length() + ")
 						.append(field.length() + 1)
 						.append(";\n")
 				;
 			} else if (type == double.class) {
-				sb.append("\t\tdouble ")
+				source.append("\t\tdouble ")
 						.append(fieldName)
 						.append(" = unsafe.getDouble(object, ")
 						.append(field.offset())
 						.append("L);\n")
 				;
-				sb.append("\t\tlength += Double.toString(")
+				source.append("\t\tlength += Double.toString(")
 						.append(fieldName)
 						.append(").length() + ")
 						.append(field.length() + 1)
 						.append(";\n")
 				;
 			} else {
-				sb.append("\t\tObject ")
+				source.append("\t\tObject ")
 						.append(fieldName)
 						.append(" = unsafe.getObject(object, ")
 						.append(field.offset())
 						.append("L);\n")
 				;
-				sb.append("\t\tif (").append(fieldName).append(" == null) {\n");
-				sb.append("\t\t\tif (!SerializerOptions.IgnoreNonField.isOptions(options)) {\n");
-				sb.append("\t\t\t\tlength += ").append(field.length() + 5).append(";\n");
-				sb.append("\t\t\t}\n");
-				sb.append("\t\t} else {\n");
-				sb.append("\t\t\tISerializer serializer = SerializerFactory.getSerializer(")
+				source.append("\t\tif (").append(fieldName).append(" == null) {\n");
+				source.append("\t\t\tif (!SerializerOptions.IgnoreNonField.isOptions(options)) {\n");
+				source.append("\t\t\t\tlength += ").append(field.length() + 5).append(";\n");
+				source.append("\t\t\t}\n");
+				source.append("\t\t} else {\n");
+				source.append("\t\t\tISerializer serializer = SerializerFactory.getSerializer(")
 						.append(fieldName)
 						.append(".getClass());\n")
 				;
-				sb.append("\t\t\tlength += serializer.length(")
+				source.append("\t\t\tlength += serializer.length(")
 						.append(fieldName)
-						.append(", options) + 9;\n")
+						.append(", options) + ")
+						.append(field.length() + 1)
+						.append(";\n")
 				;
-				sb.append("\t\t}\n");
+				source.append("\t\t}\n");
 			}
 		}
-		sb.append("\t\tif (length == 0) {\n");
-		sb.append("\t\t\tlength++;\n");
-		sb.append("\t\t}\n");
-		sb.append("\t\tlength++;\n");
-		sb.append("\t\treturn length;\n");
-		sb.append("\t}\n");
-		sb.append("\n");
+		source.append("\t\tif (length == 0) {\n");
+		source.append("\t\t\tlength++;\n");
+		source.append("\t\t}\n");
+		source.append("\t\tlength++;\n");
+		source.append("\t\treturn length;\n");
+		source.append("\t}\n");
+		source.append("\n");
 
-		sb.append("\t@Override\n");
-		sb.append("\tpublic void write(Object object, ByteBuf buf) {\n");
-		sb.append("\t\tif (object == null) {\n");
-		sb.append("\t\t\tbuf.writeNull();\n");
-		sb.append("\t\t\treturn;\n");
-		sb.append("\t\t}\n");
-		sb.append("\t\tif (buf.getCoder() == 0) {\n");
-		sb.append("\t\t} else {\n");
-		sb.append("\t\t\tbyte mark = '{';\n");
+		source.append("\t@Override\n");
+		source.append("\tpublic byte coder(Object object, long options) {\n");
+		if (fields.stream().anyMatch(field -> field.coder() == SerializerUtil.UTF16)) {
+			source.append("\t\treturn 1;\n");
+		} else {
+			source.append("\t\tif (object == null) {\n");
+			source.append("\t\t\treturn 0;\n");
+			source.append("\t\t}\n");
+			source.append("\t\tbyte coder = 0;\n");
+			for (int i = 0; i < fields.size(); i++) {
+				String fieldName = "value" + i;
+				FieldInfo field = fields.get(i);
+				Class<?> type = field.getField().getType();
+				if (type == char.class) {
+					source.append("\t\tchar ")
+							.append(fieldName)
+							.append(" = unsafe.getChar(object, ")
+							.append(field.offset())
+							.append("L);\n")
+					;
+					source.append("\t\tif (").append(fieldName).append(" >>> 8 != 0) {\n");
+					source.append("\t\t\treturn code;\n");
+					source.append("\t\t}\n");
+				}
+				if (!type.isPrimitive()) {
+					source.append("\t\tObject ")
+							.append(fieldName)
+							.append(" = unsafe.getObject(object, ")
+							.append(field.offset())
+							.append("L);\n")
+					;
+					source.append("\t\tif (").append(fieldName).append(" != null) {\n");
+
+					source.append("\t\t\tcoder = SerializerFactory.getSerializer(")
+							.append(fieldName).append(".getClass()).coder(object, options);\n");
+					source.append("\t\t\tif (coder == 1) {\n");
+					source.append("\t\t\t\treturn 1;\n");
+					source.append("\t\t\t}\n");
+					source.append("\t\t}\n");
+				}
+			}
+			source.append("\t\treturn 0;\n");
+		}
+		source.append("\t}\n");
+		source.append("\n");
+
+		source.append("\t@Override\n");
+		source.append("\tpublic void write(Object object, ByteBuf buf) {\n");
+		source.append("\t\tif (object == null) {\n");
+		source.append("\t\t\tbuf.writeNull();\n");
+		source.append("\t\t\treturn;\n");
+		source.append("\t\t}\n");
+		source.append("\t\tif (buf.getCoder() == 0) {\n");
+		source.append("\t\t} else {\n");
+		source.append("\t\t\tbyte mark = '{';\n");
 		for (int i = 0; i < fields.size(); i++) {
 			String fieldName = "value" + i;
 			FieldInfo field = fields.get(i);
 			Class<?> type = field.getField().getType();
 			if (type == boolean.class) {
-//				writeValue(sb, fieldName, "Boolean", field.offset());
-				sb.append("\t\t\tboolean ")
+				source.append("\t\t\tboolean ")
 						.append(fieldName)
 						.append(" = unsafe.getBoolean(object, ")
 						.append(field.offset())
 						.append("L);\n")
 				;
 			} else if (type == byte.class) {
-				sb.append("\t\t\tbyte ")
+				source.append("\t\t\tbyte ")
 						.append(fieldName)
 						.append(" = unsafe.getByte(object, ")
 						.append(field.offset())
 						.append("L);\n")
 				;
 			} else if (type == char.class) {
-				sb.append("\t\t\tchar ")
+				source.append("\t\t\tchar ")
 						.append(fieldName)
 						.append(" = unsafe.getChar(object, ")
 						.append(field.offset())
 						.append("L);\n")
 				;
 			} else if (type == short.class) {
-				sb.append("\t\t\tshort ")
+				source.append("\t\t\tshort ")
 						.append(fieldName)
 						.append(" = unsafe.getShort(object, ")
 						.append(field.offset())
 						.append("L);\n")
 				;
 			} else if (type == int.class) {
-				sb.append("\t\t\tint ")
+				source.append("\t\t\tint ")
 						.append(fieldName)
 						.append(" = unsafe.getInt(object, ")
 						.append(field.offset())
 						.append("L);\n")
 				;
 			} else if (type == long.class) {
-				sb.append("\t\t\tlong ")
+				source.append("\t\t\tlong ")
 						.append(fieldName)
 						.append(" = unsafe.getLong(object, ")
 						.append(field.offset())
 						.append("L);\n")
 				;
 			} else if (type == float.class) {
-				sb.append("\t\t\tfloat ");
-				sb.append(fieldName)
+				source.append("\t\t\tfloat ");
+				source.append(fieldName)
 						.append(" = unsafe.getFloat(object, ")
 						.append(field.offset())
 						.append("L);\n")
 				;
 			} else if (type == double.class) {
-				sb.append("\t\t\tdouble ")
+				source.append("\t\t\tdouble ")
 						.append(fieldName)
 						.append(" = unsafe.getDouble(object, ")
 						.append(field.offset())
 						.append("L);\n")
 				;
 			} else {
-				sb.append("\t\t\tObject ")
+				source.append("\t\t\tObject ")
 						.append(fieldName)
 						.append(" = unsafe.getObject(object, ")
 						.append(field.offset())
 						.append("L);\n")
 				;
 			}
-			sb.append("\t\t\tbuf.writeValue(mark, ")
+			source.append("\t\t\tbuf.writeValue(mark, ")
 					.append(field.getField().getName())
 					.append("$UTF16")
 					.append(", ")
 					.append(fieldName)
 					.append(");\n")
 			;
-			sb.append("\t\t\tmark = ',';\n");
+			source.append("\t\t\tmark = ',';\n");
 		}
-		sb.append("\t\t}\n");
-		sb.append("\t\tbuf.writeEndObject();\n");
-		sb.append("\t}\n");
-		sb.append("}");
-		return sb.toString();
+		source.append("\t\t}\n");
+		source.append("\t\tbuf.writeEndObject();\n");
+		source.append("\t}\n");
+		source.append("}");
+		return source.toString();
 	}
 
-	private static void writeValue(StringBuilder sb, String fieldName, String type, long offset) {
+	private static void packageClass(StringBuilder source, String packageName) {
+		source.append("package ").append(packageName).append(";\n").append("\n");
+	}
+
+	/**
+	 * 引用所有文件头
+	 *
+	 * @param source Java源代码
+	 */
+	private static void importClass(StringBuilder source) {
+		for (Class<?> clazz : IMPORT) {
+			source.append("import ").append(clazz.getName()).append(";\n");
+		}
+		source.append("\n");
+	}
+
+	private static void writeGetValue(StringBuilder sb, String fieldName, String type, long offset) {
 		sb.append("\t\t\tbuf.writeValue(mark, ")
 				.append(fieldName)
 				.append("$UTF16")

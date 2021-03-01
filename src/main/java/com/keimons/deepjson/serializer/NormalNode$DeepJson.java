@@ -1,11 +1,8 @@
 package com.keimons.deepjson.serializer;
 
-import com.keimons.deepjson.serializer.ISerializer;
-import com.keimons.deepjson.serializer.ByteBuf;
 import com.keimons.deepjson.SerializerOptions;
-import com.keimons.deepjson.serializer.SerializerFactory;
+import com.keimons.deepjson.util.SerializerUtil;
 import com.keimons.deepjson.util.UnsafeUtil;
-import com.keimons.deepjson.filler.SerializerUtil;
 import sun.misc.Unsafe;
 
 public class NormalNode$DeepJson implements ISerializer {
@@ -30,14 +27,10 @@ public class NormalNode$DeepJson implements ISerializer {
 	private final byte[] node6$LATIN = {34, 110, 111, 100, 101, 54, 34, 58};
 	private final byte[] node6$UTF16 = {34, 0, 110, 0, 111, 0, 100, 0, 101, 0, 54, 0, 34, 0, 58, 0};
 
-	private final byte[] node9$LATIN = {34, 110, 111, 100, 101, 57, 34, 58};
-	private final byte[] node9$UTF16 = {34, 0, 110, 0, 111, 0, 100, 0, 101, 0, 57, 0, 34, 0, 58, 0};
-
 	private final byte[] node10$LATIN = {34, 110, 111, 100, 101, 49, 48, 34, 58};
 	private final byte[] node10$UTF16 = {34, 0, 110, 0, 111, 0, 100, 0, 101, 0, 49, 0, 48, 0, 34, 0, 58, 0};
 
-	private final byte[] node11$LATIN = {34, 110, 111, 100, 101, 49, 49, 34, 58};
-	private final byte[] node11$UTF16 = {34, 0, 110, 0, 111, 0, 100, 0, 101, 0, 49, 0, 49, 0, 34, 0, 58, 0};
+	private ISerializer node6$CODER;
 
 	@Override
 	public int length(Object object, long options) {
@@ -59,35 +52,37 @@ public class NormalNode$DeepJson implements ISerializer {
 		Object value6 = unsafe.getObject(object, 32L);
 		if (value6 == null) {
 			if (!SerializerOptions.IgnoreNonField.isOptions(options)) {
-				length += 13;
+				length += 14;
 			}
 		} else {
 			ISerializer serializer = SerializerFactory.getSerializer(value6.getClass());
-			length += serializer.length(value6, options) + 9;
-		}
-		Object value7 = unsafe.getObject(object, 36L);
-		if (value7 == null) {
-			if (!SerializerOptions.IgnoreNonField.isOptions(options)) {
-				length += 14;
-			}
-		} else {
-			ISerializer serializer = SerializerFactory.getSerializer(value7.getClass());
-			length += serializer.length(value7, options) + 9;
-		}
-		Object value8 = unsafe.getObject(object, 40L);
-		if (value8 == null) {
-			if (!SerializerOptions.IgnoreNonField.isOptions(options)) {
-				length += 14;
-			}
-		} else {
-			ISerializer serializer = SerializerFactory.getSerializer(value8.getClass());
-			length += serializer.length(value8, options) + 9;
+			length += serializer.length(value6, options) + 10;
 		}
 		if (length == 0) {
 			length++;
 		}
 		length++;
 		return length;
+	}
+
+	@Override
+	public byte coder(Object object, long options) {
+		if (object == null) {
+			return 0;
+		}
+		char value5 = unsafe.getChar(object, 26L);
+		if (value5 >>> 8 != 0) {
+			return 1;
+		}
+		byte coder = 0;
+		Object value6 = unsafe.getObject(object, 32L);
+		if (value6 != null) {
+			coder = SerializerFactory.getSerializer(value6.getClass()).coder(object, options);
+			if (coder == 1) {
+				return 1;
+			}
+		}
+		return 0;
 	}
 
 	@Override
@@ -118,13 +113,7 @@ public class NormalNode$DeepJson implements ISerializer {
 			buf.writeValue(mark, node6$UTF16, value5);
 			mark = ',';
 			Object value6 = unsafe.getObject(object, 32L);
-			buf.writeValue(mark, node9$UTF16, value6);
-			mark = ',';
-			Object value7 = unsafe.getObject(object, 36L);
-			buf.writeValue(mark, node10$UTF16, value7);
-			mark = ',';
-			Object value8 = unsafe.getObject(object, 40L);
-			buf.writeValue(mark, node11$UTF16, value8);
+			buf.writeValue(mark, node10$UTF16, value6);
 			mark = ',';
 		}
 		buf.writeEndObject();

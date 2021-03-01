@@ -1,6 +1,5 @@
-package com.keimons.deepjson.filler;
+package com.keimons.deepjson.util;
 
-import com.keimons.deepjson.util.UnsafeUtil;
 import jdk.internal.vm.annotation.ForceInline;
 import sun.misc.Unsafe;
 

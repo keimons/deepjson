@@ -10,6 +10,11 @@ public class StringSerializer implements ISerializer {
 	}
 
 	@Override
+	public byte coder(Object object, long options) {
+		return 0;
+	}
+
+	@Override
 	public void write(Object object, ByteBuf buf) {
 		String value = (String) object;
 		buf.writeString(value);

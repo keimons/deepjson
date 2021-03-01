@@ -1,9 +1,8 @@
 package com.keimons.deepjson.serializer;
 
 import com.keimons.deepjson.SerializerOptions;
+import com.keimons.deepjson.util.SerializerUtil;
 import com.keimons.deepjson.util.UnsafeUtil;
-import com.keimons.deepjson.filler.SerializerUtil;
-import com.keimons.deepjson.filler.IFieldName;
 import jdk.internal.vm.annotation.ForceInline;
 import sun.misc.Unsafe;
 
@@ -91,27 +90,10 @@ public class ByteBuf {
 		this.options = options;
 		this.coder = coder;
 		if (coder == SerializerUtil.LATIN) {
-			writer = new WriterLatin();
+			writer = new LatinWriter();
 		} else {
-			writer = new WriterUtf16();
+			writer = new Utf16Writer();
 		}
-	}
-
-	public int writeBoolean(IFieldName field, boolean value) {
-		int writable = field.length() + (value ? 4 : 5);
-		ensureWritable(writable);
-		this.writeIndex += writer.writeField(buf, options, writeIndex, field);
-		this.writeIndex += writer.writeBoolean(buf, options, writeIndex, value);
-		return writable;
-	}
-
-	public int writeChar(IFieldName field, char value) {
-		int writable = field.length() + 3;
-		ensureWritable(writable);
-		ensureCoder((byte) (coder | (value >>> 8 == 0 ? SerializerUtil.LATIN : SerializerUtil.UTF16)));
-		this.writeIndex += writer.writeField(buf, options, writeIndex, field);
-		this.writeIndex += writer.writeChar(buf, options, writeIndex, value);
-		return writable;
 	}
 
 	@ForceInline
@@ -341,93 +323,12 @@ public class ByteBuf {
 		serializer.write(value, this);
 	}
 
-	public int writeInt(IFieldName field, int value) {
-		int length = SerializerUtil.size(value);
-		int writable = field.length() + length;
-		ensureWritable(writable);
-		int writeIndex = this.writeIndex << 1;
-		byte[] bytes = field.getFieldNameByUtf16();
-		System.arraycopy(bytes, 0, buf, writeIndex, bytes.length);
-//		for (byte b : bytes) {
-//			buf[writeIndex++] = b;
-//		}
-		this.writeIndex += bytes.length >> 1;
-		this.writeIndex += length;
-		SerializerUtil.putUTF16(buf, this.writeIndex, value);
-		writeIndex = this.writeIndex << 1;
-		buf[writeIndex++] = HI_BYTE_MARK1;
-		buf[writeIndex] = LO_BYTE_MARK1;
-		this.writeIndex++;
-//		this.writeIndex += writer.writeField(buf, options, writeIndex, field);
-//		this.writeIndex += length;
-//		this.writeIndex += writer.writeInt(buf, options, writeIndex, value);
-		return writable;
-	}
-
-	public int writeLong(IFieldName field, long value) {
-		int length = SerializerUtil.size(value);
-		int writable = field.length() + length;
-		ensureWritable(writable);
-		this.writeIndex += writer.writeField(buf, options, writeIndex, field);
-		this.writeIndex += length;
-		this.writeIndex += writer.writeLong(buf, options, writeIndex, value);
-		return writable;
-	}
-
-	public int writeStringWithNoMark(IFieldName field, String value) {
-		int writable = field.length() + value.length();
-		ensureWritable(writable);
-		this.writeIndex += writer.writeField(buf, options, writeIndex, field);
-		this.writeIndex += writer.writeString(buf, options, writeIndex, value);
-		return writable;
-	}
-
-	public int writeDouble(IFieldName field, double value) {
-		String s = String.valueOf(value);
-		int writable = field.length() + s.length();
-		ensureWritable(writable);
-		this.writeIndex += writer.writeField(buf, options, writeIndex, field);
-		this.writeIndex += writer.writeString(buf, options, writeIndex, s);
-		return writable;
-	}
-
 	public void writeString(String value) {
 		int writable = value.length() + 2;
 		ensureWritable(writable);
 		byte coder = unsafe.getByte(value, SerializerUtil.CODER_OFFSET_STRING);
 		ensureCoder(coder);
 		this.writeIndex += writer.writeStringWithMark(buf, options, writeIndex, value);
-	}
-
-	public int writeString(IFieldName field, String value) {
-		int writable = field.length() + value.length() + 2;
-		ensureWritable(writable);
-		ensureCoder(unsafe.getByte(value, SerializerUtil.CODER_OFFSET_STRING));
-		this.writeIndex += writer.writeField(buf, options, writeIndex, field);
-		this.writeIndex += writer.writeStringWithMark(buf, options, writeIndex, value);
-		return writable;
-	}
-
-	public int writeObject(IFieldName field, Object value) {
-		int writable = field.length();
-		ensureWritable(writable);
-		this.writeIndex += writer.writeField(buf, options, writeIndex, field);
-
-//		ISerializer writer = SerializerFactory.getSerializer(value.getClass());
-//		int write = writer.write(value, this);
-
-		this.writeIndex += this.writer.writeMark(buf, options, writeIndex);
-		return writable;
-	}
-
-	public int writeInts(int[] value) {
-		return writer.writeInts(buf, options, writeIndex, value);
-	}
-
-	public void writeStartObject() {
-		ensureWritable(2);
-		buf[writeIndex++] = HI_BYTE_L_BRACES;
-		buf[writeIndex++] = LO_BYTE_L_BRACES;
 	}
 
 	/**

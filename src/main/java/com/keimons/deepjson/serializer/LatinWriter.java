@@ -1,7 +1,7 @@
 package com.keimons.deepjson.serializer;
 
 import com.keimons.deepjson.util.UnsafeUtil;
-import com.keimons.deepjson.filler.SerializerUtil;
+import com.keimons.deepjson.util.SerializerUtil;
 import com.keimons.deepjson.filler.IFieldName;
 import sun.misc.Unsafe;
 
@@ -10,7 +10,7 @@ import sun.misc.Unsafe;
  * @version 1.0
  * @since 1.8
  **/
-class WriterLatin implements IWriter<byte[]> {
+class LatinWriter implements IWriter<byte[]> {
 
 	private static final Unsafe unsafe = UnsafeUtil.getUnsafe();
 

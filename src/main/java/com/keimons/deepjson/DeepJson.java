@@ -27,7 +27,7 @@ public class DeepJson {
 		Class<?> clazz = object.getClass();
 		ISerializer serializer = SerializerFactory.getSerializer(clazz);
 		int capacity = serializer.length(object, options);
-		byte coder = 1;// coder(object, option);
+		byte coder = serializer.coder(object, options);
 		ByteBuf buf = ByteBuf.buffer(options, capacity, coder);
 		serializer.write(object, buf);
 		return buf.newString();
