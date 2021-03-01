@@ -1,7 +1,6 @@
 package com.keimons.deepjson.serializer;
 
 import com.keimons.deepjson.SerializerOptions;
-import com.keimons.deepjson.filler.FieldInfo;
 import com.keimons.deepjson.util.ClassUtil;
 import com.keimons.deepjson.util.SerializerUtil;
 import com.keimons.deepjson.util.UnsafeUtil;
@@ -243,7 +242,7 @@ public class SourceCodeFactory {
 							.append("L);\n")
 					;
 					source.append("\t\tif (").append(fieldName).append(" >>> 8 != 0) {\n");
-					source.append("\t\t\treturn code;\n");
+					source.append("\t\t\treturn 1;\n");
 					source.append("\t\t}\n");
 				}
 				if (!type.isPrimitive()) {

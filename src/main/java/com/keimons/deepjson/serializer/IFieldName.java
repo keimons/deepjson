@@ -1,4 +1,4 @@
-package com.keimons.deepjson.filler;
+package com.keimons.deepjson.serializer;
 
 public interface IFieldName {
 

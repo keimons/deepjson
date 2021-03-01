@@ -1,4 +1,4 @@
-package com.keimons.deepjson.filler;
+package com.keimons.deepjson.serializer;
 
 import com.keimons.deepjson.util.SerializerUtil;
 import com.keimons.deepjson.util.UnsafeUtil;
@@ -61,25 +61,20 @@ public class FieldInfo implements IFieldName {
 		this.offset = unsafe.objectFieldOffset(field);
 		String fieldName = "\"" + field.getName() + "\":";
 		this.length = fieldName.length();
-		Field coder = null;
-		Field value = null;
-		try {
-			coder = String.class.getDeclaredField("coder");
-			value = String.class.getDeclaredField("value");
-		} catch (NoSuchFieldException e) {
-			// JDK9- ignore
-		}
 		byte[] byUtf16;
 		byte[] byLatin = null;
-		this.coder = unsafe.getByte(fieldName, unsafe.objectFieldOffset(coder));
+		this.coder = unsafe.getByte(fieldName, SerializerUtil.CODER_OFFSET_STRING);
+		byte[] bytes = (byte[]) unsafe.getObject(fieldName, SerializerUtil.VALUE_OFFSET_STRING);
 		if (this.coder == SerializerUtil.LATIN) {
-			byLatin = (byte[]) unsafe.getObject(fieldName, unsafe.objectFieldOffset(value));
+			byLatin = bytes;
 			byUtf16 = new byte[this.length << 1];
-			for (int i = 0; i < byLatin.length; i++) {
-				SerializerUtil.putChar2(byUtf16, i, byLatin[i]);
+			int writeIndex = 0;
+			for (byte b : byLatin) {
+				byUtf16[writeIndex++] = (byte) (b >> SerializerUtil.HI_BYTE_SHIFT);
+				byUtf16[writeIndex++] = (byte) (b >> SerializerUtil.LO_BYTE_SHIFT);
 			}
 		} else {
-			byUtf16 = (byte[]) unsafe.getObject(fieldName, unsafe.objectFieldOffset(value));
+			byUtf16 = bytes;
 		}
 		this.fieldNameByUtf16 = byUtf16;
 		this.fieldNameByLatin = byLatin;

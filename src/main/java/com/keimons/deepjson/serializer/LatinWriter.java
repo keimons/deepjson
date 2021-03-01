@@ -2,7 +2,7 @@ package com.keimons.deepjson.serializer;
 
 import com.keimons.deepjson.util.UnsafeUtil;
 import com.keimons.deepjson.util.SerializerUtil;
-import com.keimons.deepjson.filler.IFieldName;
+import jdk.internal.vm.annotation.ForceInline;
 import sun.misc.Unsafe;
 
 /**
@@ -14,128 +14,164 @@ class LatinWriter implements IWriter<byte[]> {
 
 	private static final Unsafe unsafe = UnsafeUtil.getUnsafe();
 
-	@Override
-	public int writeStartObject(byte[] buf, long options, int writeIndex) {
-		buf[writeIndex] = '{';
-		return 1;
+	private static final byte[] BOOLEAN_TRUE_LATIN = {'t', 'r', 'u', 'e' };
+
+	private static final byte[] BOOLEAN_FALSE_LATIN = {'f', 'a', 'l', 's', 'e' };
+
+	private final long options;
+
+	private byte[] buf;
+
+	private int writeIndex;
+
+	public LatinWriter(long options, byte[] buf, int writeIndex) {
+		this.buf = buf;
+		this.options = options;
+		this.writeIndex = writeIndex;
 	}
 
-	@Override
-	public int writeEndObject(byte[] buf, long options, int writeIndex) {
-		buf[writeIndex] = '}';
-		return 1;
+	// always private
+	@ForceInline
+	private void writeValue(byte mark, byte[] fieldName) {
+		buf[writeIndex++] = mark;
+		int length = fieldName.length;
+		System.arraycopy(fieldName, 0, buf, writeIndex, length);
+		writeIndex += length;
 	}
 
+	@ForceInline
 	@Override
-	public int writeStartArray(byte[] buf, long options, int writeIndex) {
-		buf[writeIndex] = '[';
-		return 1;
-	}
-
-	@Override
-	public int writeEndArray(byte[] buf, long options, int writeIndex) {
-		buf[writeIndex] = ']';
-		return 1;
-	}
-
-	@Override
-	public int writeMark(byte[] buf, long options, int writeIndex) {
-		buf[writeIndex] = ',';
-		return 1;
-	}
-
-	@Override
-	public int writeNull(byte[] buf, long options, int writeIndex) {
-		buf[writeIndex++] = 'n';
-		buf[writeIndex++] = 'u';
-		buf[writeIndex++] = 'l';
-		buf[writeIndex++] = 'l';
-		buf[writeIndex] = ',';
-		return 5;
-	}
-
-	@Override
-	public int writeField(byte[] buf, long options, int writeIndex, IFieldName filler) {
-		for (byte b : filler.getFieldNameByLatin()) {
-			buf[writeIndex++] = b;
-		}
-		return filler.length() - 1;
-	}
-
-	@Override
-	public int writeBoolean(byte[] buf, long options, int writeIndex, boolean value) {
+	public void writeValue(byte mark, byte[] fieldName, boolean value) {
+		writeValue(mark, fieldName);
 		if (value) {
-			buf[writeIndex++] = 't';
-			buf[writeIndex++] = 'r';
-			buf[writeIndex++] = 'u';
-			buf[writeIndex++] = 'e';
+			System.arraycopy(BOOLEAN_TRUE_LATIN, 0, buf, writeIndex, 4);
+			writeIndex += 4;
 		} else {
-			buf[writeIndex++] = 'f';
-			buf[writeIndex++] = 'a';
-			buf[writeIndex++] = 'l';
-			buf[writeIndex++] = 's';
-			buf[writeIndex++] = 'e';
+			System.arraycopy(BOOLEAN_FALSE_LATIN, 0, buf, writeIndex, 5);
+			writeIndex += 5;
 		}
-		buf[writeIndex] = ',';
-		return value ? 5 : 6;
 	}
 
+	@ForceInline
 	@Override
-	public int writeChar(byte[] buf, long options, int writeIndex, char value) {
+	public void writeValue(byte mark, byte[] fieldName, char value) {
+		writeValue(mark, fieldName);
 		buf[writeIndex++] = '"';
-		buf[writeIndex++] = (byte) (value & 0xFF);
+		buf[writeIndex++] = (byte) value;
 		buf[writeIndex++] = '"';
-		buf[writeIndex] = ',';
-		return 4;
 	}
 
+	@ForceInline
 	@Override
-	public int writeInt(byte[] buf, long options, int writeIndex, int value) {
-		SerializerUtil.putLATIN(buf, writeIndex, value);
-		buf[writeIndex] = ',';
-		return 1;
-	}
+	public void writeValue(byte mark, byte[] fieldName, int length, int value) {
+		writeValue(mark, fieldName);
+		this.writeIndex += length;
+		int q, r;
+		int position = writeIndex;
 
-	@Override
-	public int writeLong(byte[] buf, long options, int writeIndex, long value) {
-		SerializerUtil.putLATIN(buf, writeIndex, value);
-		buf[writeIndex] = ',';
-		return 1;
-	}
-
-	@Override
-	public int writeString(byte[] buf, long options, int writeIndex, String value) {
-		assert unsafe.getByte(value, SerializerUtil.CODER_OFFSET_STRING) == 0 : "error call for compact strings";
-		int length = value.length();
-		byte[] bytes = (byte[]) unsafe.getObject(value, SerializerUtil.VALUE_OFFSET_STRING);
-		for (byte b : bytes) {
-			buf[writeIndex++] = b;
+		boolean negative = (value < 0);
+		if (!negative) {
+			value = -value;
 		}
-		buf[writeIndex] = ',';
-		return length + 1;
-	}
 
-	@Override
-	public int writeStringWithMark(byte[] buf, long options, int writeIndex, String value) {
-		assert unsafe.getByte(value, SerializerUtil.CODER_OFFSET_STRING) == 0 : "error call for compact strings";
-		buf[writeIndex++] = '"';
-		int length = value.length();
-		byte[] bytes = (byte[]) unsafe.getObject(value, SerializerUtil.VALUE_OFFSET_STRING);
-		for (byte b : bytes) {
-			buf[writeIndex++] = b;
+		// Get 2 digits/iteration using ints
+		while (value <= -100) {
+			q = value / 100;
+			r = (q * 100) - value;
+			value = q;
+			buf[--position] = SerializerUtil.DigitOnes[r];
+			buf[--position] = SerializerUtil.DigitTens[r];
 		}
-		buf[writeIndex++] = '"';
-		buf[writeIndex] = ',';
-		return length + 1;
+
+		// We know there are at most two digits left at this point.
+		q = value / 10;
+		r = (q * 10) - value;
+		buf[--position] = (byte) ('0' + r);
+
+		// Whatever left is the remaining digit.
+		if (q < 0) {
+			buf[--position] = (byte) ('0' - q);
+		}
+
+		if (negative) {
+			buf[--position] = '-';
+		}
 	}
 
+	@ForceInline
 	@Override
-	public int writeInts(byte[] buf, long options, int writeIndex, int[] values) {
-		return 0;
+	public void writeValue(byte mark, byte[] fieldName, int length, long value) {
+		writeValue(mark, fieldName);
+		this.writeIndex += length;
+		long q;
+		int r;
+		int position = writeIndex;
+
+		boolean negative = (value < 0);
+		if (!negative) {
+			value = -value;
+		}
+
+		// Get 2 digits/iteration using longs until quotient fits into an int
+		while (value <= Integer.MIN_VALUE) {
+			q = value / 100;
+			r = (int) ((q * 100) - value);
+			value = q;
+			buf[--position] = SerializerUtil.DigitOnes[r];
+			buf[--position] = SerializerUtil.DigitTens[r];
+		}
+
+		// Get 2 digits/iteration using ints
+		int q2;
+		int i2 = (int) value;
+		while (i2 <= -100) {
+			q2 = i2 / 100;
+			r = (q2 * 100) - i2;
+			i2 = q2;
+			buf[--position] = SerializerUtil.DigitOnes[r];
+			buf[--position] = SerializerUtil.DigitTens[r];
+		}
+
+		// We know there are at most two digits left at this point.
+		q2 = i2 / 10;
+		r = (q2 * 10) - i2;
+		buf[--position] = (byte) ('0' + r);
+
+		// Whatever left is the remaining digit.
+		if (q2 < 0) {
+			buf[--position] = (byte) ('0' - q2);
+		}
+
+		if (negative) {
+			buf[--position] = '-';
+		}
 	}
 
+	@ForceInline
 	@Override
-	public int writeInts(byte[] buf, long options, int writeIndex, Integer[] values) {
-		return 0;
+	public void writeValue(byte mark, byte[] fieldName, String value) {
+		writeValue(mark, fieldName);
+		byte[] stringBytes = (byte[]) unsafe.getObject(value, SerializerUtil.VALUE_OFFSET_STRING);
+		int length = stringBytes.length;
+		System.arraycopy(stringBytes, 0, buf, writeIndex, length);
+		writeIndex += length;
+	}
+
+	@ForceInline
+	@Override
+	public void writeValue(byte mark, byte[] fieldName, Object value) {
+		writeValue(mark, fieldName);
+	}
+
+	@ForceInline
+	@Override
+	public void writeEndObject() {
+		buf[writeIndex++] = '}';
+	}
+
+	@ForceInline
+	@Override
+	public void writeEndArray() {
+		buf[writeIndex++] = ']';
 	}
 }

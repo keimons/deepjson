@@ -1,6 +1,6 @@
 package com.keimons.deepjson.serializer;
 
-import com.keimons.deepjson.filler.IFieldName;
+import jdk.internal.vm.annotation.ForceInline;
 
 /**
  * @author monkey
@@ -9,43 +9,27 @@ import com.keimons.deepjson.filler.IFieldName;
  **/
 interface IWriter<T> {
 
-	int writeStartObject(T buf, long options, int writeIndex);
+	@ForceInline
+	void writeValue(byte mark, T fieldName, boolean value);
 
-	/**
-	 * 写入对象结尾标识。
-	 *
-	 * @return 写入字符数量
-	 */
-	int writeEndObject(T buf, long options, int writeIndex);
+	@ForceInline
+	void writeValue(byte mark, T fieldName, char value);
 
-	int writeStartArray(T buf, long options, int writeIndex);
+	@ForceInline
+	void writeValue(byte mark, T fieldName, int length, int value);
 
-	/**
-	 * 写入数组结尾标识。
-	 *
-	 * @return 写入字符数量
-	 */
-	int writeEndArray(T buf, long options, int writeIndex);
+	@ForceInline
+	void writeValue(byte mark, T fieldName, int length, long value);
 
-	int writeMark(byte[] buf, long options, int writeIndex);
+	@ForceInline
+	void writeValue(byte mark, T fieldName, String value);
 
-	int writeNull(T buf, long options, int writeIndex);
+	@ForceInline
+	void writeValue(byte mark, T fieldName, Object value);
 
-	int writeField(byte[] buf, long options, int writeIndex, IFieldName filler);
+	@ForceInline
+	void writeEndObject();
 
-	int writeBoolean(byte[] buf, long options, int writeIndex, boolean value);
-
-	int writeChar(byte[] buf, long options, int writeIndex, char value);
-
-	int writeInt(byte[] buf, long options, int writeIndex, int value);
-
-	int writeLong(byte[] buf, long options, int writeIndex, long value);
-
-	int writeString(byte[] buf, long options, int writeIndex, String value);
-
-	int writeStringWithMark(byte[] buf, long options, int writeIndex, String value);
-
-	int writeInts(byte[] buf, long options, int writeIndex, int[] values);
-
-	int writeInts(byte[] buf, long options, int writeIndex, Integer[] values);
+	@ForceInline
+	void writeEndArray();
 }
