@@ -12,7 +12,7 @@ public class ByteBuf {
 
 	private final long options;
 
-	private IWriter<byte[]> writer;
+	private IWriterStrategy strategy;
 
 	private byte[] buf;
 
@@ -28,75 +28,75 @@ public class ByteBuf {
 		this.coder = coder;
 		if (coder == SerializerUtil.LATIN) {
 			markLength = 1;
-			writer = new LatinWriter(options, buf, writeIndex);
+			strategy = new LatinWriterPolicy(options, buf, writeIndex);
 		} else {
 			markLength = 2;
-			writer = new Utf16Writer(options, buf, writeIndex);
+			strategy = new Utf16WriterPolicy(options, buf, writeIndex);
 		}
 	}
 
 	@ForceInline
-	public void writeValue(byte mark, byte[] fieldName, boolean value) {
-		int writable = markLength + fieldName.length + (value ? 4 : 5) << coder;
+	public void writeValue(byte mark, IFieldName fieldName, boolean value) {
+		int writable = (1 + fieldName.length() + (value ? 4 : 5)) << coder;
 		ensureWritable(writable);
-		writer.writeValue(mark, fieldName, value);
+		strategy.writeValue(mark, fieldName, value);
 	}
 
 	@ForceInline
-	public void writeValue(byte mark, byte[] fieldName, char value) {
-		int writable = markLength + fieldName.length + 3 << coder;
-		ensureWritable(writable);
-		// ensure mix coder
+	public void writeValue(byte mark, IFieldName fieldName, char value) {
+		// ensure coder
 		ensureCoder((byte) (value >>> 8 == 0 ? 0 : 1));
-		writer.writeValue(mark, fieldName, value);
-	}
-
-	@ForceInline
-	public void writeValue(byte mark, byte[] fieldName, int value) {
-		int length = SerializerUtil.size(value) << coder;
-		int writable = markLength + fieldName.length + length;
+		int writable = (1 + fieldName.length() + 3) << coder;
 		ensureWritable(writable);
-		writer.writeValue(mark, fieldName, length, value);
+		strategy.writeValue(mark, fieldName, value);
 	}
 
 	@ForceInline
-	public void writeValue(byte mark, byte[] fieldName, long value) {
-		int length = SerializerUtil.size(value) << coder;
-		int writable = markLength + fieldName.length + length;
+	public void writeValue(byte mark, IFieldName fieldName, int value) {
+		int length = SerializerUtil.size(value);
+		int writable = (1 + fieldName.length() + length) << coder;
 		ensureWritable(writable);
-		writer.writeValue(mark, fieldName, length, value);
+		strategy.writeValue(mark, fieldName, length, value);
 	}
 
 	@ForceInline
-	public void writeValue(byte mark, byte[] fieldName, float value) {
+	public void writeValue(byte mark, IFieldName fieldName, long value) {
+		int length = SerializerUtil.size(value);
+		int writable = (1 + fieldName.length() + length) << coder;
+		ensureWritable(writable);
+		strategy.writeValue(mark, fieldName, length, value);
+	}
+
+	@ForceInline
+	public void writeValue(byte mark, IFieldName fieldName, float value) {
 		String s = Float.toString(value);
-		int writable = markLength + fieldName.length + s.length() << coder;
+		int writable = (1 + fieldName.length() + s.length()) << coder;
 		ensureWritable(writable);
-		writer.writeValue(mark, fieldName, s);
+		strategy.writeValue(mark, fieldName, s);
 	}
 
 	@ForceInline
-	public void writeValue(byte mark, byte[] fieldName, double value) {
+	public void writeValue(byte mark, IFieldName fieldName, double value) {
 		String s = Double.toString(value);
-		int writable = markLength + fieldName.length + s.length() << coder;
+		int writable = (1 + fieldName.length() + s.length()) << coder;
 		ensureWritable(writable);
-		writer.writeValue(mark, fieldName, s);
+		strategy.writeValue(mark, fieldName, s);
 	}
 
 	@ForceInline
-	public void writeValue(byte mark, byte[] fieldName, Object value) {
-		int writable = markLength + fieldName.length;
+	public void writeValue(byte mark, IFieldName fieldName, Object value) {
+		int writable = (1 + fieldName.length()) << coder;
 		ensureWritable(writable);
-		writer.writeValue(mark, fieldName, value);
+		strategy.writeValue(mark, fieldName, value);
 		ISerializer serializer = SerializerFactory.getSerializer(value.getClass());
 		serializer.write(value, this);
 	}
 
 	public void writeString(String value) {
+		ensureCoder(coder);
 		int writable = value.length() + 2;
 		ensureWritable(writable);
 		byte coder = unsafe.getByte(value, SerializerUtil.CODER_OFFSET_STRING);
-		ensureCoder(coder);
 //		this.writeIndex += writer.writeStringWithMark(buf, options, writeIndex, value);
 	}
 
@@ -106,7 +106,7 @@ public class ByteBuf {
 	@ForceInline
 	public void writeEndObject() {
 		ensureWritable(1 << coder);
-		writer.writeEndObject();
+		strategy.writeEndObject();
 	}
 
 	public int writeNull() {
@@ -164,12 +164,12 @@ public class ByteBuf {
 		return options;
 	}
 
-	public IWriter<byte[]> getWriter() {
-		return writer;
+	public IWriterStrategy getStrategy() {
+		return strategy;
 	}
 
-	public void setWriter(IWriter<byte[]> writer) {
-		this.writer = writer;
+	public void setStrategy(IWriterStrategy strategy) {
+		this.strategy = strategy;
 	}
 
 	public byte[] getBuf() {

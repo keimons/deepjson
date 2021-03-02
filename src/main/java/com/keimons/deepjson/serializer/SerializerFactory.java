@@ -44,7 +44,7 @@ public abstract class SerializerFactory {
 			String className = clazz.getSimpleName() + NAME;
 			String packageName = PACKAGE + clazz.getPackageName();
 			String source = SourceCodeFactory.create(packageName, className, clazz);
-			System.out.println(source);
+//			System.out.println(source);
 			return CompilerUtil.compiler(packageName, className, source);
 		}
 	}

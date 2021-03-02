@@ -6,17 +6,19 @@ import jdk.internal.vm.annotation.ForceInline;
 import sun.misc.Unsafe;
 
 /**
+ * JDK9+中开启字符串压缩
+ *
  * @author monkey
  * @version 1.0
- * @since 1.8
+ * @since 9
  **/
-class LatinWriter implements IWriter<byte[]> {
+class LatinWriterPolicy implements IWriterStrategy {
 
 	private static final Unsafe unsafe = UnsafeUtil.getUnsafe();
 
-	private static final byte[] BOOLEAN_TRUE_LATIN = {'t', 'r', 'u', 'e' };
+	private static final byte[] BOOLEAN_TRUE_LATIN = {'t', 'r', 'u', 'e'};
 
-	private static final byte[] BOOLEAN_FALSE_LATIN = {'f', 'a', 'l', 's', 'e' };
+	private static final byte[] BOOLEAN_FALSE_LATIN = {'f', 'a', 'l', 's', 'e'};
 
 	private final long options;
 
@@ -24,7 +26,7 @@ class LatinWriter implements IWriter<byte[]> {
 
 	private int writeIndex;
 
-	public LatinWriter(long options, byte[] buf, int writeIndex) {
+	public LatinWriterPolicy(long options, byte[] buf, int writeIndex) {
 		this.buf = buf;
 		this.options = options;
 		this.writeIndex = writeIndex;
@@ -41,8 +43,8 @@ class LatinWriter implements IWriter<byte[]> {
 
 	@ForceInline
 	@Override
-	public void writeValue(byte mark, byte[] fieldName, boolean value) {
-		writeValue(mark, fieldName);
+	public void writeValue(byte mark, IFieldName fieldName, boolean value) {
+		writeValue(mark, fieldName.getFieldNameByLatin());
 		if (value) {
 			System.arraycopy(BOOLEAN_TRUE_LATIN, 0, buf, writeIndex, 4);
 			writeIndex += 4;
@@ -54,8 +56,8 @@ class LatinWriter implements IWriter<byte[]> {
 
 	@ForceInline
 	@Override
-	public void writeValue(byte mark, byte[] fieldName, char value) {
-		writeValue(mark, fieldName);
+	public void writeValue(byte mark, IFieldName fieldName, char value) {
+		writeValue(mark, fieldName.getFieldNameByLatin());
 		buf[writeIndex++] = '"';
 		buf[writeIndex++] = (byte) value;
 		buf[writeIndex++] = '"';
@@ -63,8 +65,8 @@ class LatinWriter implements IWriter<byte[]> {
 
 	@ForceInline
 	@Override
-	public void writeValue(byte mark, byte[] fieldName, int length, int value) {
-		writeValue(mark, fieldName);
+	public void writeValue(byte mark, IFieldName fieldName, int length, int value) {
+		writeValue(mark, fieldName.getFieldNameByLatin());
 		this.writeIndex += length;
 		int q, r;
 		int position = writeIndex;
@@ -100,8 +102,8 @@ class LatinWriter implements IWriter<byte[]> {
 
 	@ForceInline
 	@Override
-	public void writeValue(byte mark, byte[] fieldName, int length, long value) {
-		writeValue(mark, fieldName);
+	public void writeValue(byte mark, IFieldName fieldName, int length, long value) {
+		writeValue(mark, fieldName.getFieldNameByLatin());
 		this.writeIndex += length;
 		long q;
 		int r;
@@ -149,8 +151,8 @@ class LatinWriter implements IWriter<byte[]> {
 
 	@ForceInline
 	@Override
-	public void writeValue(byte mark, byte[] fieldName, String value) {
-		writeValue(mark, fieldName);
+	public void writeValue(byte mark, IFieldName fieldName, String value) {
+		writeValue(mark, fieldName.getFieldNameByLatin());
 		byte[] stringBytes = (byte[]) unsafe.getObject(value, SerializerUtil.VALUE_OFFSET_STRING);
 		int length = stringBytes.length;
 		System.arraycopy(stringBytes, 0, buf, writeIndex, length);
@@ -159,8 +161,8 @@ class LatinWriter implements IWriter<byte[]> {
 
 	@ForceInline
 	@Override
-	public void writeValue(byte mark, byte[] fieldName, Object value) {
-		writeValue(mark, fieldName);
+	public void writeValue(byte mark, IFieldName fieldName, Object value) {
+		writeValue(mark, fieldName.getFieldNameByLatin());
 	}
 
 	@ForceInline

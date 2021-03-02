@@ -47,6 +47,11 @@ public class FieldInfo implements IFieldName {
 	private final byte[] fieldNameByUtf16;
 
 	/**
+	 * 字段名称 char存储
+	 */
+	private final char[] fieldNameByChar;
+
+	/**
 	 * 字段位置相对于对象首地址的偏移
 	 */
 	private final long offset;
@@ -60,6 +65,7 @@ public class FieldInfo implements IFieldName {
 		this.field = field;
 		this.offset = unsafe.objectFieldOffset(field);
 		String fieldName = "\"" + field.getName() + "\":";
+		fieldNameByChar = fieldName.toCharArray();
 		this.length = fieldName.length();
 		byte[] byUtf16;
 		byte[] byLatin = null;
@@ -88,14 +94,13 @@ public class FieldInfo implements IFieldName {
 		return coder;
 	}
 
-	@Override
-	public int length() {
-		return length;
+	public long offset() {
+		return offset;
 	}
 
 	@Override
-	public long offset() {
-		return offset;
+	public int length() {
+		return length;
 	}
 
 	@Override
@@ -106,5 +111,10 @@ public class FieldInfo implements IFieldName {
 	@Override
 	public byte[] getFieldNameByLatin() {
 		return fieldNameByLatin;
+	}
+
+	@Override
+	public char[] getFieldNameByChar() {
+		return fieldNameByChar;
 	}
 }

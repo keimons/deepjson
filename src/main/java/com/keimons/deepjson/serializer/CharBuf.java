@@ -9,7 +9,7 @@ public class CharBuf implements IBuffer<char[]> {
 
 	private final long options;
 
-	private IWriter<byte[]> writer;
+	private IWriterStrategy writer;
 
 	private char[] buf;
 

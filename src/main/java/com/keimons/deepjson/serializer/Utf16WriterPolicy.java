@@ -6,11 +6,13 @@ import jdk.internal.vm.annotation.ForceInline;
 import sun.misc.Unsafe;
 
 /**
+ * JDK9+中未开启字符串压缩
+ *
  * @author monkey
  * @version 1.0
- * @since 1.8
+ * @since 9
  **/
-class Utf16Writer implements IWriter<byte[]> {
+class Utf16WriterPolicy implements IWriterStrategy {
 
 	private static final Unsafe unsafe = UnsafeUtil.getUnsafe();
 
@@ -53,7 +55,7 @@ class Utf16Writer implements IWriter<byte[]> {
 
 	private int writeIndex;
 
-	public Utf16Writer(long options, byte[] buf, int writeIndex) {
+	public Utf16WriterPolicy(long options, byte[] buf, int writeIndex) {
 		this.buf = buf;
 		this.options = options;
 		this.writeIndex = writeIndex;
@@ -71,8 +73,8 @@ class Utf16Writer implements IWriter<byte[]> {
 
 	@ForceInline
 	@Override
-	public void writeValue(byte mark, byte[] fieldName, boolean value) {
-		writeValue(mark, fieldName);
+	public void writeValue(byte mark, IFieldName fieldName, boolean value) {
+		writeValue(mark, fieldName.getFieldNameByUtf16());
 		if (value) {
 			System.arraycopy(BOOLEAN_TRUE_UTF16, 0, buf, writeIndex, 8);
 			writeIndex += 8;
@@ -84,8 +86,8 @@ class Utf16Writer implements IWriter<byte[]> {
 
 	@ForceInline
 	@Override
-	public void writeValue(byte mark, byte[] fieldName, char value) {
-		writeValue(mark, fieldName);
+	public void writeValue(byte mark, IFieldName fieldName, char value) {
+		writeValue(mark, fieldName.getFieldNameByUtf16());
 		buf[writeIndex++] = HI_BYTE_MARK;
 		buf[writeIndex++] = LO_BYTE_MARK;
 		buf[writeIndex++] = (byte) (value >> SerializerUtil.HI_BYTE_SHIFT);
@@ -96,8 +98,8 @@ class Utf16Writer implements IWriter<byte[]> {
 
 	@ForceInline
 	@Override
-	public void writeValue(byte mark, byte[] fieldName, int length, int value) {
-		writeValue(mark, fieldName);
+	public void writeValue(byte mark, IFieldName fieldName, int length, int value) {
+		writeValue(mark, fieldName.getFieldNameByUtf16());
 		this.writeIndex += length;
 		int q, r;
 		int position = writeIndex;
@@ -138,8 +140,8 @@ class Utf16Writer implements IWriter<byte[]> {
 
 	@ForceInline
 	@Override
-	public void writeValue(byte mark, byte[] fieldName, int length, long value) {
-		writeValue(mark, fieldName);
+	public void writeValue(byte mark, IFieldName fieldName, int length, long value) {
+		writeValue(mark, fieldName.getFieldNameByUtf16());
 		this.writeIndex += length;
 
 		long q;
@@ -195,8 +197,8 @@ class Utf16Writer implements IWriter<byte[]> {
 
 	@ForceInline
 	@Override
-	public void writeValue(byte mark, byte[] fieldName, String value) {
-		writeValue(mark, fieldName);
+	public void writeValue(byte mark, IFieldName fieldName, String value) {
+		writeValue(mark, fieldName.getFieldNameByUtf16());
 		byte[] stringBytes = (byte[]) unsafe.getObject(value, SerializerUtil.VALUE_OFFSET_STRING);
 		byte stringCoder = unsafe.getByte(value, SerializerUtil.CODER_OFFSET_STRING);
 		if (stringCoder == SerializerUtil.LATIN) {
@@ -213,8 +215,8 @@ class Utf16Writer implements IWriter<byte[]> {
 
 	@ForceInline
 	@Override
-	public void writeValue(byte mark, byte[] fieldName, Object value) {
-		writeValue(mark, fieldName);
+	public void writeValue(byte mark, IFieldName fieldName, Object value) {
+		writeValue(mark, fieldName.getFieldNameByUtf16());
 	}
 
 	@ForceInline

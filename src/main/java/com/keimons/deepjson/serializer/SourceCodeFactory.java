@@ -24,6 +24,7 @@ public class SourceCodeFactory {
 
 	private static final List<Class<?>> IMPORT = Arrays.asList(
 			ByteBuf.class,
+			FieldName.class,
 			ISerializer.class,
 			SerializerFactory.class,
 			SerializerOptions.class,
@@ -68,20 +69,28 @@ public class SourceCodeFactory {
 		for (FieldInfo field : fields) {
 			String latin = Arrays.toString(field.getFieldNameByLatin());
 			String utf16 = Arrays.toString(field.getFieldNameByUtf16());
-			source.append("\tprivate final byte[] ")
+			char[] chars = field.getFieldNameByChar();
+			source.append("\tprivate final FieldName $")
 					.append(field.getField().getName())
-					.append("$LATIN")
-					.append(" = {")
+					.append(" = new FieldName(\n")
+			;
+			source.append("\t\t\tnew byte[] {\n")
 					.append(latin, 1, latin.length() - 1)
-					.append("};\n")
+					.append("},\n")
 			;
-			source.append("\tprivate final byte[] ")
-					.append(field.getField().getName())
-					.append("$UTF16")
-					.append(" = {")
+			source.append("\t\t\tnew byte[] {\n")
 					.append(utf16, 1, utf16.length() - 1)
-					.append("};\n")
+					.append("},\n")
 			;
+			source.append("\t\t\tnew char[] {\n");
+			for (int i = 0; i < chars.length; i++) {
+				source.append("'").append(chars[i]).append("'");
+				if (i < chars.length - 1) {
+					source.append(", ");
+				}
+			}
+			source.append("}\n");
+			source.append("\t);\n");
 			source.append("\n");
 		}
 
@@ -273,87 +282,83 @@ public class SourceCodeFactory {
 		source.append("\t\t\tbuf.writeNull();\n");
 		source.append("\t\t\treturn;\n");
 		source.append("\t\t}\n");
-		source.append("\t\tif (buf.getCoder() == 0) {\n");
-		source.append("\t\t} else {\n");
-		source.append("\t\t\tbyte mark = '{';\n");
+		source.append("\t\tbyte mark = '{';\n");
 		for (int i = 0; i < fields.size(); i++) {
 			String fieldName = "value" + i;
 			FieldInfo field = fields.get(i);
 			Class<?> type = field.getField().getType();
 			if (type == boolean.class) {
-				source.append("\t\t\tboolean ")
+				source.append("\t\tboolean ")
 						.append(fieldName)
 						.append(" = unsafe.getBoolean(object, ")
 						.append(field.offset())
 						.append("L);\n")
 				;
 			} else if (type == byte.class) {
-				source.append("\t\t\tbyte ")
+				source.append("\t\tbyte ")
 						.append(fieldName)
 						.append(" = unsafe.getByte(object, ")
 						.append(field.offset())
 						.append("L);\n")
 				;
 			} else if (type == char.class) {
-				source.append("\t\t\tchar ")
+				source.append("\t\tchar ")
 						.append(fieldName)
 						.append(" = unsafe.getChar(object, ")
 						.append(field.offset())
 						.append("L);\n")
 				;
 			} else if (type == short.class) {
-				source.append("\t\t\tshort ")
+				source.append("\t\tshort ")
 						.append(fieldName)
 						.append(" = unsafe.getShort(object, ")
 						.append(field.offset())
 						.append("L);\n")
 				;
 			} else if (type == int.class) {
-				source.append("\t\t\tint ")
+				source.append("\t\tint ")
 						.append(fieldName)
 						.append(" = unsafe.getInt(object, ")
 						.append(field.offset())
 						.append("L);\n")
 				;
 			} else if (type == long.class) {
-				source.append("\t\t\tlong ")
+				source.append("\t\tlong ")
 						.append(fieldName)
 						.append(" = unsafe.getLong(object, ")
 						.append(field.offset())
 						.append("L);\n")
 				;
 			} else if (type == float.class) {
-				source.append("\t\t\tfloat ");
+				source.append("\t\tfloat ");
 				source.append(fieldName)
 						.append(" = unsafe.getFloat(object, ")
 						.append(field.offset())
 						.append("L);\n")
 				;
 			} else if (type == double.class) {
-				source.append("\t\t\tdouble ")
+				source.append("\t\tdouble ")
 						.append(fieldName)
 						.append(" = unsafe.getDouble(object, ")
 						.append(field.offset())
 						.append("L);\n")
 				;
 			} else {
-				source.append("\t\t\tObject ")
+				source.append("\t\tObject ")
 						.append(fieldName)
 						.append(" = unsafe.getObject(object, ")
 						.append(field.offset())
 						.append("L);\n")
 				;
 			}
-			source.append("\t\t\tbuf.writeValue(mark, ")
+			source.append("\t\tbuf.writeValue(mark, $")
 					.append(field.getField().getName())
-					.append("$UTF16")
 					.append(", ")
 					.append(fieldName)
 					.append(");\n")
 			;
-			source.append("\t\t\tmark = ',';\n");
+			source.append("\t\tmark = ',';\n");
 		}
-		source.append("\t\t}\n");
 		source.append("\t\tbuf.writeEndObject();\n");
 		source.append("\t}\n");
 		source.append("}");

@@ -10,9 +10,9 @@ public class NormalNode implements INode {
 
 	private long node4 = 10000L;
 
-	private boolean node5 = true;
+	private boolean node5 = false;
 
-	private char node6 = '梦';
+	private char node6 = 'k';
 
 //	private float node7 = 1234.5678f;
 //
