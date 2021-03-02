@@ -1,164 +1,70 @@
 package com.keimons.deepjson.serializer;
 
-import com.keimons.deepjson.SerializerOptions;
-import com.keimons.deepjson.util.SerializerUtil;
+import com.keimons.deepjson.util.PlatformUtil;
 import com.keimons.deepjson.util.UnsafeUtil;
 import jdk.internal.vm.annotation.ForceInline;
 import sun.misc.Unsafe;
 
-public class ByteBuf {
+public abstract class ByteBuf {
 
-	private static final Unsafe unsafe = UnsafeUtil.getUnsafe();
+	protected static final Unsafe unsafe = UnsafeUtil.getUnsafe();
 
-	private final long options;
+	protected final long options;
 
-	private IWriterStrategy strategy;
+	protected IWriterStrategy strategy;
 
-	private byte[] buf;
-
-	private byte coder = 1;
-
-	private int writeIndex;
-
-	private int markLength;
-
-	private ByteBuf(long options, int capacity, byte coder) {
-		this.buf = new byte[capacity << coder];
+	protected ByteBuf(long options) {
 		this.options = options;
-		this.coder = coder;
-		if (coder == SerializerUtil.LATIN) {
-			markLength = 1;
-			strategy = new LatinWriterPolicy(options, buf, writeIndex);
+	}
+
+	public static ByteBuf buffer(long options, int initCapacity, byte coder) {
+		int version = PlatformUtil.javaVersion();
+		if (version >= 9) {
+			return new ByteArrayBuffer(options, initCapacity, coder);
 		} else {
-			markLength = 2;
-			strategy = new Utf16WriterPolicy(options, buf, writeIndex);
+			return null;
 		}
 	}
 
-	@ForceInline
-	public void writeValue(byte mark, IFieldName fieldName, boolean value) {
-		int writable = (1 + fieldName.length() + (value ? 4 : 5)) << coder;
-		ensureWritable(writable);
-		strategy.writeValue(mark, fieldName, value);
-	}
+	public abstract String newString();
 
-	@ForceInline
-	public void writeValue(byte mark, IFieldName fieldName, char value) {
-		// ensure coder
-		ensureCoder((byte) (value >>> 8 == 0 ? 0 : 1));
-		int writable = (1 + fieldName.length() + 3) << coder;
-		ensureWritable(writable);
-		strategy.writeValue(mark, fieldName, value);
-	}
+	public abstract void writeValue(byte mark, IFieldName fieldName, boolean value);
 
-	@ForceInline
-	public void writeValue(byte mark, IFieldName fieldName, int value) {
-		int length = SerializerUtil.size(value);
-		int writable = (1 + fieldName.length() + length) << coder;
-		ensureWritable(writable);
-		strategy.writeValue(mark, fieldName, length, value);
-	}
+	public abstract void writeValue(byte mark, IFieldName fieldName, char value);
 
-	@ForceInline
-	public void writeValue(byte mark, IFieldName fieldName, long value) {
-		int length = SerializerUtil.size(value);
-		int writable = (1 + fieldName.length() + length) << coder;
-		ensureWritable(writable);
-		strategy.writeValue(mark, fieldName, length, value);
-	}
+	public abstract void writeValue(byte mark, IFieldName fieldName, int value);
 
-	@ForceInline
-	public void writeValue(byte mark, IFieldName fieldName, float value) {
-		String s = Float.toString(value);
-		int writable = (1 + fieldName.length() + s.length()) << coder;
-		ensureWritable(writable);
-		strategy.writeValue(mark, fieldName, s);
-	}
+	public abstract void writeValue(byte mark, IFieldName fieldName, long value);
 
-	@ForceInline
-	public void writeValue(byte mark, IFieldName fieldName, double value) {
-		String s = Double.toString(value);
-		int writable = (1 + fieldName.length() + s.length()) << coder;
-		ensureWritable(writable);
-		strategy.writeValue(mark, fieldName, s);
-	}
+	public abstract void writeValue(byte mark, IFieldName fieldName, float value);
 
-	@ForceInline
-	public void writeValue(byte mark, IFieldName fieldName, Object value) {
-		int writable = (1 + fieldName.length()) << coder;
-		ensureWritable(writable);
-		strategy.writeValue(mark, fieldName, value);
-		ISerializer serializer = SerializerFactory.getSerializer(value.getClass());
-		serializer.write(value, this);
-	}
+	public abstract void writeValue(byte mark, IFieldName fieldName, double value);
 
-	public void writeString(String value) {
-		ensureCoder(coder);
-		int writable = value.length() + 2;
-		ensureWritable(writable);
-		byte coder = unsafe.getByte(value, SerializerUtil.CODER_OFFSET_STRING);
-//		this.writeIndex += writer.writeStringWithMark(buf, options, writeIndex, value);
-	}
+	public abstract void writeValue(byte mark, IFieldName fieldName, Object value);
+
+	public abstract void writeString(String value);
 
 	/**
 	 * 写入对象结尾标识。
 	 */
 	@ForceInline
-	public void writeEndObject() {
-		ensureWritable(1 << coder);
-		strategy.writeEndObject();
-	}
+	public abstract void writeEndObject();
 
-	public int writeNull() {
-		if (SerializerOptions.IgnoreNonField.isOptions(options)) {
-			ensureWritable(5);
-			return 5;
-		} else {
-			return 0;
-		}
-	}
-
-	/**
-	 * 确保缓冲区的编码方式与即将写入的编码方式相同。
-	 *
-	 * @param coder 即将写入的编码方式
-	 */
-	public void ensureCoder(byte coder) {
-		if (this.coder != coder) {
-			throw new CoderModificationException();
-		}
-	}
+	public abstract int writeNull();
 
 	/**
 	 * 确保缓冲区的可写入字节数大于或等于即将写入的字节数。
 	 *
 	 * @param writableBytes 即将写入的字节数
 	 */
-	public void ensureWritable(int writableBytes) {
-		if (writableBytes + writeIndex > buf.length) {
-			if (true) {
-				expandCapacity(writableBytes + writeIndex);
-			} else {
-				throw new CapacityModificationException();
-			}
-		}
-	}
+	public abstract void ensureWritable(int writableBytes);
 
 	/**
 	 * 扩容
 	 *
 	 * @param minCapacity 最小容量
 	 */
-	private void expandCapacity(int minCapacity) {
-		int newCapacity = (buf.length >> 1);
-
-		if (newCapacity < minCapacity) {
-			newCapacity = minCapacity;
-		}
-		byte[] newBuf = new byte[newCapacity];
-		System.arraycopy(buf, 0, newBuf, 0, writeIndex);
-		buf = newBuf;
-	}
+	protected abstract void expandCapacity(int minCapacity);
 
 	public long getOptions() {
 		return options;
@@ -170,45 +76,5 @@ public class ByteBuf {
 
 	public void setStrategy(IWriterStrategy strategy) {
 		this.strategy = strategy;
-	}
-
-	public byte[] getBuf() {
-		return buf;
-	}
-
-	public void setBuf(byte[] buf) {
-		this.buf = buf;
-	}
-
-	public byte getCoder() {
-		return coder;
-	}
-
-	public void setCoder(byte coder) {
-		this.coder = coder;
-	}
-
-	public int getWriteIndex() {
-		return writeIndex;
-	}
-
-	public void setWriteIndex(int writeIndex) {
-		this.writeIndex = writeIndex;
-	}
-
-	public String newString() {
-		try {
-			String str = (String) unsafe.allocateInstance(String.class);
-			unsafe.putObject(str, SerializerUtil.VALUE_OFFSET_STRING, buf);
-			unsafe.putByte(str, SerializerUtil.CODER_OFFSET_STRING, coder);
-			return str;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-
-	public static ByteBuf buffer(long options, int initCapacity, byte coder) {
-		return new ByteBuf(options, initCapacity, coder);
 	}
 }

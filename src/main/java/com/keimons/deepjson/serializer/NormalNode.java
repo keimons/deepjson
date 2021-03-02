@@ -12,7 +12,7 @@ public class NormalNode implements INode {
 
 	private boolean node5 = false;
 
-	private char node6 = 'k';
+	private char node6 = '梦';
 
 //	private float node7 = 1234.5678f;
 //

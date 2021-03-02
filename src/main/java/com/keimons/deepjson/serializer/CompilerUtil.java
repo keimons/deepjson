@@ -5,7 +5,7 @@ import com.keimons.deepjson.compiler.SourceCodeCompiler;
 /**
  * 编译工具
  *
- * @author monkey1993
+ * @author monkey
  * @version 1.0
  * @since 1.8
  **/

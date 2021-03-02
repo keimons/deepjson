@@ -74,15 +74,15 @@ public class SourceCodeFactory {
 					.append(field.getField().getName())
 					.append(" = new FieldName(\n")
 			;
-			source.append("\t\t\tnew byte[] {\n")
+			source.append("\t\t\tnew byte[] {")
 					.append(latin, 1, latin.length() - 1)
 					.append("},\n")
 			;
-			source.append("\t\t\tnew byte[] {\n")
+			source.append("\t\t\tnew byte[] {")
 					.append(utf16, 1, utf16.length() - 1)
 					.append("},\n")
 			;
-			source.append("\t\t\tnew char[] {\n");
+			source.append("\t\t\tnew char[] {");
 			for (int i = 0; i < chars.length; i++) {
 				source.append("'").append(chars[i]).append("'");
 				if (i < chars.length - 1) {

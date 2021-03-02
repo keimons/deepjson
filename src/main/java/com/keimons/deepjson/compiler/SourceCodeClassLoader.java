@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * @author monkey1993
+ * @author monkey
  * @version 1.0
  * @since 1.8
  **/

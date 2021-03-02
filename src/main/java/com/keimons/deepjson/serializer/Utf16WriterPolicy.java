@@ -6,7 +6,7 @@ import jdk.internal.vm.annotation.ForceInline;
 import sun.misc.Unsafe;
 
 /**
- * JDK9+中未开启字符串压缩
+ * 膨胀字符串写入
  *
  * @author monkey
  * @version 1.0
@@ -51,6 +51,9 @@ class Utf16WriterPolicy implements IWriterStrategy {
 
 	private final long options;
 
+	/**
+	 * 缓冲区
+	 */
 	private byte[] buf;
 
 	private int writeIndex;
@@ -100,7 +103,7 @@ class Utf16WriterPolicy implements IWriterStrategy {
 	@Override
 	public void writeValue(byte mark, IFieldName fieldName, int length, int value) {
 		writeValue(mark, fieldName.getFieldNameByUtf16());
-		this.writeIndex += length;
+		this.writeIndex += (length << 1);
 		int q, r;
 		int position = writeIndex;
 
@@ -142,7 +145,7 @@ class Utf16WriterPolicy implements IWriterStrategy {
 	@Override
 	public void writeValue(byte mark, IFieldName fieldName, int length, long value) {
 		writeValue(mark, fieldName.getFieldNameByUtf16());
-		this.writeIndex += length;
+		this.writeIndex += (length << 1);
 
 		long q;
 		int r;
@@ -190,8 +193,8 @@ class Utf16WriterPolicy implements IWriterStrategy {
 		}
 
 		if (negative) {
-			buf[--position] = HI_BYTE_NEGATIVE;
 			buf[--position] = LO_BYTE_NEGATIVE;
+			buf[--position] = HI_BYTE_NEGATIVE;
 		}
 	}
 
@@ -230,5 +233,11 @@ class Utf16WriterPolicy implements IWriterStrategy {
 	public void writeEndArray() {
 		buf[writeIndex++] = (byte) (']' >> SerializerUtil.HI_BYTE_SHIFT);
 		buf[writeIndex++] = (byte) (']' >> SerializerUtil.LO_BYTE_SHIFT);
+	}
+
+	@ForceInline
+	@Override
+	public final int writeIndex() {
+		return writeIndex;
 	}
 }

@@ -3,7 +3,7 @@ package com.keimons.deepjson.serializer;
 /**
  * 示例程序
  *
- * @author monkey1993
+ * @author monkey
  * @version 1.0
  * @since 1.8
  **/

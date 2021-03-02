@@ -1,7 +1,7 @@
 package com.keimons.deepjson.test.util;
 
 /**
- * @author monkey1993
+ * @author monkey
  * @version 1.0
  * @since 1.8
  **/

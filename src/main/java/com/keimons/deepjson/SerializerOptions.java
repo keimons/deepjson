@@ -12,7 +12,7 @@ package com.keimons.deepjson;
  *     <li>Force*   无视规则</li>
  * </ul>
  *
- * @author monkey1993
+ * @author monkey
  * @version 1.0
  * @since 1.8
  **/

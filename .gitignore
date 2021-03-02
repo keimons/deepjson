@@ -26,3 +26,6 @@ hs_err_pid*
 .idea
 gradle
 build
+
+# deep json create .java file dump path
+deepjson

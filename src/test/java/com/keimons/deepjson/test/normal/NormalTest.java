@@ -2,16 +2,14 @@ package com.keimons.deepjson.test.normal;
 
 import com.alibaba.fastjson.JSONObject;
 import com.keimons.deepjson.DeepJson;
-import com.keimons.deepjson.SerializerOptions;
-import com.keimons.deepjson.util.UnsafeUtil;
 import com.keimons.deepjson.serializer.INode;
 import com.keimons.deepjson.serializer.NormalNode;
+import com.keimons.deepjson.util.PlatformUtil;
+import com.keimons.deepjson.util.UnsafeUtil;
 import org.junit.jupiter.api.Test;
 import sun.misc.Unsafe;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 // -Xlog:gc*=info -verbose:gc -XX:G1HeapRegionSize=32m -Xms2048m -Xmx2048m
@@ -35,14 +33,17 @@ public class NormalTest {
 
 	@Test
 	public void test() {
-		byte b = 'a';
-		char c = 'a';
-		System.out.println((int) b);
-		System.out.println((int) c);
-		String json = JSONObject.toJSONString(node);
-		System.out.println(json);
-		json = DeepJson.toJsonString(node);
-		System.out.println(json);
+
+		System.out.println("Java规范版本号：" + PlatformUtil.javaVersion()); // Java规范版本号
+
+		long nanoTime = System.nanoTime();
+		System.out.println(JSONObject.toJSONString(node));
+		float usingTime = (System.nanoTime() - nanoTime) / 1000000f;
+		System.out.println("fast json first serializer using time: " + usingTime);
+		nanoTime = System.nanoTime();
+		System.out.println(DeepJson.toJsonString(node));
+		usingTime = (System.nanoTime() - nanoTime) / 1000000f;
+		System.out.println("deep json first serializer using time: " + usingTime);
 	}
 
 	@Test

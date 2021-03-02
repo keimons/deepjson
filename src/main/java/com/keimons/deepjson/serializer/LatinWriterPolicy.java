@@ -6,7 +6,7 @@ import jdk.internal.vm.annotation.ForceInline;
 import sun.misc.Unsafe;
 
 /**
- * JDK9+中开启字符串压缩
+ * 压缩字符串写入
  *
  * @author monkey
  * @version 1.0
@@ -175,5 +175,11 @@ class LatinWriterPolicy implements IWriterStrategy {
 	@Override
 	public void writeEndArray() {
 		buf[writeIndex++] = ']';
+	}
+
+	@ForceInline
+	@Override
+	public final int writeIndex() {
+		return writeIndex;
 	}
 }

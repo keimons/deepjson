@@ -3,7 +3,7 @@ package com.keimons.deepjson.test.util;
 /**
  * Test class for ClassUtil.
  *
- * @author monkey1993
+ * @author monkey
  * @version 1.0
  * @since 1.8
  **/
