@@ -3,6 +3,7 @@ package com.keimons.deepjson.test.normal;
 import com.alibaba.fastjson.JSONObject;
 import com.keimons.deepjson.DeepJson;
 import com.keimons.deepjson.test.INode;
+import com.keimons.deepjson.test.NormalNode;
 import com.keimons.deepjson.util.UnsafeUtil;
 import org.junit.jupiter.api.Test;
 import sun.misc.Unsafe;
@@ -17,17 +18,18 @@ public class NormalTest {
 
 	long offset;
 
+	int times = 100_0000;
+
+	INode node = new NormalNode();
+
 	{
 		try {
 			offset = unsafe.objectFieldOffset(String.class.getDeclaredField("value"));
 		} catch (NoSuchFieldException e) {
 			e.printStackTrace();
 		}
+		NormalNode cache = (NormalNode) node;
 	}
-
-	int times = 100_0000;
-
-	INode node = new NormalNode();
 
 	@Test
 	public void test() {
