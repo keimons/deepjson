@@ -18,10 +18,10 @@ public class PlatformUtil {
 	 * 9.x => 9
 	 * 10.x => 10
 	 * 11.x => 11
-	 *
-	 * @return Java版本
 	 */
-	public static int javaVersion() {
+	public static final int JAVA_VERSION;
+
+	static {
 		String config = System.getProperty("java.specification.version", "1.6");
 		final String[] components = config.split("\\.");
 		final int[] version = new int[components.length];
@@ -29,9 +29,18 @@ public class PlatformUtil {
 			version[i] = Integer.parseInt(components[i]);
 		}
 		if (version[0] == 1) {
-			return version[1];
+			JAVA_VERSION = version[1];
 		} else {
-			return version[0];
+			JAVA_VERSION = version[0];
 		}
+	}
+
+	/**
+	 * 获取Java版本
+	 *
+	 * @return Java版本
+	 */
+	public static int javaVersion() {
+		return JAVA_VERSION;
 	}
 }

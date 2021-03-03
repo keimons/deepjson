@@ -1,5 +1,6 @@
 package com.keimons.deepjson.serializer;
 
+import com.keimons.deepjson.util.PlatformUtil;
 import com.keimons.deepjson.util.SerializerUtil;
 import com.keimons.deepjson.util.UnsafeUtil;
 import sun.misc.Unsafe;
@@ -13,7 +14,7 @@ import java.lang.reflect.Field;
  * @version 1.0
  * @since 1.8
  **/
-public class FieldInfo implements IFieldName {
+public class FieldInfo {
 
 	private static final Unsafe unsafe = UnsafeUtil.getUnsafe();
 
@@ -32,29 +33,14 @@ public class FieldInfo implements IFieldName {
 	private final byte coder;
 
 	/**
-	 * 字段长度
-	 */
-	private final int length;
-
-	/**
-	 * 字段名称 单字节存储
-	 */
-	private final byte[] fieldNameByLatin;
-
-	/**
-	 * 字段名称 双字节存储
-	 */
-	private final byte[] fieldNameByUtf16;
-
-	/**
-	 * 字段名称 char存储
-	 */
-	private final char[] fieldNameByChar;
-
-	/**
 	 * 字段位置相对于对象首地址的偏移
 	 */
 	private final long offset;
+
+	/**
+	 * 字段名称
+	 */
+	private final String fieldName;
 
 	/**
 	 * 构造字段信息
@@ -64,26 +50,12 @@ public class FieldInfo implements IFieldName {
 	public FieldInfo(Field field) {
 		this.field = field;
 		this.offset = unsafe.objectFieldOffset(field);
-		String fieldName = "\"" + field.getName() + "\":";
-		fieldNameByChar = fieldName.toCharArray();
-		this.length = fieldName.length();
-		byte[] byUtf16;
-		byte[] byLatin = null;
-		this.coder = unsafe.getByte(fieldName, SerializerUtil.CODER_OFFSET_STRING);
-		byte[] bytes = (byte[]) unsafe.getObject(fieldName, SerializerUtil.VALUE_OFFSET_STRING);
-		if (this.coder == SerializerUtil.LATIN) {
-			byLatin = bytes;
-			byUtf16 = new byte[this.length << 1];
-			int writeIndex = 0;
-			for (byte b : byLatin) {
-				byUtf16[writeIndex++] = (byte) (b >> SerializerUtil.HI_BYTE_SHIFT);
-				byUtf16[writeIndex++] = (byte) (b >> SerializerUtil.LO_BYTE_SHIFT);
-			}
+		this.fieldName = "\"" + field.getName() + "\":";
+		if (PlatformUtil.javaVersion() >= 9) {
+			this.coder = unsafe.getByte(this.fieldName, SerializerUtil.CODER_OFFSET_STRING);
 		} else {
-			byUtf16 = bytes;
+			this.coder = 1;
 		}
-		this.fieldNameByUtf16 = byUtf16;
-		this.fieldNameByLatin = byLatin;
 	}
 
 	public Field getField() {
@@ -98,23 +70,11 @@ public class FieldInfo implements IFieldName {
 		return offset;
 	}
 
-	@Override
 	public int length() {
-		return length;
+		return fieldName.length();
 	}
 
-	@Override
-	public byte[] getFieldNameByUtf16() {
-		return fieldNameByUtf16;
-	}
-
-	@Override
-	public byte[] getFieldNameByLatin() {
-		return fieldNameByLatin;
-	}
-
-	@Override
-	public char[] getFieldNameByChar() {
-		return fieldNameByChar;
+	public String getFieldName() {
+		return fieldName;
 	}
 }

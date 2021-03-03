@@ -1,10 +1,13 @@
 package com.keimons.deepjson.serializer;
 
+import com.keimons.deepjson.util.CompilerUtil;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class SerializerFactory {
@@ -16,6 +19,8 @@ public abstract class SerializerFactory {
 
 	private static final Map<Class<?>, ISerializer> CACHE = new ConcurrentHashMap<>();
 
+	private static final WeakHashMap<Class<?>, ISerializer> ARRAY_CACHE = new WeakHashMap<>();
+
 	static {
 		String property = System.getProperty("com.keimons.deepjson.DumpPath");
 		if (property != null && property.length() > 0) {
@@ -25,22 +30,37 @@ public abstract class SerializerFactory {
 				DUMP_PATH = property + File.separator;
 			}
 		}
-//		CACHE.put(int[].class, new IArraySerializer());
-//		CACHE.put(Integer[].class, new IntegerArraySerializer());
+		CACHE.put(String.class, new StringSerializer());
+		CACHE.put(int.class, new IntegerSerializer());
+		CACHE.put(Integer.class, new IntegerSerializer());
+		CACHE.put(int[].class, new IntegerArraySerializer());
 	}
 
 	public static ISerializer getSerializer(Class<?> clazz) {
 		ISerializer serializer = CACHE.get(clazz);
 		if (serializer == null) {
-			serializer = CACHE.computeIfAbsent(clazz, cls -> {
-				Class<? extends ISerializer> serializerClass = SourceCodeSerializer.instance.findSerializer(clazz);
-				try {
-					return serializerClass.getDeclaredConstructor().newInstance();
-				} catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-					e.printStackTrace();
+			if (clazz.isArray()) {
+				if (clazz == int[].class) {
+					serializer = IntegerArraySerializer.instance;
+				} else {
+					serializer = ARRAY_CACHE.get(clazz);
+					if (serializer == null) {
+						serializer = new ArraySerializer(clazz);
+						ARRAY_CACHE.put(clazz, serializer);
+						serializer.link();
+					}
 				}
-				return null;
-			});
+			} else {
+				serializer = CACHE.computeIfAbsent(clazz, cls -> {
+					Class<? extends ISerializer> serializerClass = SourceCodeSerializer.instance.findSerializer(clazz);
+					try {
+						return serializerClass.getDeclaredConstructor().newInstance();
+					} catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+						e.printStackTrace();
+					}
+					return null;
+				});
+			}
 		}
 		return serializer;
 	}

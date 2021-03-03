@@ -1,17 +1,57 @@
 package com.keimons.deepjson.serializer;
 
+import com.keimons.deepjson.util.UnsafeUtil;
 import jdk.internal.vm.annotation.ForceInline;
+import sun.misc.Unsafe;
 
 /**
- * 写入策略
+ * 缓冲区写入策略
+ * <p>
+ * 写入策略包括：压缩字节写入策略、膨胀字节写入策略、char类型写入策略。
  *
  * @author monkey
  * @version 1.0
- * @since 1.8
+ * @since 1.7
  **/
 public interface IWriterStrategy {
 
+	Unsafe unsafe = UnsafeUtil.getUnsafe();
+
+	/**
+	 * 获取即将写入位置
+	 *
+	 * @return 即将写入位置
+	 */
 	int writeIndex();
+
+	/**
+	 * 写入int型值
+	 *
+	 * @param mark 即将写入的值
+	 */
+	void writeMark(char mark);
+
+	/**
+	 * 写入int型值
+	 *
+	 * @param value 即将写入的值
+	 */
+	void writeValue(char value);
+
+	/**
+	 * 写入int型值
+	 *
+	 * @param length 即将写入的长度
+	 * @param value  即将写入的值
+	 */
+	void writeValue(int length, int value);
+
+	/**
+	 * 写入字符串
+	 *
+	 * @param value 即将写入的值
+	 */
+	void writeValue(String value);
 
 	/**
 	 * 写入boolean值
@@ -90,4 +130,6 @@ public interface IWriterStrategy {
 	 */
 	@ForceInline
 	void writeEndArray();
+
+	void writeNull();
 }

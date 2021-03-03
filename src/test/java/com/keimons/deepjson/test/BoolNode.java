@@ -1,7 +1,5 @@
 package com.keimons.deepjson.test;
 
-import com.keimons.deepjson.serializer.INode;
-
 public class BoolNode implements INode {
 
 	private boolean index0;

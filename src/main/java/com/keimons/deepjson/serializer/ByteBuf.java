@@ -5,12 +5,27 @@ import com.keimons.deepjson.util.UnsafeUtil;
 import jdk.internal.vm.annotation.ForceInline;
 import sun.misc.Unsafe;
 
+/**
+ * 缓冲区
+ * <p>
+ * 在jdk 1.7-1.8中，使用char数组类型缓冲区。在jdk 9+中使用byte数组类型缓冲区。
+ *
+ * @author monkey
+ * @version 1.0
+ * @since 1.7
+ **/
 public abstract class ByteBuf {
 
 	protected static final Unsafe unsafe = UnsafeUtil.getUnsafe();
 
+	/**
+	 * 序列化选项
+	 */
 	protected final long options;
 
+	/**
+	 * 写入策略
+	 */
 	protected IWriterStrategy strategy;
 
 	protected ByteBuf(long options) {
@@ -28,6 +43,14 @@ public abstract class ByteBuf {
 
 	public abstract String newString();
 
+	public abstract void writeMark(char mark);
+
+	public abstract void writeChar(char value);
+
+	public abstract void writeInt(int value);
+
+	public abstract void writeString(String value);
+
 	public abstract void writeValue(byte mark, IFieldName fieldName, boolean value);
 
 	public abstract void writeValue(byte mark, IFieldName fieldName, char value);
@@ -42,15 +65,16 @@ public abstract class ByteBuf {
 
 	public abstract void writeValue(byte mark, IFieldName fieldName, Object value);
 
-	public abstract void writeString(String value);
-
 	/**
 	 * 写入对象结尾标识。
 	 */
 	@ForceInline
 	public abstract void writeEndObject();
 
-	public abstract int writeNull();
+	/**
+	 * 写入一个空
+	 */
+	public abstract void writeNull();
 
 	/**
 	 * 确保缓冲区的可写入字节数大于或等于即将写入的字节数。

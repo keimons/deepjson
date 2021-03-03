@@ -2,9 +2,7 @@ package com.keimons.deepjson.test.normal;
 
 import com.alibaba.fastjson.JSONObject;
 import com.keimons.deepjson.DeepJson;
-import com.keimons.deepjson.serializer.INode;
-import com.keimons.deepjson.serializer.NormalNode;
-import com.keimons.deepjson.util.PlatformUtil;
+import com.keimons.deepjson.test.INode;
 import com.keimons.deepjson.util.UnsafeUtil;
 import org.junit.jupiter.api.Test;
 import sun.misc.Unsafe;
@@ -33,9 +31,6 @@ public class NormalTest {
 
 	@Test
 	public void test() {
-
-		System.out.println("Java规范版本号：" + PlatformUtil.javaVersion()); // Java规范版本号
-
 		long nanoTime = System.nanoTime();
 		System.out.println(JSONObject.toJSONString(node));
 		float usingTime = (System.nanoTime() - nanoTime) / 1000000f;

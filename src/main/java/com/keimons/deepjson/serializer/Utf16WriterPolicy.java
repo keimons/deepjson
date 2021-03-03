@@ -6,7 +6,7 @@ import jdk.internal.vm.annotation.ForceInline;
 import sun.misc.Unsafe;
 
 /**
- * 膨胀字符串写入
+ * 膨胀字节写入策略
  *
  * @author monkey
  * @version 1.0
@@ -49,6 +49,17 @@ class Utf16WriterPolicy implements IWriterStrategy {
 			(byte) ('e' >> SerializerUtil.LO_BYTE_SHIFT),
 	};
 
+	private static final byte[] NULL = {
+			(byte) ('n' >> SerializerUtil.HI_BYTE_SHIFT),
+			(byte) ('n' >> SerializerUtil.LO_BYTE_SHIFT),
+			(byte) ('u' >> SerializerUtil.HI_BYTE_SHIFT),
+			(byte) ('u' >> SerializerUtil.LO_BYTE_SHIFT),
+			(byte) ('l' >> SerializerUtil.HI_BYTE_SHIFT),
+			(byte) ('l' >> SerializerUtil.LO_BYTE_SHIFT),
+			(byte) ('l' >> SerializerUtil.HI_BYTE_SHIFT),
+			(byte) ('l' >> SerializerUtil.LO_BYTE_SHIFT)
+	};
+
 	private final long options;
 
 	/**
@@ -64,33 +75,20 @@ class Utf16WriterPolicy implements IWriterStrategy {
 		this.writeIndex = writeIndex;
 	}
 
-	// always private
-	@ForceInline
-	private void writeValue(byte mark, byte[] fieldName) {
+	@Override
+	public final int writeIndex() {
+		return writeIndex;
+	}
+
+	@Override
+	public final void writeMark(char mark) {
 		buf[writeIndex++] = (byte) (mark >> SerializerUtil.HI_BYTE_SHIFT);
 		buf[writeIndex++] = (byte) (mark >> SerializerUtil.LO_BYTE_SHIFT);
-		int length = fieldName.length;
-		System.arraycopy(fieldName, 0, buf, writeIndex, length);
-		writeIndex += length;
 	}
 
 	@ForceInline
 	@Override
-	public void writeValue(byte mark, IFieldName fieldName, boolean value) {
-		writeValue(mark, fieldName.getFieldNameByUtf16());
-		if (value) {
-			System.arraycopy(BOOLEAN_TRUE_UTF16, 0, buf, writeIndex, 8);
-			writeIndex += 8;
-		} else {
-			System.arraycopy(BOOLEAN_FALSE_UTF16, 0, buf, writeIndex, 10);
-			writeIndex += 10;
-		}
-	}
-
-	@ForceInline
-	@Override
-	public void writeValue(byte mark, IFieldName fieldName, char value) {
-		writeValue(mark, fieldName.getFieldNameByUtf16());
+	public final void writeValue(char value) {
 		buf[writeIndex++] = HI_BYTE_MARK;
 		buf[writeIndex++] = LO_BYTE_MARK;
 		buf[writeIndex++] = (byte) (value >> SerializerUtil.HI_BYTE_SHIFT);
@@ -99,10 +97,8 @@ class Utf16WriterPolicy implements IWriterStrategy {
 		buf[writeIndex++] = LO_BYTE_MARK;
 	}
 
-	@ForceInline
 	@Override
-	public void writeValue(byte mark, IFieldName fieldName, int length, int value) {
-		writeValue(mark, fieldName.getFieldNameByUtf16());
+	public void writeValue(int length, int value) {
 		this.writeIndex += (length << 1);
 		int q, r;
 		int position = writeIndex;
@@ -139,6 +135,53 @@ class Utf16WriterPolicy implements IWriterStrategy {
 			buf[--position] = HI_BYTE_NEGATIVE;
 			buf[--position] = LO_BYTE_NEGATIVE;
 		}
+	}
+
+	@Override
+	public void writeValue(String value) {
+		buf[writeIndex++] = HI_BYTE_MARK;
+		buf[writeIndex++] = LO_BYTE_MARK;
+		byte[] bytes = (byte[]) unsafe.getObject(value, SerializerUtil.VALUE_OFFSET_STRING);
+		System.arraycopy(bytes, 0, buf, writeIndex, bytes.length);
+		writeIndex += bytes.length;
+		buf[writeIndex++] = HI_BYTE_MARK;
+		buf[writeIndex++] = LO_BYTE_MARK;
+	}
+
+	// always private
+	private void writeValue(byte mark, byte[] fieldName) {
+		buf[writeIndex++] = (byte) (mark >> SerializerUtil.HI_BYTE_SHIFT);
+		buf[writeIndex++] = (byte) (mark >> SerializerUtil.LO_BYTE_SHIFT);
+		int length = fieldName.length;
+		System.arraycopy(fieldName, 0, buf, writeIndex, length);
+		writeIndex += length;
+	}
+
+	@ForceInline
+	@Override
+	public void writeValue(byte mark, IFieldName fieldName, boolean value) {
+		writeValue(mark, fieldName.getFieldNameByUtf16());
+		if (value) {
+			System.arraycopy(BOOLEAN_TRUE_UTF16, 0, buf, writeIndex, 8);
+			writeIndex += 8;
+		} else {
+			System.arraycopy(BOOLEAN_FALSE_UTF16, 0, buf, writeIndex, 10);
+			writeIndex += 10;
+		}
+	}
+
+	@ForceInline
+	@Override
+	public void writeValue(byte mark, IFieldName fieldName, char value) {
+		writeValue(mark, fieldName.getFieldNameByUtf16());
+		writeValue(value);
+	}
+
+	@ForceInline
+	@Override
+	public void writeValue(byte mark, IFieldName fieldName, int length, int value) {
+		writeValue(mark, fieldName.getFieldNameByUtf16());
+		writeValue(length, value);
 	}
 
 	@ForceInline
@@ -235,9 +278,9 @@ class Utf16WriterPolicy implements IWriterStrategy {
 		buf[writeIndex++] = (byte) (']' >> SerializerUtil.LO_BYTE_SHIFT);
 	}
 
-	@ForceInline
 	@Override
-	public final int writeIndex() {
-		return writeIndex;
+	public void writeNull() {
+		System.arraycopy(NULL, 0, buf, writeIndex, 8);
+		writeIndex += 8;
 	}
 }

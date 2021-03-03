@@ -1,6 +1,5 @@
 package com.keimons.deepjson.serializer;
 
-import com.keimons.deepjson.SerializerOptions;
 import com.keimons.deepjson.util.SerializerUtil;
 import com.keimons.deepjson.util.UnsafeUtil;
 import jdk.internal.vm.annotation.ForceInline;
@@ -32,6 +31,7 @@ class ByteArrayBuffer extends ByteBuf {
 		}
 	}
 
+	@Override
 	public String newString() {
 		try {
 			String str = (String) unsafe.allocateInstance(String.class);
@@ -44,10 +44,46 @@ class ByteArrayBuffer extends ByteBuf {
 		}
 	}
 
+	@Override
+	public final void writeMark(char mark) {
+		ensureWritable(1);
+		strategy.writeMark(mark);
+	}
+
+	@Override
+	public final void writeChar(char value) {
+		ensureCoder((byte) (value >>> 8 == 0 ? 0 : 1));
+		ensureWritable(1);
+		strategy.writeValue(value);
+	}
+
+	@Override
+	public final void writeInt(int value) {
+		int writable = SerializerUtil.size(value);
+		ensureWritable(writable);
+		strategy.writeValue(writable, value);
+	}
+
+	@ForceInline
+	@Override
+	public final void writeString(String value) {
+		ensureCoder(unsafe.getByte(value, SerializerUtil.CODER_OFFSET_STRING));
+		int writable = value.length() + 2;
+		ensureWritable(writable);
+		strategy.writeValue(value);
+	}
+
+	@ForceInline
+	@Override
+	public void writeNull() {
+		ensureWritable(4);
+		strategy.writeNull();
+	}
+
 	@ForceInline
 	@Override
 	public final void writeValue(byte mark, IFieldName fieldName, boolean value) {
-		int writable = (1 + fieldName.length() + (value ? 4 : 5)) << coder;
+		int writable = 1 + fieldName.length() + (value ? 4 : 5);
 		ensureWritable(writable);
 		strategy.writeValue(mark, fieldName, value);
 	}
@@ -57,7 +93,7 @@ class ByteArrayBuffer extends ByteBuf {
 	public final void writeValue(byte mark, IFieldName fieldName, char value) {
 		// ensure coder
 		ensureCoder((byte) (value >>> 8 == 0 ? 0 : 1));
-		int writable = (1 + fieldName.length() + 3) << coder;
+		int writable = 4 + fieldName.length();
 		ensureWritable(writable);
 		strategy.writeValue(mark, fieldName, value);
 	}
@@ -66,7 +102,7 @@ class ByteArrayBuffer extends ByteBuf {
 	@Override
 	public final void writeValue(byte mark, IFieldName fieldName, int value) {
 		int length = SerializerUtil.size(value);
-		int writable = (1 + fieldName.length() + length) << coder;
+		int writable = 1 + fieldName.length() + length;
 		ensureWritable(writable);
 		strategy.writeValue(mark, fieldName, length, value);
 	}
@@ -75,7 +111,7 @@ class ByteArrayBuffer extends ByteBuf {
 	@Override
 	public final void writeValue(byte mark, IFieldName fieldName, long value) {
 		int length = SerializerUtil.size(value);
-		int writable = (1 + fieldName.length() + length) << coder;
+		int writable = 1 + fieldName.length() + length;
 		ensureWritable(writable);
 		strategy.writeValue(mark, fieldName, length, value);
 	}
@@ -84,7 +120,7 @@ class ByteArrayBuffer extends ByteBuf {
 	@Override
 	public final void writeValue(byte mark, IFieldName fieldName, float value) {
 		String s = Float.toString(value);
-		int writable = (1 + fieldName.length() + s.length()) << coder;
+		int writable = 1 + fieldName.length() + s.length();
 		ensureWritable(writable);
 		strategy.writeValue(mark, fieldName, s);
 	}
@@ -93,7 +129,7 @@ class ByteArrayBuffer extends ByteBuf {
 	@Override
 	public final void writeValue(byte mark, IFieldName fieldName, double value) {
 		String s = Double.toString(value);
-		int writable = (1 + fieldName.length() + s.length()) << coder;
+		int writable = 1 + fieldName.length() + s.length();
 		ensureWritable(writable);
 		strategy.writeValue(mark, fieldName, s);
 	}
@@ -101,21 +137,11 @@ class ByteArrayBuffer extends ByteBuf {
 	@ForceInline
 	@Override
 	public final void writeValue(byte mark, IFieldName fieldName, Object value) {
-		int writable = (1 + fieldName.length()) << coder;
+		int writable = 1 + fieldName.length();
 		ensureWritable(writable);
 		strategy.writeValue(mark, fieldName, value);
 		ISerializer serializer = SerializerFactory.getSerializer(value.getClass());
 		serializer.write(value, this);
-	}
-
-	@ForceInline
-	@Override
-	public final void writeString(String value) {
-		ensureCoder(coder);
-		int writable = value.length() + 2;
-		ensureWritable(writable);
-		byte coder = unsafe.getByte(value, SerializerUtil.CODER_OFFSET_STRING);
-//		this.writeIndex += writer.writeStringWithMark(buf, options, writeIndex, value);
 	}
 
 	/**
@@ -124,19 +150,8 @@ class ByteArrayBuffer extends ByteBuf {
 	@ForceInline
 	@Override
 	public void writeEndObject() {
-		ensureWritable(1 << coder);
+		ensureWritable(1);
 		strategy.writeEndObject();
-	}
-
-	@ForceInline
-	@Override
-	public int writeNull() {
-		if (SerializerOptions.IgnoreNonField.isOptions(options)) {
-			ensureWritable(5);
-			return 5;
-		} else {
-			return 0;
-		}
 	}
 
 	/**
@@ -145,7 +160,7 @@ class ByteArrayBuffer extends ByteBuf {
 	 * @param coder 即将写入的编码方式
 	 */
 	private void ensureCoder(byte coder) {
-		if (this.coder != coder) {
+		if (this.coder == 0 && coder == 1) {
 			throw new CoderModificationException();
 		}
 	}
@@ -157,6 +172,7 @@ class ByteArrayBuffer extends ByteBuf {
 	 */
 	@Override
 	public void ensureWritable(int writableBytes) {
+		writableBytes <<= coder;
 		// System.out.println("writeIndex: " + strategy.writeIndex() + ", writableBytes: " + writableBytes + ", capacity: " + buf.length);
 		if (writableBytes + strategy.writeIndex() > buf.length) {
 			if (true) {

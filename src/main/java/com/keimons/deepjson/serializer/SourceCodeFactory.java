@@ -67,30 +67,12 @@ public class SourceCodeFactory {
 		source.append("\n");
 
 		for (FieldInfo field : fields) {
-			String latin = Arrays.toString(field.getFieldNameByLatin());
-			String utf16 = Arrays.toString(field.getFieldNameByUtf16());
-			char[] chars = field.getFieldNameByChar();
 			source.append("\tprivate final FieldName $")
 					.append(field.getField().getName())
-					.append(" = new FieldName(\n")
+					.append(" = new FieldName(\"")
+					.append(field.getFieldName().replaceAll("\"", "\\\\\""))
+					.append("\");\n")
 			;
-			source.append("\t\t\tnew byte[] {")
-					.append(latin, 1, latin.length() - 1)
-					.append("},\n")
-			;
-			source.append("\t\t\tnew byte[] {")
-					.append(utf16, 1, utf16.length() - 1)
-					.append("},\n")
-			;
-			source.append("\t\t\tnew char[] {");
-			for (int i = 0; i < chars.length; i++) {
-				source.append("'").append(chars[i]).append("'");
-				if (i < chars.length - 1) {
-					source.append(", ");
-				}
-			}
-			source.append("}\n");
-			source.append("\t);\n");
 			source.append("\n");
 		}
 
@@ -264,7 +246,10 @@ public class SourceCodeFactory {
 					source.append("\t\tif (").append(fieldName).append(" != null) {\n");
 
 					source.append("\t\t\tcoder = SerializerFactory.getSerializer(")
-							.append(fieldName).append(".getClass()).coder(object, options);\n");
+							.append(fieldName)
+							.append(".getClass()).coder(")
+							.append(fieldName)
+							.append(", options);\n");
 					source.append("\t\t\tif (coder == 1) {\n");
 					source.append("\t\t\t\treturn 1;\n");
 					source.append("\t\t\t}\n");

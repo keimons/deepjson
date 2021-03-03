@@ -51,7 +51,7 @@ public enum SerializerOptions {
 	 * <p>
 	 * decode: true, encode: true
 	 */
-	ForceSameNameField;
+	ForceSameField;
 
 	long optional;
 

@@ -1,17 +1,23 @@
 package com.keimons.deepjson.serializer;
 
-public class StringSerializer implements ISerializer {
+import com.keimons.deepjson.util.PlatformUtil;
+import com.keimons.deepjson.util.SerializerUtil;
 
+public class StringSerializer implements ISerializer {
 
 	@Override
 	public int length(Object object, long options) {
 		String value = (String) object;
-		return value.length();
+		return value.length() + 2;
 	}
 
 	@Override
 	public byte coder(Object object, long options) {
-		return 0;
+		if (PlatformUtil.javaVersion() >= 9) {
+			return unsafe.getByte(object, SerializerUtil.CODER_OFFSET_STRING);
+		} else {
+			return 1;
+		}
 	}
 
 	@Override
