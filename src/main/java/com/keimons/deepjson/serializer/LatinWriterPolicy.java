@@ -34,19 +34,30 @@ class LatinWriterPolicy implements IWriterStrategy {
 	}
 
 	@Override
-	public void writeMark(char mark) {
+	public final void writeMark(char mark) {
 		buf[writeIndex++] = (byte) mark;
 	}
 
 	@Override
-	public void writeValue(char value) {
+	public final void writeValue(boolean value) {
+		if (value) {
+			System.arraycopy(BOOLEAN_TRUE_LATIN, 0, buf, writeIndex, 4);
+			writeIndex += 4;
+		} else {
+			System.arraycopy(BOOLEAN_FALSE_LATIN, 0, buf, writeIndex, 5);
+			writeIndex += 5;
+		}
+	}
+
+	@Override
+	public final void writeValue(char value) {
 		buf[writeIndex++] = '"';
 		buf[writeIndex++] = (byte) value;
 		buf[writeIndex++] = '"';
 	}
 
 	@Override
-	public void writeValue(int length, int value) {
+	public final void writeValue(int length, int value) {
 		this.writeIndex += length;
 		int q, r;
 		int position = writeIndex;
@@ -81,54 +92,7 @@ class LatinWriterPolicy implements IWriterStrategy {
 	}
 
 	@Override
-	public void writeValue(String value) {
-		buf[writeIndex++] = '"';
-		byte[] bytes = (byte[]) unsafe.getObject(value, SerializerUtil.VALUE_OFFSET_STRING);
-		System.arraycopy(bytes, 0, buf, writeIndex, bytes.length);
-		writeIndex += bytes.length;
-		buf[writeIndex++] = '"';
-	}
-
-	// always private
-	@ForceInline
-	private void writeValue(byte mark, byte[] fieldName) {
-		buf[writeIndex++] = mark;
-		int length = fieldName.length;
-		System.arraycopy(fieldName, 0, buf, writeIndex, length);
-		writeIndex += length;
-	}
-
-	@ForceInline
-	@Override
-	public void writeValue(byte mark, IFieldName fieldName, boolean value) {
-		writeValue(mark, fieldName.getFieldNameByLatin());
-		if (value) {
-			System.arraycopy(BOOLEAN_TRUE_LATIN, 0, buf, writeIndex, 4);
-			writeIndex += 4;
-		} else {
-			System.arraycopy(BOOLEAN_FALSE_LATIN, 0, buf, writeIndex, 5);
-			writeIndex += 5;
-		}
-	}
-
-	@ForceInline
-	@Override
-	public void writeValue(byte mark, IFieldName fieldName, char value) {
-		writeValue(mark, fieldName.getFieldNameByLatin());
-		writeValue(value);
-	}
-
-	@ForceInline
-	@Override
-	public void writeValue(byte mark, IFieldName fieldName, int length, int value) {
-		writeValue(mark, fieldName.getFieldNameByLatin());
-		writeValue(length, value);
-	}
-
-	@ForceInline
-	@Override
-	public void writeValue(byte mark, IFieldName fieldName, int length, long value) {
-		writeValue(mark, fieldName.getFieldNameByLatin());
+	public void writeValue(int length, long value) {
 		this.writeIndex += length;
 		long q;
 		int r;
@@ -172,6 +136,52 @@ class LatinWriterPolicy implements IWriterStrategy {
 		if (negative) {
 			buf[--position] = '-';
 		}
+	}
+
+	@Override
+	public final void writeValue(String value) {
+		buf[writeIndex++] = '"';
+		byte[] bytes = (byte[]) unsafe.getObject(value, SerializerUtil.VALUE_OFFSET_STRING);
+		System.arraycopy(bytes, 0, buf, writeIndex, bytes.length);
+		writeIndex += bytes.length;
+		buf[writeIndex++] = '"';
+	}
+
+	// always private
+	@ForceInline
+	private void writeValue(byte mark, byte[] fieldName) {
+		buf[writeIndex++] = mark;
+		int length = fieldName.length;
+		System.arraycopy(fieldName, 0, buf, writeIndex, length);
+		writeIndex += length;
+	}
+
+	@ForceInline
+	@Override
+	public void writeValue(byte mark, IFieldName fieldName, boolean value) {
+		writeValue(mark, fieldName.getFieldNameByLatin());
+		writeValue(value);
+	}
+
+	@ForceInline
+	@Override
+	public void writeValue(byte mark, IFieldName fieldName, char value) {
+		writeValue(mark, fieldName.getFieldNameByLatin());
+		writeValue(value);
+	}
+
+	@ForceInline
+	@Override
+	public void writeValue(byte mark, IFieldName fieldName, int length, int value) {
+		writeValue(mark, fieldName.getFieldNameByLatin());
+		writeValue(length, value);
+	}
+
+	@ForceInline
+	@Override
+	public void writeValue(byte mark, IFieldName fieldName, int length, long value) {
+		writeValue(mark, fieldName.getFieldNameByLatin());
+		writeValue(length, value);
 	}
 
 	@ForceInline

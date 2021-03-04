@@ -25,14 +25,21 @@ public interface IWriterStrategy {
 	int writeIndex();
 
 	/**
-	 * 写入int型值
+	 * 写入char型mark
 	 *
 	 * @param mark 即将写入的值
 	 */
 	void writeMark(char mark);
 
 	/**
-	 * 写入int型值
+	 * 写入boolean型值
+	 *
+	 * @param value 即将写入的值
+	 */
+	void writeValue(boolean value);
+
+	/**
+	 * 写入char型值
 	 *
 	 * @param value 即将写入的值
 	 */
@@ -45,6 +52,14 @@ public interface IWriterStrategy {
 	 * @param value  即将写入的值
 	 */
 	void writeValue(int length, int value);
+
+	/**
+	 * 写入long型值
+	 *
+	 * @param length 即将写入的长度
+	 * @param value  即将写入的值
+	 */
+	void writeValue(int length, long value);
 
 	/**
 	 * 写入字符串

@@ -5,6 +5,8 @@ import com.keimons.deepjson.util.SerializerUtil;
 
 public class StringSerializer implements ISerializer {
 
+	public static final StringSerializer instance = new StringSerializer();
+
 	@Override
 	public int length(Object object, long options) {
 		String value = (String) object;

@@ -3,25 +3,24 @@ package com.keimons.deepjson.serializer;
 import com.keimons.deepjson.util.SerializerUtil;
 
 /**
- * int类型序列化
+ * char类型序列化
  *
  * @author monkey
  * @version 1.0
  * @since 1.7
  **/
-public class IntegerSerializer implements ISerializer {
+public class CharSerializer implements ISerializer {
 
-	public static final IntegerSerializer instance = new IntegerSerializer();
+	public static final CharSerializer instance = new CharSerializer();
 
 	@Override
 	public int length(Object object, long options) {
-		int value = (int) object;
-		return SerializerUtil.size(value);
+		return 3;
 	}
 
 	@Override
 	public byte coder(Object object, long options) {
-		return 0;
+		return ((char) object) >>> 8 == 0 ? SerializerUtil.LATIN : SerializerUtil.UTF16;
 	}
 
 	@Override
@@ -29,7 +28,7 @@ public class IntegerSerializer implements ISerializer {
 		if (object == null) {
 			buf.writeNull();
 		} else {
-			buf.writeInt((int) object);
+			buf.writeChar((char) object);
 		}
 	}
 }

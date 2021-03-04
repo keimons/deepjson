@@ -1,22 +1,20 @@
 package com.keimons.deepjson.serializer;
 
-import com.keimons.deepjson.util.SerializerUtil;
-
 /**
- * int类型序列化
+ * boolean类型序列化
  *
  * @author monkey
  * @version 1.0
  * @since 1.7
  **/
-public class IntegerSerializer implements ISerializer {
+public class BooleanSerializer implements ISerializer {
 
-	public static final IntegerSerializer instance = new IntegerSerializer();
+	public static final BooleanSerializer instance = new BooleanSerializer();
 
 	@Override
 	public int length(Object object, long options) {
-		int value = (int) object;
-		return SerializerUtil.size(value);
+		boolean value = (boolean) object;
+		return value ? 4 : 5;
 	}
 
 	@Override
@@ -29,7 +27,7 @@ public class IntegerSerializer implements ISerializer {
 		if (object == null) {
 			buf.writeNull();
 		} else {
-			buf.writeInt((int) object);
+			buf.writeBoolean((boolean) object);
 		}
 	}
 }

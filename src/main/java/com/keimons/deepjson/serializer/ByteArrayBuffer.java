@@ -51,9 +51,15 @@ class ByteArrayBuffer extends ByteBuf {
 	}
 
 	@Override
+	public void writeBoolean(boolean value) {
+		ensureWritable(value ? 4 : 5);
+		strategy.writeValue(value);
+	}
+
+	@Override
 	public final void writeChar(char value) {
 		ensureCoder((byte) (value >>> 8 == 0 ? 0 : 1));
-		ensureWritable(1);
+		ensureWritable(3);
 		strategy.writeValue(value);
 	}
 
@@ -62,6 +68,11 @@ class ByteArrayBuffer extends ByteBuf {
 		int writable = SerializerUtil.size(value);
 		ensureWritable(writable);
 		strategy.writeValue(writable, value);
+	}
+
+	@Override
+	public void writeLong(long value) {
+
 	}
 
 	@ForceInline

@@ -30,10 +30,26 @@ public abstract class SerializerFactory {
 				DUMP_PATH = property + File.separator;
 			}
 		}
-		CACHE.put(String.class, new StringSerializer());
-		CACHE.put(int.class, new IntegerSerializer());
-		CACHE.put(Integer.class, new IntegerSerializer());
-		CACHE.put(int[].class, new IntegerArraySerializer());
+		CACHE.put(String.class, StringSerializer.instance);
+
+		CACHE.put(boolean.class, BooleanSerializer.instance);
+		CACHE.put(Boolean.class, BooleanSerializer.instance);
+
+		CACHE.put(byte.class, ByteSerializer.instance);
+		CACHE.put(Byte.class, ByteSerializer.instance);
+
+		CACHE.put(short.class, ShortSerializer.instance);
+		CACHE.put(Short.class, ShortSerializer.instance);
+
+		CACHE.put(char.class, CharSerializer.instance);
+		CACHE.put(Character.class, CharSerializer.instance);
+
+		CACHE.put(int.class, IntegerSerializer.instance);
+		CACHE.put(Integer.class, IntegerSerializer.instance);
+		CACHE.put(int[].class, IntegerArraySerializer.instance);
+
+		CACHE.put(long.class, LongSerializer.instance);
+		CACHE.put(Long.class, LongSerializer.instance);
 	}
 
 	public static ISerializer getSerializer(Class<?> clazz) {

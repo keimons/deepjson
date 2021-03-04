@@ -86,6 +86,17 @@ class Utf16WriterPolicy implements IWriterStrategy {
 		buf[writeIndex++] = (byte) (mark >> SerializerUtil.LO_BYTE_SHIFT);
 	}
 
+	@Override
+	public final void writeValue(boolean value) {
+		if (value) {
+			System.arraycopy(BOOLEAN_TRUE_UTF16, 0, buf, writeIndex, 8);
+			writeIndex += 8;
+		} else {
+			System.arraycopy(BOOLEAN_FALSE_UTF16, 0, buf, writeIndex, 10);
+			writeIndex += 10;
+		}
+	}
+
 	@ForceInline
 	@Override
 	public final void writeValue(char value) {
@@ -98,7 +109,7 @@ class Utf16WriterPolicy implements IWriterStrategy {
 	}
 
 	@Override
-	public void writeValue(int length, int value) {
+	public final void writeValue(int length, int value) {
 		this.writeIndex += (length << 1);
 		int q, r;
 		int position = writeIndex;
@@ -138,56 +149,7 @@ class Utf16WriterPolicy implements IWriterStrategy {
 	}
 
 	@Override
-	public void writeValue(String value) {
-		buf[writeIndex++] = HI_BYTE_MARK;
-		buf[writeIndex++] = LO_BYTE_MARK;
-		byte[] bytes = (byte[]) unsafe.getObject(value, SerializerUtil.VALUE_OFFSET_STRING);
-		System.arraycopy(bytes, 0, buf, writeIndex, bytes.length);
-		writeIndex += bytes.length;
-		buf[writeIndex++] = HI_BYTE_MARK;
-		buf[writeIndex++] = LO_BYTE_MARK;
-	}
-
-	// always private
-	private void writeValue(byte mark, byte[] fieldName) {
-		buf[writeIndex++] = (byte) (mark >> SerializerUtil.HI_BYTE_SHIFT);
-		buf[writeIndex++] = (byte) (mark >> SerializerUtil.LO_BYTE_SHIFT);
-		int length = fieldName.length;
-		System.arraycopy(fieldName, 0, buf, writeIndex, length);
-		writeIndex += length;
-	}
-
-	@ForceInline
-	@Override
-	public void writeValue(byte mark, IFieldName fieldName, boolean value) {
-		writeValue(mark, fieldName.getFieldNameByUtf16());
-		if (value) {
-			System.arraycopy(BOOLEAN_TRUE_UTF16, 0, buf, writeIndex, 8);
-			writeIndex += 8;
-		} else {
-			System.arraycopy(BOOLEAN_FALSE_UTF16, 0, buf, writeIndex, 10);
-			writeIndex += 10;
-		}
-	}
-
-	@ForceInline
-	@Override
-	public void writeValue(byte mark, IFieldName fieldName, char value) {
-		writeValue(mark, fieldName.getFieldNameByUtf16());
-		writeValue(value);
-	}
-
-	@ForceInline
-	@Override
-	public void writeValue(byte mark, IFieldName fieldName, int length, int value) {
-		writeValue(mark, fieldName.getFieldNameByUtf16());
-		writeValue(length, value);
-	}
-
-	@ForceInline
-	@Override
-	public void writeValue(byte mark, IFieldName fieldName, int length, long value) {
-		writeValue(mark, fieldName.getFieldNameByUtf16());
+	public void writeValue(int length, long value) {
 		this.writeIndex += (length << 1);
 
 		long q;
@@ -239,6 +201,54 @@ class Utf16WriterPolicy implements IWriterStrategy {
 			buf[--position] = LO_BYTE_NEGATIVE;
 			buf[--position] = HI_BYTE_NEGATIVE;
 		}
+	}
+
+	@Override
+	public final void writeValue(String value) {
+		buf[writeIndex++] = HI_BYTE_MARK;
+		buf[writeIndex++] = LO_BYTE_MARK;
+		byte[] bytes = (byte[]) unsafe.getObject(value, SerializerUtil.VALUE_OFFSET_STRING);
+		System.arraycopy(bytes, 0, buf, writeIndex, bytes.length);
+		writeIndex += bytes.length;
+		buf[writeIndex++] = HI_BYTE_MARK;
+		buf[writeIndex++] = LO_BYTE_MARK;
+	}
+
+	// always private
+	private void writeValue(byte mark, byte[] fieldName) {
+		buf[writeIndex++] = (byte) (mark >> SerializerUtil.HI_BYTE_SHIFT);
+		buf[writeIndex++] = (byte) (mark >> SerializerUtil.LO_BYTE_SHIFT);
+		int length = fieldName.length;
+		System.arraycopy(fieldName, 0, buf, writeIndex, length);
+		writeIndex += length;
+	}
+
+	@ForceInline
+	@Override
+	public void writeValue(byte mark, IFieldName fieldName, boolean value) {
+		writeValue(mark, fieldName.getFieldNameByUtf16());
+		writeValue(value);
+	}
+
+	@ForceInline
+	@Override
+	public void writeValue(byte mark, IFieldName fieldName, char value) {
+		writeValue(mark, fieldName.getFieldNameByUtf16());
+		writeValue(value);
+	}
+
+	@ForceInline
+	@Override
+	public void writeValue(byte mark, IFieldName fieldName, int length, int value) {
+		writeValue(mark, fieldName.getFieldNameByUtf16());
+		writeValue(length, value);
+	}
+
+	@ForceInline
+	@Override
+	public void writeValue(byte mark, IFieldName fieldName, int length, long value) {
+		writeValue(mark, fieldName.getFieldNameByUtf16());
+		writeValue(length, value);
 	}
 
 	@ForceInline

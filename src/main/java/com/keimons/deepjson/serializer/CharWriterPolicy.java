@@ -38,8 +38,19 @@ class CharWriterPolicy implements IWriterStrategy {
 	}
 
 	@Override
-	public void writeMark(char mark) {
+	public final void writeMark(char mark) {
 		buf[writeIndex++] = mark;
+	}
+
+	@Override
+	public final void writeValue(boolean value) {
+		if (value) {
+			System.arraycopy(BOOLEAN_TRUE_CHAR, 0, buf, writeIndex, 4);
+			writeIndex += 4;
+		} else {
+			System.arraycopy(BOOLEAN_FALSE_CHAR, 0, buf, writeIndex, 5);
+			writeIndex += 5;
+		}
 	}
 
 	@Override
@@ -85,51 +96,7 @@ class CharWriterPolicy implements IWriterStrategy {
 	}
 
 	@Override
-	public void writeValue(String value) {
-		char[] bytes = (char[]) unsafe.getObject(value, SerializerUtil.VALUE_OFFSET_STRING);
-		System.arraycopy(bytes, 0, buf, writeIndex, bytes.length);
-		writeIndex += bytes.length;
-	}
-
-	// always private
-	private void writeValue(byte mark, char[] fieldName) {
-		buf[writeIndex++] = (char) mark;
-		int length = fieldName.length;
-		System.arraycopy(fieldName, 0, buf, writeIndex, length);
-		writeIndex += length;
-	}
-
-	@ForceInline
-	@Override
-	public void writeValue(byte mark, IFieldName fieldName, boolean value) {
-		writeValue(mark, fieldName.getFieldNameByChar());
-		if (value) {
-			System.arraycopy(BOOLEAN_TRUE_CHAR, 0, buf, writeIndex, 4);
-			writeIndex += 4;
-		} else {
-			System.arraycopy(BOOLEAN_FALSE_CHAR, 0, buf, writeIndex, 5);
-			writeIndex += 5;
-		}
-	}
-
-	@ForceInline
-	@Override
-	public void writeValue(byte mark, IFieldName fieldName, char value) {
-		writeValue(mark, fieldName.getFieldNameByChar());
-		writeValue(value);
-	}
-
-	@ForceInline
-	@Override
-	public void writeValue(byte mark, IFieldName fieldName, int length, int value) {
-		writeValue(mark, fieldName.getFieldNameByChar());
-		writeValue(length, value);
-	}
-
-	@ForceInline
-	@Override
-	public void writeValue(byte mark, IFieldName fieldName, int length, long value) {
-		writeValue(mark, fieldName.getFieldNameByChar());
+	public void writeValue(int length, long value) {
 		this.writeIndex += length;
 		long q;
 		int r;
@@ -173,6 +140,49 @@ class CharWriterPolicy implements IWriterStrategy {
 		if (negative) {
 			buf[--position] = '-';
 		}
+	}
+
+	@Override
+	public void writeValue(String value) {
+		char[] bytes = (char[]) unsafe.getObject(value, SerializerUtil.VALUE_OFFSET_STRING);
+		System.arraycopy(bytes, 0, buf, writeIndex, bytes.length);
+		writeIndex += bytes.length;
+	}
+
+	// always private
+	private void writeValue(byte mark, char[] fieldName) {
+		buf[writeIndex++] = (char) mark;
+		int length = fieldName.length;
+		System.arraycopy(fieldName, 0, buf, writeIndex, length);
+		writeIndex += length;
+	}
+
+	@ForceInline
+	@Override
+	public void writeValue(byte mark, IFieldName fieldName, boolean value) {
+		writeValue(mark, fieldName.getFieldNameByChar());
+		writeValue(value);
+	}
+
+	@ForceInline
+	@Override
+	public void writeValue(byte mark, IFieldName fieldName, char value) {
+		writeValue(mark, fieldName.getFieldNameByChar());
+		writeValue(value);
+	}
+
+	@ForceInline
+	@Override
+	public void writeValue(byte mark, IFieldName fieldName, int length, int value) {
+		writeValue(mark, fieldName.getFieldNameByChar());
+		writeValue(length, value);
+	}
+
+	@ForceInline
+	@Override
+	public void writeValue(byte mark, IFieldName fieldName, int length, long value) {
+		writeValue(mark, fieldName.getFieldNameByChar());
+		writeValue(length, value);
 	}
 
 	@ForceInline

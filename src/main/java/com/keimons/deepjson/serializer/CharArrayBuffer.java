@@ -39,6 +39,12 @@ public class CharArrayBuffer extends ByteBuf {
 	}
 
 	@Override
+	public void writeBoolean(boolean value) {
+		ensureWritable(value ? 4 : 5);
+		strategy.writeValue(value);
+	}
+
+	@Override
 	public void writeChar(char value) {
 		ensureWritable(3);
 		strategy.writeValue(value);
@@ -46,6 +52,13 @@ public class CharArrayBuffer extends ByteBuf {
 
 	@Override
 	public void writeInt(int value) {
+		int writable = SerializerUtil.size(value);
+		ensureWritable(writable);
+		strategy.writeValue(writable, value);
+	}
+
+	@Override
+	public void writeLong(long value) {
 		int writable = SerializerUtil.size(value);
 		ensureWritable(writable);
 		strategy.writeValue(writable, value);

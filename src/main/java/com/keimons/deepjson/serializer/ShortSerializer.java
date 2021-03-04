@@ -3,19 +3,19 @@ package com.keimons.deepjson.serializer;
 import com.keimons.deepjson.util.SerializerUtil;
 
 /**
- * int类型序列化
+ * short类型序列化
  *
  * @author monkey
  * @version 1.0
  * @since 1.7
  **/
-public class IntegerSerializer implements ISerializer {
+public class ShortSerializer implements ISerializer {
 
-	public static final IntegerSerializer instance = new IntegerSerializer();
+	public static final ShortSerializer instance = new ShortSerializer();
 
 	@Override
 	public int length(Object object, long options) {
-		int value = (int) object;
+		short value = (short) object;
 		return SerializerUtil.size(value);
 	}
 
@@ -29,7 +29,7 @@ public class IntegerSerializer implements ISerializer {
 		if (object == null) {
 			buf.writeNull();
 		} else {
-			buf.writeInt((int) object);
+			buf.writeInt((short) object);
 		}
 	}
 }

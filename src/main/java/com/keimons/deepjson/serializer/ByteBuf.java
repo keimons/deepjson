@@ -45,9 +45,13 @@ public abstract class ByteBuf {
 
 	public abstract void writeMark(char mark);
 
+	public abstract void writeBoolean(boolean value);
+
 	public abstract void writeChar(char value);
 
 	public abstract void writeInt(int value);
+
+	public abstract void writeLong(long value);
 
 	public abstract void writeString(String value);
 
