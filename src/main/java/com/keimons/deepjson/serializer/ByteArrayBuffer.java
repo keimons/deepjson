@@ -34,6 +34,9 @@ class ByteArrayBuffer extends ByteBuf {
 	@Override
 	public String newString() {
 		try {
+			if (buf.length != strategy.writeIndex()) {
+				System.err.println("length reset");
+			}
 			String str = (String) unsafe.allocateInstance(String.class);
 			unsafe.putObject(str, SerializerUtil.VALUE_OFFSET_STRING, buf);
 			unsafe.putByte(str, SerializerUtil.CODER_OFFSET_STRING, coder);
@@ -72,16 +75,32 @@ class ByteArrayBuffer extends ByteBuf {
 
 	@Override
 	public void writeLong(long value) {
+		int writable = SerializerUtil.size(value);
+		ensureWritable(writable);
+		strategy.writeValue(writable, value);
+	}
 
+	@Override
+	public void writeFloat(float value) {
+		String s = Float.toString(value);
+		ensureWritable(s.length());
+		strategy.writeValue(s);
+	}
+
+	@Override
+	public void writeDouble(double value) {
+		String s = Double.toString(value);
+		ensureWritable(s.length());
+		strategy.writeValue(s);
 	}
 
 	@ForceInline
 	@Override
 	public final void writeString(String value) {
 		ensureCoder(unsafe.getByte(value, SerializerUtil.CODER_OFFSET_STRING));
-		int writable = value.length() + 2;
+		int writable = SerializerUtil.length(value) + 2;
 		ensureWritable(writable);
-		strategy.writeValue(value);
+		strategy.writeValueWithMark(value);
 	}
 
 	@ForceInline
@@ -211,6 +230,7 @@ class ByteArrayBuffer extends ByteBuf {
 		byte[] newBuf = new byte[newCapacity];
 		System.arraycopy(buf, 0, newBuf, 0, strategy.writeIndex());
 		buf = newBuf;
+		strategy.setBuf(newBuf);
 	}
 
 	public byte[] getBuf() {

@@ -1,6 +1,7 @@
 package com.keimons.deepjson.test.normal;
 
 import com.alibaba.fastjson.JSONObject;
+import com.google.gson.Gson;
 import com.keimons.deepjson.DeepJson;
 import com.keimons.deepjson.test.INode;
 import com.keimons.deepjson.test.NormalNode;
@@ -37,10 +38,27 @@ public class NormalTest {
 		System.out.println(JSONObject.toJSONString(node));
 		float usingTime = (System.nanoTime() - nanoTime) / 1000000f;
 		System.out.println("fast json first serializer using time: " + usingTime);
+
 		nanoTime = System.nanoTime();
 		System.out.println(DeepJson.toJsonString(node));
 		usingTime = (System.nanoTime() - nanoTime) / 1000000f;
 		System.out.println("deep json first serializer using time: " + usingTime);
+
+		nanoTime = System.nanoTime();
+		Gson gson = new Gson();
+		System.out.println(gson.toJson(node));
+		usingTime = (System.nanoTime() - nanoTime) / 1000000f;
+		System.out.println("gson json first serializer using time: " + usingTime);
+
+		System.out.println(new String(((NormalNode) node).getNode17()));
+
+		System.out.println((int)'0');
+
+		char c = 0;
+		String s = "1234" + c + "q2<4";
+		System.out.println(gson.toJson(s));
+		System.out.println(JSONObject.toJSONString(s));
+		System.out.println(s);
 	}
 
 	@Test
@@ -50,11 +68,15 @@ public class NormalTest {
 		DeepJson.toJsonString(node);
 		JSONObject.toJSONString(node);
 
+		Gson gson = new Gson();
+		System.out.println(gson.toJson(node));
+
 		for (int j = 0; j < 20; j++) {
 			List<String> list = new ArrayList<>(times);
 			long fastStart = System.nanoTime();
 			for (int i = 0; i < times; i++) {
-				list.add(JSONObject.toJSONString(node));
+//				list.add(JSONObject.toJSONString(node));
+				list.add(gson.toJson(node));
 			}
 			long fastTime = System.nanoTime() - fastStart;
 			System.out.println("fast json using time: " + fastTime / 1000000f);

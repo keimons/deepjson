@@ -9,8 +9,7 @@ public class StringSerializer implements ISerializer {
 
 	@Override
 	public int length(Object object, long options) {
-		String value = (String) object;
-		return value.length() + 2;
+		return SerializerUtil.length((String) object) + 2;
 	}
 
 	@Override

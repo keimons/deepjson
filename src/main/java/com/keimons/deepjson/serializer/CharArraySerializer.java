@@ -1,25 +1,20 @@
 package com.keimons.deepjson.serializer;
 
-import com.keimons.deepjson.util.SerializerUtil;
-
 /**
- * int[]序列化
+ * char[]序列化
  *
  * @author monkey1993
  * @version 1.0
- * @since 1.8
+ * @since 1.7
  **/
-public class IntegerArraySerializer implements ISerializer {
+public class CharArraySerializer implements ISerializer {
 
-	public static final IntegerArraySerializer instance = new IntegerArraySerializer();
+	public static final CharArraySerializer instance = new CharArraySerializer();
 
 	@Override
 	public int length(Object object, long options) {
-		int[] values = (int[]) object;
-		int length = 2;
-		for (int value : values) {
-			length += SerializerUtil.size(value);
-		}
+		char[] values = (char[]) object;
+		int length = 2 + values.length * 3;
 		if (values.length > 1) {
 			length += values.length - 1;
 		}
@@ -28,6 +23,12 @@ public class IntegerArraySerializer implements ISerializer {
 
 	@Override
 	public byte coder(Object object, long options) {
+		char[] values = (char[]) object;
+		for (char value : values) {
+			if (value >>> 8 != 0) {
+				return 1;
+			}
+		}
 		return 0;
 	}
 
@@ -38,12 +39,12 @@ public class IntegerArraySerializer implements ISerializer {
 			return;
 		}
 		buf.writeMark('[');
-		int[] values = (int[]) object;
+		char[] values = (char[]) object;
 		for (int i = 0; i < values.length; i++) {
 			if (i != 0) {
 				buf.writeMark(',');
 			}
-			buf.writeInt(values[i]);
+			buf.writeChar(values[i]);
 		}
 		buf.writeMark(']');
 	}

@@ -25,6 +25,46 @@ class Utf16WriterPolicy implements IWriterStrategy {
 	private static final byte HI_BYTE_NEGATIVE = (byte) ('-' >> SerializerUtil.HI_BYTE_SHIFT);
 	private static final byte LO_BYTE_NEGATIVE = (byte) ('-' >> SerializerUtil.LO_BYTE_SHIFT);
 
+	private static final byte HI_BYTE_L = (byte) ('\\' >> SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_L = (byte) ('\\' >> SerializerUtil.LO_BYTE_SHIFT);
+
+	private static final byte HI_BYTE_U = (byte) ('u' >> SerializerUtil.HI_BYTE_SHIFT);
+	private static final byte LO_BYTE_U = (byte) ('u' >> SerializerUtil.LO_BYTE_SHIFT);
+
+	private static final byte[][] REPLACEMENT_CHARS;
+
+	static {
+		REPLACEMENT_CHARS = new byte[128][];
+		for (int i = 0; i <= 0x1f; i++) {
+			REPLACEMENT_CHARS[i] = new byte[]{
+					(byte) ('\\' >> SerializerUtil.HI_BYTE_SHIFT),
+					(byte) ('\\' >> SerializerUtil.LO_BYTE_SHIFT),
+					(byte) ('u' >> SerializerUtil.HI_BYTE_SHIFT),
+					(byte) ('u' >> SerializerUtil.LO_BYTE_SHIFT),
+					(byte) ('0' >> SerializerUtil.HI_BYTE_SHIFT),
+					(byte) ('0' >> SerializerUtil.LO_BYTE_SHIFT),
+					(byte) ('0' >> SerializerUtil.HI_BYTE_SHIFT),
+					(byte) ('0' >> SerializerUtil.LO_BYTE_SHIFT),
+					(byte) (SerializerUtil.BYTE_HEX[i >> 4 & 0xF] >> SerializerUtil.HI_BYTE_SHIFT),
+					(byte) (SerializerUtil.BYTE_HEX[i >> 4 & 0xF] >> SerializerUtil.LO_BYTE_SHIFT),
+					(byte) (SerializerUtil.BYTE_HEX[i & 0xF] >> SerializerUtil.HI_BYTE_SHIFT),
+					(byte) (SerializerUtil.BYTE_HEX[i & 0xF] >> SerializerUtil.LO_BYTE_SHIFT)
+			};
+		}
+		REPLACEMENT_CHARS['"'] = new byte[]{
+				(byte) ('\\'>> SerializerUtil.HI_BYTE_SHIFT),
+				(byte) ('\\'>> SerializerUtil.LO_BYTE_SHIFT),
+				(byte) ('\"'>> SerializerUtil.HI_BYTE_SHIFT),
+				(byte) ('\"'>> SerializerUtil.LO_BYTE_SHIFT)
+		};
+		REPLACEMENT_CHARS['\\'] = new byte[]{'\\', '\\'};
+		REPLACEMENT_CHARS['\t'] = new byte[]{'\\', 't'};
+		REPLACEMENT_CHARS['\b'] = new byte[]{'\\', 'b'};
+		REPLACEMENT_CHARS['\n'] = new byte[]{'\\', 'n'};
+		REPLACEMENT_CHARS['\r'] = new byte[]{'\\', 'r'};
+		REPLACEMENT_CHARS['\f'] = new byte[]{'\\', 'f'};
+	}
+
 	private static final byte[] BOOLEAN_TRUE_UTF16 = {
 			(byte) ('t' >> SerializerUtil.HI_BYTE_SHIFT),
 			(byte) ('t' >> SerializerUtil.LO_BYTE_SHIFT),
@@ -73,6 +113,11 @@ class Utf16WriterPolicy implements IWriterStrategy {
 		this.buf = buf;
 		this.options = options;
 		this.writeIndex = writeIndex;
+	}
+
+	@Override
+	public void setBuf(Object object) {
+		buf = (byte[]) object;
 	}
 
 	@Override
@@ -205,11 +250,79 @@ class Utf16WriterPolicy implements IWriterStrategy {
 
 	@Override
 	public final void writeValue(String value) {
+		byte[] bytes = (byte[]) unsafe.getObject(value, SerializerUtil.VALUE_OFFSET_STRING);
+		byte stringCoder = unsafe.getByte(value, SerializerUtil.CODER_OFFSET_STRING);
+		if (stringCoder == SerializerUtil.LATIN) {
+			for (byte b : bytes) {
+				buf[writeIndex++] = (byte) (b >> SerializerUtil.HI_BYTE_SHIFT);
+				buf[writeIndex++] = (byte) (b >> SerializerUtil.LO_BYTE_SHIFT);
+			}
+		} else {
+			int length = bytes.length;
+			System.arraycopy(bytes, 0, buf, writeIndex, length);
+			writeIndex += length;
+		}
+	}
+
+	@Override
+	public final void writeValueWithMark(String value) {
 		buf[writeIndex++] = HI_BYTE_MARK;
 		buf[writeIndex++] = LO_BYTE_MARK;
+
+//		byte coder = unsafe.getByte(value, SerializerUtil.CODER_OFFSET_STRING);
+//		byte[] values = (byte[]) unsafe.getObject(value, SerializerUtil.VALUE_OFFSET_STRING);
+//		if (coder == 0) {
+//			for (byte b : values) {
+//				if (b <= 0x1f) {
+//					buf[writeIndex++] = '\\';
+//					buf[writeIndex++] = 'u';
+//					buf[writeIndex++] = '0';
+//					buf[writeIndex++] = '0';
+//					buf[writeIndex++] = BYTE_HEX[b >> 4 & 0xF];
+//					buf[writeIndex++] = BYTE_HEX[b & 0xF];
+//				}
+//			}
+//		} else {
+//			if (SerializerUtil.LO_BYTE_SHIFT == 8) {
+//				// 小端序
+//				for (int i = 1; i < values.length; i += 2) {
+//					byte b = values[i];
+//					if (b == 0) {
+//						length += values[i - 1] <= 0x1f ? 6 : 1;
+//					} else if (b == 0x20 && values[i - 1] == 0x28 || values[i - 1] == 0x29) {
+//						length += 6;
+//					} else {
+//						length++;
+//					}
+//				}
+//			} else {
+//				// 大端序
+//				for (int i = 0; i < values.length; i += 2) {
+//					byte value = values[i];
+//					if (value == 0) {
+//						length += values[i + 1] <= 0x1f ? 6 : 1;
+//					} else if (value == 0x20 && values[i + 1] == 0x28 || values[i + 1] == 0x29) {
+//						length += 6;
+//					} else {
+//						length++;
+//					}
+//				}
+//			}
+//		}
+//		return length;
+
 		byte[] bytes = (byte[]) unsafe.getObject(value, SerializerUtil.VALUE_OFFSET_STRING);
-		System.arraycopy(bytes, 0, buf, writeIndex, bytes.length);
-		writeIndex += bytes.length;
+		byte stringCoder = unsafe.getByte(value, SerializerUtil.CODER_OFFSET_STRING);
+		if (stringCoder == SerializerUtil.LATIN) {
+			for (byte b : bytes) {
+				buf[writeIndex++] = (byte) (b >> SerializerUtil.HI_BYTE_SHIFT);
+				buf[writeIndex++] = (byte) (b >> SerializerUtil.LO_BYTE_SHIFT);
+			}
+		} else {
+			int length = bytes.length;
+			System.arraycopy(bytes, 0, buf, writeIndex, length);
+			writeIndex += length;
+		}
 		buf[writeIndex++] = HI_BYTE_MARK;
 		buf[writeIndex++] = LO_BYTE_MARK;
 	}

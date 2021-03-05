@@ -1,24 +1,24 @@
 package com.keimons.deepjson.serializer;
 
-import com.keimons.deepjson.util.SerializerUtil;
+import com.keimons.deepjson.util.RyuDouble;
 
 /**
- * int[]序列化
+ * double[]序列化
  *
  * @author monkey1993
  * @version 1.0
- * @since 1.8
+ * @since 1.7
  **/
-public class IntegerArraySerializer implements ISerializer {
+public class DoubleArraySerializer implements ISerializer {
 
-	public static final IntegerArraySerializer instance = new IntegerArraySerializer();
+	public static final DoubleArraySerializer instance = new DoubleArraySerializer();
 
 	@Override
 	public int length(Object object, long options) {
-		int[] values = (int[]) object;
+		double[] values = (double[]) object;
 		int length = 2;
-		for (int value : values) {
-			length += SerializerUtil.size(value);
+		for (double value : values) {
+			length += RyuDouble.length(value);
 		}
 		if (values.length > 1) {
 			length += values.length - 1;
@@ -38,12 +38,12 @@ public class IntegerArraySerializer implements ISerializer {
 			return;
 		}
 		buf.writeMark('[');
-		int[] values = (int[]) object;
+		double[] values = (double[]) object;
 		for (int i = 0; i < values.length; i++) {
 			if (i != 0) {
 				buf.writeMark(',');
 			}
-			buf.writeInt(values[i]);
+			buf.writeDouble(values[i]);
 		}
 		buf.writeMark(']');
 	}

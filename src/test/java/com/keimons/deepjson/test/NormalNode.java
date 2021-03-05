@@ -14,9 +14,9 @@ public class NormalNode implements INode {
 
 	private char node6 = 'k';
 
-//	private float node7 = 1234.5678f;
-//
-//	private double node8 = 1234.5678d;
+	private float node7 = 1234.5678f;
+
+	private double node8 = 1234.5678d;
 
 	private String node9 = "蒙奇";
 
@@ -24,9 +24,21 @@ public class NormalNode implements INode {
 
 	private LinkNode[] node11 = new LinkNode[5];
 
-	private int[] node12 = new int[10];
+	private Object node12 = new byte[20];
 
-	private Integer[] node13 = new Integer[10];
+	private short[] node13 = new short[20];
+
+	private int[] node14 = new int[20];
+
+	private long[] node15 = new long[20];
+
+	private boolean[] node16 = new boolean[20];
+
+	private char[] node17 = new char[20];
+
+	private float[] node18 = new float[20];
+
+	private double[] node19 = new double[20];
 
 	public byte getNode1() {
 		return node1;
@@ -76,21 +88,21 @@ public class NormalNode implements INode {
 		this.node6 = node6;
 	}
 
-//	public float getNode7() {
-//		return node7;
-//	}
-//
-//	public void setNode7(float node7) {
-//		this.node7 = node7;
-//	}
-//
-//	public double getNode8() {
-//		return node8;
-//	}
-//
-//	public void setNode8(double node8) {
-//		this.node8 = node8;
-//	}
+	public float getNode7() {
+		return node7;
+	}
+
+	public void setNode7(float node7) {
+		this.node7 = node7;
+	}
+
+	public double getNode8() {
+		return node8;
+	}
+
+	public void setNode8(double node8) {
+		this.node8 = node8;
+	}
 
 	public String getNode9() {
 		return node9;
@@ -116,19 +128,67 @@ public class NormalNode implements INode {
 		this.node11 = node11;
 	}
 
-	public int[] getNode12() {
+	public Object getNode12() {
 		return node12;
 	}
 
-	public void setNode12(int[] node12) {
+	public void setNode12(Object node12) {
 		this.node12 = node12;
 	}
 
-	public Integer[] getNode13() {
+	public short[] getNode13() {
 		return node13;
 	}
 
-	public void setNode13(Integer[] node13) {
+	public void setNode13(short[] node13) {
 		this.node13 = node13;
+	}
+
+	public int[] getNode14() {
+		return node14;
+	}
+
+	public void setNode14(int[] node14) {
+		this.node14 = node14;
+	}
+
+	public long[] getNode15() {
+		return node15;
+	}
+
+	public void setNode15(long[] node15) {
+		this.node15 = node15;
+	}
+
+	public boolean[] getNode16() {
+		return node16;
+	}
+
+	public void setNode16(boolean[] node16) {
+		this.node16 = node16;
+	}
+
+	public char[] getNode17() {
+		return node17;
+	}
+
+	public void setNode17(char[] node17) {
+		this.node17 = node17;
+	}
+
+	public float[] getNode18() {
+		return node18;
+	}
+
+	public void setNode18(float[] node18) {
+		this.node18 = node18;
+	}
+
+	public double[] getNode19() {
+		return node19;
+	}
+
+	public void setNode19(double[] node19) {
+		this.node19 = node19;
 	}
 }

@@ -17,6 +17,8 @@ public interface IWriterStrategy {
 
 	Unsafe unsafe = UnsafeUtil.getUnsafe();
 
+	void setBuf(Object object);
+
 	/**
 	 * 获取即将写入位置
 	 *
@@ -67,6 +69,13 @@ public interface IWriterStrategy {
 	 * @param value 即将写入的值
 	 */
 	void writeValue(String value);
+
+	/**
+	 * 写入字符串
+	 *
+	 * @param value 即将写入的值
+	 */
+	void writeValueWithMark(String value);
 
 	/**
 	 * 写入boolean值

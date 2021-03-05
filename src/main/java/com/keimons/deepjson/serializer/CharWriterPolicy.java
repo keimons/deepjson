@@ -33,6 +33,11 @@ class CharWriterPolicy implements IWriterStrategy {
 	}
 
 	@Override
+	public void setBuf(Object object) {
+		buf = (char[]) object;
+	}
+
+	@Override
 	public final int writeIndex() {
 		return writeIndex;
 	}
@@ -147,6 +152,15 @@ class CharWriterPolicy implements IWriterStrategy {
 		char[] bytes = (char[]) unsafe.getObject(value, SerializerUtil.VALUE_OFFSET_STRING);
 		System.arraycopy(bytes, 0, buf, writeIndex, bytes.length);
 		writeIndex += bytes.length;
+	}
+
+	@Override
+	public void writeValueWithMark(String value) {
+		buf[writeIndex++] = '"';
+		char[] bytes = (char[]) unsafe.getObject(value, SerializerUtil.VALUE_OFFSET_STRING);
+		System.arraycopy(bytes, 0, buf, writeIndex, bytes.length);
+		writeIndex += bytes.length;
+		buf[writeIndex++] = '"';
 	}
 
 	// always private

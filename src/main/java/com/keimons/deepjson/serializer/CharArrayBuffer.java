@@ -11,13 +11,13 @@ import jdk.internal.vm.annotation.ForceInline;
  * @version 1.0
  * @since 1.7
  **/
-public class CharArrayBuffer extends ByteBuf {
+class CharArrayBuffer extends ByteBuf {
 
 	private char[] buf;
 
 	private int writeIndex;
 
-	private CharArrayBuffer(long options, int capacity) {
+	CharArrayBuffer(long options, int capacity) {
 		super(options);
 		this.buf = new char[capacity];
 	}
@@ -62,6 +62,20 @@ public class CharArrayBuffer extends ByteBuf {
 		int writable = SerializerUtil.size(value);
 		ensureWritable(writable);
 		strategy.writeValue(writable, value);
+	}
+
+	@Override
+	public void writeFloat(float value) {
+		String s = Float.toString(value);
+		ensureWritable(s.length());
+		strategy.writeValueWithMark(s);
+	}
+
+	@Override
+	public void writeDouble(double value) {
+		String s = Double.toString(value);
+		ensureWritable(s.length());
+		strategy.writeValueWithMark(s);
 	}
 
 	@ForceInline

@@ -7,17 +7,17 @@ import com.keimons.deepjson.util.SerializerUtil;
  *
  * @author monkey1993
  * @version 1.0
- * @since 1.8
+ * @since 1.7
  **/
-public class IntegerArraySerializer implements ISerializer {
+public class LongArraySerializer implements ISerializer {
 
-	public static final IntegerArraySerializer instance = new IntegerArraySerializer();
+	public static final LongArraySerializer instance = new LongArraySerializer();
 
 	@Override
 	public int length(Object object, long options) {
-		int[] values = (int[]) object;
+		long[] values = (long[]) object;
 		int length = 2;
-		for (int value : values) {
+		for (long value : values) {
 			length += SerializerUtil.size(value);
 		}
 		if (values.length > 1) {
@@ -38,12 +38,12 @@ public class IntegerArraySerializer implements ISerializer {
 			return;
 		}
 		buf.writeMark('[');
-		int[] values = (int[]) object;
+		long[] values = (long[]) object;
 		for (int i = 0; i < values.length; i++) {
 			if (i != 0) {
 				buf.writeMark(',');
 			}
-			buf.writeInt(values[i]);
+			buf.writeLong(values[i]);
 		}
 		buf.writeMark(']');
 	}

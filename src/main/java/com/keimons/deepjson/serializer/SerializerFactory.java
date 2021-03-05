@@ -34,15 +34,19 @@ public abstract class SerializerFactory {
 
 		CACHE.put(boolean.class, BooleanSerializer.instance);
 		CACHE.put(Boolean.class, BooleanSerializer.instance);
+		CACHE.put(boolean[].class, BooleanArraySerializer.instance);
 
 		CACHE.put(byte.class, ByteSerializer.instance);
 		CACHE.put(Byte.class, ByteSerializer.instance);
+		CACHE.put(byte[].class, ByteArraySerializer.instance);
 
 		CACHE.put(short.class, ShortSerializer.instance);
 		CACHE.put(Short.class, ShortSerializer.instance);
+		CACHE.put(short[].class, ShortArraySerializer.instance);
 
 		CACHE.put(char.class, CharSerializer.instance);
 		CACHE.put(Character.class, CharSerializer.instance);
+		CACHE.put(char[].class, CharArraySerializer.instance);
 
 		CACHE.put(int.class, IntegerSerializer.instance);
 		CACHE.put(Integer.class, IntegerSerializer.instance);
@@ -50,6 +54,16 @@ public abstract class SerializerFactory {
 
 		CACHE.put(long.class, LongSerializer.instance);
 		CACHE.put(Long.class, LongSerializer.instance);
+		CACHE.put(long[].class, LongArraySerializer.instance);
+
+		CACHE.put(float.class, FloatSerializer.instance);
+		CACHE.put(Float.class, FloatSerializer.instance);
+		CACHE.put(float[].class, FloatArraySerializer.instance);
+
+
+		CACHE.put(double.class, DoubleSerializer.instance);
+		CACHE.put(Double.class, DoubleSerializer.instance);
+		CACHE.put(double[].class, DoubleArraySerializer.instance);
 	}
 
 	public static ISerializer getSerializer(Class<?> clazz) {

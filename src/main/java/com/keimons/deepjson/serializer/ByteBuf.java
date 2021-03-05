@@ -37,7 +37,7 @@ public abstract class ByteBuf {
 		if (version >= 9) {
 			return new ByteArrayBuffer(options, initCapacity, coder);
 		} else {
-			return null;
+			return new CharArrayBuffer(options, initCapacity);
 		}
 	}
 
@@ -52,6 +52,10 @@ public abstract class ByteBuf {
 	public abstract void writeInt(int value);
 
 	public abstract void writeLong(long value);
+
+	public abstract void writeFloat(float value);
+
+	public abstract void writeDouble(double value);
 
 	public abstract void writeString(String value);
 

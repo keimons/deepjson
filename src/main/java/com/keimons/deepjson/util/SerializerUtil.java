@@ -7,6 +7,12 @@ import java.lang.reflect.Field;
 
 public class SerializerUtil {
 
+	public static final byte[] BYTE_HEX = {
+			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
+	};
+
+	private static final Unsafe unsafe = UnsafeUtil.getUnsafe();
+
 	public static final byte[] DigitOnes = {
 			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
 			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
@@ -57,7 +63,7 @@ public class SerializerUtil {
 
 	static {
 		Class<?> clazz = null;
-		Unsafe unsafe = UnsafeUtil.getUnsafe();
+
 		try {
 			clazz = Class.forName("java.lang.StringUTF16");
 			unsafe.ensureClassInitialized(clazz);
@@ -129,13 +135,107 @@ public class SerializerUtil {
 		return 19 + d;
 	}
 
-	public static void putChar1(byte[] buf, int index, int value) {
-		buf[index] = (byte) (value & 0xFF);
+	private static final String[] REPLACEMENT_CHARS;
+
+	static {
+		REPLACEMENT_CHARS = new String[128];
+		for (int i = 0; i <= 0x1f; i++) {
+			REPLACEMENT_CHARS[i] = String.format("\\u%04x", (int) i);
+		}
+		REPLACEMENT_CHARS['"'] = "\\\"";
+		REPLACEMENT_CHARS['\\'] = "\\\\";
+		REPLACEMENT_CHARS['\t'] = "\\t";
+		REPLACEMENT_CHARS['\b'] = "\\b";
+		REPLACEMENT_CHARS['\n'] = "\\n";
+		REPLACEMENT_CHARS['\r'] = "\\r";
+		REPLACEMENT_CHARS['\f'] = "\\f";
 	}
 
-	public static void putChar2(byte[] buf, int index, int value) {
-		index <<= 1;
-		buf[index++] = (byte) (value >> HI_BYTE_SHIFT);
-		buf[index] = (byte) (value >> LO_BYTE_SHIFT);
+	/**
+	 * 计算字符串的宽度
+	 *
+	 * @param object 对象
+	 * @return 字符串长度
+	 */
+	@ForceInline
+	public static int length(String object) {
+		int length = 2;
+		byte coder = unsafe.getByte(object, SerializerUtil.CODER_OFFSET_STRING);
+		byte[] values = (byte[]) unsafe.getObject(object, SerializerUtil.VALUE_OFFSET_STRING);
+		if (coder == 0) {
+			for (byte value : values) {
+				String str = REPLACEMENT_CHARS[value];
+				if (str == null) {
+					length += 1;
+				} else {
+					length += str.length();
+				}
+			}
+		} else {
+			if (SerializerUtil.LO_BYTE_SHIFT == 8) {
+				// 小端序
+				for (int i = 1; i < values.length; i += 2) {
+					byte value = values[i];
+					if (value == 0) {
+						String str = REPLACEMENT_CHARS[values[i - 1]];
+						if (str == null) {
+							length += 1;
+						} else {
+							length += str.length();
+						}
+					} else if (value == 0x20 && values[i - 1] == 0x28 || values[i - 1] == 0x29) {
+						length += 6;
+					} else {
+						length++;
+					}
+				}
+			} else {
+				// 大端序
+				for (int i = 0; i < values.length; i += 2) {
+					byte value = values[i];
+					if (value == 0) {
+						String str = REPLACEMENT_CHARS[values[i + 1]];
+						if (str == null) {
+							length += 1;
+						} else {
+							length += str.length();
+						}
+					} else if (value == 0x20 && values[i + 1] == 0x28 || values[i + 1] == 0x29) {
+						length += 6;
+					} else {
+						length++;
+					}
+				}
+			}
+		}
+		return length;
 	}
+
+//	/**
+//	 * float宽度
+//	 *
+//	 * @param value float值
+//	 * @return 长度
+//	 */
+//	public static int length(float value) {
+//		return FloatingDecimal.toJavaFormatLength(value);
+//	}
+//
+//	/**
+//	 * double宽度
+//	 *
+//	 * @param value float值
+//	 * @return 长度
+//	 */
+//	public static int length(double value) {
+//		return FloatingDecimal.toJavaFormatLength(value);
+//	}
+//
+//	public static String toJavaFormatString(float value) {
+//		return FloatingDecimal.toJavaFormatString(value);
+//	}
+//
+//	public static String toJavaFormatString(double value) {
+//		return FloatingDecimal.toJavaFormatString(value);
+//	}
 }

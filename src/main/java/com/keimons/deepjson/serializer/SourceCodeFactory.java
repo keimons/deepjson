@@ -1,9 +1,7 @@
 package com.keimons.deepjson.serializer;
 
 import com.keimons.deepjson.SerializerOptions;
-import com.keimons.deepjson.util.ClassUtil;
-import com.keimons.deepjson.util.SerializerUtil;
-import com.keimons.deepjson.util.UnsafeUtil;
+import com.keimons.deepjson.util.*;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
@@ -30,6 +28,8 @@ public class SourceCodeFactory {
 			SerializerOptions.class,
 			UnsafeUtil.class,
 			SerializerUtil.class,
+			RyuDouble.class,
+			RyuFloat.class,
 			Unsafe.class
 	);
 
@@ -160,9 +160,9 @@ public class SourceCodeFactory {
 						.append(field.offset())
 						.append("L);\n")
 				;
-				source.append("\t\tlength += Float.toString(")
+				source.append("\t\tlength += RyuFloat.length(")
 						.append(fieldName)
-						.append(").length() + ")
+						.append(") + ")
 						.append(field.length() + 1)
 						.append(";\n")
 				;
@@ -173,9 +173,9 @@ public class SourceCodeFactory {
 						.append(field.offset())
 						.append("L);\n")
 				;
-				source.append("\t\tlength += Double.toString(")
+				source.append("\t\tlength += RyuDouble.length(")
 						.append(fieldName)
-						.append(").length() + ")
+						.append(") + ")
 						.append(field.length() + 1)
 						.append(";\n")
 				;

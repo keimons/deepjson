@@ -12,6 +12,24 @@ import jdk.internal.vm.annotation.ForceInline;
  **/
 class LatinWriterPolicy implements IWriterStrategy {
 
+	private static final byte[][] REPLACEMENT_CHARS;
+
+	static {
+		REPLACEMENT_CHARS = new byte[128][];
+		for (int i = 0; i <= 0x1f; i++) {
+			REPLACEMENT_CHARS[i] = new byte[]{
+					'\\', 'u', '0', '0', SerializerUtil.BYTE_HEX[i >> 4 & 0xF], SerializerUtil.BYTE_HEX[i & 0xF]
+			};
+		}
+		REPLACEMENT_CHARS['"'] = new byte[]{'\\', '\"'};
+		REPLACEMENT_CHARS['\\'] = new byte[]{'\\', '\\'};
+		REPLACEMENT_CHARS['\t'] = new byte[]{'\\', 't'};
+		REPLACEMENT_CHARS['\b'] = new byte[]{'\\', 'b'};
+		REPLACEMENT_CHARS['\n'] = new byte[]{'\\', 'n'};
+		REPLACEMENT_CHARS['\r'] = new byte[]{'\\', 'r'};
+		REPLACEMENT_CHARS['\f'] = new byte[]{'\\', 'f'};
+	}
+
 	private static final byte[] BOOLEAN_TRUE_LATIN = {'t', 'r', 'u', 'e'};
 
 	private static final byte[] BOOLEAN_FALSE_LATIN = {'f', 'a', 'l', 's', 'e'};
@@ -26,6 +44,11 @@ class LatinWriterPolicy implements IWriterStrategy {
 		this.buf = buf;
 		this.options = options;
 		this.writeIndex = writeIndex;
+	}
+
+	@Override
+	public void setBuf(Object object) {
+		buf = (byte[]) object;
 	}
 
 	@Override
@@ -140,6 +163,13 @@ class LatinWriterPolicy implements IWriterStrategy {
 
 	@Override
 	public final void writeValue(String value) {
+		byte[] bytes = (byte[]) unsafe.getObject(value, SerializerUtil.VALUE_OFFSET_STRING);
+		System.arraycopy(bytes, 0, buf, writeIndex, bytes.length);
+		writeIndex += bytes.length;
+	}
+
+	@Override
+	public final void writeValueWithMark(String value) {
 		buf[writeIndex++] = '"';
 		byte[] bytes = (byte[]) unsafe.getObject(value, SerializerUtil.VALUE_OFFSET_STRING);
 		System.arraycopy(bytes, 0, buf, writeIndex, bytes.length);

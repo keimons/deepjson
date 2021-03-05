@@ -1,24 +1,24 @@
 package com.keimons.deepjson.serializer;
 
-import com.keimons.deepjson.util.SerializerUtil;
+import com.keimons.deepjson.util.RyuFloat;
 
 /**
- * int[]序列化
+ * float[]序列化
  *
  * @author monkey1993
  * @version 1.0
- * @since 1.8
+ * @since 1.7
  **/
-public class IntegerArraySerializer implements ISerializer {
+public class FloatArraySerializer implements ISerializer {
 
-	public static final IntegerArraySerializer instance = new IntegerArraySerializer();
+	public static final FloatArraySerializer instance = new FloatArraySerializer();
 
 	@Override
 	public int length(Object object, long options) {
-		int[] values = (int[]) object;
+		float[] values = (float[]) object;
 		int length = 2;
-		for (int value : values) {
-			length += SerializerUtil.size(value);
+		for (float value : values) {
+			length += RyuFloat.length(value);
 		}
 		if (values.length > 1) {
 			length += values.length - 1;
@@ -38,12 +38,12 @@ public class IntegerArraySerializer implements ISerializer {
 			return;
 		}
 		buf.writeMark('[');
-		int[] values = (int[]) object;
+		float[] values = (float[]) object;
 		for (int i = 0; i < values.length; i++) {
 			if (i != 0) {
 				buf.writeMark(',');
 			}
-			buf.writeInt(values[i]);
+			buf.writeFloat(values[i]);
 		}
 		buf.writeMark(']');
 	}
