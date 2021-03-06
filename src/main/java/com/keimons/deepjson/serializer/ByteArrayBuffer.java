@@ -100,7 +100,7 @@ class ByteArrayBuffer extends ByteBuf {
 		ensureCoder(unsafe.getByte(value, SerializerUtil.CODER_OFFSET_STRING));
 		int writable = SerializerUtil.length(value) + 2;
 		ensureWritable(writable);
-		strategy.writeValueWithMark(value);
+		strategy.writeValueWithQuote(value);
 	}
 
 	@ForceInline

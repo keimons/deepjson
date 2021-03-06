@@ -163,17 +163,22 @@ class LatinWriterPolicy implements IWriterStrategy {
 
 	@Override
 	public final void writeValue(String value) {
-		byte[] bytes = (byte[]) unsafe.getObject(value, SerializerUtil.VALUE_OFFSET_STRING);
-		System.arraycopy(bytes, 0, buf, writeIndex, bytes.length);
-		writeIndex += bytes.length;
+		byte[] values = (byte[]) unsafe.getObject(value, SerializerUtil.VALUE_OFFSET_STRING);
+		for (byte b : values) {
+			byte[] bytes = REPLACEMENT_CHARS[b];
+			if (bytes == null) {
+				buf[writeIndex++] = b;
+			} else {
+				System.arraycopy(bytes, 0, buf, writeIndex, bytes.length);
+				writeIndex += bytes.length;
+			}
+		}
 	}
 
 	@Override
-	public final void writeValueWithMark(String value) {
+	public final void writeValueWithQuote(String value) {
 		buf[writeIndex++] = '"';
-		byte[] bytes = (byte[]) unsafe.getObject(value, SerializerUtil.VALUE_OFFSET_STRING);
-		System.arraycopy(bytes, 0, buf, writeIndex, bytes.length);
-		writeIndex += bytes.length;
+		writeValue(value);
 		buf[writeIndex++] = '"';
 	}
 

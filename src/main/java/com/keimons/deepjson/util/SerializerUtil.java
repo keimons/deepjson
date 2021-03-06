@@ -135,20 +135,25 @@ public class SerializerUtil {
 		return 19 + d;
 	}
 
-	private static final String[] REPLACEMENT_CHARS;
+	private static final int[] REPLACEMENT_CHARS;
 
 	static {
-		REPLACEMENT_CHARS = new String[128];
+		REPLACEMENT_CHARS = new int[128];
 		for (int i = 0; i <= 0x1f; i++) {
-			REPLACEMENT_CHARS[i] = String.format("\\u%04x", (int) i);
+			REPLACEMENT_CHARS[i] = 6;
 		}
-		REPLACEMENT_CHARS['"'] = "\\\"";
-		REPLACEMENT_CHARS['\\'] = "\\\\";
-		REPLACEMENT_CHARS['\t'] = "\\t";
-		REPLACEMENT_CHARS['\b'] = "\\b";
-		REPLACEMENT_CHARS['\n'] = "\\n";
-		REPLACEMENT_CHARS['\r'] = "\\r";
-		REPLACEMENT_CHARS['\f'] = "\\f";
+		REPLACEMENT_CHARS['"'] = 2;
+		REPLACEMENT_CHARS['\\'] = 2;
+		REPLACEMENT_CHARS['\t'] = 2;
+		REPLACEMENT_CHARS['\b'] = 2;
+		REPLACEMENT_CHARS['\n'] = 2;
+		REPLACEMENT_CHARS['\r'] = 2;
+		REPLACEMENT_CHARS['\f'] = 2;
+		for (int i = 0; i < REPLACEMENT_CHARS.length; i++) {
+			if (REPLACEMENT_CHARS[i] == 0) {
+				REPLACEMENT_CHARS[i] = 1;
+			}
+		}
 	}
 
 	/**
@@ -159,52 +164,31 @@ public class SerializerUtil {
 	 */
 	@ForceInline
 	public static int length(String object) {
-		int length = 2;
+		int length = 0;
 		byte coder = unsafe.getByte(object, SerializerUtil.CODER_OFFSET_STRING);
 		byte[] values = (byte[]) unsafe.getObject(object, SerializerUtil.VALUE_OFFSET_STRING);
 		if (coder == 0) {
 			for (byte value : values) {
-				String str = REPLACEMENT_CHARS[value];
-				if (str == null) {
-					length += 1;
-				} else {
-					length += str.length();
-				}
+				length += REPLACEMENT_CHARS[value];
 			}
 		} else {
-			if (SerializerUtil.LO_BYTE_SHIFT == 8) {
-				// 小端序
-				for (int i = 1; i < values.length; i += 2) {
-					byte value = values[i];
-					if (value == 0) {
-						String str = REPLACEMENT_CHARS[values[i - 1]];
-						if (str == null) {
-							length += 1;
-						} else {
-							length += str.length();
-						}
-					} else if (value == 0x20 && values[i - 1] == 0x28 || values[i - 1] == 0x29) {
-						length += 6;
-					} else {
-						length++;
-					}
-				}
-			} else {
-				// 大端序
-				for (int i = 0; i < values.length; i += 2) {
-					byte value = values[i];
-					if (value == 0) {
-						String str = REPLACEMENT_CHARS[values[i + 1]];
-						if (str == null) {
-							length += 1;
-						} else {
-							length += str.length();
-						}
-					} else if (value == 0x20 && values[i + 1] == 0x28 || values[i + 1] == 0x29) {
-						length += 6;
-					} else {
-						length++;
-					}
+			int i, j;
+			if (SerializerUtil.LO_BYTE_SHIFT == 8) { // 小端序
+				i = 0;
+				j = 1;
+			} else { // 大端序
+				i = 1;
+				j = 0;
+			}
+			for (; i < values.length; i += 2, j += 2) {
+				byte lo = values[i];
+				byte hi = values[j];
+				if (hi == 0) {
+					length += REPLACEMENT_CHARS[lo];
+				} else if (hi == 0x20 && (lo == 0x28 || lo == 0x29)) {
+					length += 6;
+				} else {
+					length++;
 				}
 			}
 		}

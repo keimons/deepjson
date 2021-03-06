@@ -17,6 +17,9 @@ public interface IWriterStrategy {
 
 	Unsafe unsafe = UnsafeUtil.getUnsafe();
 
+	long offset = unsafe.arrayBaseOffset(byte[].class);
+	long scale = unsafe.arrayIndexScale(byte[].class);
+
 	void setBuf(Object object);
 
 	/**
@@ -75,7 +78,7 @@ public interface IWriterStrategy {
 	 *
 	 * @param value 即将写入的值
 	 */
-	void writeValueWithMark(String value);
+	void writeValueWithQuote(String value);
 
 	/**
 	 * 写入boolean值

@@ -68,14 +68,14 @@ class CharArrayBuffer extends ByteBuf {
 	public void writeFloat(float value) {
 		String s = Float.toString(value);
 		ensureWritable(s.length());
-		strategy.writeValueWithMark(s);
+		strategy.writeValueWithQuote(s);
 	}
 
 	@Override
 	public void writeDouble(double value) {
 		String s = Double.toString(value);
 		ensureWritable(s.length());
-		strategy.writeValueWithMark(s);
+		strategy.writeValueWithQuote(s);
 	}
 
 	@ForceInline

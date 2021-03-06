@@ -155,7 +155,7 @@ class CharWriterPolicy implements IWriterStrategy {
 	}
 
 	@Override
-	public void writeValueWithMark(String value) {
+	public void writeValueWithQuote(String value) {
 		buf[writeIndex++] = '"';
 		char[] bytes = (char[]) unsafe.getObject(value, SerializerUtil.VALUE_OFFSET_STRING);
 		System.arraycopy(bytes, 0, buf, writeIndex, bytes.length);
