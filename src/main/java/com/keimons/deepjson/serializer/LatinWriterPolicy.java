@@ -74,9 +74,9 @@ class LatinWriterPolicy implements IWriterStrategy {
 
 	@Override
 	public final void writeValue(char value) {
-		buf[writeIndex++] = '"';
-		buf[writeIndex++] = (byte) value;
-		buf[writeIndex++] = '"';
+		unsafe.putByte(buf, offset + writeIndex++, (byte) '"');
+		unsafe.putByte(buf, offset + writeIndex++, (byte) value);
+		unsafe.putByte(buf, offset + writeIndex++, (byte) '"');
 	}
 
 	@Override

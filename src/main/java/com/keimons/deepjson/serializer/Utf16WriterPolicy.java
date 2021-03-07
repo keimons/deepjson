@@ -206,8 +206,38 @@ class Utf16WriterPolicy implements IWriterStrategy {
 	public final void writeValue(char value) {
 		unsafe.putByte(buf, offset + writeIndex++, HI_BYTE_MARK);
 		unsafe.putByte(buf, offset + writeIndex++, LO_BYTE_MARK);
-		unsafe.putByte(buf, offset + writeIndex++, (byte) (value >> SerializerUtil.HI_BYTE_SHIFT));
-		unsafe.putByte(buf, offset + writeIndex++, (byte) (value >> SerializerUtil.LO_BYTE_SHIFT));
+		byte hi = (byte) (value >> SerializerUtil.HI_BYTE_SHIFT);
+		byte lo = (byte) (value >> SerializerUtil.LO_BYTE_SHIFT);
+		byte f;
+		byte l;
+		if (SerializerUtil.LO_BYTE_SHIFT == 8) { // 小端序
+			f = lo;
+			l = hi;
+		} else {
+			f = hi;
+			l = lo;
+		}
+		if (f == 0) {
+			byte[] bytes = REPLACEMENT_CHARS[l];
+			if (bytes == null) {
+				unsafe.putByte(buf, offset + writeIndex++, hi);
+				unsafe.putByte(buf, offset + writeIndex++, lo);
+			} else {
+				System.arraycopy(bytes, 0, buf, writeIndex, bytes.length);
+				writeIndex += bytes.length;
+			}
+		} else if (f == 0x20 && (l == 0x28 || l == 0x29)) {
+			if (l == 0x28) {
+				System.arraycopy(REPLACEMENT_2028, 0, buf, writeIndex, 12);
+			} else {
+				System.arraycopy(REPLACEMENT_2029, 0, buf, writeIndex, 12);
+			}
+			writeIndex += 12;
+		} else {
+			// 获取第三个元素
+			unsafe.putByte(buf, offset + writeIndex++, lo);
+			unsafe.putByte(buf, offset + writeIndex++, hi);
+		}
 		unsafe.putByte(buf, offset + writeIndex++, HI_BYTE_MARK);
 		unsafe.putByte(buf, offset + writeIndex++, LO_BYTE_MARK);
 	}
@@ -334,37 +364,57 @@ class Utf16WriterPolicy implements IWriterStrategy {
 				}
 			}
 		} else {
-			int i, j;
 			if (SerializerUtil.LO_BYTE_SHIFT == 8) { // 小端序
-				i = 0;
-				j = 1;
-			} else { // 大端序
-				i = 1;
-				j = 0;
-			}
-			for (; i < values.length; i += 2, j += 2) {
-				byte lo = values[i];
-				byte hi = values[j];
-				if (hi == 0) {
-					byte[] bytes = REPLACEMENT_CHARS[lo];
-					if (bytes == null) {
+				for (int i = 1, j = 0; i < values.length; i += 2, j += 2) {
+					byte hi = values[i]; // 高8位
+					byte lo = values[j]; // 低8位
+					if (hi == 0) {
+						byte[] bytes = REPLACEMENT_CHARS[lo];
+						if (bytes == null) {
+							unsafe.putByte(buf, offset + writeIndex++, lo);
+							unsafe.putByte(buf, offset + writeIndex++, hi);
+						} else {
+							System.arraycopy(bytes, 0, buf, writeIndex, bytes.length);
+							writeIndex += bytes.length;
+						}
+					} else if (hi == 0x20 && (lo == 0x28 || lo == 0x29)) {
+						if (lo == 0x28) {
+							System.arraycopy(REPLACEMENT_2028, 0, buf, writeIndex, 12);
+						} else {
+							System.arraycopy(REPLACEMENT_2029, 0, buf, writeIndex, 12);
+						}
+						writeIndex += 12;
+					} else {
+						// 获取第三个元素
 						unsafe.putByte(buf, offset + writeIndex++, lo);
 						unsafe.putByte(buf, offset + writeIndex++, hi);
-					} else {
-						System.arraycopy(bytes, 0, buf, writeIndex, bytes.length);
-						writeIndex += bytes.length;
 					}
-				} else if (hi == 0x20 && (lo == 0x28 || lo == 0x29)) {
-					if (lo == 0x28) {
-						System.arraycopy(REPLACEMENT_2028, 0, buf, writeIndex, 12);
+				}
+			} else { // 大端序
+				for (int i = 0, j = 1; i < values.length; i += 2, j += 2) {
+					byte hi = values[i]; // 高8位
+					byte lo = values[j]; // 低8位
+					if (hi == 0) {
+						byte[] bytes = REPLACEMENT_CHARS[lo];
+						if (bytes == null) {
+							unsafe.putByte(buf, offset + writeIndex++, hi);
+							unsafe.putByte(buf, offset + writeIndex++, lo);
+						} else {
+							System.arraycopy(bytes, 0, buf, writeIndex, bytes.length);
+							writeIndex += bytes.length;
+						}
+					} else if (hi == 0x20 && (lo == 0x28 || lo == 0x29)) {
+						if (lo == 0x28) {
+							System.arraycopy(REPLACEMENT_2028, 0, buf, writeIndex, 12);
+						} else {
+							System.arraycopy(REPLACEMENT_2029, 0, buf, writeIndex, 12);
+						}
+						writeIndex += 12;
 					} else {
-						System.arraycopy(REPLACEMENT_2029, 0, buf, writeIndex, 12);
+						// 获取第三个元素
+						unsafe.putByte(buf, offset + writeIndex++, hi);
+						unsafe.putByte(buf, offset + writeIndex++, lo);
 					}
-					writeIndex += 12;
-				} else {
-					// 获取第三个元素
-					unsafe.putByte(buf, offset + writeIndex++, lo);
-					unsafe.putByte(buf, offset + writeIndex++, hi);
 				}
 			}
 		}

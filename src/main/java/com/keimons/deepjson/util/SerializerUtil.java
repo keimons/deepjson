@@ -195,6 +195,45 @@ public class SerializerUtil {
 		return length;
 	}
 
+	/**
+	 * 计算字符串的宽度
+	 *
+	 * @param object 对象
+	 * @return 字符串长度
+	 */
+	@ForceInline
+	public static int length(char object) {
+		int length = 0;
+		byte coder = unsafe.getByte(object, SerializerUtil.CODER_OFFSET_STRING);
+		byte[] values = (byte[]) unsafe.getObject(object, SerializerUtil.VALUE_OFFSET_STRING);
+		if (coder == 0) {
+			for (byte value : values) {
+				length += REPLACEMENT_CHARS[value];
+			}
+		} else {
+			int i, j;
+			if (SerializerUtil.LO_BYTE_SHIFT == 8) { // 小端序
+				i = 0;
+				j = 1;
+			} else { // 大端序
+				i = 1;
+				j = 0;
+			}
+			for (; i < values.length; i += 2, j += 2) {
+				byte lo = values[i];
+				byte hi = values[j];
+				if (hi == 0) {
+					length += REPLACEMENT_CHARS[lo];
+				} else if (hi == 0x20 && (lo == 0x28 || lo == 0x29)) {
+					length += 6;
+				} else {
+					length++;
+				}
+			}
+		}
+		return length;
+	}
+
 //	/**
 //	 * float宽度
 //	 *

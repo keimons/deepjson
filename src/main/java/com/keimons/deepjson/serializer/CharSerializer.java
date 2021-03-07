@@ -15,7 +15,7 @@ public class CharSerializer implements ISerializer {
 
 	@Override
 	public int length(Object object, long options) {
-		return 3;
+		return SerializerUtil.length((char) object) + 2;
 	}
 
 	@Override
