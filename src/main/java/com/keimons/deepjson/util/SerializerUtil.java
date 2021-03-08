@@ -214,6 +214,7 @@ public class SerializerUtil {
 		}
 	}
 
+	@ForceInline
 	public static byte coder(char value) {
 		if (value >>> 8 == 0 || value == 8232 || value == 8233) {
 			return 0;

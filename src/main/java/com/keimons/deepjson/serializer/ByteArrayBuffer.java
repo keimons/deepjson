@@ -126,7 +126,7 @@ class ByteArrayBuffer extends ByteBuf {
 	@Override
 	public final void writeValue(byte mark, IFieldName fieldName, char value) {
 		// ensure coder
-		ensureCoder((byte) (value >>> 8 == 0 ? 0 : 1));
+		ensureCoder(SerializerUtil.coder(value));
 		int writable = SerializerUtil.length(value) + fieldName.length() + 1;
 		ensureWritable(writable);
 		strategy.writeValue(mark, fieldName, value);
