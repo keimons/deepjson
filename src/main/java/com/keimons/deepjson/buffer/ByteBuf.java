@@ -55,55 +55,148 @@ public abstract class ByteBuf {
 		}
 	}
 
+	/**
+	 * 根据缓冲区生成字符串
+	 *
+	 * @return 字符串
+	 */
 	public abstract String newString();
 
+	/**
+	 * 写入一个分割标识
+	 *
+	 * @param mark 标识值
+	 */
 	public abstract void writeMark(char mark);
 
+	/**
+	 * 写入boolean值
+	 *
+	 * @param value boolean值
+	 */
 	public abstract void writeBoolean(boolean value);
 
+	/**
+	 * 写入char值
+	 *
+	 * @param value char值
+	 */
 	public abstract void writeChar(char value);
 
+	/**
+	 * 写入int值
+	 *
+	 * @param value int值
+	 */
 	public abstract void writeInt(int value);
 
+	/**
+	 * 写入long值
+	 *
+	 * @param value long值
+	 */
 	public abstract void writeLong(long value);
 
+	/**
+	 * 写入float值
+	 *
+	 * @param value float值
+	 */
 	public abstract void writeFloat(float value);
 
+	/**
+	 * 写入double值
+	 *
+	 * @param value double值
+	 */
 	public abstract void writeDouble(double value);
 
+	/**
+	 * 写入String值
+	 *
+	 * @param value String值
+	 */
 	public abstract void writeString(String value);
 
+	/**
+	 * 写入boolean字段
+	 *
+	 * @param mark      前置标识
+	 * @param fieldName 字段信息
+	 * @param value     boolean值
+	 */
 	public abstract void writeValue(byte mark, IFieldName fieldName, boolean value);
 
+	/**
+	 * 写入char字段
+	 *
+	 * @param mark      前置标识
+	 * @param fieldName 字段信息
+	 * @param value     char值
+	 */
 	public abstract void writeValue(byte mark, IFieldName fieldName, char value);
 
+	/**
+	 * 写入int字段
+	 *
+	 * @param mark      前置标识
+	 * @param fieldName 字段信息
+	 * @param value     int值
+	 */
 	public abstract void writeValue(byte mark, IFieldName fieldName, int value);
 
+	/**
+	 * 写入long字段
+	 *
+	 * @param mark      前置标识
+	 * @param fieldName 字段信息
+	 * @param value     long值
+	 */
 	public abstract void writeValue(byte mark, IFieldName fieldName, long value);
 
+	/**
+	 * 写入float字段
+	 *
+	 * @param mark      前置标识
+	 * @param fieldName 字段信息
+	 * @param value     float值
+	 */
 	public abstract void writeValue(byte mark, IFieldName fieldName, float value);
 
+	/**
+	 * 写入double字段
+	 *
+	 * @param mark      前置标识
+	 * @param fieldName 字段信息
+	 * @param value     double值
+	 */
 	public abstract void writeValue(byte mark, IFieldName fieldName, double value);
 
+	/**
+	 * 写入Object字段
+	 *
+	 * @param mark      前置标识
+	 * @param fieldName 字段信息
+	 * @param value     object值
+	 */
 	public abstract void writeValue(byte mark, IFieldName fieldName, Object value);
 
 	/**
 	 * 写入对象结尾标识。
 	 */
-	@ForceInline
 	public abstract void writeEndObject();
 
 	/**
-	 * 写入一个空
+	 * 写入{@code null}字符串
 	 */
 	public abstract void writeNull();
 
 	/**
 	 * 确保缓冲区的可写入字节数大于或等于即将写入的字节数。
 	 *
-	 * @param writableBytes 即将写入的字节数
+	 * @param writable 即将写入的字节数
 	 */
-	public abstract void ensureWritable(int writableBytes);
+	public abstract void ensureWritable(int writable);
 
 	/**
 	 * 扩容

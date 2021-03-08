@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 /**
  * String类型测试
  *
- * @author monkey1993
+ * @author monkey
  * @version 1.0
  * @since 1.7
  **/

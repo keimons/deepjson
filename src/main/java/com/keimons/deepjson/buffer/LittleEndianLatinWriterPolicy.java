@@ -116,7 +116,7 @@ class LittleEndianLatinWriterPolicy implements IWriterStrategy {
 	public final void writeValue(int length, int value) {
 		this.writeIndex += length;
 		int q, r;
-		int position = writeIndex;
+		int position = writeIndex + offset;
 
 		boolean negative = (value < 0);
 		if (!negative) {
@@ -152,7 +152,7 @@ class LittleEndianLatinWriterPolicy implements IWriterStrategy {
 		this.writeIndex += length;
 		long q;
 		int r;
-		int position = writeIndex;
+		int position = writeIndex + offset;
 
 		boolean negative = (value < 0);
 		if (!negative) {

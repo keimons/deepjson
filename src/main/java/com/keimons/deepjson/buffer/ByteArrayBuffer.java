@@ -204,12 +204,12 @@ class ByteArrayBuffer extends ByteBuf {
 	/**
 	 * 确保缓冲区的可写入字节数大于或等于即将写入的字节数。
 	 *
-	 * @param writableBytes 即将写入的字节数
+	 * @param writable 即将写入的字节数
 	 */
 	@Override
-	public final void ensureWritable(int writableBytes) {
-		if (!strategy.ensureWritable(writableBytes)) {
-			expandCapacity(writableBytes + strategy.length());
+	public final void ensureWritable(int writable) {
+		if (!strategy.ensureWritable(writable)) {
+			expandCapacity(writable + strategy.length());
 		}
 	}
 

@@ -6,7 +6,7 @@ import com.keimons.deepjson.util.SerializerUtil;
 /**
  * int[]序列化
  *
- * @author monkey1993
+ * @author monkey
  * @version 1.0
  * @since 1.8
  **/

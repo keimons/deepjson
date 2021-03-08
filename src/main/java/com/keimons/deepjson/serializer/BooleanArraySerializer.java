@@ -5,7 +5,7 @@ import com.keimons.deepjson.buffer.ByteBuf;
 /**
  * boolean[]序列化
  *
- * @author monkey1993
+ * @author monkey
  * @version 1.0
  * @since 1.7
  **/

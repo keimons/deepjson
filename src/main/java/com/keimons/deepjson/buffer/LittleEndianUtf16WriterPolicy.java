@@ -17,20 +17,11 @@ class LittleEndianUtf16WriterPolicy implements IWriterStrategy {
 
 	private static final Unsafe unsafe = UnsafeUtil.getUnsafe();
 
-	private static final byte HI_BYTE_R_BRACES = (byte) ('}' >> SerializerUtil.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_R_BRACES = (byte) ('}' >> SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte BYTE_R_BRACES = (byte) '}';
 
-	private static final byte HI_BYTE_MARK = (byte) ('"' >> SerializerUtil.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_MARK = (byte) ('"' >> SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte BYTE_MARK = (byte) '"';
 
-	private static final byte HI_BYTE_NEGATIVE = (byte) ('-' >> SerializerUtil.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_NEGATIVE = (byte) ('-' >> SerializerUtil.LO_BYTE_SHIFT);
-
-	private static final byte HI_BYTE_L = (byte) ('\\' >> SerializerUtil.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_L = (byte) ('\\' >> SerializerUtil.LO_BYTE_SHIFT);
-
-	private static final byte HI_BYTE_U = (byte) ('u' >> SerializerUtil.HI_BYTE_SHIFT);
-	private static final byte LO_BYTE_U = (byte) ('u' >> SerializerUtil.LO_BYTE_SHIFT);
+	private static final byte BYTE_NEGATIVE = (byte) '-';
 
 	private static final byte[][] REPLACEMENT_CHARS;
 
@@ -38,65 +29,23 @@ class LittleEndianUtf16WriterPolicy implements IWriterStrategy {
 		REPLACEMENT_CHARS = new byte[256][];
 		for (int i = 0; i <= 0x1f; i++) {
 			REPLACEMENT_CHARS[i] = new byte[]{
-					(byte) ('\\'), 0,
-					(byte) ('u'), 0,
-					(byte) ('0'), 0,
-					(byte) ('0'), 0,
+					'\\', 0, 'u', 0, '0', 0, '0', 0,
 					SerializerUtil.BYTE_HEX[i >> 4 & 0xF], 0,
 					SerializerUtil.BYTE_HEX[i & 0xF], 0
 			};
 		}
 		REPLACEMENT_CHARS['"'] = new byte[]{'\\', 0, '\"', 0};
-		REPLACEMENT_CHARS['\\'] = new byte[]{
-				(byte) ('\\' >> SerializerUtil.HI_BYTE_SHIFT),
-				(byte) ('\\' >> SerializerUtil.LO_BYTE_SHIFT),
-				(byte) ('\\' >> SerializerUtil.HI_BYTE_SHIFT),
-				(byte) ('\\' >> SerializerUtil.LO_BYTE_SHIFT)
-		};
-		REPLACEMENT_CHARS['\t'] = new byte[]{
-				(byte) ('\\' >> SerializerUtil.HI_BYTE_SHIFT),
-				(byte) ('\\' >> SerializerUtil.LO_BYTE_SHIFT),
-				(byte) ('t' >> SerializerUtil.HI_BYTE_SHIFT),
-				(byte) ('t' >> SerializerUtil.LO_BYTE_SHIFT)
-		};
-		REPLACEMENT_CHARS['\b'] = new byte[]{
-				(byte) ('\\' >> SerializerUtil.HI_BYTE_SHIFT),
-				(byte) ('\\' >> SerializerUtil.LO_BYTE_SHIFT),
-				(byte) ('b' >> SerializerUtil.HI_BYTE_SHIFT),
-				(byte) ('b' >> SerializerUtil.LO_BYTE_SHIFT)
-		};
-		REPLACEMENT_CHARS['\n'] = new byte[]{
-				(byte) ('\\' >> SerializerUtil.HI_BYTE_SHIFT),
-				(byte) ('\\' >> SerializerUtil.LO_BYTE_SHIFT),
-				(byte) ('n' >> SerializerUtil.HI_BYTE_SHIFT),
-				(byte) ('n' >> SerializerUtil.LO_BYTE_SHIFT)
-		};
-		REPLACEMENT_CHARS['\r'] = new byte[]{
-				(byte) ('\\' >> SerializerUtil.HI_BYTE_SHIFT),
-				(byte) ('\\' >> SerializerUtil.LO_BYTE_SHIFT),
-				(byte) ('r' >> SerializerUtil.HI_BYTE_SHIFT),
-				(byte) ('r' >> SerializerUtil.LO_BYTE_SHIFT)
-		};
-		REPLACEMENT_CHARS['\f'] = new byte[]{
-				(byte) ('\\' >> SerializerUtil.HI_BYTE_SHIFT),
-				(byte) ('\\' >> SerializerUtil.LO_BYTE_SHIFT),
-				(byte) ('f' >> SerializerUtil.HI_BYTE_SHIFT),
-				(byte) ('f' >> SerializerUtil.LO_BYTE_SHIFT)
-		};
+		REPLACEMENT_CHARS['\\'] = new byte[]{'\\', 0, '\\', 0};
+		REPLACEMENT_CHARS['\t'] = new byte[]{'\\', 0, 't', 0};
+		REPLACEMENT_CHARS['\b'] = new byte[]{'\\', 0, 'b', 0};
+		REPLACEMENT_CHARS['\n'] = new byte[]{'\\', 0, 'n', 0};
+		REPLACEMENT_CHARS['\r'] = new byte[]{'\\', 0, 'r', 0};
+		REPLACEMENT_CHARS['\f'] = new byte[]{'\\', 0, 'f', 0};
 		for (int i = 127; i <= 159; i++) {
 			REPLACEMENT_CHARS[i] = new byte[]{
-					(byte) ('\\' >> SerializerUtil.HI_BYTE_SHIFT),
-					(byte) ('\\' >> SerializerUtil.LO_BYTE_SHIFT),
-					(byte) ('u' >> SerializerUtil.HI_BYTE_SHIFT),
-					(byte) ('u' >> SerializerUtil.LO_BYTE_SHIFT),
-					(byte) ('0' >> SerializerUtil.HI_BYTE_SHIFT),
-					(byte) ('0' >> SerializerUtil.LO_BYTE_SHIFT),
-					(byte) ('0' >> SerializerUtil.HI_BYTE_SHIFT),
-					(byte) ('0' >> SerializerUtil.LO_BYTE_SHIFT),
-					(byte) (SerializerUtil.BYTE_HEX[i >> 4 & 0xF] >> SerializerUtil.HI_BYTE_SHIFT),
-					(byte) (SerializerUtil.BYTE_HEX[i >> 4 & 0xF] >> SerializerUtil.LO_BYTE_SHIFT),
-					(byte) (SerializerUtil.BYTE_HEX[i & 0xF] >> SerializerUtil.HI_BYTE_SHIFT),
-					(byte) (SerializerUtil.BYTE_HEX[i & 0xF] >> SerializerUtil.LO_BYTE_SHIFT)
+					'\\', 0, 'u', 0, '0', 0, '0', 0,
+					SerializerUtil.BYTE_HEX[i >> 4 & 0xF], 0,
+					SerializerUtil.BYTE_HEX[i & 0xF], 0
 			};
 		}
 	}
@@ -152,17 +101,6 @@ class LittleEndianUtf16WriterPolicy implements IWriterStrategy {
 			(byte) ('s' >> SerializerUtil.LO_BYTE_SHIFT),
 			(byte) ('e' >> SerializerUtil.HI_BYTE_SHIFT),
 			(byte) ('e' >> SerializerUtil.LO_BYTE_SHIFT),
-	};
-
-	private static final byte[] NULL = {
-			(byte) ('n' >> SerializerUtil.HI_BYTE_SHIFT),
-			(byte) ('n' >> SerializerUtil.LO_BYTE_SHIFT),
-			(byte) ('u' >> SerializerUtil.HI_BYTE_SHIFT),
-			(byte) ('u' >> SerializerUtil.LO_BYTE_SHIFT),
-			(byte) ('l' >> SerializerUtil.HI_BYTE_SHIFT),
-			(byte) ('l' >> SerializerUtil.LO_BYTE_SHIFT),
-			(byte) ('l' >> SerializerUtil.HI_BYTE_SHIFT),
-			(byte) ('l' >> SerializerUtil.LO_BYTE_SHIFT)
 	};
 
 	private final long options;
@@ -261,12 +199,12 @@ class LittleEndianUtf16WriterPolicy implements IWriterStrategy {
 	@ForceInline
 	@Override
 	public final void writeValueWithQuote(char value) {
-		unsafe.putByte(buf, offset + writeIndex, HI_BYTE_MARK);
+		unsafe.putByte(buf, offset + writeIndex, BYTE_MARK);
 		writeIndex += 2;
 		byte hi = (byte) (value >> SerializerUtil.HI_BYTE_SHIFT);
 		byte lo = (byte) (value >> SerializerUtil.LO_BYTE_SHIFT);
 		putValue(hi, lo);
-		unsafe.putByte(buf, offset + writeIndex, HI_BYTE_MARK);
+		unsafe.putByte(buf, offset + writeIndex, BYTE_MARK);
 		writeIndex += 2;
 	}
 
@@ -274,7 +212,7 @@ class LittleEndianUtf16WriterPolicy implements IWriterStrategy {
 	public final void writeValue(int length, int value) {
 		this.writeIndex += length << 1;
 		int q, r;
-		int position = writeIndex;
+		int position = writeIndex + offset;
 
 		boolean negative = (value < 0);
 		if (!negative) {
@@ -286,31 +224,27 @@ class LittleEndianUtf16WriterPolicy implements IWriterStrategy {
 			q = value / 100;
 			r = (q * 100) - value;
 			value = q;
-			byte ones = SerializerUtil.DigitOnes[r];
-			byte tens = SerializerUtil.DigitTens[r];
-			unsafe.putByte(buf, --position, (byte) (ones >> SerializerUtil.LO_BYTE_SHIFT));
-			unsafe.putByte(buf, --position, (byte) (ones >> SerializerUtil.HI_BYTE_SHIFT));
-			unsafe.putByte(buf, --position, (byte) (tens >> SerializerUtil.LO_BYTE_SHIFT));
-			unsafe.putByte(buf, --position, (byte) (tens >> SerializerUtil.HI_BYTE_SHIFT));
+			position -= 2;
+			unsafe.putByte(buf, position, (byte) (SerializerUtil.DigitOnes[r] >> SerializerUtil.HI_BYTE_SHIFT));
+			position -= 2;
+			unsafe.putByte(buf, position, (byte) (SerializerUtil.DigitTens[r] >> SerializerUtil.HI_BYTE_SHIFT));
 		}
 
 		// We know there are at most two digits left at this point.
 		q = value / 10;
 		r = (q * 10) - value;
-		byte b = (byte) ('0' + r);
-		unsafe.putByte(buf, --position, (byte) (b >> SerializerUtil.LO_BYTE_SHIFT));
-		unsafe.putByte(buf, --position, (byte) (b >> SerializerUtil.HI_BYTE_SHIFT));
+		position -= 2;
+		unsafe.putByte(buf, position, (byte) (('0' + r) >> SerializerUtil.HI_BYTE_SHIFT));
 
 		// Whatever left is the remaining digit.
 		if (q < 0) {
-			b = (byte) ('0' - q);
-			unsafe.putByte(buf, --position, (byte) (b >> SerializerUtil.LO_BYTE_SHIFT));
-			unsafe.putByte(buf, --position, (byte) (b >> SerializerUtil.HI_BYTE_SHIFT));
+			position -= 2;
+			unsafe.putByte(buf, position, (byte) (('0' - q) >> SerializerUtil.HI_BYTE_SHIFT));
 		}
 
 		if (negative) {
-			unsafe.putByte(buf, --position, LO_BYTE_NEGATIVE);
-			unsafe.putByte(buf, --position, HI_BYTE_NEGATIVE);
+			position -= 2;
+			unsafe.putByte(buf, position, BYTE_NEGATIVE);
 		}
 	}
 
@@ -320,7 +254,7 @@ class LittleEndianUtf16WriterPolicy implements IWriterStrategy {
 
 		long q;
 		int r;
-		int position = writeIndex;
+		int position = writeIndex + offset;
 
 		boolean negative = (value < 0);
 		if (!negative) {
@@ -332,12 +266,10 @@ class LittleEndianUtf16WriterPolicy implements IWriterStrategy {
 			q = value / 100;
 			r = (int) ((q * 100) - value);
 			value = q;
-			byte ones = SerializerUtil.DigitOnes[r];
-			byte tens = SerializerUtil.DigitTens[r];
-			unsafe.putByte(buf, --position, (byte) (ones >> SerializerUtil.LO_BYTE_SHIFT));
-			unsafe.putByte(buf, --position, (byte) (ones >> SerializerUtil.HI_BYTE_SHIFT));
-			unsafe.putByte(buf, --position, (byte) (tens >> SerializerUtil.LO_BYTE_SHIFT));
-			unsafe.putByte(buf, --position, (byte) (tens >> SerializerUtil.HI_BYTE_SHIFT));
+			position -= 2;
+			unsafe.putByte(buf, position, (byte) (SerializerUtil.DigitOnes[r] >> SerializerUtil.HI_BYTE_SHIFT));
+			position -= 2;
+			unsafe.putByte(buf, position, (byte) (SerializerUtil.DigitTens[r] >> SerializerUtil.HI_BYTE_SHIFT));
 		}
 
 		// Get 2 digits/iteration using ints
@@ -347,31 +279,27 @@ class LittleEndianUtf16WriterPolicy implements IWriterStrategy {
 			q2 = i2 / 100;
 			r = (q2 * 100) - i2;
 			i2 = q2;
-			byte ones = SerializerUtil.DigitOnes[r];
-			byte tens = SerializerUtil.DigitTens[r];
-			unsafe.putByte(buf, --position, (byte) (ones >> SerializerUtil.LO_BYTE_SHIFT));
-			unsafe.putByte(buf, --position, (byte) (ones >> SerializerUtil.HI_BYTE_SHIFT));
-			unsafe.putByte(buf, --position, (byte) (tens >> SerializerUtil.LO_BYTE_SHIFT));
-			unsafe.putByte(buf, --position, (byte) (tens >> SerializerUtil.HI_BYTE_SHIFT));
+			position -= 2;
+			unsafe.putByte(buf, position, (byte) (SerializerUtil.DigitOnes[r] >> SerializerUtil.HI_BYTE_SHIFT));
+			position -= 2;
+			unsafe.putByte(buf, position, (byte) (SerializerUtil.DigitTens[r] >> SerializerUtil.HI_BYTE_SHIFT));
 		}
 
 		// We know there are at most two digits left at this point.
 		q2 = i2 / 10;
 		r = (q2 * 10) - i2;
-		byte b = (byte) ('0' + r);
-		unsafe.putByte(buf, --position, (byte) (b >> SerializerUtil.LO_BYTE_SHIFT));
-		unsafe.putByte(buf, --position, (byte) (b >> SerializerUtil.HI_BYTE_SHIFT));
+		position -= 2;
+		unsafe.putByte(buf, position, (byte) (('0' + r) >> SerializerUtil.HI_BYTE_SHIFT));
 
 		// Whatever left is the remaining digit.
 		if (q2 < 0) {
-			b = (byte) ('0' - q2);
-			unsafe.putByte(buf, --position, (byte) (b >> SerializerUtil.LO_BYTE_SHIFT));
-			unsafe.putByte(buf, --position, (byte) (b >> SerializerUtil.HI_BYTE_SHIFT));
+			position -= 2;
+			unsafe.putByte(buf, position, (byte) (('0' - q2) >> SerializerUtil.HI_BYTE_SHIFT));
 		}
 
 		if (negative) {
-			unsafe.putByte(buf, --position, LO_BYTE_NEGATIVE);
-			unsafe.putByte(buf, --position, HI_BYTE_NEGATIVE);
+			position -= 2;
+			unsafe.putByte(buf, position, BYTE_NEGATIVE);
 		}
 	}
 
@@ -402,10 +330,10 @@ class LittleEndianUtf16WriterPolicy implements IWriterStrategy {
 
 	@Override
 	public final void writeValueWithQuote(String value) {
-		unsafe.putByte(buf, offset + writeIndex, HI_BYTE_MARK);
+		unsafe.putByte(buf, offset + writeIndex, BYTE_MARK);
 		writeIndex += 2;
 		writeValue(value);
-		unsafe.putByte(buf, offset + writeIndex, HI_BYTE_MARK);
+		unsafe.putByte(buf, offset + writeIndex, BYTE_MARK);
 		writeIndex += 2;
 	}
 
@@ -462,7 +390,7 @@ class LittleEndianUtf16WriterPolicy implements IWriterStrategy {
 	@ForceInline
 	@Override
 	public void writeEndObject() {
-		unsafe.putByte(buf, offset + writeIndex, HI_BYTE_R_BRACES);
+		unsafe.putByte(buf, offset + writeIndex, BYTE_R_BRACES);
 		writeIndex += 2;
 	}
 

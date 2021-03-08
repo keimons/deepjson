@@ -175,14 +175,14 @@ class CharArrayBuffer extends ByteBuf {
 	/**
 	 * 确保缓冲区的可写入字节数大于或等于即将写入的字节数。
 	 *
-	 * @param writableBytes 即将写入的字节数
+	 * @param writable 即将写入的字节数
 	 */
 	@Override
-	public void ensureWritable(int writableBytes) {
+	public void ensureWritable(int writable) {
 		// System.out.println("writeIndex: " + strategy.writeIndex() + ", writableBytes: " + writableBytes + ", capacity: " + buf.length);
-		if (!strategy.ensureWritable(writableBytes)) {
+		if (!strategy.ensureWritable(writable)) {
 			if (true) {
-				expandCapacity(writableBytes + strategy.length());
+				expandCapacity(writable + strategy.length());
 			} else {
 				throw new CapacityModificationException();
 			}

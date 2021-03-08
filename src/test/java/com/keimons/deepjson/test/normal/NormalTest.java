@@ -64,7 +64,6 @@ public class NormalTest {
 			long fastStart = System.nanoTime();
 			for (int i = 0; i < times; i++) {
 				list.add(JSONObject.toJSONString(node));
-//				list.add(gson.toJson(node));
 			}
 			long fastTime = System.nanoTime() - fastStart;
 			System.out.println("fast json using time: " + fastTime / 1000000f);
