@@ -1,5 +1,6 @@
-package com.keimons.deepjson.serializer;
+package com.keimons.deepjson.buffer;
 
+import com.keimons.deepjson.compiler.IFieldName;
 import com.keimons.deepjson.util.SerializerUtil;
 import jdk.internal.vm.annotation.ForceInline;
 
@@ -43,31 +44,61 @@ class LittleEndianLatinWriterPolicy implements IWriterStrategy {
 
 	private static final byte[] BOOLEAN_FALSE_LATIN = {'f', 'a', 'l', 's', 'e'};
 
+	/**
+	 * 序列化选项
+	 */
 	private final long options;
 
+	/**
+	 * 缓冲区
+	 */
 	private byte[] buf;
 
+	/**
+	 * 当前写入位置
+	 */
 	private int writeIndex;
+
+	/**
+	 * 最大写入位置
+	 */
+	private int maxWriteIndex;
 
 	public LittleEndianLatinWriterPolicy(long options, byte[] buf, int writeIndex) {
 		this.buf = buf;
 		this.options = options;
 		this.writeIndex = writeIndex;
+		this.maxWriteIndex = buf.length;
 	}
 
 	@Override
-	public void setBuf(Object object) {
-		buf = (byte[]) object;
+	public void setByteBuf(byte[] buf) {
+		this.buf = buf;
 	}
 
 	@Override
-	public final int writeIndex() {
+	public byte[] getByteBuf() {
+		return buf;
+	}
+
+	@Override
+	public int writeIndex() {
 		return writeIndex;
 	}
 
 	@Override
+	public boolean ensureWritable(int writable) {
+		return writable + writeIndex <= maxWriteIndex;
+	}
+
+	@Override
+	public int length() {
+		return maxWriteIndex;
+	}
+
+	@Override
 	public final void writeMark(char mark) {
-		buf[writeIndex++] = (byte) mark;
+		unsafe.putByte(buf, offset + writeIndex++, (byte) mark);
 	}
 
 	@Override
@@ -79,27 +110,6 @@ class LittleEndianLatinWriterPolicy implements IWriterStrategy {
 			System.arraycopy(BOOLEAN_FALSE_LATIN, 0, buf, writeIndex, 5);
 			writeIndex += 5;
 		}
-	}
-
-	@Override
-	public final void writeValue(char value) {
-		unsafe.putByte(buf, offset + writeIndex++, (byte) '"');
-		if (value == 0x2028) {
-			System.arraycopy(REPLACEMENT_2028, 0, buf, writeIndex, 6);
-			writeIndex += 6;
-		} else if (value == 0x2029) {
-			System.arraycopy(REPLACEMENT_2029, 0, buf, writeIndex, 6);
-			writeIndex += 6;
-		} else {
-			byte[] bytes = REPLACEMENT_BYTES[value];
-			if (bytes == null) {
-				unsafe.putByte(buf, offset + writeIndex++, (byte) value);
-			} else {
-				System.arraycopy(bytes, 0, buf, writeIndex, bytes.length);
-				writeIndex += bytes.length;
-			}
-		}
-		unsafe.putByte(buf, offset + writeIndex++, (byte) '"');
 	}
 
 	@Override
@@ -118,22 +128,22 @@ class LittleEndianLatinWriterPolicy implements IWriterStrategy {
 			q = value / 100;
 			r = (q * 100) - value;
 			value = q;
-			buf[--position] = SerializerUtil.DigitOnes[r];
-			buf[--position] = SerializerUtil.DigitTens[r];
+			unsafe.putByte(buf, --position, SerializerUtil.DigitOnes[r]);
+			unsafe.putByte(buf, --position, SerializerUtil.DigitTens[r]);
 		}
 
 		// We know there are at most two digits left at this point.
 		q = value / 10;
 		r = (q * 10) - value;
-		buf[--position] = (byte) ('0' + r);
+		unsafe.putByte(buf, --position, (byte) ('0' + r));
 
 		// Whatever left is the remaining digit.
 		if (q < 0) {
-			buf[--position] = (byte) ('0' - q);
+			unsafe.putByte(buf, --position, (byte) ('0' - q));
 		}
 
 		if (negative) {
-			buf[--position] = '-';
+			unsafe.putByte(buf, --position, (byte) '-');
 		}
 	}
 
@@ -154,10 +164,9 @@ class LittleEndianLatinWriterPolicy implements IWriterStrategy {
 			q = value / 100;
 			r = (int) ((q * 100) - value);
 			value = q;
-			buf[--position] = SerializerUtil.DigitOnes[r];
-			buf[--position] = SerializerUtil.DigitTens[r];
+			unsafe.putByte(buf, --position, SerializerUtil.DigitOnes[r]);
+			unsafe.putByte(buf, --position, SerializerUtil.DigitTens[r]);
 		}
-
 		// Get 2 digits/iteration using ints
 		int q2;
 		int i2 = (int) value;
@@ -165,22 +174,19 @@ class LittleEndianLatinWriterPolicy implements IWriterStrategy {
 			q2 = i2 / 100;
 			r = (q2 * 100) - i2;
 			i2 = q2;
-			buf[--position] = SerializerUtil.DigitOnes[r];
-			buf[--position] = SerializerUtil.DigitTens[r];
+			unsafe.putByte(buf, --position, SerializerUtil.DigitOnes[r]);
+			unsafe.putByte(buf, --position, SerializerUtil.DigitTens[r]);
 		}
-
 		// We know there are at most two digits left at this point.
 		q2 = i2 / 10;
 		r = (q2 * 10) - i2;
-		buf[--position] = (byte) ('0' + r);
-
+		unsafe.putByte(buf, --position, (byte) ('0' + r));
 		// Whatever left is the remaining digit.
 		if (q2 < 0) {
-			buf[--position] = (byte) ('0' - q2);
+			unsafe.putByte(buf, --position, (byte) ('0' - q2));
 		}
-
 		if (negative) {
-			buf[--position] = '-';
+			unsafe.putByte(buf, --position, (byte) '-');
 		}
 	}
 
@@ -192,7 +198,7 @@ class LittleEndianLatinWriterPolicy implements IWriterStrategy {
 			for (byte b : values) {
 				byte[] bytes = REPLACEMENT_BYTES[b & 0xFF];
 				if (bytes == null) {
-					buf[writeIndex++] = b;
+					unsafe.putByte(buf, offset + writeIndex++, b);
 				} else {
 					System.arraycopy(bytes, 0, buf, writeIndex, bytes.length);
 					writeIndex += bytes.length;
@@ -206,7 +212,7 @@ class LittleEndianLatinWriterPolicy implements IWriterStrategy {
 				if (lo == 0) {
 					byte[] bytes = REPLACEMENT_BYTES[hi & 0xFF];
 					if (bytes == null) {
-						buf[writeIndex++] = hi;
+						unsafe.putByte(buf, offset + writeIndex++, hi);
 					} else {
 						System.arraycopy(bytes, 0, buf, writeIndex, bytes.length);
 						writeIndex += bytes.length;
@@ -228,16 +234,36 @@ class LittleEndianLatinWriterPolicy implements IWriterStrategy {
 	}
 
 	@Override
+	public final void writeValueWithQuote(char value) {
+		unsafe.putByte(buf, offset + writeIndex++, (byte) '"');
+		if (value == 0x2028) {
+			System.arraycopy(REPLACEMENT_2028, 0, buf, writeIndex, 6);
+			writeIndex += 6;
+		} else if (value == 0x2029) {
+			System.arraycopy(REPLACEMENT_2029, 0, buf, writeIndex, 6);
+			writeIndex += 6;
+		} else {
+			byte[] bytes = REPLACEMENT_BYTES[value];
+			if (bytes == null) {
+				unsafe.putByte(buf, offset + writeIndex++, (byte) value);
+			} else {
+				System.arraycopy(bytes, 0, buf, writeIndex, bytes.length);
+				writeIndex += bytes.length;
+			}
+		}
+		unsafe.putByte(buf, offset + writeIndex++, (byte) '"');
+	}
+
+	@Override
 	public final void writeValueWithQuote(String value) {
-		buf[writeIndex++] = '"';
+		unsafe.putByte(buf, offset + writeIndex++, (byte) '"');
 		writeValue(value);
-		buf[writeIndex++] = '"';
+		unsafe.putByte(buf, offset + writeIndex++, (byte) '"');
 	}
 
 	// always private
-	@ForceInline
 	private void writeValue(byte mark, byte[] fieldName) {
-		buf[writeIndex++] = mark;
+		unsafe.putByte(buf, offset + writeIndex++, mark);
 		int length = fieldName.length;
 		System.arraycopy(fieldName, 0, buf, writeIndex, length);
 		writeIndex += length;
@@ -254,7 +280,7 @@ class LittleEndianLatinWriterPolicy implements IWriterStrategy {
 	@Override
 	public void writeValue(byte mark, IFieldName fieldName, char value) {
 		writeValue(mark, fieldName.getFieldNameByLatin());
-		writeValue(value);
+		writeValueWithQuote(value);
 	}
 
 	@ForceInline
@@ -296,20 +322,20 @@ class LittleEndianLatinWriterPolicy implements IWriterStrategy {
 	@ForceInline
 	@Override
 	public void writeEndObject() {
-		buf[writeIndex++] = '}';
+		unsafe.putByte(buf, offset + writeIndex++, (byte) '}');
 	}
 
 	@ForceInline
 	@Override
 	public void writeEndArray() {
-		buf[writeIndex++] = ']';
+		unsafe.putByte(buf, writeIndex++, (byte) ']');
 	}
 
 	@Override
 	public void writeNull() {
-		buf[writeIndex++] = 'n';
-		buf[writeIndex++] = 'u';
-		buf[writeIndex++] = 'l';
-		buf[writeIndex++] = 'l';
+		unsafe.putByte(buf, offset + writeIndex++, (byte) 'n');
+		unsafe.putByte(buf, offset + writeIndex++, (byte) 'u');
+		unsafe.putByte(buf, offset + writeIndex++, (byte) 'l');
+		unsafe.putByte(buf, offset + writeIndex++, (byte) 'l');
 	}
 }

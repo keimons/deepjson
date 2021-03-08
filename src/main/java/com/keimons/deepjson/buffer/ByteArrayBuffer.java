@@ -1,5 +1,9 @@
-package com.keimons.deepjson.serializer;
+package com.keimons.deepjson.buffer;
 
+import com.keimons.deepjson.serializer.CoderModificationException;
+import com.keimons.deepjson.compiler.IFieldName;
+import com.keimons.deepjson.serializer.ISerializer;
+import com.keimons.deepjson.serializer.SerializerFactory;
 import com.keimons.deepjson.util.SerializerUtil;
 import com.keimons.deepjson.util.UnsafeUtil;
 import jdk.internal.vm.annotation.ForceInline;
@@ -16,15 +20,12 @@ class ByteArrayBuffer extends ByteBuf {
 
 	private static final Unsafe unsafe = UnsafeUtil.getUnsafe();
 
-	private byte[] buf;
-
 	private byte coder;
 
 	ByteArrayBuffer(long options, int capacity, byte coder) {
 		super(options);
 		this.coder = coder;
-		this.buf = new byte[capacity << coder];
-
+		byte[] buf = new byte[capacity << coder];
 		if (SerializerUtil.HI_BYTE_SHIFT == 0 && SerializerUtil.LO_BYTE_SHIFT == 8) {
 			if (coder == SerializerUtil.LATIN) {
 				strategy = new LittleEndianLatinWriterPolicy(options, buf, 0);
@@ -39,11 +40,11 @@ class ByteArrayBuffer extends ByteBuf {
 	@Override
 	public String newString() {
 		try {
-			if (buf.length != strategy.writeIndex()) {
+			if (strategy.length() != strategy.writeIndex()) {
 				System.err.println("length reset");
 			}
 			String str = (String) unsafe.allocateInstance(String.class);
-			unsafe.putObject(str, SerializerUtil.VALUE_OFFSET_STRING, buf);
+			unsafe.putObject(str, SerializerUtil.VALUE_OFFSET_STRING, strategy.getByteBuf());
 			unsafe.putByte(str, SerializerUtil.CODER_OFFSET_STRING, coder);
 			return str;
 		} catch (Exception e) {
@@ -68,7 +69,7 @@ class ByteArrayBuffer extends ByteBuf {
 	public final void writeChar(char value) {
 		ensureCoder(SerializerUtil.coder(value));
 		ensureWritable(SerializerUtil.length(value));
-		strategy.writeValue(value);
+		strategy.writeValueWithQuote(value);
 	}
 
 	@Override
@@ -206,15 +207,9 @@ class ByteArrayBuffer extends ByteBuf {
 	 * @param writableBytes 即将写入的字节数
 	 */
 	@Override
-	public void ensureWritable(int writableBytes) {
-		writableBytes <<= coder;
-		// System.out.println("writeIndex: " + strategy.writeIndex() + ", writableBytes: " + writableBytes + ", capacity: " + buf.length);
-		if (writableBytes + strategy.writeIndex() > buf.length) {
-			if (true) {
-				expandCapacity(writableBytes + strategy.writeIndex());
-			} else {
-				throw new CapacityModificationException();
-			}
+	public final void ensureWritable(int writableBytes) {
+		if (!strategy.ensureWritable(writableBytes)) {
+			expandCapacity(writableBytes + strategy.length());
 		}
 	}
 
@@ -227,23 +222,15 @@ class ByteArrayBuffer extends ByteBuf {
 	protected void expandCapacity(int minCapacity) {
 		System.err.println("expand capacity");
 
-		int newCapacity = (buf.length << 1);
+		int newCapacity = (strategy.length() << 1);
 
 		if (newCapacity < minCapacity) {
 			newCapacity = minCapacity;
 		}
+		byte[] oldBuf = strategy.getByteBuf();
 		byte[] newBuf = new byte[newCapacity];
-		System.arraycopy(buf, 0, newBuf, 0, strategy.writeIndex());
-		buf = newBuf;
-		strategy.setBuf(newBuf);
-	}
-
-	public byte[] getBuf() {
-		return buf;
-	}
-
-	public void setBuf(byte[] buf) {
-		this.buf = buf;
+		System.arraycopy(oldBuf, 0, newBuf, 0, oldBuf.length);
+		strategy.setByteBuf(newBuf);
 	}
 
 	public byte getCoder() {

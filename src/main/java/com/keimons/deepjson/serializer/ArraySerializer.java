@@ -1,5 +1,7 @@
 package com.keimons.deepjson.serializer;
 
+import com.keimons.deepjson.buffer.ByteBuf;
+
 /**
  * 数组序列化方案
  *

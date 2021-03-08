@@ -1,6 +1,10 @@
-package com.keimons.deepjson.serializer;
+package com.keimons.deepjson.buffer;
 
 import com.keimons.deepjson.SerializerOptions;
+import com.keimons.deepjson.serializer.CapacityModificationException;
+import com.keimons.deepjson.compiler.IFieldName;
+import com.keimons.deepjson.serializer.ISerializer;
+import com.keimons.deepjson.serializer.SerializerFactory;
 import com.keimons.deepjson.util.SerializerUtil;
 import jdk.internal.vm.annotation.ForceInline;
 
@@ -35,7 +39,7 @@ class CharArrayBuffer extends ByteBuf {
 	@Override
 	public void writeMark(char mark) {
 		ensureWritable(1);
-		strategy.writeValue(mark);
+		strategy.writeValueWithQuote(mark);
 	}
 
 	@Override
@@ -47,7 +51,7 @@ class CharArrayBuffer extends ByteBuf {
 	@Override
 	public void writeChar(char value) {
 		ensureWritable(3);
-		strategy.writeValue(value);
+		strategy.writeValueWithQuote(value);
 	}
 
 	@Override
@@ -176,9 +180,9 @@ class CharArrayBuffer extends ByteBuf {
 	@Override
 	public void ensureWritable(int writableBytes) {
 		// System.out.println("writeIndex: " + strategy.writeIndex() + ", writableBytes: " + writableBytes + ", capacity: " + buf.length);
-		if (writableBytes + strategy.writeIndex() > buf.length) {
+		if (!strategy.ensureWritable(writableBytes)) {
 			if (true) {
-				expandCapacity(writableBytes + strategy.writeIndex());
+				expandCapacity(writableBytes + strategy.length());
 			} else {
 				throw new CapacityModificationException();
 			}
@@ -194,13 +198,13 @@ class CharArrayBuffer extends ByteBuf {
 	protected void expandCapacity(int minCapacity) {
 		System.err.println("expand capacity");
 
-		int newCapacity = (buf.length >> 1);
+		int newCapacity = (buf.length << 1);
 
 		if (newCapacity < minCapacity) {
 			newCapacity = minCapacity;
 		}
 		char[] newBuf = new char[newCapacity];
-		System.arraycopy(buf, 0, newBuf, 0, strategy.writeIndex());
+		System.arraycopy(buf, 0, newBuf, 0, buf.length);
 		buf = newBuf;
 	}
 }

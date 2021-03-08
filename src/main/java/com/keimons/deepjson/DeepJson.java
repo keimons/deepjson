@@ -1,6 +1,6 @@
 package com.keimons.deepjson;
 
-import com.keimons.deepjson.serializer.ByteBuf;
+import com.keimons.deepjson.buffer.ByteBuf;
 import com.keimons.deepjson.serializer.ISerializer;
 import com.keimons.deepjson.serializer.SerializerFactory;
 

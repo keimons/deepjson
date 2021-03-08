@@ -1,5 +1,7 @@
 package com.keimons.deepjson.serializer;
 
+import com.keimons.deepjson.buffer.ByteBuf;
+
 /**
  * boolean类型序列化
  *

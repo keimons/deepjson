@@ -1,5 +1,7 @@
 package com.keimons.deepjson.serializer;
 
+import com.keimons.deepjson.buffer.IWriterStrategy;
+import com.keimons.deepjson.compiler.IFieldName;
 import com.keimons.deepjson.util.SerializerUtil;
 import com.keimons.deepjson.util.UnsafeUtil;
 import jdk.internal.vm.annotation.ForceInline;
@@ -26,20 +28,38 @@ class CharWriterPolicy implements IWriterStrategy {
 
 	private int writeIndex;
 
+	private int maxWriteIndex;
+
 	public CharWriterPolicy(long options, char[] buf, int writeIndex) {
 		this.buf = buf;
 		this.options = options;
 		this.writeIndex = writeIndex;
+		this.maxWriteIndex = buf.length;
 	}
 
 	@Override
-	public void setBuf(Object object) {
-		buf = (char[]) object;
+	public void setCharBuf(char[] buf) {
+		this.buf = buf;
 	}
 
 	@Override
-	public final int writeIndex() {
+	public char[] getCharBuf() {
+		return buf;
+	}
+
+	@Override
+	public int writeIndex() {
 		return writeIndex;
+	}
+
+	@Override
+	public boolean ensureWritable(int writable) {
+		return writable + writeIndex <= maxWriteIndex;
+	}
+
+	@Override
+	public int length() {
+		return buf.length;
 	}
 
 	@Override
@@ -59,7 +79,7 @@ class CharWriterPolicy implements IWriterStrategy {
 	}
 
 	@Override
-	public final void writeValue(char value) {
+	public final void writeValueWithQuote(char value) {
 		buf[writeIndex++] = '"';
 		buf[writeIndex++] = value;
 		buf[writeIndex++] = '"';
@@ -164,7 +184,7 @@ class CharWriterPolicy implements IWriterStrategy {
 	}
 
 	// always private
-	private void writeValue(byte mark, char[] fieldName) {
+	private void writeValueWithQuote(byte mark, char[] fieldName) {
 		buf[writeIndex++] = (char) mark;
 		int length = fieldName.length;
 		System.arraycopy(fieldName, 0, buf, writeIndex, length);
@@ -174,35 +194,35 @@ class CharWriterPolicy implements IWriterStrategy {
 	@ForceInline
 	@Override
 	public void writeValue(byte mark, IFieldName fieldName, boolean value) {
-		writeValue(mark, fieldName.getFieldNameByChar());
+		writeValueWithQuote(mark, fieldName.getFieldNameByChar());
 		writeValue(value);
 	}
 
 	@ForceInline
 	@Override
 	public void writeValue(byte mark, IFieldName fieldName, char value) {
-		writeValue(mark, fieldName.getFieldNameByChar());
-		writeValue(value);
+		writeValueWithQuote(mark, fieldName.getFieldNameByChar());
+		writeValueWithQuote(value);
 	}
 
 	@ForceInline
 	@Override
 	public void writeValue(byte mark, IFieldName fieldName, int length, int value) {
-		writeValue(mark, fieldName.getFieldNameByChar());
+		writeValueWithQuote(mark, fieldName.getFieldNameByChar());
 		writeValue(length, value);
 	}
 
 	@ForceInline
 	@Override
 	public void writeValue(byte mark, IFieldName fieldName, int length, long value) {
-		writeValue(mark, fieldName.getFieldNameByChar());
+		writeValueWithQuote(mark, fieldName.getFieldNameByChar());
 		writeValue(length, value);
 	}
 
 	@ForceInline
 	@Override
 	public void writeValue(byte mark, IFieldName fieldName, String value) {
-		writeValue(mark, fieldName.getFieldNameByChar());
+		writeValueWithQuote(mark, fieldName.getFieldNameByChar());
 		char[] stringChars = value.toCharArray();
 		int length = stringChars.length;
 		System.arraycopy(stringChars, 0, buf, writeIndex, length);
@@ -212,7 +232,7 @@ class CharWriterPolicy implements IWriterStrategy {
 	@ForceInline
 	@Override
 	public void writeValue(byte mark, IFieldName fieldName, Object value) {
-		writeValue(mark, fieldName.getFieldNameByChar());
+		writeValueWithQuote(mark, fieldName.getFieldNameByChar());
 	}
 
 	@ForceInline

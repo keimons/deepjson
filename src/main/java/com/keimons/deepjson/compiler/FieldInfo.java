@@ -1,4 +1,4 @@
-package com.keimons.deepjson.serializer;
+package com.keimons.deepjson.compiler;
 
 import com.keimons.deepjson.util.PlatformUtil;
 import com.keimons.deepjson.util.SerializerUtil;

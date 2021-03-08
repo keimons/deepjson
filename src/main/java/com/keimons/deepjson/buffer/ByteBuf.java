@@ -1,5 +1,6 @@
-package com.keimons.deepjson.serializer;
+package com.keimons.deepjson.buffer;
 
+import com.keimons.deepjson.compiler.IFieldName;
 import com.keimons.deepjson.util.PlatformUtil;
 import com.keimons.deepjson.util.UnsafeUtil;
 import jdk.internal.vm.annotation.ForceInline;
@@ -28,10 +29,23 @@ public abstract class ByteBuf {
 	 */
 	protected IWriterStrategy strategy;
 
+	/**
+	 * 创建缓冲区
+	 *
+	 * @param options 序列化选项
+	 */
 	protected ByteBuf(long options) {
 		this.options = options;
 	}
 
+	/**
+	 * 分配一个缓冲区
+	 *
+	 * @param options      序列化选项
+	 * @param initCapacity 缓冲区长度
+	 * @param coder        编码方式
+	 * @return 缓冲区
+	 */
 	public static ByteBuf buffer(long options, int initCapacity, byte coder) {
 		int version = PlatformUtil.javaVersion();
 		if (version >= 9) {

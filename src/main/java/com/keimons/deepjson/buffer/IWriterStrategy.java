@@ -1,7 +1,7 @@
-package com.keimons.deepjson.serializer;
+package com.keimons.deepjson.buffer;
 
+import com.keimons.deepjson.compiler.IFieldName;
 import com.keimons.deepjson.util.UnsafeUtil;
-import jdk.internal.vm.annotation.ForceInline;
 import sun.misc.Unsafe;
 
 /**
@@ -17,10 +17,43 @@ public interface IWriterStrategy {
 
 	Unsafe unsafe = UnsafeUtil.getUnsafe();
 
-	long offset = unsafe.arrayBaseOffset(byte[].class);
-	long scale = unsafe.arrayIndexScale(byte[].class);
+	int offset = unsafe.arrayBaseOffset(byte[].class);
 
-	void setBuf(Object object);
+	/**
+	 * 设置缓冲区
+	 *
+	 * @param buf 新缓冲区
+	 */
+	default void setByteBuf(byte[] buf) {
+		throw new RuntimeException();
+	}
+
+	/**
+	 * 设置缓冲区
+	 *
+	 * @param buf 新缓冲区
+	 */
+	default void setCharBuf(char[] buf) {
+		throw new RuntimeException();
+	}
+
+	/**
+	 * 获取缓冲区
+	 *
+	 * @return 字节缓冲区
+	 */
+	default byte[] getByteBuf() {
+		throw new RuntimeException();
+	}
+
+	/**
+	 * 获取缓冲区
+	 *
+	 * @return 字符缓冲区
+	 */
+	default char[] getCharBuf() {
+		throw new RuntimeException();
+	}
 
 	/**
 	 * 获取即将写入位置
@@ -28,6 +61,21 @@ public interface IWriterStrategy {
 	 * @return 即将写入位置
 	 */
 	int writeIndex();
+
+	/**
+	 * 检测是否可写入
+	 *
+	 * @param writable 即将写入的字节数
+	 * @return 是否可写入
+	 */
+	boolean ensureWritable(int writable);
+
+	/**
+	 * 缓冲区长度
+	 *
+	 * @return 缓冲区长度
+	 */
+	int length();
 
 	/**
 	 * 写入char型mark
@@ -48,7 +96,7 @@ public interface IWriterStrategy {
 	 *
 	 * @param value 即将写入的值
 	 */
-	void writeValue(char value);
+	void writeValueWithQuote(char value);
 
 	/**
 	 * 写入int型值
@@ -87,7 +135,6 @@ public interface IWriterStrategy {
 	 * @param fieldName 字段名
 	 * @param value     字段值
 	 */
-	@ForceInline
 	void writeValue(byte mark, IFieldName fieldName, boolean value);
 
 	/**
@@ -97,7 +144,6 @@ public interface IWriterStrategy {
 	 * @param fieldName 字段名
 	 * @param value     字段值
 	 */
-	@ForceInline
 	void writeValue(byte mark, IFieldName fieldName, char value);
 
 	/**
@@ -108,7 +154,6 @@ public interface IWriterStrategy {
 	 * @param length    值长度
 	 * @param value     字段值
 	 */
-	@ForceInline
 	void writeValue(byte mark, IFieldName fieldName, int length, int value);
 
 	/**
@@ -119,7 +164,6 @@ public interface IWriterStrategy {
 	 * @param length    值长度
 	 * @param value     字段值
 	 */
-	@ForceInline
 	void writeValue(byte mark, IFieldName fieldName, int length, long value);
 
 	/**
@@ -129,7 +173,6 @@ public interface IWriterStrategy {
 	 * @param fieldName 字段名
 	 * @param value     字段值
 	 */
-	@ForceInline
 	void writeValue(byte mark, IFieldName fieldName, String value);
 
 	/**
@@ -139,7 +182,6 @@ public interface IWriterStrategy {
 	 * @param fieldName 字段名
 	 * @param value     字段值
 	 */
-	@ForceInline
 	void writeValue(byte mark, IFieldName fieldName, Object value);
 
 	/**
@@ -147,7 +189,6 @@ public interface IWriterStrategy {
 	 * <p>
 	 * {@code '}'}表示对象结尾
 	 */
-	@ForceInline
 	void writeEndObject();
 
 	/**
@@ -155,8 +196,10 @@ public interface IWriterStrategy {
 	 * <p>
 	 * {@code ']'}表示数组结尾
 	 */
-	@ForceInline
 	void writeEndArray();
 
+	/**
+	 * 写入{@code null}字符串
+	 */
 	void writeNull();
 }

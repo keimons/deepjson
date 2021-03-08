@@ -55,11 +55,9 @@ public class NormalTest {
 	public void fastTest() {
 		System.out.println(JSONObject.toJSONString(node));
 		System.out.println(DeepJson.toJsonString(node));
+		System.out.println(new Gson().toJson(node));
 		DeepJson.toJsonString(node);
 		JSONObject.toJSONString(node);
-
-		Gson gson = new Gson();
-		System.out.println(gson.toJson(node));
 
 		for (int j = 0; j < 20; j++) {
 			List<String> list = new ArrayList<>(times);
@@ -75,8 +73,9 @@ public class NormalTest {
 
 	@Test
 	public void deepTest() {
-		System.out.println(DeepJson.toJsonString(node));
 		System.out.println(JSONObject.toJSONString(node));
+		System.out.println(DeepJson.toJsonString(node));
+		System.out.println(new Gson().toJson(node));
 		DeepJson.toJsonString(node);
 		JSONObject.toJSONString(node);
 
