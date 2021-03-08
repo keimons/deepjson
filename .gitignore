@@ -28,4 +28,4 @@ gradle
 build
 
 # deep json create .java file dump path
-deepjson
+dump

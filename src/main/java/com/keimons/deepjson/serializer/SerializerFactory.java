@@ -112,7 +112,7 @@ public abstract class SerializerFactory {
 			String packageName = PACKAGE + clazz.getPackageName();
 			String source = SourceCodeFactory.create(packageName, className, clazz);
 			if (DUMP_PATH != null) {
-				String filePath = DUMP_PATH + packageName.replaceAll("\\.", File.separator) + File.separator;
+				String filePath = DUMP_PATH + "dump" + File.separator + packageName.replaceAll("\\.", File.separator) + File.separator;
 				File path = new File(filePath);
 				String fileName = className + ".java";
 				if (path.exists() || path.mkdirs()) {
