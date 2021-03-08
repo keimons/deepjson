@@ -10,7 +10,7 @@ import jdk.internal.vm.annotation.ForceInline;
  * @version 1.0
  * @since 9
  **/
-class LatinWriterPolicy implements IWriterStrategy {
+class LittleEndianLatinWriterPolicy implements IWriterStrategy {
 
 	private static final byte[][] REPLACEMENT_BYTES;
 
@@ -49,7 +49,7 @@ class LatinWriterPolicy implements IWriterStrategy {
 
 	private int writeIndex;
 
-	public LatinWriterPolicy(long options, byte[] buf, int writeIndex) {
+	public LittleEndianLatinWriterPolicy(long options, byte[] buf, int writeIndex) {
 		this.buf = buf;
 		this.options = options;
 		this.writeIndex = writeIndex;
@@ -186,14 +186,43 @@ class LatinWriterPolicy implements IWriterStrategy {
 
 	@Override
 	public final void writeValue(String value) {
+		byte coder = unsafe.getByte(value, SerializerUtil.CODER_OFFSET_STRING);
 		byte[] values = (byte[]) unsafe.getObject(value, SerializerUtil.VALUE_OFFSET_STRING);
-		for (byte b : values) {
-			byte[] bytes = REPLACEMENT_BYTES[b];
-			if (bytes == null) {
-				buf[writeIndex++] = b;
-			} else {
-				System.arraycopy(bytes, 0, buf, writeIndex, bytes.length);
-				writeIndex += bytes.length;
+		if (coder == 0) {
+			for (byte b : values) {
+				byte[] bytes = REPLACEMENT_BYTES[b & 0xFF];
+				if (bytes == null) {
+					buf[writeIndex++] = b;
+				} else {
+					System.arraycopy(bytes, 0, buf, writeIndex, bytes.length);
+					writeIndex += bytes.length;
+				}
+			}
+		} else { // 0x2028 && 0x2029
+			int length = values.length;
+			for (int i = 0, j = 1; i < length; i += 2, j += 2) {
+				byte hi = values[i];
+				byte lo = values[j];
+				if (lo == 0) {
+					byte[] bytes = REPLACEMENT_BYTES[hi & 0xFF];
+					if (bytes == null) {
+						buf[writeIndex++] = hi;
+					} else {
+						System.arraycopy(bytes, 0, buf, writeIndex, bytes.length);
+						writeIndex += bytes.length;
+					}
+				} else if (lo == 0x20) {
+					if (hi == 0x28) {
+						System.arraycopy(REPLACEMENT_2028, 0, buf, writeIndex, 6);
+					} else if (hi == 0x29) {
+						System.arraycopy(REPLACEMENT_2029, 0, buf, writeIndex, 6);
+					} else {
+						throw new IllegalArgumentException("coder mix error");
+					}
+					writeIndex += 6;
+				} else {
+					throw new IllegalArgumentException("coder mix error");
+				}
 			}
 		}
 	}

@@ -16,15 +16,73 @@ public class StringTest {
 
 	@Test
 	public void test() {
-		String value = "deep ";
-
-		for (int i = 0; i < 128; i++) {
-			value += (char) i;
+		Gson instance = new Gson();
+		String s1 = "deep ";
+		String s2 = " json";
+		System.out.println("---------------- value ----------------");
+		for (char i = Character.MIN_VALUE; i < Character.MAX_VALUE; i++) {
+			String value = s1 + i + s2;
+			String fast = JSONObject.toJSONString(value).toLowerCase();
+			String deep = DeepJson.toJsonString(value).toLowerCase();
+			String gson = instance.toJson(value).toLowerCase();
+			if (fast.equals(deep) && fast.equals(gson)) {
+				continue;
+			}
+			System.out.println("value: " + value);
+			System.out.println("fast: " + fast);
+			System.out.println("deep: " + deep);
+			System.out.println("gson: " + gson);
 		}
-		value += " json";
 
-		System.out.println(DeepJson.toJsonString(value));
-		System.out.println(JSONObject.toJSONString(value));
-		System.out.println(new Gson().toJson(value));
+		s1 = "蒙奇 ";
+		s2 = " 开发";
+		System.out.println("---------------- value ----------------");
+		for (char i = Character.MIN_VALUE; i < Character.MAX_VALUE; i++) {
+			String value = s1 + i + s2;
+			String fast = JSONObject.toJSONString(value).toLowerCase();
+			String deep = DeepJson.toJsonString(value).toLowerCase();
+			String gson = instance.toJson(value).toLowerCase();
+			if (fast.equals(deep) && fast.equals(gson)) {
+				continue;
+			}
+			System.out.println("value: " + value);
+			System.out.println("fast: " + fast);
+			System.out.println("deep: " + deep);
+			System.out.println("gson: " + gson);
+		}
+
+		System.out.println("---------------- field ----------------");
+		StringNode fieldNode = new StringNode();
+		s1 = "deep ";
+		s2 = " json";
+		for (char i = Character.MIN_VALUE; i < Character.MAX_VALUE; i++) {
+			fieldNode.setValue(s1 + i + s2);
+			String fast = JSONObject.toJSONString(fieldNode).toLowerCase();
+			String deep = DeepJson.toJsonString(fieldNode).toLowerCase();
+			String gson = instance.toJson(fieldNode).toLowerCase();
+			if (fast.equals(deep) && fast.equals(gson)) {
+				continue;
+			}
+			System.out.println("value: " + fieldNode.getValue());
+			System.out.println("fast: " + fast);
+			System.out.println("deep: " + deep);
+			System.out.println("gson: " + gson);
+		}
+
+		s1 = "蒙奇 ";
+		s2 = " 开发";
+		for (char i = Character.MIN_VALUE; i < Character.MAX_VALUE; i++) {
+			fieldNode.setValue(s1 + i + s2);
+			String fast = JSONObject.toJSONString(fieldNode).toLowerCase();
+			String deep = DeepJson.toJsonString(fieldNode).toLowerCase();
+			String gson = instance.toJson(fieldNode).toLowerCase();
+			if (fast.equals(deep) && fast.equals(gson)) {
+				continue;
+			}
+			System.out.println("value: " + fieldNode.getValue());
+			System.out.println("fast: " + fast);
+			System.out.println("deep: " + deep);
+			System.out.println("gson: " + gson);
+		}
 	}
 }

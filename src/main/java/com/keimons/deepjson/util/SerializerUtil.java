@@ -175,7 +175,7 @@ public class SerializerUtil {
 		byte[] values = (byte[]) unsafe.getObject(object, SerializerUtil.VALUE_OFFSET_STRING);
 		if (coder == 0) {
 			for (byte value : values) {
-				length += REPLACEMENT_LENGTH[value];
+				length += REPLACEMENT_LENGTH[value & 0xFF];
 			}
 		} else {
 			if (SerializerUtil.HI_BYTE_SHIFT == 0 && SerializerUtil.LO_BYTE_SHIFT == 8) {
@@ -183,7 +183,7 @@ public class SerializerUtil {
 					byte hi = values[i];
 					byte lo = values[j];
 					if (lo == 0) {
-						length += REPLACEMENT_LENGTH[lo];
+						length += REPLACEMENT_LENGTH[hi & 0xFF];
 					} else if (lo == 0x20 && (hi == 0x28 || hi == 0x29)) {
 						length += 6;
 					} else {
@@ -212,6 +212,28 @@ public class SerializerUtil {
 		} else {
 			return 1;
 		}
+	}
+
+	@ForceInline
+	public static byte coder(String value) {
+		byte coder = unsafe.getByte(value, SerializerUtil.CODER_OFFSET_STRING);
+		if (coder == 0) {
+			return 0;
+		}
+		byte[] values = (byte[]) unsafe.getObject(value, SerializerUtil.VALUE_OFFSET_STRING);
+		if (SerializerUtil.HI_BYTE_SHIFT == 0 && SerializerUtil.LO_BYTE_SHIFT == 8) {
+			for (int i = 0, j = 1; i < values.length; i += 2, j += 2) {
+				byte hi = values[i];
+				byte lo = values[j];
+				if (lo == 0 || (lo == 0x20 && (hi == 0x28 || hi == 0x29))) {
+					continue;
+				}
+				return 1;
+			}
+		} else {
+			throw new IllegalArgumentException("big endian not exist.");
+		}
+		return 0;
 	}
 
 	@ForceInline

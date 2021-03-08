@@ -24,14 +24,15 @@ class ByteArrayBuffer extends ByteBuf {
 		super(options);
 		this.coder = coder;
 		this.buf = new byte[capacity << coder];
-		if (coder == SerializerUtil.LATIN) {
-			strategy = new LatinWriterPolicy(options, buf, 0);
-		} else {
-			if (SerializerUtil.HI_BYTE_SHIFT == 0 && SerializerUtil.LO_BYTE_SHIFT == 8) {
-				strategy = new LittleEndianUtf16WriterPolicy(options, buf, 0);
+
+		if (SerializerUtil.HI_BYTE_SHIFT == 0 && SerializerUtil.LO_BYTE_SHIFT == 8) {
+			if (coder == SerializerUtil.LATIN) {
+				strategy = new LittleEndianLatinWriterPolicy(options, buf, 0);
 			} else {
-				throw new IllegalArgumentException("big endian not exist.");
+				strategy = new LittleEndianUtf16WriterPolicy(options, buf, 0);
 			}
+		} else {
+			throw new IllegalArgumentException("big endian not exist.");
 		}
 	}
 
@@ -101,7 +102,7 @@ class ByteArrayBuffer extends ByteBuf {
 	@ForceInline
 	@Override
 	public final void writeString(String value) {
-		ensureCoder(unsafe.getByte(value, SerializerUtil.CODER_OFFSET_STRING));
+		ensureCoder(SerializerUtil.coder(value));
 		int writable = SerializerUtil.length(value) + 2;
 		ensureWritable(writable);
 		strategy.writeValueWithQuote(value);

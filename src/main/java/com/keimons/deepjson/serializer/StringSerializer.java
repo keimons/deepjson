@@ -15,7 +15,7 @@ public class StringSerializer implements ISerializer {
 	@Override
 	public byte coder(Object object, long options) {
 		if (PlatformUtil.javaVersion() >= 9) {
-			return unsafe.getByte(object, SerializerUtil.CODER_OFFSET_STRING);
+			return SerializerUtil.coder((String) object);
 		} else {
 			return 1;
 		}
