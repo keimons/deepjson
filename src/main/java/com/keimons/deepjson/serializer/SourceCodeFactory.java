@@ -106,14 +106,25 @@ public class SourceCodeFactory {
 						.append(field.offset())
 						.append("L);\n")
 				;
-				source.append("\t\tlength += SerializerUtil.size(")
+				source.append("\t\tlength += SerializerUtil.length(")
 						.append(fieldName)
 						.append(") + ")
 						.append(field.length() + 1)
 						.append(";\n")
 				;
 			} else if (type == char.class) {
-				source.append("\t\tlength += ").append(field.length() + 4).append(";\n");
+				source.append("\t\tchar ")
+						.append(fieldName)
+						.append(" = unsafe.getChar(object, ")
+						.append(field.offset())
+						.append("L);\n")
+				;
+				source.append("\t\tlength += SerializerUtil.length(")
+						.append(fieldName)
+						.append(") + ")
+						.append(field.length() + 3)
+						.append(";\n")
+				;
 			} else if (type == short.class) {
 				source.append("\t\tshort ")
 						.append(fieldName)
@@ -121,7 +132,7 @@ public class SourceCodeFactory {
 						.append(field.offset())
 						.append("L);\n")
 				;
-				source.append("\t\tlength += SerializerUtil.size(")
+				source.append("\t\tlength += SerializerUtil.length(")
 						.append(fieldName)
 						.append(") + ")
 						.append(field.length() + 1)
@@ -134,7 +145,7 @@ public class SourceCodeFactory {
 						.append(field.offset())
 						.append("L);\n")
 				;
-				source.append("\t\tlength += SerializerUtil.size(")
+				source.append("\t\tlength += SerializerUtil.length(")
 						.append(fieldName)
 						.append(") + ")
 						.append(field.length() + 1)
@@ -147,7 +158,7 @@ public class SourceCodeFactory {
 						.append(field.offset())
 						.append("L);\n")
 				;
-				source.append("\t\tlength += SerializerUtil.size(")
+				source.append("\t\tlength += SerializerUtil.length(")
 						.append(fieldName)
 						.append(") + ")
 						.append(field.length() + 1)
@@ -232,7 +243,7 @@ public class SourceCodeFactory {
 							.append(field.offset())
 							.append("L);\n")
 					;
-					source.append("\t\tif (").append(fieldName).append(" >>> 8 != 0) {\n");
+					source.append("\t\tif (SerializerUtil.coder(").append(fieldName).append(") != 0) {\n");
 					source.append("\t\t\treturn 1;\n");
 					source.append("\t\t}\n");
 				}

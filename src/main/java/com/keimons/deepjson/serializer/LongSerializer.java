@@ -16,7 +16,7 @@ public class LongSerializer implements ISerializer {
 	@Override
 	public int length(Object object, long options) {
 		long value = (long) object;
-		return SerializerUtil.size(value);
+		return SerializerUtil.length(value);
 	}
 
 	@Override

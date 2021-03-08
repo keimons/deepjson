@@ -16,7 +16,7 @@ public class ByteSerializer implements ISerializer {
 	@Override
 	public int length(Object object, long options) {
 		byte value = (byte) object;
-		return SerializerUtil.size(value);
+		return SerializerUtil.length(value);
 	}
 
 	@Override

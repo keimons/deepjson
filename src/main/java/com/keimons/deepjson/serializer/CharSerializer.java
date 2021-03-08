@@ -20,7 +20,7 @@ public class CharSerializer implements ISerializer {
 
 	@Override
 	public byte coder(Object object, long options) {
-		return ((char) object) >>> 8 == 0 ? SerializerUtil.LATIN : SerializerUtil.UTF16;
+		return SerializerUtil.coder((char) object) == 0 ? SerializerUtil.LATIN : SerializerUtil.UTF16;
 	}
 
 	@Override

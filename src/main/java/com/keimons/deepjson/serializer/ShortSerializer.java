@@ -16,7 +16,7 @@ public class ShortSerializer implements ISerializer {
 	@Override
 	public int length(Object object, long options) {
 		short value = (short) object;
-		return SerializerUtil.size(value);
+		return SerializerUtil.length(value);
 	}
 
 	@Override

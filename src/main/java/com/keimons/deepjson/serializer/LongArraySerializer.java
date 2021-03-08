@@ -18,7 +18,7 @@ public class LongArraySerializer implements ISerializer {
 		long[] values = (long[]) object;
 		int length = 2;
 		for (long value : values) {
-			length += SerializerUtil.size(value);
+			length += SerializerUtil.length(value);
 		}
 		if (values.length > 1) {
 			length += values.length - 1;

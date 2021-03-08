@@ -18,7 +18,7 @@ public class ByteArraySerializer implements ISerializer {
 		byte[] values = (byte[]) object;
 		int length = 2;
 		for (byte value : values) {
-			length += SerializerUtil.size(value);
+			length += SerializerUtil.length(value);
 		}
 		if (values.length > 1) {
 			length += values.length - 1;

@@ -12,7 +12,7 @@ import sun.misc.Unsafe;
  * @version 1.0
  * @since 9
  **/
-class Utf16WriterPolicy implements IWriterStrategy {
+class LittleEndianUtf16WriterPolicy implements IWriterStrategy {
 
 	private static final Unsafe unsafe = UnsafeUtil.getUnsafe();
 
@@ -34,7 +34,7 @@ class Utf16WriterPolicy implements IWriterStrategy {
 	private static final byte[][] REPLACEMENT_CHARS;
 
 	static {
-		REPLACEMENT_CHARS = new byte[128][];
+		REPLACEMENT_CHARS = new byte[256][];
 		for (int i = 0; i <= 0x1f; i++) {
 			REPLACEMENT_CHARS[i] = new byte[]{
 					(byte) ('\\' >> SerializerUtil.HI_BYTE_SHIFT),
@@ -93,6 +93,22 @@ class Utf16WriterPolicy implements IWriterStrategy {
 				(byte) ('f' >> SerializerUtil.HI_BYTE_SHIFT),
 				(byte) ('f' >> SerializerUtil.LO_BYTE_SHIFT)
 		};
+		for (int i = 127; i <= 159; i++) {
+			REPLACEMENT_CHARS[i] = new byte[]{
+					(byte) ('\\' >> SerializerUtil.HI_BYTE_SHIFT),
+					(byte) ('\\' >> SerializerUtil.LO_BYTE_SHIFT),
+					(byte) ('u' >> SerializerUtil.HI_BYTE_SHIFT),
+					(byte) ('u' >> SerializerUtil.LO_BYTE_SHIFT),
+					(byte) ('0' >> SerializerUtil.HI_BYTE_SHIFT),
+					(byte) ('0' >> SerializerUtil.LO_BYTE_SHIFT),
+					(byte) ('0' >> SerializerUtil.HI_BYTE_SHIFT),
+					(byte) ('0' >> SerializerUtil.LO_BYTE_SHIFT),
+					(byte) (SerializerUtil.BYTE_HEX[i >> 4 & 0xF] >> SerializerUtil.HI_BYTE_SHIFT),
+					(byte) (SerializerUtil.BYTE_HEX[i >> 4 & 0xF] >> SerializerUtil.LO_BYTE_SHIFT),
+					(byte) (SerializerUtil.BYTE_HEX[i & 0xF] >> SerializerUtil.HI_BYTE_SHIFT),
+					(byte) (SerializerUtil.BYTE_HEX[i & 0xF] >> SerializerUtil.LO_BYTE_SHIFT)
+			};
+		}
 	}
 
 	byte[] REPLACEMENT_2028 = new byte[]{
@@ -100,8 +116,8 @@ class Utf16WriterPolicy implements IWriterStrategy {
 			(byte) ('\\' >> SerializerUtil.LO_BYTE_SHIFT),
 			(byte) ('u' >> SerializerUtil.HI_BYTE_SHIFT),
 			(byte) ('u' >> SerializerUtil.LO_BYTE_SHIFT),
-			(byte) ('0' >> SerializerUtil.HI_BYTE_SHIFT),
-			(byte) ('0' >> SerializerUtil.LO_BYTE_SHIFT),
+			(byte) ('2' >> SerializerUtil.HI_BYTE_SHIFT),
+			(byte) ('2' >> SerializerUtil.LO_BYTE_SHIFT),
 			(byte) ('0' >> SerializerUtil.HI_BYTE_SHIFT),
 			(byte) ('0' >> SerializerUtil.LO_BYTE_SHIFT),
 			(byte) ('2' >> SerializerUtil.HI_BYTE_SHIFT),
@@ -114,8 +130,8 @@ class Utf16WriterPolicy implements IWriterStrategy {
 			(byte) ('\\' >> SerializerUtil.LO_BYTE_SHIFT),
 			(byte) ('u' >> SerializerUtil.HI_BYTE_SHIFT),
 			(byte) ('u' >> SerializerUtil.LO_BYTE_SHIFT),
-			(byte) ('0' >> SerializerUtil.HI_BYTE_SHIFT),
-			(byte) ('0' >> SerializerUtil.LO_BYTE_SHIFT),
+			(byte) ('2' >> SerializerUtil.HI_BYTE_SHIFT),
+			(byte) ('2' >> SerializerUtil.LO_BYTE_SHIFT),
 			(byte) ('0' >> SerializerUtil.HI_BYTE_SHIFT),
 			(byte) ('0' >> SerializerUtil.LO_BYTE_SHIFT),
 			(byte) ('2' >> SerializerUtil.HI_BYTE_SHIFT),
@@ -168,10 +184,42 @@ class Utf16WriterPolicy implements IWriterStrategy {
 
 	private int writeIndex;
 
-	public Utf16WriterPolicy(long options, byte[] buf, int writeIndex) {
+	public LittleEndianUtf16WriterPolicy(long options, byte[] buf, int writeIndex) {
 		this.buf = buf;
 		this.options = options;
 		this.writeIndex = writeIndex;
+	}
+
+	/**
+	 * 存入两个字节
+	 * <p>
+	 * 当前文件采用小端序，{@code lo == 0}表示单字节编码。
+	 *
+	 * @param hi 高位
+	 * @param lo 低位
+	 */
+	private void putValue(byte hi, byte lo) {
+		if (lo == 0) {
+			byte[] bytes = REPLACEMENT_CHARS[hi];
+			if (bytes == null) {
+				unsafe.putByte(buf, offset + writeIndex++, hi);
+				unsafe.putByte(buf, offset + writeIndex++, lo);
+			} else {
+				System.arraycopy(bytes, 0, buf, writeIndex, bytes.length);
+				writeIndex += bytes.length;
+			}
+		} else if (lo == 0x20 && (hi == 0x28 || hi == 0x29)) {
+			if (hi == 0x28) {
+				System.arraycopy(REPLACEMENT_2028, 0, buf, writeIndex, 12);
+			} else {
+				System.arraycopy(REPLACEMENT_2029, 0, buf, writeIndex, 12);
+			}
+			writeIndex += 12;
+		} else {
+			// 获取第三个元素
+			unsafe.putByte(buf, offset + writeIndex++, hi);
+			unsafe.putByte(buf, offset + writeIndex++, lo);
+		}
 	}
 
 	@Override
@@ -208,36 +256,7 @@ class Utf16WriterPolicy implements IWriterStrategy {
 		unsafe.putByte(buf, offset + writeIndex++, LO_BYTE_MARK);
 		byte hi = (byte) (value >> SerializerUtil.HI_BYTE_SHIFT);
 		byte lo = (byte) (value >> SerializerUtil.LO_BYTE_SHIFT);
-		byte f;
-		byte l;
-		if (SerializerUtil.LO_BYTE_SHIFT == 8) { // 小端序
-			f = lo;
-			l = hi;
-		} else {
-			f = hi;
-			l = lo;
-		}
-		if (f == 0) {
-			byte[] bytes = REPLACEMENT_CHARS[l];
-			if (bytes == null) {
-				unsafe.putByte(buf, offset + writeIndex++, hi);
-				unsafe.putByte(buf, offset + writeIndex++, lo);
-			} else {
-				System.arraycopy(bytes, 0, buf, writeIndex, bytes.length);
-				writeIndex += bytes.length;
-			}
-		} else if (f == 0x20 && (l == 0x28 || l == 0x29)) {
-			if (l == 0x28) {
-				System.arraycopy(REPLACEMENT_2028, 0, buf, writeIndex, 12);
-			} else {
-				System.arraycopy(REPLACEMENT_2029, 0, buf, writeIndex, 12);
-			}
-			writeIndex += 12;
-		} else {
-			// 获取第三个元素
-			unsafe.putByte(buf, offset + writeIndex++, lo);
-			unsafe.putByte(buf, offset + writeIndex++, hi);
-		}
+		putValue(hi, lo);
 		unsafe.putByte(buf, offset + writeIndex++, HI_BYTE_MARK);
 		unsafe.putByte(buf, offset + writeIndex++, LO_BYTE_MARK);
 	}
@@ -364,58 +383,10 @@ class Utf16WriterPolicy implements IWriterStrategy {
 				}
 			}
 		} else {
-			if (SerializerUtil.LO_BYTE_SHIFT == 8) { // 小端序
-				for (int i = 1, j = 0; i < values.length; i += 2, j += 2) {
-					byte hi = values[i]; // 高8位
-					byte lo = values[j]; // 低8位
-					if (hi == 0) {
-						byte[] bytes = REPLACEMENT_CHARS[lo];
-						if (bytes == null) {
-							unsafe.putByte(buf, offset + writeIndex++, lo);
-							unsafe.putByte(buf, offset + writeIndex++, hi);
-						} else {
-							System.arraycopy(bytes, 0, buf, writeIndex, bytes.length);
-							writeIndex += bytes.length;
-						}
-					} else if (hi == 0x20 && (lo == 0x28 || lo == 0x29)) {
-						if (lo == 0x28) {
-							System.arraycopy(REPLACEMENT_2028, 0, buf, writeIndex, 12);
-						} else {
-							System.arraycopy(REPLACEMENT_2029, 0, buf, writeIndex, 12);
-						}
-						writeIndex += 12;
-					} else {
-						// 获取第三个元素
-						unsafe.putByte(buf, offset + writeIndex++, lo);
-						unsafe.putByte(buf, offset + writeIndex++, hi);
-					}
-				}
-			} else { // 大端序
-				for (int i = 0, j = 1; i < values.length; i += 2, j += 2) {
-					byte hi = values[i]; // 高8位
-					byte lo = values[j]; // 低8位
-					if (hi == 0) {
-						byte[] bytes = REPLACEMENT_CHARS[lo];
-						if (bytes == null) {
-							unsafe.putByte(buf, offset + writeIndex++, hi);
-							unsafe.putByte(buf, offset + writeIndex++, lo);
-						} else {
-							System.arraycopy(bytes, 0, buf, writeIndex, bytes.length);
-							writeIndex += bytes.length;
-						}
-					} else if (hi == 0x20 && (lo == 0x28 || lo == 0x29)) {
-						if (lo == 0x28) {
-							System.arraycopy(REPLACEMENT_2028, 0, buf, writeIndex, 12);
-						} else {
-							System.arraycopy(REPLACEMENT_2029, 0, buf, writeIndex, 12);
-						}
-						writeIndex += 12;
-					} else {
-						// 获取第三个元素
-						unsafe.putByte(buf, offset + writeIndex++, hi);
-						unsafe.putByte(buf, offset + writeIndex++, lo);
-					}
-				}
+			for (int i = 0, j = 1; i < values.length; i += 2, j += 2) {
+				byte hi = values[i]; // 高8位
+				byte lo = values[j]; // 低8位
+				putValue(hi, lo);
 			}
 		}
 	}

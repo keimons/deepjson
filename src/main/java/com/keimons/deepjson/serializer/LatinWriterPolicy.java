@@ -12,23 +12,32 @@ import jdk.internal.vm.annotation.ForceInline;
  **/
 class LatinWriterPolicy implements IWriterStrategy {
 
-	private static final byte[][] REPLACEMENT_CHARS;
+	private static final byte[][] REPLACEMENT_BYTES;
 
 	static {
-		REPLACEMENT_CHARS = new byte[128][];
+		REPLACEMENT_BYTES = new byte[256][];
 		for (int i = 0; i <= 0x1f; i++) {
-			REPLACEMENT_CHARS[i] = new byte[]{
+			REPLACEMENT_BYTES[i] = new byte[]{
 					'\\', 'u', '0', '0', SerializerUtil.BYTE_HEX[i >> 4 & 0xF], SerializerUtil.BYTE_HEX[i & 0xF]
 			};
 		}
-		REPLACEMENT_CHARS['"'] = new byte[]{'\\', '\"'};
-		REPLACEMENT_CHARS['\\'] = new byte[]{'\\', '\\'};
-		REPLACEMENT_CHARS['\t'] = new byte[]{'\\', 't'};
-		REPLACEMENT_CHARS['\b'] = new byte[]{'\\', 'b'};
-		REPLACEMENT_CHARS['\n'] = new byte[]{'\\', 'n'};
-		REPLACEMENT_CHARS['\r'] = new byte[]{'\\', 'r'};
-		REPLACEMENT_CHARS['\f'] = new byte[]{'\\', 'f'};
+		REPLACEMENT_BYTES['"'] = new byte[]{'\\', '\"'};
+		REPLACEMENT_BYTES['\\'] = new byte[]{'\\', '\\'};
+		REPLACEMENT_BYTES['\t'] = new byte[]{'\\', 't'};
+		REPLACEMENT_BYTES['\b'] = new byte[]{'\\', 'b'};
+		REPLACEMENT_BYTES['\n'] = new byte[]{'\\', 'n'};
+		REPLACEMENT_BYTES['\r'] = new byte[]{'\\', 'r'};
+		REPLACEMENT_BYTES['\f'] = new byte[]{'\\', 'f'};
+
+		for (int i = 127; i <= 159; i++) {
+			REPLACEMENT_BYTES[i] = new byte[]{
+					'\\', 'u', '0', '0', SerializerUtil.BYTE_HEX[i >> 4 & 0xF], SerializerUtil.BYTE_HEX[i & 0xF]
+			};
+		}
 	}
+
+	byte[] REPLACEMENT_2028 = new byte[]{'\\', 'u', '2', '0', '2', '8'};
+	byte[] REPLACEMENT_2029 = new byte[]{'\\', 'u', '2', '0', '2', '9'};
 
 	private static final byte[] BOOLEAN_TRUE_LATIN = {'t', 'r', 'u', 'e'};
 
@@ -75,7 +84,21 @@ class LatinWriterPolicy implements IWriterStrategy {
 	@Override
 	public final void writeValue(char value) {
 		unsafe.putByte(buf, offset + writeIndex++, (byte) '"');
-		unsafe.putByte(buf, offset + writeIndex++, (byte) value);
+		if (value == 0x2028) {
+			System.arraycopy(REPLACEMENT_2028, 0, buf, writeIndex, 6);
+			writeIndex += 6;
+		} else if (value == 0x2029) {
+			System.arraycopy(REPLACEMENT_2029, 0, buf, writeIndex, 6);
+			writeIndex += 6;
+		} else {
+			byte[] bytes = REPLACEMENT_BYTES[value];
+			if (bytes == null) {
+				unsafe.putByte(buf, offset + writeIndex++, (byte) value);
+			} else {
+				System.arraycopy(bytes, 0, buf, writeIndex, bytes.length);
+				writeIndex += bytes.length;
+			}
+		}
 		unsafe.putByte(buf, offset + writeIndex++, (byte) '"');
 	}
 
@@ -165,7 +188,7 @@ class LatinWriterPolicy implements IWriterStrategy {
 	public final void writeValue(String value) {
 		byte[] values = (byte[]) unsafe.getObject(value, SerializerUtil.VALUE_OFFSET_STRING);
 		for (byte b : values) {
-			byte[] bytes = REPLACEMENT_CHARS[b];
+			byte[] bytes = REPLACEMENT_BYTES[b];
 			if (bytes == null) {
 				buf[writeIndex++] = b;
 			} else {
@@ -223,10 +246,16 @@ class LatinWriterPolicy implements IWriterStrategy {
 	@Override
 	public void writeValue(byte mark, IFieldName fieldName, String value) {
 		writeValue(mark, fieldName.getFieldNameByLatin());
-		byte[] stringBytes = (byte[]) unsafe.getObject(value, SerializerUtil.VALUE_OFFSET_STRING);
-		int length = stringBytes.length;
-		System.arraycopy(stringBytes, 0, buf, writeIndex, length);
-		writeIndex += length;
+		byte[] values = (byte[]) unsafe.getObject(value, SerializerUtil.VALUE_OFFSET_STRING);
+		for (byte b : values) {
+			byte[] bytes = REPLACEMENT_BYTES[b];
+			if (bytes == null) {
+				unsafe.putByte(buf, offset + writeIndex++, b);
+			} else {
+				System.arraycopy(bytes, 0, buf, writeIndex, bytes.length);
+				writeIndex += bytes.length;
+			}
+		}
 	}
 
 	@ForceInline

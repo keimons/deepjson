@@ -18,7 +18,7 @@ public class IntegerArraySerializer implements ISerializer {
 		int[] values = (int[]) object;
 		int length = 2;
 		for (int value : values) {
-			length += SerializerUtil.size(value);
+			length += SerializerUtil.length(value);
 		}
 		if (values.length > 1) {
 			length += values.length - 1;

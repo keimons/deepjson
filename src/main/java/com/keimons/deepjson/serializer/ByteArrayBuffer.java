@@ -27,7 +27,11 @@ class ByteArrayBuffer extends ByteBuf {
 		if (coder == SerializerUtil.LATIN) {
 			strategy = new LatinWriterPolicy(options, buf, 0);
 		} else {
-			strategy = new Utf16WriterPolicy(options, buf, 0);
+			if (SerializerUtil.HI_BYTE_SHIFT == 0 && SerializerUtil.LO_BYTE_SHIFT == 8) {
+				strategy = new LittleEndianUtf16WriterPolicy(options, buf, 0);
+			} else {
+				throw new IllegalArgumentException("big endian not exist.");
+			}
 		}
 	}
 
@@ -61,21 +65,21 @@ class ByteArrayBuffer extends ByteBuf {
 
 	@Override
 	public final void writeChar(char value) {
-		ensureCoder((byte) (value >>> 8 == 0 ? 0 : 1));
-		ensureWritable(3);
+		ensureCoder(SerializerUtil.coder(value));
+		ensureWritable(SerializerUtil.length(value));
 		strategy.writeValue(value);
 	}
 
 	@Override
 	public final void writeInt(int value) {
-		int writable = SerializerUtil.size(value);
+		int writable = SerializerUtil.length(value);
 		ensureWritable(writable);
 		strategy.writeValue(writable, value);
 	}
 
 	@Override
 	public void writeLong(long value) {
-		int writable = SerializerUtil.size(value);
+		int writable = SerializerUtil.length(value);
 		ensureWritable(writable);
 		strategy.writeValue(writable, value);
 	}
@@ -123,7 +127,7 @@ class ByteArrayBuffer extends ByteBuf {
 	public final void writeValue(byte mark, IFieldName fieldName, char value) {
 		// ensure coder
 		ensureCoder((byte) (value >>> 8 == 0 ? 0 : 1));
-		int writable = 4 + fieldName.length();
+		int writable = SerializerUtil.length(value) + fieldName.length() + 1;
 		ensureWritable(writable);
 		strategy.writeValue(mark, fieldName, value);
 	}
@@ -131,7 +135,7 @@ class ByteArrayBuffer extends ByteBuf {
 	@ForceInline
 	@Override
 	public final void writeValue(byte mark, IFieldName fieldName, int value) {
-		int length = SerializerUtil.size(value);
+		int length = SerializerUtil.length(value);
 		int writable = 1 + fieldName.length() + length;
 		ensureWritable(writable);
 		strategy.writeValue(mark, fieldName, length, value);
@@ -140,7 +144,7 @@ class ByteArrayBuffer extends ByteBuf {
 	@ForceInline
 	@Override
 	public final void writeValue(byte mark, IFieldName fieldName, long value) {
-		int length = SerializerUtil.size(value);
+		int length = SerializerUtil.length(value);
 		int writable = 1 + fieldName.length() + length;
 		ensureWritable(writable);
 		strategy.writeValue(mark, fieldName, length, value);
@@ -222,7 +226,7 @@ class ByteArrayBuffer extends ByteBuf {
 	protected void expandCapacity(int minCapacity) {
 		System.err.println("expand capacity");
 
-		int newCapacity = (buf.length >> 1);
+		int newCapacity = (buf.length << 1);
 
 		if (newCapacity < minCapacity) {
 			newCapacity = minCapacity;

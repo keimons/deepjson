@@ -52,14 +52,14 @@ class CharArrayBuffer extends ByteBuf {
 
 	@Override
 	public void writeInt(int value) {
-		int writable = SerializerUtil.size(value);
+		int writable = SerializerUtil.length(value);
 		ensureWritable(writable);
 		strategy.writeValue(writable, value);
 	}
 
 	@Override
 	public void writeLong(long value) {
-		int writable = SerializerUtil.size(value);
+		int writable = SerializerUtil.length(value);
 		ensureWritable(writable);
 		strategy.writeValue(writable, value);
 	}
@@ -106,7 +106,7 @@ class CharArrayBuffer extends ByteBuf {
 	@ForceInline
 	@Override
 	public final void writeValue(byte mark, IFieldName fieldName, int value) {
-		int length = SerializerUtil.size(value);
+		int length = SerializerUtil.length(value);
 		int writable = 1 + fieldName.length() + length;
 		ensureWritable(writable);
 		strategy.writeValue(mark, fieldName, length, value);
@@ -115,7 +115,7 @@ class CharArrayBuffer extends ByteBuf {
 	@ForceInline
 	@Override
 	public final void writeValue(byte mark, IFieldName fieldName, long value) {
-		int length = SerializerUtil.size(value);
+		int length = SerializerUtil.length(value);
 		int writable = 1 + fieldName.length() + length;
 		ensureWritable(writable);
 		strategy.writeValue(mark, fieldName, length, value);

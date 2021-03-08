@@ -18,7 +18,7 @@ public class ShortArraySerializer implements ISerializer {
 		short[] values = (short[]) object;
 		int length = 2;
 		for (short value : values) {
-			length += SerializerUtil.size(value);
+			length += SerializerUtil.length(value);
 		}
 		if (values.length > 1) {
 			length += values.length - 1;

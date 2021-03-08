@@ -16,7 +16,7 @@ public class IntegerSerializer implements ISerializer {
 	@Override
 	public int length(Object object, long options) {
 		int value = (int) object;
-		return SerializerUtil.size(value);
+		return SerializerUtil.length(value);
 	}
 
 	@Override

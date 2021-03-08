@@ -105,7 +105,7 @@ public class SerializerUtil {
 	}
 
 	@ForceInline
-	public static int size(int j) {
+	public static int length(int j) {
 		int d = 1;
 		if (j >= 0) {
 			d = 0;
@@ -120,7 +120,7 @@ public class SerializerUtil {
 		return 10 + d;
 	}
 
-	public static int size(long x) {
+	public static int length(long x) {
 		int d = 1;
 		if (x >= 0) {
 			d = 0;
@@ -135,23 +135,29 @@ public class SerializerUtil {
 		return 19 + d;
 	}
 
-	private static final int[] REPLACEMENT_CHARS;
+	private static final int[] REPLACEMENT_LENGTH;
 
 	static {
-		REPLACEMENT_CHARS = new int[128];
+		REPLACEMENT_LENGTH = new int[256];
 		for (int i = 0; i <= 0x1f; i++) {
-			REPLACEMENT_CHARS[i] = 6;
+			REPLACEMENT_LENGTH[i] = 6;
 		}
-		REPLACEMENT_CHARS['"'] = 2;
-		REPLACEMENT_CHARS['\\'] = 2;
-		REPLACEMENT_CHARS['\t'] = 2;
-		REPLACEMENT_CHARS['\b'] = 2;
-		REPLACEMENT_CHARS['\n'] = 2;
-		REPLACEMENT_CHARS['\r'] = 2;
-		REPLACEMENT_CHARS['\f'] = 2;
-		for (int i = 0; i < REPLACEMENT_CHARS.length; i++) {
-			if (REPLACEMENT_CHARS[i] == 0) {
-				REPLACEMENT_CHARS[i] = 1;
+		REPLACEMENT_LENGTH['"'] = 2;
+		REPLACEMENT_LENGTH['\\'] = 2;
+		REPLACEMENT_LENGTH['\t'] = 2;
+		REPLACEMENT_LENGTH['\b'] = 2;
+		REPLACEMENT_LENGTH['\n'] = 2;
+		REPLACEMENT_LENGTH['\r'] = 2;
+		REPLACEMENT_LENGTH['\f'] = 2;
+		for (int i = 127; i <= 159; i++) {
+			REPLACEMENT_LENGTH[i] = 6;
+		}
+		for (int i = 127; i <= 159; i++) {
+			REPLACEMENT_LENGTH[i] = 6;
+		}
+		for (int i = 0; i < REPLACEMENT_LENGTH.length; i++) {
+			if (REPLACEMENT_LENGTH[i] == 0) {
+				REPLACEMENT_LENGTH[i] = 1;
 			}
 		}
 	}
@@ -169,27 +175,23 @@ public class SerializerUtil {
 		byte[] values = (byte[]) unsafe.getObject(object, SerializerUtil.VALUE_OFFSET_STRING);
 		if (coder == 0) {
 			for (byte value : values) {
-				length += REPLACEMENT_CHARS[value];
+				length += REPLACEMENT_LENGTH[value];
 			}
 		} else {
-			int i, j;
-			if (SerializerUtil.LO_BYTE_SHIFT == 8) { // 小端序
-				i = 0;
-				j = 1;
-			} else { // 大端序
-				i = 1;
-				j = 0;
-			}
-			for (; i < values.length; i += 2, j += 2) {
-				byte lo = values[i];
-				byte hi = values[j];
-				if (hi == 0) {
-					length += REPLACEMENT_CHARS[lo];
-				} else if (hi == 0x20 && (lo == 0x28 || lo == 0x29)) {
-					length += 6;
-				} else {
-					length++;
+			if (SerializerUtil.HI_BYTE_SHIFT == 0 && SerializerUtil.LO_BYTE_SHIFT == 8) {
+				for (int i = 0, j = 1; i < values.length; i += 2, j += 2) {
+					byte hi = values[i];
+					byte lo = values[j];
+					if (lo == 0) {
+						length += REPLACEMENT_LENGTH[lo];
+					} else if (lo == 0x20 && (hi == 0x28 || hi == 0x29)) {
+						length += 6;
+					} else {
+						length++;
+					}
 				}
+			} else {
+				throw new IllegalArgumentException("big endian not exist.");
 			}
 		}
 		return length;
@@ -198,67 +200,25 @@ public class SerializerUtil {
 	/**
 	 * 计算字符串的宽度
 	 *
-	 * @param object 对象
+	 * @param value 对象
 	 * @return 字符串长度
 	 */
 	@ForceInline
-	public static int length(char object) {
-		int length = 0;
-		byte coder = unsafe.getByte(object, SerializerUtil.CODER_OFFSET_STRING);
-		byte[] values = (byte[]) unsafe.getObject(object, SerializerUtil.VALUE_OFFSET_STRING);
-		if (coder == 0) {
-			for (byte value : values) {
-				length += REPLACEMENT_CHARS[value];
-			}
+	public static int length(char value) {
+		if (value < 256) {
+			return REPLACEMENT_LENGTH[value];
+		} else if (value == 8232 || value == 8233) {
+			return 6;
 		} else {
-			int i, j;
-			if (SerializerUtil.LO_BYTE_SHIFT == 8) { // 小端序
-				i = 0;
-				j = 1;
-			} else { // 大端序
-				i = 1;
-				j = 0;
-			}
-			for (; i < values.length; i += 2, j += 2) {
-				byte lo = values[i];
-				byte hi = values[j];
-				if (hi == 0) {
-					length += REPLACEMENT_CHARS[lo];
-				} else if (hi == 0x20 && (lo == 0x28 || lo == 0x29)) {
-					length += 6;
-				} else {
-					length++;
-				}
-			}
+			return 1;
 		}
-		return length;
 	}
 
-//	/**
-//	 * float宽度
-//	 *
-//	 * @param value float值
-//	 * @return 长度
-//	 */
-//	public static int length(float value) {
-//		return FloatingDecimal.toJavaFormatLength(value);
-//	}
-//
-//	/**
-//	 * double宽度
-//	 *
-//	 * @param value float值
-//	 * @return 长度
-//	 */
-//	public static int length(double value) {
-//		return FloatingDecimal.toJavaFormatLength(value);
-//	}
-//
-//	public static String toJavaFormatString(float value) {
-//		return FloatingDecimal.toJavaFormatString(value);
-//	}
-//
-//	public static String toJavaFormatString(double value) {
-//		return FloatingDecimal.toJavaFormatString(value);
-//	}
+	public static byte coder(char value) {
+		if (value >>> 8 == 0 || value == 8232 || value == 8233) {
+			return 0;
+		} else {
+			return 1;
+		}
+	}
 }
