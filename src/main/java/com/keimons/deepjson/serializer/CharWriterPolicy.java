@@ -1,7 +1,7 @@
 package com.keimons.deepjson.serializer;
 
 import com.keimons.deepjson.buffer.IWriterStrategy;
-import com.keimons.deepjson.compiler.IFieldName;
+import com.keimons.deepjson.field.IFieldName;
 import com.keimons.deepjson.util.SerializerUtil;
 import com.keimons.deepjson.util.UnsafeUtil;
 import jdk.internal.vm.annotation.ForceInline;

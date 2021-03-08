@@ -1,4 +1,4 @@
-package com.keimons.deepjson.compiler;
+package com.keimons.deepjson.field;
 
 public interface IFieldName {
 

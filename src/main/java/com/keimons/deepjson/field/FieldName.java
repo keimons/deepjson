@@ -1,4 +1,4 @@
-package com.keimons.deepjson.compiler;
+package com.keimons.deepjson.field;
 
 import com.keimons.deepjson.util.SerializerUtil;
 import com.keimons.deepjson.util.UnsafeUtil;

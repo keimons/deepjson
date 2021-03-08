@@ -1,7 +1,7 @@
 package com.keimons.deepjson.buffer;
 
 import com.keimons.deepjson.serializer.CoderModificationException;
-import com.keimons.deepjson.compiler.IFieldName;
+import com.keimons.deepjson.field.IFieldName;
 import com.keimons.deepjson.serializer.ISerializer;
 import com.keimons.deepjson.serializer.SerializerFactory;
 import com.keimons.deepjson.util.SerializerUtil;

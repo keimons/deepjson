@@ -1,6 +1,6 @@
 package com.keimons.deepjson.buffer;
 
-import com.keimons.deepjson.compiler.IFieldName;
+import com.keimons.deepjson.field.IFieldName;
 import com.keimons.deepjson.util.PlatformUtil;
 import com.keimons.deepjson.util.UnsafeUtil;
 import jdk.internal.vm.annotation.ForceInline;
