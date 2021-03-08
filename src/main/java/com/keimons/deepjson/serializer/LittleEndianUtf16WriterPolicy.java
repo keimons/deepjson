@@ -200,7 +200,7 @@ class LittleEndianUtf16WriterPolicy implements IWriterStrategy {
 	 */
 	private void putValue(byte hi, byte lo) {
 		if (lo == 0) {
-			byte[] bytes = REPLACEMENT_CHARS[hi];
+			byte[] bytes = REPLACEMENT_CHARS[hi & 0xFF]; // modify 0 to 255
 			if (bytes == null) {
 				unsafe.putByte(buf, offset + writeIndex++, hi);
 				unsafe.putByte(buf, offset + writeIndex++, lo);

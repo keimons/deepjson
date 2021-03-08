@@ -1,5 +1,7 @@
 package com.keimons.deepjson.serializer;
 
+import com.keimons.deepjson.util.SerializerUtil;
+
 /**
  * char[]序列化
  *
@@ -14,7 +16,10 @@ public class CharArraySerializer implements ISerializer {
 	@Override
 	public int length(Object object, long options) {
 		char[] values = (char[]) object;
-		int length = 2 + values.length * 3;
+		int length = 2 + values.length * 2;
+		for (char value : values) {
+			length += SerializerUtil.length(value);
+		}
 		if (values.length > 1) {
 			length += values.length - 1;
 		}
@@ -25,7 +30,7 @@ public class CharArraySerializer implements ISerializer {
 	public byte coder(Object object, long options) {
 		char[] values = (char[]) object;
 		for (char value : values) {
-			if (value >>> 8 != 0) {
+			if (SerializerUtil.coder(value) != 0) {
 				return 1;
 			}
 		}
