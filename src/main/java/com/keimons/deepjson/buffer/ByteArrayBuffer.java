@@ -109,6 +109,19 @@ class ByteArrayBuffer extends ByteBuf {
 		strategy.writeValueWithQuote(value);
 	}
 
+	@Override
+	public void writeValue(byte mark, Object value) {
+		int writable = 1;
+		ensureWritable(writable);
+		strategy.writeMark((char) mark);
+		if (value == null) {
+			writeNull();
+		} else {
+			ISerializer serializer = SerializerFactory.getSerializer(value.getClass());
+			serializer.write(value, this);
+		}
+	}
+
 	@ForceInline
 	@Override
 	public void writeNull() {

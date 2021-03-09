@@ -91,6 +91,14 @@ class CharArrayBuffer extends ByteBuf {
 //		this.writeIndex += writer.writeStringWithMark(buf, options, writeIndex, value);
 	}
 
+	@Override
+	public void writeValue(byte mark, Object value) {
+		ensureWritable(1);
+		strategy.writeMark((char) mark);
+		ISerializer serializer = SerializerFactory.getSerializer(value.getClass());
+		serializer.write(value, this);
+	}
+
 	@ForceInline
 	@Override
 	public final void writeValue(byte mark, IFieldName fieldName, boolean value) {

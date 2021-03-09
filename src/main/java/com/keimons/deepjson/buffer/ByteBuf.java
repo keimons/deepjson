@@ -119,6 +119,14 @@ public abstract class ByteBuf {
 	public abstract void writeString(String value);
 
 	/**
+	 * 写入Object字段
+	 *
+	 * @param mark  前置标识
+	 * @param value object值
+	 */
+	public abstract void writeValue(byte mark, Object value);
+
+	/**
 	 * 写入boolean字段
 	 *
 	 * @param mark      前置标识

@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -82,15 +83,20 @@ public abstract class SerializerFactory {
 					}
 				}
 			} else {
-				serializer = CACHE.computeIfAbsent(clazz, cls -> {
-					Class<? extends ISerializer> serializerClass = SourceCodeSerializer.instance.findSerializer(clazz);
-					try {
-						return serializerClass.getDeclaredConstructor().newInstance();
-					} catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-						e.printStackTrace();
-					}
-					return null;
-				});
+				if (List.class.isAssignableFrom(clazz)) {
+					serializer = ListSerializer.instance;
+					CACHE.put(clazz, ListSerializer.instance);
+				} else {
+					serializer = CACHE.computeIfAbsent(clazz, cls -> {
+						Class<? extends ISerializer> serializerClass = SourceCodeSerializer.instance.findSerializer(clazz);
+						try {
+							return serializerClass.getDeclaredConstructor().newInstance();
+						} catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+							e.printStackTrace();
+						}
+						return null;
+					});
+				}
 			}
 		}
 		return serializer;
