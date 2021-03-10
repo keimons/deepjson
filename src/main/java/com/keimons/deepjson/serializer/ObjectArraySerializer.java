@@ -3,35 +3,30 @@ package com.keimons.deepjson.serializer;
 import com.keimons.deepjson.buffer.ByteBuf;
 
 /**
- * 数组序列化方案
+ * {@link Object[]}序列化
  *
  * @author monkey
  * @version 1.0
  * @since 1.7
  **/
-public class ArraySerializer implements ISerializer {
+public class ObjectArraySerializer implements ISerializer {
 
-	private Class<?> componentType;
-
-	private ISerializer serializer;
-
-	public ArraySerializer(Class<?> clazz) {
-		componentType = clazz.getComponentType();
-	}
-
-	public void link() {
-		serializer = SerializerFactory.getSerializer(componentType);
-	}
+	public static final ObjectArraySerializer instance = new ObjectArraySerializer();
 
 	@Override
 	public int length(Object object, long options) {
 		int length = 2;
+		Class<?> cache = null; // 缓存数组对象类型
+		ISerializer serializer = null;
 		Object[] array = (Object[]) object;
 		for (Object item : array) {
 			if (item == null) {
 				length += 4;
 			} else {
-				ISerializer serializer = SerializerFactory.getSerializer(item.getClass());
+				if (item.getClass() != cache) {
+					cache = item.getClass();
+					serializer = SerializerFactory.getSerializer(item.getClass());
+				}
 				length += serializer.length(item, options);
 			}
 		}
@@ -44,13 +39,18 @@ public class ArraySerializer implements ISerializer {
 	@Override
 	public byte coder(Object object, long options) {
 		Object[] array = (Object[]) object;
+		Class<?> cache = null; // 缓存数组对象类型
+		ISerializer serializer = null;
 		for (Object item : array) {
-			if (item == null) {
-				continue;
-			}
-			ISerializer serializer = SerializerFactory.getSerializer(item.getClass());
-			if (serializer.coder(item, options) == 1) {
-				return 1;
+			if (item != null) {
+				Class<?> clazz = item.getClass();
+				if (clazz != cache) {
+					cache = clazz;
+					serializer = SerializerFactory.getSerializer(item.getClass());
+				}
+				if (serializer.coder(item, options) == 1) {
+					return 1;
+				}
 			}
 		}
 		return 0;
@@ -63,6 +63,8 @@ public class ArraySerializer implements ISerializer {
 		} else {
 			buf.writeMark('[');
 			Object[] array = (Object[]) object;
+			Class<?> cache = null; // 缓存数组对象类型
+			ISerializer serializer = null;
 			for (int i = 0; i < array.length; i++) {
 				if (i != 0) {
 					buf.writeMark(',');
@@ -70,12 +72,12 @@ public class ArraySerializer implements ISerializer {
 				Object item = array[i];
 				if (item == null) {
 					buf.writeNull();
-					continue;
-				}
-				if (item.getClass() == componentType) {
-					serializer.write(item, buf);
 				} else {
-					ISerializer serializer = SerializerFactory.getSerializer(item.getClass());
+					Class<?> clazz = item.getClass();
+					if (clazz != cache) {
+						cache = clazz;
+						serializer = SerializerFactory.getSerializer(cache);
+					}
 					serializer.write(item, buf);
 				}
 			}

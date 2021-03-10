@@ -4,7 +4,7 @@ import com.keimons.deepjson.buffer.ByteBuf;
 import com.keimons.deepjson.util.RyuDouble;
 
 /**
- * double类型序列化
+ * {@link Double}序列化
  *
  * @author monkey
  * @version 1.0

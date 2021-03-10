@@ -3,20 +3,20 @@ package com.keimons.deepjson.serializer;
 import com.keimons.deepjson.buffer.ByteBuf;
 
 /**
- * {@link Boolean}序列化
+ * {@link Class}序列化
  *
  * @author monkey
  * @version 1.0
  * @since 1.7
  **/
-public class BooleanSerializer implements ISerializer {
+public class ClassSerializer implements ISerializer {
 
-	public static final BooleanSerializer instance = new BooleanSerializer();
+	public static final ClassSerializer instance = new ClassSerializer();
 
 	@Override
 	public int length(Object object, long options) {
-		boolean value = (boolean) object;
-		return value ? 4 : 5;
+		Class<?> clazz = (Class<?>) object;
+		return clazz.getName().length() + 2;
 	}
 
 	@Override
@@ -26,10 +26,7 @@ public class BooleanSerializer implements ISerializer {
 
 	@Override
 	public void write(Object object, ByteBuf buf) {
-		if (object == null) {
-			buf.writeNull();
-		} else {
-			buf.writeBoolean((boolean) object);
-		}
+		Class<?> clazz = (Class<?>) object;
+		buf.writeString(clazz.getName());
 	}
 }

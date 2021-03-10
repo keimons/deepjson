@@ -4,32 +4,31 @@ import com.keimons.deepjson.buffer.ByteBuf;
 import com.keimons.deepjson.util.SerializerUtil;
 
 /**
- * {@link Character}序列化
+ * {@link Enum}序列化
  *
  * @author monkey
  * @version 1.0
  * @since 1.7
  **/
-public class CharSerializer implements ISerializer {
+public class EnumSerializer implements ISerializer {
 
-	public static final CharSerializer instance = new CharSerializer();
+	public static final EnumSerializer instance = new EnumSerializer();
 
 	@Override
 	public int length(Object object, long options) {
-		return SerializerUtil.length((char) object) + 2;
+		Enum<?> value = (Enum<?>) object;
+		return value.name().length() + 2;
 	}
 
 	@Override
 	public byte coder(Object object, long options) {
-		return SerializerUtil.coder((char) object) == 0 ? SerializerUtil.LATIN : SerializerUtil.UTF16;
+		Enum<?> value = (Enum<?>) object;
+		return SerializerUtil.coder(value.name());
 	}
 
 	@Override
 	public void write(Object object, ByteBuf buf) {
-		if (object == null) {
-			buf.writeNull();
-		} else {
-			buf.writeChar((char) object);
-		}
+		Enum<?> value = (Enum<?>) object;
+		buf.writeString(value.name());
 	}
 }

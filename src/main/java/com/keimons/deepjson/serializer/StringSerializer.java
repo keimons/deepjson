@@ -4,6 +4,13 @@ import com.keimons.deepjson.buffer.ByteBuf;
 import com.keimons.deepjson.util.PlatformUtil;
 import com.keimons.deepjson.util.SerializerUtil;
 
+/**
+ * {@link String}序列化
+ *
+ * @author monkey
+ * @version 1.0
+ * @since 1.7
+ **/
 public class StringSerializer implements ISerializer {
 
 	public static final StringSerializer instance = new StringSerializer();

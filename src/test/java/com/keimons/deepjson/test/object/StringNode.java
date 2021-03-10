@@ -1,11 +1,11 @@
-package com.keimons.deepjson.test.string;
+package com.keimons.deepjson.test.object;
 
 /**
  * String测试用例
  *
  * @author monkey
  * @version 1.0
- * @since 1.8
+ * @since 1.7
  **/
 public class StringNode {
 

@@ -1,6 +1,5 @@
-package com.keimons.deepjson.serializer;
+package com.keimons.deepjson.buffer;
 
-import com.keimons.deepjson.buffer.IWriterStrategy;
 import com.keimons.deepjson.field.IFieldName;
 import com.keimons.deepjson.util.SerializerUtil;
 import com.keimons.deepjson.util.UnsafeUtil;

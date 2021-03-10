@@ -1,6 +1,5 @@
 package com.keimons.deepjson.buffer;
 
-import com.keimons.deepjson.serializer.CoderModificationException;
 import com.keimons.deepjson.field.IFieldName;
 import com.keimons.deepjson.serializer.ISerializer;
 import com.keimons.deepjson.serializer.SerializerFactory;
@@ -189,8 +188,12 @@ class ByteArrayBuffer extends ByteBuf {
 		int writable = 1 + fieldName.length();
 		ensureWritable(writable);
 		strategy.writeValue(mark, fieldName, value);
-		ISerializer serializer = SerializerFactory.getSerializer(value.getClass());
-		serializer.write(value, this);
+		if (value == null) {
+			writeNull();
+		} else {
+			ISerializer serializer = SerializerFactory.getSerializer(value.getClass());
+			serializer.write(value, this);
+		}
 	}
 
 	/**

@@ -4,7 +4,7 @@ import com.keimons.deepjson.buffer.ByteBuf;
 import com.keimons.deepjson.util.SerializerUtil;
 
 /**
- * char[]序列化
+ * {@code char[]}序列化
  *
  * @author monkey
  * @version 1.0

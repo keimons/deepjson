@@ -4,11 +4,11 @@ import com.keimons.deepjson.buffer.ByteBuf;
 import com.keimons.deepjson.util.SerializerUtil;
 
 /**
- * int[]序列化
+ * {@code int[]}序列化
  *
  * @author monkey
  * @version 1.0
- * @since 1.8
+ * @since 1.7
  **/
 public class IntegerArraySerializer implements ISerializer {
 

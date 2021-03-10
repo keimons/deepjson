@@ -1,4 +1,4 @@
-package com.keimons.deepjson.serializer;
+package com.keimons.deepjson.buffer;
 
 public class CapacityModificationException extends RuntimeException {
 

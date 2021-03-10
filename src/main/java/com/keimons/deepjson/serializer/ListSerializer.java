@@ -5,7 +5,7 @@ import com.keimons.deepjson.buffer.ByteBuf;
 import java.util.List;
 
 /**
- * int[]序列化
+ * {@link List}序列化
  *
  * @author monkey
  * @version 1.0
@@ -28,7 +28,7 @@ public class ListSerializer implements ISerializer {
 			}
 			if (value.getClass() != cache) {
 				cache = value.getClass();
-				serializer = SerializerFactory.getSerializer(value.getClass());
+				serializer = SerializerFactory.getSerializer(cache);
 			}
 			length += serializer.length(value, options);
 		}
@@ -60,11 +60,20 @@ public class ListSerializer implements ISerializer {
 	@Override
 	public void write(Object object, ByteBuf buf) {
 		List<?> values = (List<?>) object;
-		Class<?> cache = null;
-		ISerializer serializer = null;
 		byte mark = '[';
+		Class<?> cache = null; // 缓存
+		ISerializer serializer = null; // 缓存序列化工具
 		for (Object value : values) {
-			buf.writeValue(mark, value);
+			buf.writeMark((char) mark);
+			if (value == null) {
+				buf.writeNull();
+			} else {
+				if (value.getClass() != cache) {
+					cache = value.getClass();
+					serializer = SerializerFactory.getSerializer(cache);
+				}
+				serializer.write(value, buf);
+			}
 			mark = ',';
 		}
 		if (values.size() <= 0) {

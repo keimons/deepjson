@@ -32,6 +32,7 @@ public abstract class SerializerFactory {
 				DUMP_PATH = property + File.separator;
 			}
 		}
+		CACHE.put(Class.class, ClassSerializer.instance);
 		CACHE.put(String.class, StringSerializer.instance);
 
 		CACHE.put(boolean.class, BooleanSerializer.instance);
@@ -72,20 +73,17 @@ public abstract class SerializerFactory {
 		ISerializer serializer = CACHE.get(clazz);
 		if (serializer == null) {
 			if (clazz.isArray()) {
-				if (clazz == int[].class) {
-					serializer = IntegerArraySerializer.instance;
-				} else {
-					serializer = ARRAY_CACHE.get(clazz);
-					if (serializer == null) {
-						serializer = new ArraySerializer(clazz);
-						ARRAY_CACHE.put(clazz, serializer);
-						serializer.link();
-					}
-				}
+				serializer = ObjectArraySerializer.instance;
 			} else {
 				if (List.class.isAssignableFrom(clazz)) {
 					serializer = ListSerializer.instance;
 					CACHE.put(clazz, ListSerializer.instance);
+				} else if (Map.class.isAssignableFrom(clazz)) {
+					serializer = MapSerializer.instance;
+					CACHE.put(clazz, MapSerializer.instance);
+				} else if (Enum.class.isAssignableFrom(clazz)) {
+					serializer = EnumSerializer.instance;
+					CACHE.put(clazz, EnumSerializer.instance);
 				} else {
 					serializer = CACHE.computeIfAbsent(clazz, cls -> {
 						Class<? extends ISerializer> serializerClass = SourceCodeSerializer.instance.findSerializer(clazz);

@@ -4,7 +4,7 @@ import com.keimons.deepjson.buffer.ByteBuf;
 import com.keimons.deepjson.util.RyuFloat;
 
 /**
- * float[]序列化
+ * {@code float[]}序列化
  *
  * @author monkey
  * @version 1.0

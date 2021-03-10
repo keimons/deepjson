@@ -1,4 +1,4 @@
-package com.keimons.deepjson.test.string;
+package com.keimons.deepjson.test.object;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;

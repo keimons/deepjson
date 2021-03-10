@@ -1,7 +1,6 @@
 package com.keimons.deepjson.buffer;
 
 import com.keimons.deepjson.SerializerOptions;
-import com.keimons.deepjson.serializer.CapacityModificationException;
 import com.keimons.deepjson.field.IFieldName;
 import com.keimons.deepjson.serializer.ISerializer;
 import com.keimons.deepjson.serializer.SerializerFactory;
@@ -39,7 +38,7 @@ class CharArrayBuffer extends ByteBuf {
 	@Override
 	public void writeMark(char mark) {
 		ensureWritable(1);
-		strategy.writeValueWithQuote(mark);
+		strategy.writeMark(mark);
 	}
 
 	@Override
