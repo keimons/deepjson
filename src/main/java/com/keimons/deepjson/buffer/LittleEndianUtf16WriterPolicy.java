@@ -103,6 +103,10 @@ class LittleEndianUtf16WriterPolicy implements IWriterStrategy {
 			(byte) ('e' >> SerializerUtil.LO_BYTE_SHIFT),
 	};
 
+	private static final byte[] TYPE = {
+			'/', 0, '*', 0, '@', 0, 't', 0, 'y', 0, 'p', 0, 'e', 0, ':', 0
+	};
+
 	private final long options;
 
 	/**
@@ -182,6 +186,17 @@ class LittleEndianUtf16WriterPolicy implements IWriterStrategy {
 	@Override
 	public final void writeMark(char mark) {
 		unsafe.putByte(buf, offset + writeIndex, (byte) mark);
+		writeIndex += 2;
+	}
+
+	@Override
+	public void writeType(String type) {
+		System.arraycopy(TYPE, 0, buf, writeIndex, 16);
+		writeIndex += 16;
+		writeValue(type);
+		unsafe.putByte(buf, offset + writeIndex, (byte) '*');
+		writeIndex += 2;
+		unsafe.putByte(buf, offset + writeIndex, (byte) '/');
 		writeIndex += 2;
 	}
 

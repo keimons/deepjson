@@ -27,7 +27,7 @@ public class EnumSerializer implements ISerializer {
 	}
 
 	@Override
-	public void write(Object object, ByteBuf buf) {
+	public void write(Object object, long options, ByteBuf buf) {
 		Enum<?> value = (Enum<?>) object;
 		buf.writeString(value.name());
 	}

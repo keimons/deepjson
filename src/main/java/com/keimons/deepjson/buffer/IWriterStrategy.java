@@ -85,6 +85,13 @@ public interface IWriterStrategy {
 	void writeMark(char mark);
 
 	/**
+	 * 写入类名
+	 *
+	 * @param type 类名
+	 */
+	void writeType(String type);
+
+	/**
 	 * 写入boolean型值
 	 *
 	 * @param value 即将写入的值

@@ -30,7 +30,7 @@ public class StringSerializer implements ISerializer {
 	}
 
 	@Override
-	public void write(Object object, ByteBuf buf) {
+	public void write(Object object, long options, ByteBuf buf) {
 		String value = (String) object;
 		buf.writeString(value);
 	}

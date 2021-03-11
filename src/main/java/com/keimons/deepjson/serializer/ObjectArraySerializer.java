@@ -57,7 +57,7 @@ public class ObjectArraySerializer implements ISerializer {
 	}
 
 	@Override
-	public void write(Object object, ByteBuf buf) {
+	public void write(Object object, long options, ByteBuf buf) {
 		if (object == null) {
 			buf.writeNull();
 		} else {
@@ -78,7 +78,7 @@ public class ObjectArraySerializer implements ISerializer {
 						cache = clazz;
 						serializer = SerializerFactory.getSerializer(cache);
 					}
-					serializer.write(item, buf);
+					serializer.write(item, options, buf);
 				}
 			}
 			buf.writeMark(']');

@@ -40,8 +40,9 @@ public interface ISerializer {
 	/**
 	 * 序列化对象至缓冲区
 	 *
-	 * @param object 序列化对象
-	 * @param buf    缓冲区
+	 * @param object  序列化对象
+	 * @param options 序列化选项
+	 * @param buf     目标缓冲区
 	 */
-	void write(Object object, ByteBuf buf);
+	void write(Object object, long options, ByteBuf buf);
 }

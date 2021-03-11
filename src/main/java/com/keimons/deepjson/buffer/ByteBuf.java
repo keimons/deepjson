@@ -3,7 +3,6 @@ package com.keimons.deepjson.buffer;
 import com.keimons.deepjson.field.IFieldName;
 import com.keimons.deepjson.util.PlatformUtil;
 import com.keimons.deepjson.util.UnsafeUtil;
-import jdk.internal.vm.annotation.ForceInline;
 import sun.misc.Unsafe;
 
 /**
@@ -68,6 +67,13 @@ public abstract class ByteBuf {
 	 * @param mark 标识值
 	 */
 	public abstract void writeMark(char mark);
+
+	/**
+	 * 写入一个类型
+	 *
+	 * @param clazz 写入一个类型
+	 */
+	public abstract void writeType(Class<?> clazz);
 
 	/**
 	 * 写入boolean值

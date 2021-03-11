@@ -26,7 +26,7 @@ public class ByteSerializer implements ISerializer {
 	}
 
 	@Override
-	public void write(Object object, ByteBuf buf) {
+	public void write(Object object, long options, ByteBuf buf) {
 		if (object == null) {
 			buf.writeNull();
 		} else {

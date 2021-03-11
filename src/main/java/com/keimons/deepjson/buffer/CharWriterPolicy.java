@@ -67,6 +67,21 @@ class CharWriterPolicy implements IWriterStrategy {
 	}
 
 	@Override
+	public void writeType(String type) {
+		buf[writeIndex++] = '/';
+		buf[writeIndex++] = '*';
+		buf[writeIndex++] = '@';
+		buf[writeIndex++] = 't';
+		buf[writeIndex++] = 'y';
+		buf[writeIndex++] = 'p';
+		buf[writeIndex++] = 'e';
+		buf[writeIndex++] = ':';
+		writeValue(type);
+		buf[writeIndex++] = '*';
+		buf[writeIndex++] = '/';
+	}
+
+	@Override
 	public final void writeValue(boolean value) {
 		if (value) {
 			System.arraycopy(BOOLEAN_TRUE_CHAR, 0, buf, writeIndex, 4);

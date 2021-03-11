@@ -1,8 +1,10 @@
 package com.keimons.deepjson.serializer;
 
+import com.keimons.deepjson.SerializerOptions;
 import com.keimons.deepjson.buffer.ByteBuf;
+import com.keimons.deepjson.util.SerializerUtil;
 
-import java.util.List;
+import java.util.*;
 
 /**
  * {@link List}序列化
@@ -15,12 +17,26 @@ public class ListSerializer implements ISerializer {
 
 	public static final ListSerializer instance = new ListSerializer();
 
+	private static final Set<Class<?>> WHITE_LIST = new HashSet<>();
+
+	static {
+		WHITE_LIST.add(ArrayList.class);
+		WHITE_LIST.add(LinkedList.class);
+	}
+
 	@Override
 	public int length(Object object, long options) {
 		List<?> values = (List<?>) object;
 		Class<?> cache = null;
 		ISerializer serializer = null;
 		int length = 2;
+		if (SerializerOptions.ForceTypeNotes.isOptions(options)) {
+			if (WHITE_LIST.contains(object.getClass())) {
+				// 写入类型 /*@type:*/
+				// 例如："[/*@type:java.util.LinkedList*/]"、"[/*@type:java.util.concurrent.ConcurrentHashMap*/]"
+				length += 10 + SerializerUtil.length(object.getClass().getName());
+			}
+		}
 		for (Object value : values) {
 			if (value == null) {
 				length += 4;
@@ -58,13 +74,25 @@ public class ListSerializer implements ISerializer {
 	}
 
 	@Override
-	public void write(Object object, ByteBuf buf) {
+	public void write(Object object, long options, ByteBuf buf) {
 		List<?> values = (List<?>) object;
-		byte mark = '[';
+		buf.writeMark('[');
 		Class<?> cache = null; // 缓存
 		ISerializer serializer = null; // 缓存序列化工具
-		for (Object value : values) {
-			buf.writeMark((char) mark);
+
+		// 以注释的形式写入类名
+		if (SerializerOptions.ForceTypeNotes.isOptions(options)) {
+			Class<?> clazz = object.getClass();
+			if (WHITE_LIST.contains(clazz)) {
+				buf.writeType(clazz);
+			}
+		}
+
+		for (int i = 0; i < values.size(); i++) {
+			if (i != 0) {
+				buf.writeMark(',');
+			}
+			Object value = values.get(i);
 			if (value == null) {
 				buf.writeNull();
 			} else {
@@ -72,12 +100,8 @@ public class ListSerializer implements ISerializer {
 					cache = value.getClass();
 					serializer = SerializerFactory.getSerializer(cache);
 				}
-				serializer.write(value, buf);
+				serializer.write(value, options, buf);
 			}
-			mark = ',';
-		}
-		if (values.size() <= 0) {
-			buf.writeMark('[');
 		}
 		buf.writeMark(']');
 	}

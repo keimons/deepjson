@@ -44,6 +44,8 @@ class LittleEndianLatinWriterPolicy implements IWriterStrategy {
 
 	private static final byte[] BOOLEAN_FALSE_LATIN = {'f', 'a', 'l', 's', 'e'};
 
+	private static final byte[] TYPE = {'/', '*', '@', 't', 'y', 'p', 'e', ':'};
+
 	/**
 	 * 序列化选项
 	 */
@@ -99,6 +101,15 @@ class LittleEndianLatinWriterPolicy implements IWriterStrategy {
 	@Override
 	public final void writeMark(char mark) {
 		unsafe.putByte(buf, offset + writeIndex++, (byte) mark);
+	}
+
+	@Override
+	public void writeType(String type) {
+		System.arraycopy(TYPE, 0, buf, writeIndex, 8);
+		writeIndex += 8;
+		writeValue(type);
+		unsafe.putByte(buf, offset + writeIndex++, (byte) '*');
+		unsafe.putByte(buf, offset + writeIndex++, (byte) '/');
 	}
 
 	@Override

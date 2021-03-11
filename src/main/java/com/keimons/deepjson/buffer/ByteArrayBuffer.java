@@ -59,6 +59,14 @@ class ByteArrayBuffer extends ByteBuf {
 	}
 
 	@Override
+	public void writeType(Class<?> clazz) {
+		String name = clazz.getName();
+		int writable = 10 + SerializerUtil.length(name);
+		ensureWritable(writable);
+		strategy.writeType(name);
+	}
+
+	@Override
 	public void writeBoolean(boolean value) {
 		ensureWritable(value ? 4 : 5);
 		strategy.writeValue(value);
@@ -117,7 +125,7 @@ class ByteArrayBuffer extends ByteBuf {
 			writeNull();
 		} else {
 			ISerializer serializer = SerializerFactory.getSerializer(value.getClass());
-			serializer.write(value, this);
+			serializer.write(value, options, this);
 		}
 	}
 
@@ -192,7 +200,7 @@ class ByteArrayBuffer extends ByteBuf {
 			writeNull();
 		} else {
 			ISerializer serializer = SerializerFactory.getSerializer(value.getClass());
-			serializer.write(value, this);
+			serializer.write(value, options, this);
 		}
 	}
 

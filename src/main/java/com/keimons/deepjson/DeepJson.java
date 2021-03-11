@@ -29,7 +29,7 @@ public class DeepJson {
 		int capacity = serializer.length(object, options);
 		byte coder = serializer.coder(object, options);
 		ByteBuf buf = ByteBuf.buffer(options, capacity, coder);
-		serializer.write(object, buf);
+		serializer.write(object, options, buf);
 		return buf.newString();
 	}
 }

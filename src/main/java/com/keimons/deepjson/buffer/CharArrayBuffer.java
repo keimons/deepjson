@@ -42,6 +42,11 @@ class CharArrayBuffer extends ByteBuf {
 	}
 
 	@Override
+	public void writeType(Class<?> clazz) {
+
+	}
+
+	@Override
 	public void writeBoolean(boolean value) {
 		ensureWritable(value ? 4 : 5);
 		strategy.writeValue(value);
@@ -95,7 +100,7 @@ class CharArrayBuffer extends ByteBuf {
 		ensureWritable(1);
 		strategy.writeMark((char) mark);
 		ISerializer serializer = SerializerFactory.getSerializer(value.getClass());
-		serializer.write(value, this);
+		serializer.write(value, options, this);
 	}
 
 	@ForceInline
@@ -157,7 +162,7 @@ class CharArrayBuffer extends ByteBuf {
 		ensureWritable(writable);
 		strategy.writeValue(mark, fieldName, value);
 		ISerializer serializer = SerializerFactory.getSerializer(value.getClass());
-		serializer.write(value, this);
+		serializer.write(value, options, this);
 	}
 
 	/**

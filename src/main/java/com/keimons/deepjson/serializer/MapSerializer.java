@@ -91,7 +91,7 @@ public class MapSerializer implements ISerializer {
 	}
 
 	@Override
-	public void write(Object object, ByteBuf buf) {
+	public void write(Object object, long options, ByteBuf buf) {
 		Map<?, ?> values = (Map<?, ?>) object;
 		char mark = '{';
 		Class<?> keyCache = null;
@@ -109,7 +109,7 @@ public class MapSerializer implements ISerializer {
 						keyCache = key.getClass();
 						keySerializer = SerializerFactory.getSerializer(keyCache);
 					}
-					keySerializer.write(key, buf);
+					keySerializer.write(key, options, buf);
 				}
 			}
 			buf.writeMark(':');
@@ -122,7 +122,7 @@ public class MapSerializer implements ISerializer {
 						valueCache = value.getClass();
 						valueSerializer = SerializerFactory.getSerializer(valueCache);
 					}
-					valueSerializer.write(value, buf);
+					valueSerializer.write(value, options, buf);
 				}
 			}
 			mark = ',';

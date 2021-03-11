@@ -25,7 +25,7 @@ public class ClassSerializer implements ISerializer {
 	}
 
 	@Override
-	public void write(Object object, ByteBuf buf) {
+	public void write(Object object, long options, ByteBuf buf) {
 		Class<?> clazz = (Class<?>) object;
 		buf.writeString(clazz.getName());
 	}

@@ -278,7 +278,7 @@ public class SourceCodeFactory {
 		source.append("\n");
 
 		source.append("\t@Override\n");
-		source.append("\tpublic void write(Object object, ByteBuf buf) {\n");
+		source.append("\tpublic void write(Object object, long options, ByteBuf buf) {\n");
 		source.append("\t\tif (object == null) {\n");
 		source.append("\t\t\tbuf.writeNull();\n");
 		source.append("\t\t\treturn;\n");
