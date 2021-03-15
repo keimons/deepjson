@@ -10,7 +10,7 @@ import java.util.List;
  *
  * @author monkey
  * @version 1.0
- * @since 1.8
+ * @since 1.7
  **/
 public class ClassUtil {
 

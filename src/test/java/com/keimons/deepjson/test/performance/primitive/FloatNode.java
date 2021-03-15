@@ -5,7 +5,7 @@ package com.keimons.deepjson.test.performance.primitive;
  *
  * @author monkey
  * @version 1.0
- * @since 1.8
+ * @since 1.7
  **/
 public class FloatNode {
 

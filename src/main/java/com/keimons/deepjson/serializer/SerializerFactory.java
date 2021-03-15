@@ -7,7 +7,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -75,15 +75,15 @@ public abstract class SerializerFactory {
 			if (clazz.isArray()) {
 				serializer = ObjectArraySerializer.instance;
 			} else {
-				if (List.class.isAssignableFrom(clazz)) {
-					serializer = ListSerializer.instance;
-					CACHE.put(clazz, ListSerializer.instance);
+				if (Collection.class.isAssignableFrom(clazz)) {
+					serializer = CollectionSerializer.instance;
+					CACHE.put(clazz, serializer);
 				} else if (Map.class.isAssignableFrom(clazz)) {
 					serializer = MapSerializer.instance;
-					CACHE.put(clazz, MapSerializer.instance);
+					CACHE.put(clazz, serializer);
 				} else if (Enum.class.isAssignableFrom(clazz)) {
 					serializer = EnumSerializer.instance;
-					CACHE.put(clazz, EnumSerializer.instance);
+					CACHE.put(clazz, serializer);
 				} else {
 					serializer = CACHE.computeIfAbsent(clazz, cls -> {
 						Class<? extends ISerializer> serializerClass = SourceCodeSerializer.instance.findSerializer(clazz);
@@ -122,7 +122,9 @@ public abstract class SerializerFactory {
 				if (path.exists() || path.mkdirs()) {
 					File file = new File(filePath + fileName);
 					if (!file.exists()) {
-
+						if (!file.mkdirs()) {
+							System.err.println("目录创建失败");
+						}
 					}
 					try (FileOutputStream fos = new FileOutputStream(file)) {
 						fos.write(source.getBytes());

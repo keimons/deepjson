@@ -1,37 +1,31 @@
 package com.keimons.deepjson.serializer;
 
+import com.keimons.deepjson.DeepJsonConfig;
 import com.keimons.deepjson.SerializerOptions;
 import com.keimons.deepjson.buffer.ByteBuf;
 import com.keimons.deepjson.util.SerializerUtil;
 
-import java.util.*;
+import java.util.Collection;
 
 /**
- * {@link List}序列化
+ * {@link Collection}序列化
  *
  * @author monkey
  * @version 1.0
  * @since 1.7
  **/
-public class ListSerializer implements ISerializer {
+public class CollectionSerializer implements ISerializer {
 
-	public static final ListSerializer instance = new ListSerializer();
-
-	private static final Set<Class<?>> WHITE_LIST = new HashSet<>();
-
-	static {
-		WHITE_LIST.add(ArrayList.class);
-		WHITE_LIST.add(LinkedList.class);
-	}
+	public static final CollectionSerializer instance = new CollectionSerializer();
 
 	@Override
 	public int length(Object object, long options) {
-		List<?> values = (List<?>) object;
+		Collection<?> values = (Collection<?>) object;
 		Class<?> cache = null;
 		ISerializer serializer = null;
 		int length = 2;
-		if (SerializerOptions.ForceTypeNotes.isOptions(options)) {
-			if (WHITE_LIST.contains(object.getClass())) {
+		if (SerializerOptions.ForceClassName.isOptions(options)) {
+			if (DeepJsonConfig.WHITE_COLLECTION.contains(object.getClass())) {
 				// 写入类型 /*@type:*/
 				// 例如："[/*@type:java.util.LinkedList*/]"、"[/*@type:java.util.concurrent.ConcurrentHashMap*/]"
 				length += 10 + SerializerUtil.length(object.getClass().getName());
@@ -55,7 +49,7 @@ public class ListSerializer implements ISerializer {
 
 	@Override
 	public byte coder(Object object, long options) {
-		List<?> values = (List<?>) object;
+		Collection<?> values = (Collection<?>) object;
 		Class<?> cache = null;
 		ISerializer serializer = null;
 		for (Object value : values) {
@@ -75,24 +69,23 @@ public class ListSerializer implements ISerializer {
 
 	@Override
 	public void write(Object object, long options, ByteBuf buf) {
-		List<?> values = (List<?>) object;
+		Collection<?> values = (Collection<?>) object;
 		buf.writeMark('[');
 		Class<?> cache = null; // 缓存
 		ISerializer serializer = null; // 缓存序列化工具
 
-		// 以注释的形式写入类名
-		if (SerializerOptions.ForceTypeNotes.isOptions(options)) {
+		// write class name
+		if (SerializerOptions.ForceClassName.isOptions(options)) {
 			Class<?> clazz = object.getClass();
-			if (WHITE_LIST.contains(clazz)) {
+			if (DeepJsonConfig.WHITE_COLLECTION.contains(clazz)) {
 				buf.writeType(clazz);
 			}
 		}
-
-		for (int i = 0; i < values.size(); i++) {
+		int i = 0;
+		for (Object value : values) {
 			if (i != 0) {
 				buf.writeMark(',');
 			}
-			Object value = values.get(i);
 			if (value == null) {
 				buf.writeNull();
 			} else {
@@ -102,6 +95,7 @@ public class ListSerializer implements ISerializer {
 				}
 				serializer.write(value, options, buf);
 			}
+			i++;
 		}
 		buf.writeMark(']');
 	}

@@ -1,6 +1,9 @@
 package com.keimons.deepjson.serializer;
 
+import com.keimons.deepjson.DeepJsonConfig;
+import com.keimons.deepjson.SerializerOptions;
 import com.keimons.deepjson.buffer.ByteBuf;
+import com.keimons.deepjson.util.SerializerUtil;
 
 import java.util.Map;
 
@@ -18,6 +21,12 @@ public class MapSerializer implements ISerializer {
 	@Override
 	public int length(Object object, long options) {
 		int length = 2;
+		if (SerializerOptions.ForceClassName.isOptions(options)) {
+			if (DeepJsonConfig.WHITE_MAP.contains(object.getClass())) {
+				// 写入类型 /*@type:*/
+				length += 10 + SerializerUtil.length(object.getClass().getName());
+			}
+		}
 		Map<?, ?> values = (Map<?, ?>) object;
 		Class<?> keyCache = null;
 		Class<?> valueCache = null;
@@ -93,13 +102,23 @@ public class MapSerializer implements ISerializer {
 	@Override
 	public void write(Object object, long options, ByteBuf buf) {
 		Map<?, ?> values = (Map<?, ?>) object;
-		char mark = '{';
+		buf.writeMark('{');
+		// write class name
+		if (SerializerOptions.ForceClassName.isOptions(options)) {
+			Class<?> clazz = object.getClass();
+			if (DeepJsonConfig.WHITE_COLLECTION.contains(clazz)) {
+				buf.writeType(clazz);
+			}
+		}
 		Class<?> keyCache = null;
 		ISerializer keySerializer = null;
 		Class<?> valueCache = null;
 		ISerializer valueSerializer = null;
+		int i = 0;
 		for (Map.Entry<?, ?> entry : values.entrySet()) {
-			buf.writeMark(mark);
+			if (i != 0) {
+				buf.writeMark(',');
+			}
 			{ // key
 				Object key = entry.getKey();
 				if (key == null) {
@@ -125,10 +144,7 @@ public class MapSerializer implements ISerializer {
 					valueSerializer.write(value, options, buf);
 				}
 			}
-			mark = ',';
-		}
-		if (mark == '{') {
-			buf.writeMark(mark);
+			i++;
 		}
 		buf.writeMark('}');
 	}

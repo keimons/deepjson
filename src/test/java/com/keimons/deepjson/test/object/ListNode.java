@@ -1,4 +1,4 @@
-package com.keimons.deepjson.test.list;
+package com.keimons.deepjson.test.object;
 
 import java.util.LinkedList;
 import java.util.List;

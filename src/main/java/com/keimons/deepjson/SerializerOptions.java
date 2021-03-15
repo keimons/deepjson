@@ -17,7 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author monkey
  * @version 1.0
- * @since 1.8
+ * @since 1.7
  **/
 public enum SerializerOptions {
 
@@ -78,7 +78,8 @@ public enum SerializerOptions {
 	 * <p>
 	 * decode: true, encode: true
 	 */
-	ForceTypeNotes;
+	@Deprecated
+	ForceClassName;
 
 	long optional;
 
