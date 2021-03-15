@@ -1,7 +1,13 @@
 package com.keimons.deepjson.serializer;
 
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Table;
 import com.keimons.deepjson.compiler.SourceCodeFactory;
+import com.keimons.deepjson.serializer.support.guava.MultimapSerializer;
+import com.keimons.deepjson.serializer.support.guava.RangeMapSerializer;
+import com.keimons.deepjson.serializer.support.guava.TableSerializer;
 import com.keimons.deepjson.util.CompilerUtil;
+import com.keimons.deepjson.util.PlatformUtil;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -11,6 +17,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.LongAdder;
 
 public abstract class SerializerFactory {
 
@@ -67,6 +74,12 @@ public abstract class SerializerFactory {
 		CACHE.put(double.class, DoubleSerializer.instance);
 		CACHE.put(Double.class, DoubleSerializer.instance);
 		CACHE.put(double[].class, DoubleArraySerializer.instance);
+
+		// jdk 1.8
+		if (PlatformUtil.javaVersion() >= 8) {
+			CACHE.put(LongAdder.class, LongAdderSerializer.instance);
+			CACHE.put(DoubleAdderSerializer.class, LongAdderSerializer.instance);
+		}
 	}
 
 	public static ISerializer getSerializer(Class<?> clazz) {
@@ -85,6 +98,24 @@ public abstract class SerializerFactory {
 					serializer = EnumSerializer.instance;
 					CACHE.put(clazz, serializer);
 				} else {
+					// region Google Guava
+					try {
+						// guava table instance
+						if (Table.class.isAssignableFrom(clazz)) {
+							serializer = TableSerializer.instance;
+							CACHE.put(clazz, serializer);
+						}
+						// guava multimap instance
+						if (Multimap.class.isAssignableFrom(clazz)) {
+							serializer = MultimapSerializer.instance;
+							CACHE.put(clazz, serializer);
+						}
+						RangeMapSerializer serializer1 = new RangeMapSerializer();
+					} catch (Exception e) {
+						// guava not exist, so ignore the exception
+					}
+					// endregion
+
 					serializer = CACHE.computeIfAbsent(clazz, cls -> {
 						Class<? extends ISerializer> serializerClass = SourceCodeSerializer.instance.findSerializer(clazz);
 						try {
