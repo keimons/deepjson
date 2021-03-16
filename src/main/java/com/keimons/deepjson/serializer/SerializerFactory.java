@@ -137,13 +137,18 @@ public abstract class SerializerFactory {
 
 		private static final SerializerFactory instance = new SourceCodeSerializer();
 
-		private static final String NAME = "$DeepJson";
+		private static final String NAME = "$$DeepJson";
 
 		private static final String PACKAGE = "deepjson.";
 
 		@Override
 		protected Class<? extends ISerializer> findSerializer(Class<?> clazz) {
-			String className = clazz.getSimpleName() + NAME;
+			String simpleName = clazz.getSimpleName();
+			if (simpleName.contains("/")) {
+				// fixed of lambda
+				simpleName = simpleName.substring(0, clazz.getSimpleName().indexOf("/"));
+			}
+			String className = simpleName + NAME;
 			String packageName = PACKAGE + clazz.getPackageName();
 			String source = SourceCodeFactory.create(packageName, className, clazz);
 			if (DUMP_PATH != null) {

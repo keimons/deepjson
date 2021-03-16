@@ -23,25 +23,25 @@ public class NormalNode implements INode {
 
 	private String node22 = "keimons" + ((char) 1) + "deepjson";
 
-//	private LinkNode node26 = new LinkNode();
+	private LinkNode node26 = new LinkNode();
 
-//	private Object node27 = new byte[20];
-//
-//	private short[] node41 = new short[20];
-//
-//	private int[] node42 = new int[20];
-//
-//	private long[] node43 = new long[20];
-//
-//	private boolean[] node44 = new boolean[20];
-//
-//	private char[] node45 = new char[20];
-//
+	private Object node27 = new byte[20];
+
+	private short[] node41 = new short[20];
+
+	private int[] node42 = new int[20];
+
+	private long[] node43 = new long[20];
+
+	private boolean[] node44 = new boolean[20];
+
+	private char[] node45 = new char[20];
+
 //	private float[] node46 = new float[20];
 //
 //	private double[] node47 = new double[20];
-//
-//	private LinkNode[] node48 = new LinkNode[5];
+
+	private LinkNode[] node48 = new LinkNode[5];
 
 	public byte getNode1() {
 		return node1;
@@ -123,62 +123,62 @@ public class NormalNode implements INode {
 		this.node22 = node22;
 	}
 
-//	public LinkNode getNode26() {
-//		return node26;
-//	}
-//
-//	public void setNode26(LinkNode node26) {
-//		this.node26 = node26;
-//	}
+	public LinkNode getNode26() {
+		return node26;
+	}
 
-//	public Object getNode27() {
-//		return node27;
-//	}
-//
-//	public void setNode27(Object node27) {
-//		this.node27 = node27;
-//	}
-//
-//	public short[] getNode41() {
-//		return node41;
-//	}
-//
-//	public void setNode41(short[] node41) {
-//		this.node41 = node41;
-//	}
-//
-//	public int[] getNode42() {
-//		return node42;
-//	}
-//
-//	public void setNode42(int[] node42) {
-//		this.node42 = node42;
-//	}
-//
-//	public long[] getNode43() {
-//		return node43;
-//	}
-//
-//	public void setNode43(long[] node43) {
-//		this.node43 = node43;
-//	}
-//
-//	public boolean[] getNode44() {
-//		return node44;
-//	}
-//
-//	public void setNode44(boolean[] node44) {
-//		this.node44 = node44;
-//	}
-//
-//	public char[] getNode45() {
-//		return node45;
-//	}
-//
-//	public void setNode45(char[] node45) {
-//		this.node45 = node45;
-//	}
-//
+	public void setNode26(LinkNode node26) {
+		this.node26 = node26;
+	}
+
+	public Object getNode27() {
+		return node27;
+	}
+
+	public void setNode27(Object node27) {
+		this.node27 = node27;
+	}
+
+	public short[] getNode41() {
+		return node41;
+	}
+
+	public void setNode41(short[] node41) {
+		this.node41 = node41;
+	}
+
+	public int[] getNode42() {
+		return node42;
+	}
+
+	public void setNode42(int[] node42) {
+		this.node42 = node42;
+	}
+
+	public long[] getNode43() {
+		return node43;
+	}
+
+	public void setNode43(long[] node43) {
+		this.node43 = node43;
+	}
+
+	public boolean[] getNode44() {
+		return node44;
+	}
+
+	public void setNode44(boolean[] node44) {
+		this.node44 = node44;
+	}
+
+	public char[] getNode45() {
+		return node45;
+	}
+
+	public void setNode45(char[] node45) {
+		this.node45 = node45;
+	}
+
 //	public float[] getNode46() {
 //		return node46;
 //	}
@@ -194,12 +194,12 @@ public class NormalNode implements INode {
 //	public void setNode47(double[] node47) {
 //		this.node47 = node47;
 //	}
-//
-//	public LinkNode[] getNode48() {
-//		return node48;
-//	}
-//
-//	public void setNode48(LinkNode[] node48) {
-//		this.node48 = node48;
-//	}
+
+	public LinkNode[] getNode48() {
+		return node48;
+	}
+
+	public void setNode48(LinkNode[] node48) {
+		this.node48 = node48;
+	}
 }

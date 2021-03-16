@@ -423,7 +423,7 @@ class LittleEndianUtf16WriterPolicy implements IWriterStrategy {
 		writeIndex += 2;
 		unsafe.putByte(buf, offset + writeIndex, (byte) 'l');
 		writeIndex += 2;
-		unsafe.putByte(buf, offset + writeIndex, (byte) 'o');
+		unsafe.putByte(buf, offset + writeIndex, (byte) 'l');
 		writeIndex += 2;
 	}
 }
