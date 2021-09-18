@@ -1,0 +1,187 @@
+package com.keimons.deepjson.support.codec;
+
+import com.keimons.deepjson.AbstractBuffer;
+import com.keimons.deepjson.AbstractContext;
+import com.keimons.deepjson.IDecodeContext;
+import com.keimons.deepjson.ReaderBuffer;
+import com.keimons.deepjson.support.ElementsFuture;
+import com.keimons.deepjson.support.IncompatibleTypeException;
+import com.keimons.deepjson.support.SyntaxToken;
+import com.keimons.deepjson.support.UnknownSyntaxException;
+import com.keimons.deepjson.util.ArrayUtil;
+
+import java.lang.reflect.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+/**
+ * {@link Object[]}编解码器
+ *
+ * @author houyn[monkey@keimons.com]
+ * @version 1.0
+ * @since 1.6
+ **/
+public class ObjectArrayCodec extends BaseCodec<Object[]> {
+
+	public static final ObjectArrayCodec instance = new ObjectArrayCodec();
+
+	@Override
+	public void build(AbstractContext context, Object[] value) {
+		context.cache(new ElementsFuture(value.length), EmptyCodec.instance);
+		for (Object obj : value) {
+			context.build(obj);
+		}
+	}
+
+	@Override
+	public void encode(AbstractContext context, AbstractBuffer buf, Object[] value, int uniqueId, long options) {
+		Object future = context.poll();
+		if (!(future instanceof ElementsFuture)) {
+			throw new RuntimeException("deep json bug");
+		}
+		int count = ((ElementsFuture) future).getCount();
+		if (uniqueId >= 0) {
+			buf.writeValue('{', FIELD_SET_ID, uniqueId);
+			buf.writeName(',', FIELD_VALUE);
+		}
+		buf.writeMark('[');
+		for (int i = 0; i < count; i++) {
+			if (i != 0) {
+				buf.writeMark(',');
+			}
+			context.encode(buf, options);
+		}
+		buf.writeMark(']');
+		if (uniqueId >= 0) {
+			buf.writeMark('}');
+		}
+	}
+
+	@Override
+	public Object decode(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+		SyntaxToken token = buf.token();
+		if (token == SyntaxToken.LBRACKET) {
+			// 原生进入 [x, y, z]
+			return decode0(context, buf, findInstanceType(type), options);
+		}
+		// 拓展进入 {"$type":"[X", "$values":[x, y, z]}
+		token = buf.nextToken(); // 下一个有可能是对象也有可能是对象结束
+		Class<?> clazz = typeCheck(context, buf, options);
+		if (clazz == null) {
+			clazz = (Class<?>) type;
+		} else {
+			if (Object[].class.isAssignableFrom(clazz)) { // 必须是 对象数组类型 或 子类
+				throw new IncompatibleTypeException(clazz, Object[].class);
+			}
+			buf.nextToken();
+		}
+		int uniqueId = -1;
+		Object value = null;
+		for (; ; ) {
+			// 断言当前位置一定是一个对象
+			buf.assertExpectedSyntax(SyntaxToken.OBJECTS);
+			// 判断是否 "@id"
+			if (token == SyntaxToken.STRING && buf.checkPutId()) {
+				buf.nextToken();
+				buf.assertExpectedSyntax(colonExpects); // 预期当前语法是 ":"
+				buf.nextToken();
+				buf.assertExpectedSyntax(numberExpects, stringExpects);
+				uniqueId = buf.intValue();
+			} else if (token == SyntaxToken.STRING && buf.checkGetValue()) {
+				buf.nextToken();
+				buf.assertExpectedSyntax(colonExpects); // 预期当前语法是 ":"
+				buf.nextToken();
+				buf.assertExpectedSyntax(SyntaxToken.LBRACKET); // 预期当前语法是 "["
+				value = decode0(context, buf, findInstanceType(type), options);
+			} else if (false) {
+				// TODO 新增宽松的解决方案
+				buf.nextToken();
+				buf.assertExpectedSyntax(colonExpects); // 预期当前语法是 ":"
+				buf.nextToken();
+				buf.assertExpectedSyntax(SyntaxToken.OBJECTS); // 预期当前语法是一个对象
+				context.decode(buf, Object.class, options, false); // 读取一个对象
+			} else {
+				throw new UnknownSyntaxException("array error");
+			}
+			token = buf.nextToken();
+			if (token == SyntaxToken.RBRACE) {
+				break;
+			}
+			buf.nextToken();
+		}
+		if (uniqueId != -1) {
+			context.put(uniqueId, value);
+		}
+		return value;
+	}
+
+	private Object decode0(final IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+		List<Object> values = new ArrayList<Object>();
+		int[] hooks = null;
+		int count = 0;
+		for (; ; ) {
+			SyntaxToken token = buf.nextToken();
+			if (token == SyntaxToken.STRING && buf.is$Id()) {
+				if (hooks == null) {
+					hooks = new int[16]; // 准备8个引用
+				}
+				if (count >= hooks.length) {
+					hooks = Arrays.copyOf(hooks, hooks.length << 1);
+				}
+				hooks[count++] = values.size();
+				hooks[count++] = buf.get$Id();
+				values.add(null); // hold on
+			} else {
+				buf.assertExpectedSyntax(SyntaxToken.OBJECTS);
+				values.add(context.decode(buf, type, options, false));
+			}
+			token = buf.nextToken();
+			if (token == SyntaxToken.RBRACKET) {
+				break;
+			}
+			buf.assertExpectedSyntax(SyntaxToken.COMMA);
+		}
+		// TODO 处理泛型类型
+		final Object[] result = ArrayUtil.newInstance(findInstanceType0(type), values.size());
+		for (int i = 0; i < result.length; i++) {
+			result[i] = values.get(i);
+		}
+		if (hooks != null) {
+			for (int i = 0; i < hooks.length; i += 2) {
+				final int index = hooks[i];
+				final int unique = hooks[i + 1];
+				context.addCompleteHook(new Runnable() {
+					@Override
+					public void run() {
+						result[index] = context.get(unique);
+					}
+				});
+			}
+		}
+		return result;
+	}
+
+	private Type findInstanceType(Type type) {
+		if (type instanceof GenericArrayType) {
+			return ((GenericArrayType) type).getGenericComponentType();
+		} else {
+			return ((Class<?>) type).getComponentType();
+		}
+	}
+
+	private Class<?> findInstanceType0(Type type) {
+		if (type instanceof TypeVariable) {
+			return Object.class;
+		}
+		if (type instanceof ParameterizedType) {
+			return (Class<?>) ((ParameterizedType) type).getRawType();
+		}
+		if (type instanceof GenericArrayType) {
+			GenericArrayType at = (GenericArrayType) type;
+			Class<?> clazz = findInstanceType0(at.getGenericComponentType());
+			return Array.newInstance(clazz, 0).getClass();
+		}
+		return (Class<?>) type;
+	}
+}

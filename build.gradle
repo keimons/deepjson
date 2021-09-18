@@ -1,0 +1,113 @@
+plugins {
+    id 'maven-publish'
+    id 'java-library'
+}
+
+group 'com.keimons.deepjson'
+version '1.0-alpha'
+
+sourceCompatibility = JavaVersion.VERSION_11
+targetCompatibility = JavaVersion.VERSION_11
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    api 'org.jetbrains:annotations:20.1.0'
+    compileOnly 'io.netty:netty-all:4.1.67.Final'
+    compileOnly 'com.google.guava:guava:30.1.1-jre'
+    compileOnly 'org.codehaus.groovy:groovy:3.0.8'
+
+    testImplementation 'org.jetbrains:annotations:20.1.0'
+    testImplementation 'com.google.guava:guava:30.1.1-jre'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+compileJava {
+    exclude 'module-info.java', 'com/keimons/deepjson/util/MethodHandleUtil.java', 'com/keimons/deepjson/support/writer/ByteStringWriter.java'
+    options.encoding = "UTF-8"
+    options.compilerArgs += ['-source', '1.6']
+    options.compilerArgs += ['-target', '1.6']
+    options.compilerArgs += ['-Xlint:-options']
+}
+
+task compileVirtualJava(type: JavaCompile) {
+    classpath = compileJava.classpath
+    StringJoiner joiner = new StringJoiner(File.separator)
+    joiner.add(projectDir.toString())
+    joiner.add('build')
+    joiner.add('classes')
+    joiner.add('java')
+    joiner.add('main')
+    String path = classpath.asPath + System.getProperty("path.separator") + joiner.toString()
+    source = ['src/main/java/com/keimons/deepjson/util/MethodHandleUtil.java', 'src/main/java/com/keimons/deepjson/support/writer/ByteStringWriter.java']
+    destinationDir = compileJava.destinationDir
+    doFirst {
+        options.encoding = "UTF-8"
+        options.compilerArgs = ['-source', '1.7', '-target', '1.7', '-classpath', path]
+    }
+}
+
+task compileModuleJava(type: JavaCompile) {
+    classpath = compileJava.classpath
+    source = 'src/main/java/module-info.java'
+    destinationDir = compileJava.destinationDir
+    doFirst {
+        options.encoding = "UTF-8"
+        options.compilerArgs = [
+                '-source', '9', '-target', '9',
+                '--module-path', classpath.asPath
+        ]
+    }
+}
+
+jar {
+    manifest {
+        attributes 'Bundle-Name': 'DeepJson'
+        attributes 'Created-By': 'Gradle' + ' ' + gradle.gradleVersion
+        attributes 'Automatic-Module-Name': 'deepjson'
+    }
+    into('META-INF/maven/com/keimons/deepjson') {
+        from './build/publications/deepjson/pom-default.xml'
+        rename "pom-default.xml", "pom.xml"
+    }
+}
+
+compileVirtualJava.dependsOn compileJava
+
+compileModuleJava.dependsOn compileVirtualJava
+
+classes.dependsOn compileModuleJava
+
+jar.dependsOn 'generatePomFileForDeepjsonPublication'
+
+compileTestJava {
+    options.encoding = "UTF-8"
+    options.compilerArgs = [
+            '-source', '9', '-target', '9',
+            '--module-path', classpath.asPath
+    ]
+}
+
+javadoc {
+    options.charSet = "UTF-8"
+    options.encoding = "UTF-8"
+}
+
+publishing {
+    publications {
+        deepjson(MavenPublication) {
+            group 'com.keimons.deepjson'
+            artifactId 'deepjson'
+            version '1.0-alpha'
+
+            from components.java
+        }
+    }
+}
