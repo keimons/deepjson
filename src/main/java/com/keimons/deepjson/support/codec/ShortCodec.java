@@ -24,7 +24,7 @@ public class ShortCodec extends BasePrimitiveCodec<Short> {
 	}
 
 	@Override
-	public Object decode(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	public Object decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
 		buf.assertExpectedSyntax(numberExpects, stringExpects);
 		return Short.valueOf(buf.stringValue());
 	}

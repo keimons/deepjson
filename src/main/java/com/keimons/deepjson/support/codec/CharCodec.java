@@ -30,7 +30,7 @@ public class CharCodec extends BasePrimitiveCodec<Character> {
 	}
 
 	@Override
-	public Object decode(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	public Object decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
 		buf.assertExpectedSyntax(stringExpects);
 		return buf.charValue();
 	}
