@@ -1,6 +1,6 @@
 package com.keimons.deepjson.compiler;
 
-import com.keimons.deepjson.ICodec;
+import com.keimons.deepjson.support.codec.extended.ExtendedCodec;
 import com.keimons.deepjson.util.PlatformUtil;
 
 import javax.tools.*;
@@ -33,7 +33,7 @@ public class SourceCodeCompiler {
 	}
 
 	@SuppressWarnings("unchecked")
-	public Class<? extends ICodec<?>> compiler(String packageName, String className, String source) {
+	public Class<? extends ExtendedCodec> compiler(String packageName, String className, String source) {
 		// 获取系统编译器实例
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		// 设置编译参数 - 指定编译版本为 JDK 7和JDK 9
@@ -97,6 +97,6 @@ public class SourceCodeCompiler {
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
-		return (Class<? extends ICodec<?>>) clazz;
+		return (Class<? extends ExtendedCodec>) clazz;
 	}
 }

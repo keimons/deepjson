@@ -1,7 +1,7 @@
 package com.keimons.deepjson.util;
 
-import com.keimons.deepjson.ICodec;
 import com.keimons.deepjson.compiler.SourceCodeCompiler;
+import com.keimons.deepjson.support.codec.extended.ExtendedCodec;
 
 /**
  * 编译工具
@@ -24,7 +24,7 @@ public class CompilerUtil {
 
 	private static final SourceCodeCompiler COMPILER = new SourceCodeCompiler();
 
-	public static Class<? extends ICodec<?>> compiler(
+	public static Class<? extends ExtendedCodec> compiler(
 			String packageName, String className, String sourceCode) {
 		return COMPILER.compiler(packageName, className, sourceCode);
 	}

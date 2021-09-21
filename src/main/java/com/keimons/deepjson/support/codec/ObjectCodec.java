@@ -5,6 +5,7 @@ import com.keimons.deepjson.support.SyntaxToken;
 import com.keimons.deepjson.util.UnsupportedException;
 
 import java.lang.reflect.Type;
+import java.util.Map;
 
 /**
  * {@link Object}编解码器
@@ -43,7 +44,7 @@ public class ObjectCodec extends BaseCodec<Object> {
 			case NUMBER:
 				return buf.adaptiveNumber();
 			case LBRACE:
-				return MapCodec.instance.decode(context, buf, type, options);
+				return MapCodec.instance.decode(context, buf, Map.class, options);
 			case LBRACKET:
 				return JsonArrayCodec.instance.decode(context, buf, type, options);
 			default:

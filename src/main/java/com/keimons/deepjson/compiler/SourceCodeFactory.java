@@ -88,18 +88,27 @@ public class SourceCodeFactory {
 		}
 
 		for (FieldInfo field : fields) {
-			source.append("\tprivate final Field $field$_")
+			source.append("\tprivate Field $field$_")
 					.append(field.getFieldName())
-					.append(" = findField(\"")
-					.append(clazz.getName())
-					.append("\", \"")
-					.append(field.getFieldName())
-					.append("\", ")
-					.append(Modifier.isPublic(field.getField().getModifiers()))
-					.append(");\n")
+					.append(";\n")
 			;
 			source.append("\n");
 		}
+
+		source.append("\t@Override\n");
+		source.append("\tpublic void init(Class<?> clazz) {\n");
+		for (FieldInfo field : fields) {
+			source.append("\t\t$field$_")
+					.append(field.getFieldName())
+					.append(" = findField(clazz, \"")
+					.append(field.getFieldName())
+					.append("\", ")
+					.append(Modifier.isPublic(field.getField().getModifiers()))
+					.append(");\n");
+			;
+		}
+		source.append("\t}\n");
+		source.append("\n");
 
 		source.append("\t@Override\n");
 		source.append("\tpublic void build(AbstractContext context, Object value) {\n");

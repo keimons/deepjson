@@ -20,7 +20,8 @@ import java.lang.reflect.Field;
  **/
 public abstract class ExtendedCodec extends BaseCodec<Object> {
 
-	@SuppressWarnings("unchecked")
+	public abstract void init(Class<?> clazz);
+
 	protected <T> T newInstance(Class<T> clazz) {
 		try {
 			return clazz.newInstance();
@@ -29,9 +30,8 @@ public abstract class ExtendedCodec extends BaseCodec<Object> {
 		}
 	}
 
-	public static Field findField(String className, String fieldName, boolean isPublic) {
+	public static Field findField(Class<?> clazz, String fieldName, boolean isPublic) {
 		try {
-			Class<?> clazz = Class.forName(className);
 			if (isPublic) {
 				return clazz.getField(fieldName);
 			} else {

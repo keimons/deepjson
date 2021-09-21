@@ -5,6 +5,7 @@ import com.keimons.deepjson.ICodec;
 import com.keimons.deepjson.JsonObject;
 import com.keimons.deepjson.compiler.SourceCodeFactory;
 import com.keimons.deepjson.support.codec.*;
+import com.keimons.deepjson.support.codec.extended.ExtendedCodec;
 import com.keimons.deepjson.support.codec.guava.MultimapCodec;
 import com.keimons.deepjson.support.codec.guava.TableCodec;
 import com.keimons.deepjson.util.ClassUtil;
@@ -221,10 +222,12 @@ public abstract class CodecFactory {
 						if (clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers())) {
 							throw new IncompatibleTypeException("interface codec not exist: " + clazz);
 						}
-						Class<? extends ICodec<?>> codecClass = SourceCodeCodec.instance.create(clazz);
+						Class<? extends ExtendedCodec> codecClass = SourceCodeCodec.instance.create(clazz);
 						try {
-							codec = codecClass.getDeclaredConstructor().newInstance();
-							CACHE.put(clazz, codec);
+							ExtendedCodec instance = codecClass.getDeclaredConstructor().newInstance();
+							instance.init(clazz);
+							codec = instance;
+							CACHE.put(clazz, instance);
 						} catch (Exception e) {
 							e.printStackTrace();
 						}
@@ -241,9 +244,9 @@ public abstract class CodecFactory {
 	 * @param clazz 编码目标
 	 * @return 编解码方案
 	 */
-	private Class<? extends ICodec<?>> create(Class<?> clazz) {
+	private Class<? extends ExtendedCodec> create(Class<?> clazz) {
 		long startTime = System.nanoTime();
-		Class<? extends ICodec<?>> newClass = create0(clazz);
+		Class<? extends ExtendedCodec> newClass = create0(clazz);
 		if (Config.DEBUG) {
 			System.out.println("Class " + clazz.getName() + "，编译耗时：" + (System.nanoTime() - startTime) / 1000000f);
 		}
@@ -256,7 +259,7 @@ public abstract class CodecFactory {
 	 * @param clazz 编码目标
 	 * @return 编解码方案
 	 */
-	protected abstract Class<? extends ICodec<?>> create0(Class<?> clazz);
+	protected abstract Class<? extends ExtendedCodec> create0(Class<?> clazz);
 
 	/**
 	 * 第三方拓展 源代码编解码工具
@@ -295,7 +298,7 @@ public abstract class CodecFactory {
 		}
 
 		@Override
-		protected Class<? extends ICodec<?>> create0(Class<?> clazz) {
+		protected Class<? extends ExtendedCodec> create0(Class<?> clazz) {
 			String simpleName = clazz.getSimpleName();
 			if (simpleName.contains("/")) {
 				// fixed of lambda
