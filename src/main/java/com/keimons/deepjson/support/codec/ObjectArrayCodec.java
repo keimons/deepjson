@@ -59,7 +59,7 @@ public class ObjectArrayCodec extends BaseCodec<Object[]> {
 	}
 
 	@Override
-	public Object decode(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	public Object[] decode(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
 		SyntaxToken token = buf.token();
 		if (token == SyntaxToken.LBRACKET) {
 			// 原生进入 [x, y, z]
@@ -77,7 +77,7 @@ public class ObjectArrayCodec extends BaseCodec<Object[]> {
 			buf.nextToken();
 		}
 		int uniqueId = -1;
-		Object value = null;
+		Object[] value = null;
 		for (; ; ) {
 			// 断言当前位置一定是一个对象
 			buf.assertExpectedSyntax(SyntaxToken.OBJECTS);
@@ -116,7 +116,7 @@ public class ObjectArrayCodec extends BaseCodec<Object[]> {
 		return value;
 	}
 
-	private Object decode0(final IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	private Object[] decode0(final IDecodeContext context, ReaderBuffer buf, Type type, long options) {
 		Type instanceType = findInstanceType(type);
 		List<Object> values = new ArrayList<Object>();
 		int[] hooks = null;

@@ -31,7 +31,7 @@ public class BooleanArrayCodec extends BaseArrayCodec<boolean[]> {
 	}
 
 	@Override
-	public Object decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	public boolean[] decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
 		List<Boolean> values = new ArrayList<Boolean>();
 		for (; ; ) {
 			SyntaxToken token = buf.nextToken();

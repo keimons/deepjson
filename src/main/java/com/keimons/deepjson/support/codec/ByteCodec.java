@@ -24,7 +24,7 @@ public class ByteCodec extends BasePrimitiveCodec<Byte> {
 	}
 
 	@Override
-	public Object decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	public Byte decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
 		buf.assertExpectedSyntax(numberExpects, stringExpects);
 		return Byte.valueOf(buf.stringValue());
 	}

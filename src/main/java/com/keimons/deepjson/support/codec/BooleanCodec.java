@@ -25,7 +25,7 @@ public class BooleanCodec extends BasePrimitiveCodec<Boolean> {
 	}
 
 	@Override
-	public Object decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	public Boolean decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
 		buf.assertExpectedSyntax(SyntaxToken.TRUE, SyntaxToken.FALSE, SyntaxToken.STRING);
 		SyntaxToken token = buf.token();
 		if (token == SyntaxToken.TRUE) {

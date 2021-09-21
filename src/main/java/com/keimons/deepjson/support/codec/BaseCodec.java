@@ -72,7 +72,7 @@ public abstract class BaseCodec<T> implements ICodec<T> {
 	}
 
 	@Override
-	public Object decode(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	public T decode(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
 		return null;
 	}
 

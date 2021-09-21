@@ -24,7 +24,7 @@ public class DoubleCodec extends BasePrimitiveCodec<Double> {
 	}
 
 	@Override
-	public Object decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	public Double decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
 		buf.assertExpectedSyntax(numberExpects, stringExpects);
 		return buf.doubleValue();
 	}

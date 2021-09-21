@@ -24,7 +24,7 @@ public class FloatCodec extends BasePrimitiveCodec<Float> {
 	}
 
 	@Override
-	public Object decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	public Float decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
 		buf.assertExpectedSyntax(numberExpects, stringExpects);
 		return buf.floatValue();
 	}

@@ -29,7 +29,7 @@ public abstract class BasePrimitiveCodec<T> extends BaseCodec<T> {
 	}
 
 	@Override
-	public Object decode(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	public T decode(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
 		SyntaxToken token = buf.token();
 		if (token == SyntaxToken.NULL) {
 			return null;
@@ -37,5 +37,5 @@ public abstract class BasePrimitiveCodec<T> extends BaseCodec<T> {
 		return decode0(context, buf, type, options);
 	}
 
-	protected abstract Object decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options);
+	protected abstract T decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options);
 }

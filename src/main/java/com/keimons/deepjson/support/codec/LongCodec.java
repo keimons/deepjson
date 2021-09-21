@@ -24,7 +24,7 @@ public class LongCodec extends BasePrimitiveCodec<Long> {
 	}
 
 	@Override
-	public Object decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	public Long decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
 		buf.assertExpectedSyntax(numberExpects, stringExpects);
 		return buf.longValue();
 	}

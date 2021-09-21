@@ -31,7 +31,7 @@ public class IntegerArrayCodec extends BaseArrayCodec<int[]> {
 	}
 
 	@Override
-	public Object decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	public int[] decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
 		List<Integer> values = new ArrayList<Integer>();
 		for (; ; ) {
 			buf.nextToken();

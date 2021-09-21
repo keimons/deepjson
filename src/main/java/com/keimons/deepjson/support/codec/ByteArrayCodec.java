@@ -31,7 +31,7 @@ public class ByteArrayCodec extends BaseArrayCodec<byte[]> {
 	}
 
 	@Override
-	public Object decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	public byte[] decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
 		List<Byte> values = new ArrayList<Byte>();
 		for (; ; ) {
 			buf.nextToken();

@@ -72,8 +72,6 @@ public interface ICodec<T> {
 	/**
 	 * 解码
 	 * <p>
-	 * 这里并不使用泛型。当发现对象类型为引用类型时，可能不能找到对象。
-	 * <p>
 	 * 当前token有可能是{@link SyntaxToken#COMMA}或{@link SyntaxToken#OBJECTS}。当
 	 * {@link ObjectCodec}自适应编解码器，发现这是一个对象时，先直接调用{@link MapCodec}编
 	 * 解码器。如果json结构中包含类型描述，则跳转到类型描述的解码器进行解码。此过程中，造成当前
@@ -86,5 +84,5 @@ public interface ICodec<T> {
 	 * @return 解码后的对象{@link Object}或者{@link ReferenceNode}。
 	 * @see MapCodec {@link Map}对象解码。
 	 */
-	Object decode(IDecodeContext context, ReaderBuffer buf, Type type, long options);
+	T decode(IDecodeContext context, ReaderBuffer buf, Type type, long options);
 }

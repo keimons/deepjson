@@ -25,7 +25,7 @@ public class EnumCodec extends BaseCodec<Enum<?>> {
 
 	@Override
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	public Object decode(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	public Enum decode(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
 		buf.assertExpectedSyntax(stringExpects);
 		String value = buf.stringValue();
 		Class clazz = (Class<? extends Enum<?>>) type;

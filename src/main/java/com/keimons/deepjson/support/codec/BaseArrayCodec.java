@@ -56,7 +56,7 @@ public abstract class BaseArrayCodec<T> extends BaseCodec<T> {
 	}
 
 	@Override
-	public final Object decode(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	public final T decode(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
 		SyntaxToken token = buf.token();
 		if (token == SyntaxToken.LBRACKET) {
 			// 原生进入 [x, y, z]
@@ -72,7 +72,7 @@ public abstract class BaseArrayCodec<T> extends BaseCodec<T> {
 			buf.nextToken();
 		}
 		int uniqueId = -1;
-		Object value = null;
+		T value = null;
 		for (; ; ) {
 			// 断言当前位置一定是一个对象
 			buf.assertExpectedSyntax(SyntaxToken.OBJECTS);
@@ -113,5 +113,5 @@ public abstract class BaseArrayCodec<T> extends BaseCodec<T> {
 
 	protected abstract void encode0(T values, AbstractBuffer buf, long options);
 
-	protected abstract Object decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options);
+	protected abstract T decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options);
 }

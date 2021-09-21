@@ -31,7 +31,7 @@ public class ShortArrayCodec extends BaseArrayCodec<short[]> {
 	}
 
 	@Override
-	public Object decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	public short[] decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
 		List<Short> values = new ArrayList<Short>();
 		for (; ; ) {
 			buf.nextToken();

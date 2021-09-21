@@ -31,15 +31,16 @@ import java.util.concurrent.ConcurrentSkipListMap;
  * @version 1.0
  * @since 1.6
  **/
-public class MapCodec extends BaseCodec<Map<?, ?>> {
+public class MapCodec extends BaseCodec<Object> {
 
 	public static final MapCodec instance = new MapCodec();
 
 	@Override
-	public void build(AbstractContext context, Map<?, ?> value) {
+	public void build(AbstractContext context, Object value) {
+		Map<?, ?> map = (Map<?, ?>) value;
 		ElementsFuture future = new ElementsFuture();
 		context.cache(future, EmptyCodec.instance);
-		for (Map.Entry<?, ?> obj : value.entrySet()) {
+		for (Map.Entry<?, ?> obj : map.entrySet()) {
 			context.build(obj.getKey());
 			context.build(obj.getValue());
 			future.addCount();
@@ -47,7 +48,7 @@ public class MapCodec extends BaseCodec<Map<?, ?>> {
 	}
 
 	@Override
-	public void encode(AbstractContext context, AbstractBuffer buf, Map<?, ?> value, int uniqueId, long options) {
+	public void encode(AbstractContext context, AbstractBuffer buf, Object value, int uniqueId, long options) {
 		char mark = '{';
 		if (uniqueId >= 0) {
 			buf.writeValue(mark, FIELD_SET_ID, uniqueId);
