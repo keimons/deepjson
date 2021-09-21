@@ -28,7 +28,7 @@ public abstract class BaseArrayCodec<T> extends BaseCodec<T> {
 	private final Type clazz;
 
 	public BaseArrayCodec() {
-		clazz = ClassUtil.findGenericTypeNotNull(this.getClass(), BaseArrayCodec.class, "T");
+		clazz = ClassUtil.findGenericType(this.getClass(), BaseArrayCodec.class, "T");
 	}
 
 	@Override
@@ -95,7 +95,7 @@ public abstract class BaseArrayCodec<T> extends BaseCodec<T> {
 				buf.assertExpectedSyntax(colonExpects); // 预期当前语法是 ":"
 				buf.nextToken();
 				buf.assertExpectedSyntax(SyntaxToken.OBJECTS); // 预期当前语法是一个对象
-				context.decode(buf, Object.class, options, false); // 读取一个对象
+				context.decode(buf, Object.class, false, options); // 读取一个对象
 			} else {
 				throw new UnknownSyntaxException("array error");
 			}

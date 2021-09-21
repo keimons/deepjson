@@ -148,6 +148,27 @@ public abstract class ReaderBuffer implements Closeable {
 	public abstract Number adaptiveNumber();
 
 	/**
+	 * 获取{@code boolean}值
+	 *
+	 * @return {@code boolean}值
+	 */
+	public abstract boolean booleanValue();
+
+	/**
+	 * 获取{@code byte}值
+	 *
+	 * @return {@code byte}值
+	 */
+	public abstract byte byteValue();
+
+	/**
+	 * 获取{@code short}值
+	 *
+	 * @return {@code short}值
+	 */
+	public abstract short shortValue();
+
+	/**
 	 * 获取{@code char}值
 	 *
 	 * @return {@code char}值
@@ -181,6 +202,14 @@ public abstract class ReaderBuffer implements Closeable {
 	 * @return 数字值
 	 */
 	public abstract double doubleValue();
+
+	/**
+	 * 判断缓冲区和目标是否相同
+	 *
+	 * @param values 相同
+	 * @return 是否相同
+	 */
+	public abstract boolean isSame(char[] values);
 
 	/**
 	 * 检测是否引用其他对象

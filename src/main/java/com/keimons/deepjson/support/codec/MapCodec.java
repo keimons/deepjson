@@ -87,7 +87,7 @@ public class MapCodec extends BaseCodec<Map<?, ?>> {
 			if (!Map.class.isAssignableFrom(clazz)) {
 				// Map结构的包装类型，例如：{"$type":"int[]","@id":1,"$value":[1,2,3]}，跳转解析方案
 				// TODO 考虑安全漏洞
-				return context.decode(buf, clazz, options, false);
+				return context.decode(buf, clazz, false, options);
 			}
 			// 如果是 "," 则表示这一段结束，如果是 "}" 则表示对象结束。
 			buf.assertExpectedSyntax(SyntaxToken.COMMA, SyntaxToken.RBRACE);
@@ -117,7 +117,7 @@ public class MapCodec extends BaseCodec<Map<?, ?>> {
 				} else {
 					kid = -1;
 					// 常规 key-value 结构
-					key = context.decode(buf, kt, options, false);
+					key = context.decode(buf, kt, false, options);
 				}
 				buf.nextToken();
 				buf.assertExpectedSyntax(colonExpects); // 预期当前语法是 ":"
@@ -131,7 +131,7 @@ public class MapCodec extends BaseCodec<Map<?, ?>> {
 				} else {
 					vid = -1;
 					// 常规 key-value 结构
-					value = context.decode(buf, vt, options, false);
+					value = context.decode(buf, vt, false, options);
 				}
 				if (kid != -1 || vid != -1) {
 					context.addCompleteHook(new Runnable() {

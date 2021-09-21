@@ -57,8 +57,7 @@ public class ClassUtil {
 			TypeVariable<?> variable = (TypeVariable<?>) ft;
 			Class<?> target = (Class<?>) variable.getGenericDeclaration();
 			String name = variable.getName();
-			Class<?> clazz = (Class<?>) findGenericType(types, length, target, name);
-			return clazz;
+			return findGenericType(types, length, target, name);
 		}
 		return ft;
 	}
@@ -74,7 +73,12 @@ public class ClassUtil {
 	public static Type findGenericType(Type[] types, int length, Class<?> target, String name) {
 		for (int i = length - 1; i >= 0; i--) {
 			Type type = types[i];
+			// 跳过泛型数组，只需要泛型数组的组件类型
 			if (type instanceof GenericArrayType) {
+				continue;
+			}
+			// 跳过对象数组，只需要对象数组的组件类型
+			if (type instanceof Class && ((Class<?>) type).isArray()) {
 				continue;
 			}
 			Type result = findGenericType(type, target, name);
@@ -92,29 +96,13 @@ public class ClassUtil {
 				WildcardType wildcardType = (WildcardType) result;
 				Type[] upperBounds = wildcardType.getUpperBounds();
 				if (upperBounds.length == 1) {
+					// TODO 继续向下查找，找不到使用这个
 					return upperBounds[0];
 				}
 			}
 			return result;
 		}
 		return Object.class;
-	}
-
-	/**
-	 * 在类中查找泛型类型
-	 *
-	 * @param type   查找起始位置{@link Class}或{@link ParameterizedType}。
-	 * @param target 查找目标
-	 * @param name   查找名称
-	 * @return {@link Type}泛型类型。
-	 */
-	public static Type findGenericTypeNotNull(Type type, Class<?> target, String name) {
-		Type result = findGenericType(type, target, name);
-		if (result == null || result instanceof TypeVariable || result instanceof WildcardType) {
-			return Object.class;
-		} else {
-			return result;
-		}
 	}
 
 	/**

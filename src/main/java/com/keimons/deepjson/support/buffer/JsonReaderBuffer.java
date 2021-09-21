@@ -49,10 +49,9 @@ public class JsonReaderBuffer extends ReaderBuffer {
 	 */
 	int startIndex;
 	char[] cache = new char[64];
-	int writeIndex;
+	int writerIndex;
 	int markerIndex;
 	int length;
-	char ch;
 	SyntaxToken token;
 
 	public JsonReaderBuffer(String context) {
@@ -242,13 +241,13 @@ public class JsonReaderBuffer extends ReaderBuffer {
 	}
 
 	private void nextString() {
-		writeIndex = 0;
+		writerIndex = 0;
 		int capacity = cache.length;
 		counter:
 		{
 			// 优化 增加一个limit，针对于合法json是不需要扫描到最后的
 			for (int i = readerIndex, limit = length - 1; i < limit; ) {
-				if (capacity <= writeIndex) {
+				if (capacity <= writerIndex) {
 					cache = Arrays.copyOf(cache, capacity <<= 1);
 				}
 				char c = buf[i++];
@@ -260,58 +259,58 @@ public class JsonReaderBuffer extends ReaderBuffer {
 					char cmd = buf[i++];
 					switch (cmd) {
 						case '0':
-							cache[writeIndex++] = '\u0000';
+							cache[writerIndex++] = '\u0000';
 							break;
 						case '1':
-							cache[writeIndex++] = '\u0001';
+							cache[writerIndex++] = '\u0001';
 							break;
 						case '2':
-							cache[writeIndex++] = '\u0002';
+							cache[writerIndex++] = '\u0002';
 							break;
 						case '3':
-							cache[writeIndex++] = '\u0003';
+							cache[writerIndex++] = '\u0003';
 							break;
 						case '4':
-							cache[writeIndex++] = '\u0004';
+							cache[writerIndex++] = '\u0004';
 							break;
 						case '5':
-							cache[writeIndex++] = '\u0005';
+							cache[writerIndex++] = '\u0005';
 							break;
 						case '6':
-							cache[writeIndex++] = '\u0006';
+							cache[writerIndex++] = '\u0006';
 							break;
 						case '7':
-							cache[writeIndex++] = '\u0007';
+							cache[writerIndex++] = '\u0007';
 							break;
 						case 'b':
-							cache[writeIndex++] = '\u0008';
+							cache[writerIndex++] = '\u0008';
 							break;
 						case 't':
-							cache[writeIndex++] = '\u0009';
+							cache[writerIndex++] = '\u0009';
 							break;
 						case 'n':
-							cache[writeIndex++] = '\n'; // 000A
+							cache[writerIndex++] = '\n'; // 000A
 							break;
 						case 'v':
-							cache[writeIndex++] = '\u000B';
+							cache[writerIndex++] = '\u000B';
 							break;
 						case 'f':
-							cache[writeIndex++] = '\u000C';
+							cache[writerIndex++] = '\u000C';
 							break;
 						case 'r':
-							cache[writeIndex++] = '\r'; // 000D
+							cache[writerIndex++] = '\r'; // 000D
 							break;
 						case '"':
-							cache[writeIndex++] = '"';
+							cache[writerIndex++] = '"';
 							break;
 						case '\'':
-							cache[writeIndex++] = '\'';
+							cache[writerIndex++] = '\'';
 							break;
 						case '/':
-							cache[writeIndex++] = '/';
+							cache[writerIndex++] = '/';
 							break;
 						case '\\':
-							cache[writeIndex++] = '\\';
+							cache[writerIndex++] = '\\';
 							break;
 						case 'x':
 							if (length - i < 2) {
@@ -322,7 +321,7 @@ public class JsonReaderBuffer extends ReaderBuffer {
 							if (checkNotHex16(c1) || checkNotHex16(c1)) {
 								throw new UnknownSyntaxException("illegal hex \\x" + c1 + c2, buf, i - 6);
 							}
-							cache[writeIndex++] = (char) (digits[c1] << 4 | digits[c2]);
+							cache[writerIndex++] = (char) (digits[c1] << 4 | digits[c2]);
 							break;
 						case 'u':
 							if (length - i < 4) {
@@ -335,13 +334,13 @@ public class JsonReaderBuffer extends ReaderBuffer {
 							if (checkNotHex16(v1) || checkNotHex16(v2) || checkNotHex16(v3) || checkNotHex16(v4)) {
 								throw new UnknownSyntaxException("illegal unicode \\u" + v1 + v2 + v3 + v4, buf, i - 6);
 							}
-							cache[writeIndex++] = (char) ((v1 << 12) | (v2 << 8) | (v3 << 4) | v4);
+							cache[writerIndex++] = (char) ((digits[v1] << 12) | (digits[v2] << 8) | (digits[v3] << 4) | digits[v4]);
 							break;
 						default:
 							throw new UnknownSyntaxException("unknown escape character \\" + cmd, buf, i - 2);
 					}
 				} else {
-					cache[writeIndex++] = c;
+					cache[writerIndex++] = c;
 				}
 			}
 			char latest = buf[length - 1];
@@ -359,18 +358,18 @@ public class JsonReaderBuffer extends ReaderBuffer {
 
 	@Override
 	public int valueHashcode() {
-		return ArrayUtil.hashcode(cache, 0, writeIndex);
+		return ArrayUtil.hashcode(cache, 0, writerIndex);
 	}
 
 	@Override
 	public String stringValue() {
-		return new String(cache, 0, writeIndex);
+		return new String(cache, 0, writerIndex);
 	}
 
 	@Override
 	public Number adaptiveNumber() {
 		boolean isDecimal = false;
-		for (int i = 0; i < writeIndex; i++) {
+		for (int i = 0; i < writerIndex; i++) {
 			char c = cache[i];
 			switch (c) {
 				case 'f':
@@ -392,6 +391,21 @@ public class JsonReaderBuffer extends ReaderBuffer {
 	}
 
 	@Override
+	public boolean booleanValue() {
+		return token == SyntaxToken.TRUE;
+	}
+
+	@Override
+	public byte byteValue() {
+		return Byte.parseByte(new String(cache, 0, writerIndex));
+	}
+
+	@Override
+	public short shortValue() {
+		return Short.parseShort(new String(cache, 0, writerIndex));
+	}
+
+	@Override
 	public char charValue() {
 		return cache[0];
 	}
@@ -399,34 +413,47 @@ public class JsonReaderBuffer extends ReaderBuffer {
 	@Override
 	public int intValue() {
 		// TODO using CharSequence
-		return Integer.parseInt(new String(cache, 0, writeIndex));
+		return Integer.parseInt(new String(cache, 0, writerIndex));
 	}
 
 	@Override
 	public long longValue() {
-		if (writeIndex > 0) {
-			char last = cache[writeIndex - 1];
+		if (writerIndex > 0) {
+			char last = cache[writerIndex - 1];
 			if (last == 'L' || last == 'l') {
-				writeIndex -= 1;
+				writerIndex -= 1;
 			}
 		}
 		// TODO using CharSequence
-		return Long.parseLong(new String(cache, 0, writeIndex));
+		return Long.parseLong(new String(cache, 0, writerIndex));
 	}
 
 	@Override
 	public float floatValue() {
-		return Float.parseFloat(new String(cache, 0, writeIndex));
+		return Float.parseFloat(new String(cache, 0, writerIndex));
 	}
 
 	@Override
 	public double doubleValue() {
-		return Double.parseDouble(new String(cache, 0, writeIndex));
+		return Double.parseDouble(new String(cache, 0, writerIndex));
+	}
+
+	@Override
+	public boolean isSame(char[] values) {
+		if (writerIndex != values.length) {
+			return false;
+		}
+		for (int i = 0; i < writerIndex; i++) {
+			if (cache[i] != values[i]) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	@Override
 	public boolean is$Id() {
-		if (writeIndex < 5) {
+		if (writerIndex < 5) {
 			return false;
 		}
 		return cache[0] == '$' && cache[1] == 'i' && cache[2] == 'd' && cache[3] == ':';
@@ -434,12 +461,12 @@ public class JsonReaderBuffer extends ReaderBuffer {
 
 	@Override
 	public int get$Id() {
-		return Integer.parseInt(new String(cache, 4, writeIndex - 4));
+		return Integer.parseInt(new String(cache, 4, writerIndex - 4));
 	}
 
 	@Override
 	public boolean checkPutId() {
-		if (writeIndex != 3) {
+		if (writerIndex != 3) {
 			return false;
 		}
 		return cache[0] == '@' && cache[1] == 'i' && cache[2] == 'd';
@@ -447,7 +474,7 @@ public class JsonReaderBuffer extends ReaderBuffer {
 
 	@Override
 	public boolean checkGetType() {
-		if (writeIndex != 5) {
+		if (writerIndex != 5) {
 			return false;
 		}
 		return cache[0] == '$' && cache[1] == 't' && cache[2] == 'y' && cache[3] == 'p' && cache[4] == 'e';
@@ -455,7 +482,7 @@ public class JsonReaderBuffer extends ReaderBuffer {
 
 	@Override
 	public boolean checkGetValue() {
-		if (writeIndex != 6) {
+		if (writerIndex != 6) {
 			return false;
 		}
 		return cache[0] == '$' &&
@@ -477,12 +504,12 @@ public class JsonReaderBuffer extends ReaderBuffer {
 	 * 标记字符串包括：true，false，null和它们的各种大小写。
 	 */
 	private void nextMarkString() {
-		writeIndex = 0;
+		writerIndex = 0;
 		// 预读5个字节
 		for (int i = readerIndex - 1, limit = Math.min(i + 5, length); i < limit; i++) {
 			char x = buf[i];
 			x = x < 97 ? (char) (x + 32) : x;
-			cache[writeIndex++] = x;
+			cache[writerIndex++] = x;
 		}
 		switch (cache[0]) {
 			case 't':
@@ -515,19 +542,19 @@ public class JsonReaderBuffer extends ReaderBuffer {
 	}
 
 	private void nextNumber() {
-		writeIndex = 0;
+		writerIndex = 0;
 		int capacity = cache.length;
 		for (int i = readerIndex - 1; i < length; i++) {
 			char c = buf[i];
 			if (checkNumber(c)) {
-				if (writeIndex > 65535) {
+				if (writerIndex > 65535) {
 					throw new UnknownSyntaxException("number overflow", buf, startIndex);
 				}
-				if (capacity <= writeIndex) {
+				if (capacity <= writerIndex) {
 					cache = Arrays.copyOf(cache, cache.length << 1);
 					capacity = cache.length;
 				}
-				cache[writeIndex++] = c;
+				cache[writerIndex++] = c;
 			} else {
 				readerIndex = i;
 				return;

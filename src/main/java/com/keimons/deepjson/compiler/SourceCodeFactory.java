@@ -1,16 +1,19 @@
 package com.keimons.deepjson.compiler;
 
-import com.keimons.deepjson.AbstractBuffer;
-import com.keimons.deepjson.AbstractContext;
-import com.keimons.deepjson.CodecOptions;
-import com.keimons.deepjson.Config;
+import com.keimons.deepjson.*;
+import com.keimons.deepjson.support.SyntaxToken;
+import com.keimons.deepjson.util.ArrayUtil;
 import com.keimons.deepjson.util.ClassUtil;
 import com.keimons.deepjson.util.UnsafeUtil;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * 源代码工厂
@@ -32,6 +35,14 @@ public class SourceCodeFactory {
 		IMPORT.add(AbstractContext.class);
 		IMPORT.add(UnsafeUtil.class);
 		IMPORT.add(Unsafe.class);
+		IMPORT.add(ArrayList.class);
+		IMPORT.add(TreeMap.class);
+		IMPORT.add(List.class);
+		IMPORT.add(ReaderBuffer.class);
+		IMPORT.add(IDecodeContext.class);
+		IMPORT.add(Field.class);
+		IMPORT.add(Type.class);
+		IMPORT.add(SyntaxToken.class);
 	}
 
 	/**
@@ -47,18 +58,19 @@ public class SourceCodeFactory {
 		for (Field field : ClassUtil.getFields(clazz)) {
 			fields.add(new FieldInfo(field));
 		}
-		return create(packageName, className, fields);
+		return create(clazz, packageName, className, fields);
 	}
 
 	/**
 	 * 构造一个编解码工具类型
 	 *
+	 * @param clazz       类名
 	 * @param packageName 包名
 	 * @param className   类名
 	 * @param fields      字段
 	 * @return 工具类
 	 */
-	private static String create(String packageName, String className, List<FieldInfo> fields) {
+	private static String create(Class<?> clazz, String packageName, String className, List<FieldInfo> fields) {
 		StringBuilder source = new StringBuilder();
 		packageClass(source, packageName);
 		importClass(source);
@@ -71,6 +83,20 @@ public class SourceCodeFactory {
 					.append(" = \"")
 					.append(field.getWriteName())
 					.append("\".toCharArray();\n")
+			;
+			source.append("\n");
+		}
+
+		for (FieldInfo field : fields) {
+			source.append("\tprivate final Field $field$_")
+					.append(field.getFieldName())
+					.append(" = findField(\"")
+					.append(clazz.getName())
+					.append("\", \"")
+					.append(field.getFieldName())
+					.append("\", ")
+					.append(Modifier.isPublic(field.getField().getModifiers()))
+					.append(");\n")
 			;
 			source.append("\n");
 		}
@@ -124,7 +150,44 @@ public class SourceCodeFactory {
 		source.append("\t\tbuf.writeMark('}');\n");
 		source.append("\t}\n");
 
+		TreeMap<Integer, ArrayList<FieldInfo>> map = makeCase(fields);
+
+		source.append("\n");
+		source.append("\t@Override\n");
+		source.append("\tpublic Object decode(IDecodeContext context, ReaderBuffer buf, Type type, long options) {\n");
+		source.append("\t\tClass<?> clazz = (Class<?>) type;\n");
+		source.append("\t\tObject instance = newInstance(clazz);\n");
+		source.append("\t\tfor (; ; ) {\n");
+		source.append("\t\t\tSyntaxToken token = buf.nextToken();\n");
+		source.append("\t\t\tif (token == SyntaxToken.RBRACE) {\n");
+		source.append("\t\t\t\tbreak;\n");
+		source.append("\t\t\t}\n");
+		source.append("\t\t\tbuf.assertExpectedSyntax(SyntaxToken.STRING);\n");
+		source.append("\t\t\tint index = switch0(buf);\n");
+		source.append("\t\t\tbuf.nextToken();\n");
+		source.append("\t\t\tbuf.assertExpectedSyntax(SyntaxToken.COLON);\n");
+		source.append("\t\t\ttoken = buf.nextToken();\n");
+		source.append("\t\t\tswitch (index) {\n");
+		int count = 0;
+		for (Map.Entry<Integer, ArrayList<FieldInfo>> entry : map.entrySet()) {
+			for (FieldInfo info : entry.getValue()) {
+				appendCase(source, count++, info);
+			}
+		}
+		source.append("\t\t\t\tdefault:\n");
+		source.append("\t\t\t}\n");
+		source.append("\t\t\ttoken = buf.nextToken();\n");
+		source.append("\t\t\tif (token == SyntaxToken.RBRACE) {\n");
+		source.append("\t\t\t\tbreak;\n");
+		source.append("\t\t\t}\n");
+		source.append("\t\t}\n");
+		source.append("\t\treturn instance;\n");
+		source.append("\t}\n");
+		source.append("\n");
+
+		appendSwitch(source, map);
 		source.append("}");
+
 		return source.toString();
 	}
 
@@ -138,9 +201,12 @@ public class SourceCodeFactory {
 	 * @param source Java源代码
 	 */
 	private static void importClass(StringBuilder source) {
-		for (Class<?> clazz : IMPORT) {
-			source.append("import ").append(clazz.getName()).append(";\n");
-		}
+		source.append("import com.keimons.deepjson.*;\n");
+		source.append("import com.keimons.deepjson.support.SyntaxToken;\n");
+		source.append("\n");
+		source.append("import java.lang.reflect.Field;\n");
+		source.append("import java.lang.reflect.Type;\n");
+
 		source.append("\n");
 	}
 
@@ -191,6 +257,69 @@ public class SourceCodeFactory {
 		source.append("\t\t}\n");
 	}
 
+	public static TreeMap<Integer, ArrayList<FieldInfo>> makeCase(List<FieldInfo> fields) {
+		TreeMap<Integer, ArrayList<FieldInfo>> map = new TreeMap<Integer, ArrayList<FieldInfo>>();
+		for (FieldInfo field : fields) {
+			int hashcode = ArrayUtil.hashcode(field.getWriteName().toCharArray());
+			ArrayList<FieldInfo> list = map.get(hashcode);
+			if (list == null) {
+				list = new ArrayList<FieldInfo>();
+				map.put(hashcode, list);
+			}
+			list.add(field);
+		}
+		return map;
+	}
+
+	public static void appendCase(StringBuilder source, int index, FieldInfo info) {
+		source.append("\t\t\t\tcase ").append(index).append(": {\n");
+		Class<?> type = info.getFieldType();
+		String name = type.getName();
+		if (type.isPrimitive()) {
+			source.append("\t\t\t\t\t")
+					.append(name)
+					.append(" value = buf.")
+					.append(name)
+					.append("Value();\n");
+			source.append("\t\t\t\t\tunsafe.put")
+					.append(toUpperFirst(type.getName()))
+					.append("(instance, ")
+					.append(info.offset())
+					.append("L, value);\n");
+		} else {
+			source.append("\t\t\t\t\tType ft = context.findType($field$_")
+					.append(info.getFieldName()).append(");\n");
+			source.append("\t\t\t\t\tObject value = context.decode(buf, ft, false, options);\n");
+			source.append("\t\t\t\t\tunsafe.putObject(instance, ")
+					.append(info.offset()).append("L, value);\n");
+		}
+		source.append("\t\t\t\t}\n");
+		source.append("\t\t\t\tbreak;\n");
+	}
+
+	public static void appendSwitch(StringBuilder source, TreeMap<Integer, ArrayList<FieldInfo>> map) {
+		source.append("\tprivate int switch0(ReaderBuffer buf) {\n");
+		source.append("\t\tint hashcode = buf.valueHashcode();\n");
+		source.append("\t\tswitch (hashcode) {\n");
+		int count = 0;
+		for (Map.Entry<Integer, ArrayList<FieldInfo>> entry : map.entrySet()) {
+			int hashcode = entry.getKey();
+			source.append("\t\t\tcase ").append(hashcode).append(": {\n");
+			for (FieldInfo info : entry.getValue()) {
+				source.append("\t\t\t\tif (buf.isSame($").append(info.getWriteName()).append(")) {\n");
+				source.append("\t\t\t\t\treturn ").append(count++).append(";\n");
+				source.append("\t\t\t\t}\n");
+			}
+			source.append("\t\t\t}\n");
+			source.append("\t\t\tbreak;\n");
+		}
+		source.append("\t\t\tdefault:\n");
+		source.append("\t\t\t\treturn -1;\n");
+		source.append("\t\t}\n");
+		source.append("\t\treturn -1;\n");
+		source.append("\t}\n");
+	}
+
 	/**
 	 * 首字母大写
 	 *
@@ -198,7 +327,8 @@ public class SourceCodeFactory {
 	 * @return 首字母大写后的文本串
 	 */
 	private static String toUpperFirst(String content) {
-		String temp = new String(new char[]{content.charAt(0)});
+		char[] chars = {content.charAt(0)};
+		String temp = new String(chars);
 		return content.replaceFirst(temp, temp.toUpperCase());
 	}
 }

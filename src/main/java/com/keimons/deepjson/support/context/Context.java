@@ -28,15 +28,23 @@ public class Context implements IDecodeContext {
 
 	int count;
 
-	public void offer(Type type) {
+	/**
+	 * 增加一个类型
+	 *
+	 * @param type 类型
+	 */
+	public void add(Type type) {
 		if (count >= types.length) {
 			types = Arrays.copyOf(types, types.length << 1);
 		}
 		types[count++] = type;
 	}
 
-	public Type take() {
-		return types[--count];
+	/**
+	 * 移除一个类型
+	 */
+	public void poll() {
+		types[--count] = null;
 	}
 
 	@Override
@@ -60,15 +68,10 @@ public class Context implements IDecodeContext {
 	}
 
 	@Override
-	public <T> T decode(ReaderBuffer buf, Type type, long options) {
-		return decode(buf, type, options, true);
-	}
-
-	@Override
 	@SuppressWarnings("unchecked")
-	public <T> T decode(ReaderBuffer buf, Type type, long options, boolean next) {
+	public <T> T decode(ReaderBuffer buf, Type type, boolean next, long options) {
 		ICodec<T> codec = CodecFactory.getCodec(type);
-		offer(type);
+		add(type);
 		assert codec != null;
 		if (next) {
 			buf.nextToken();
@@ -77,7 +80,7 @@ public class Context implements IDecodeContext {
 		try {
 			return (T) codec.decode(this, buf, type, options);
 		} finally {
-			take();
+			poll();
 		}
 	}
 

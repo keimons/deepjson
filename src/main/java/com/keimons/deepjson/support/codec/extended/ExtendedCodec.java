@@ -3,6 +3,8 @@ package com.keimons.deepjson.support.codec.extended;
 import com.keimons.deepjson.compiler.ExtendedCodecClassLoader;
 import com.keimons.deepjson.support.codec.BaseCodec;
 
+import java.lang.reflect.Field;
+
 /**
  * 拓展编解码器
  * <p>
@@ -18,4 +20,25 @@ import com.keimons.deepjson.support.codec.BaseCodec;
  **/
 public abstract class ExtendedCodec extends BaseCodec<Object> {
 
+	@SuppressWarnings("unchecked")
+	protected <T> T newInstance(Class<T> clazz) {
+		try {
+			return clazz.newInstance();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static Field findField(String className, String fieldName, boolean isPublic) {
+		try {
+			Class<?> clazz = Class.forName(className);
+			if (isPublic) {
+				return clazz.getField(fieldName);
+			} else {
+				return clazz.getDeclaredField(fieldName);
+			}
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
 }

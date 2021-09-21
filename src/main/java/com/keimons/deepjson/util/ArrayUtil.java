@@ -52,6 +52,10 @@ public class ArrayUtil {
 		return true;
 	}
 
+	public static int hashcode(char[] value) {
+		return hashcode(value, 0, value.length);
+	}
+
 	public static int hashcode(char[] value, int startIndex, int endIndex) {
 		if (value == null)
 			return 0;

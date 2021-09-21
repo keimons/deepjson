@@ -30,6 +30,9 @@ public class StringCodec extends BaseCodec<String> {
 	}
 
 	public String decode(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+		if (buf.token() == SyntaxToken.NULL) {
+			return null;
+		}
 		buf.assertExpectedSyntax(SyntaxToken.STRING);
 		return buf.stringValue(); // successful
 	}

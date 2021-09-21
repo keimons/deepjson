@@ -22,9 +22,13 @@ public class DeepJson {
 
 	static {
 		// 预热编译器
-		String json = DeepJson.toJsonString(new Template(), 0);
+		String json = DeepJson.toJsonString(new Template());
 		if (Config.DEBUG) {
 			System.out.println(json);
+		}
+		Template template = DeepJson.parseObject(json, Template.class);
+		if (Config.DEBUG) {
+			System.out.println(DeepJson.toJsonString(template));
 		}
 	}
 
@@ -132,7 +136,7 @@ public class DeepJson {
 	public static <T> T parse(String json) {
 		IDecodeContext context = new Context();
 		JsonReaderBuffer buf = new JsonReaderBuffer(json);
-		T value = context.decode(buf, Object.class, 0L);
+		T value = context.decode(buf, Object.class, true, 0L);
 		context.runCompleteHooks();
 		context.close(buf);
 		return value;
@@ -141,7 +145,7 @@ public class DeepJson {
 	public static <T> T parseObject(String json, Class<T> clazz) {
 		IDecodeContext context = new Context();
 		JsonReaderBuffer buf = new JsonReaderBuffer(json);
-		T value = context.decode(buf, clazz, 0L);
+		T value = context.decode(buf, clazz, true, 0L);
 		context.runCompleteHooks();
 		context.close(buf);
 		return value;
@@ -151,7 +155,7 @@ public class DeepJson {
 	public static <T> T parseObject(String json, Type clazz) {
 		IDecodeContext context = new Context();
 		JsonReaderBuffer buf = new JsonReaderBuffer(json);
-		T value = context.decode(buf, clazz, 0L);
+		T value = context.decode(buf, clazz, true, 0L);
 		context.runCompleteHooks();
 		context.close(buf);
 		return value;

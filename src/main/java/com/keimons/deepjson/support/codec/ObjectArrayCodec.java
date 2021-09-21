@@ -63,17 +63,17 @@ public class ObjectArrayCodec extends BaseCodec<Object[]> {
 		SyntaxToken token = buf.token();
 		if (token == SyntaxToken.LBRACKET) {
 			// 原生进入 [x, y, z]
-			return decode0(context, buf, findInstanceType(type), options);
+			return decode0(context, buf, type, options);
 		}
 		// 拓展进入 {"$type":"[X", "$values":[x, y, z]}
 		token = buf.nextToken(); // 下一个有可能是对象也有可能是对象结束
 		Class<?> clazz = typeCheck(context, buf, options);
-		if (clazz == null) {
-			clazz = (Class<?>) type;
-		} else {
+		if (clazz != null) {
 			if (Object[].class.isAssignableFrom(clazz)) { // 必须是 对象数组类型 或 子类
 				throw new IncompatibleTypeException(clazz, Object[].class);
 			}
+			// TODO 安全性检查
+			type = clazz;
 			buf.nextToken();
 		}
 		int uniqueId = -1;
@@ -93,14 +93,14 @@ public class ObjectArrayCodec extends BaseCodec<Object[]> {
 				buf.assertExpectedSyntax(colonExpects); // 预期当前语法是 ":"
 				buf.nextToken();
 				buf.assertExpectedSyntax(SyntaxToken.LBRACKET); // 预期当前语法是 "["
-				value = decode0(context, buf, findInstanceType(type), options);
+				value = decode0(context, buf, type, options);
 			} else if (false) {
 				// TODO 新增宽松的解决方案
 				buf.nextToken();
 				buf.assertExpectedSyntax(colonExpects); // 预期当前语法是 ":"
 				buf.nextToken();
 				buf.assertExpectedSyntax(SyntaxToken.OBJECTS); // 预期当前语法是一个对象
-				context.decode(buf, Object.class, options, false); // 读取一个对象
+				context.decode(buf, Object.class, false, options); // 读取一个对象
 			} else {
 				throw new UnknownSyntaxException("array error");
 			}
@@ -117,6 +117,7 @@ public class ObjectArrayCodec extends BaseCodec<Object[]> {
 	}
 
 	private Object decode0(final IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+		Type instanceType = findInstanceType(type);
 		List<Object> values = new ArrayList<Object>();
 		int[] hooks = null;
 		int count = 0;
@@ -134,7 +135,7 @@ public class ObjectArrayCodec extends BaseCodec<Object[]> {
 				values.add(null); // hold on
 			} else {
 				buf.assertExpectedSyntax(SyntaxToken.OBJECTS);
-				values.add(context.decode(buf, type, options, false));
+				values.add(context.decode(buf, instanceType, false, options));
 			}
 			token = buf.nextToken();
 			if (token == SyntaxToken.RBRACKET) {
@@ -142,8 +143,8 @@ public class ObjectArrayCodec extends BaseCodec<Object[]> {
 			}
 			buf.assertExpectedSyntax(SyntaxToken.COMMA);
 		}
-		// TODO 处理泛型类型
-		final Object[] result = ArrayUtil.newInstance(findInstanceType0(type), values.size());
+		Class<?> clazz = findInstanceType0(context, instanceType);
+		final Object[] result = ArrayUtil.newInstance(clazz, values.size());
 		for (int i = 0; i < result.length; i++) {
 			result[i] = values.get(i);
 		}
@@ -162,6 +163,12 @@ public class ObjectArrayCodec extends BaseCodec<Object[]> {
 		return result;
 	}
 
+	/**
+	 * 获取数组的组件类型
+	 *
+	 * @param type {@link GenericArrayType}泛型数组类型或{@code Object[]}对象数组类型。
+	 * @return 组件类型
+	 */
 	private Type findInstanceType(Type type) {
 		if (type instanceof GenericArrayType) {
 			return ((GenericArrayType) type).getGenericComponentType();
@@ -170,18 +177,38 @@ public class ObjectArrayCodec extends BaseCodec<Object[]> {
 		}
 	}
 
-	private Class<?> findInstanceType0(Type type) {
+	/**
+	 * 获取类型的数组类型
+	 *
+	 * @param type 类型
+	 * @return 数组类型
+	 */
+	private Class<?> findInstanceType0(IDecodeContext context, Type type) {
+		if (type instanceof Class) {
+			return (Class<?>) type;
+		}
 		if (type instanceof TypeVariable) {
-			return Object.class;
+			TypeVariable<?> variable = (TypeVariable<?>) type;
+			Class<?> clazz = (Class<?>) variable.getGenericDeclaration();
+			String name = variable.getName();
+			return findInstanceType0(context, context.findType(clazz, name));
 		}
 		if (type instanceof ParameterizedType) {
 			return (Class<?>) ((ParameterizedType) type).getRawType();
 		}
 		if (type instanceof GenericArrayType) {
 			GenericArrayType at = (GenericArrayType) type;
-			Class<?> clazz = findInstanceType0(at.getGenericComponentType());
+			Class<?> clazz = findInstanceType0(context, at.getGenericComponentType());
 			return Array.newInstance(clazz, 0).getClass();
 		}
-		return (Class<?>) type;
+		if (type instanceof WildcardType) {
+			WildcardType wt = (WildcardType) type;
+			Type[] upperBounds = wt.getUpperBounds();
+			if (upperBounds.length == 1) {
+				Type upperBoundType = upperBounds[0];
+				throw new RuntimeException("unsupported");
+			}
+		}
+		throw new RuntimeException("unsupported");
 	}
 }
