@@ -4,4 +4,5 @@ module deepjson.test {
 	exports com.keimons.deepjson.test.object;
 	exports com.keimons.deepjson.test.codec;
 	exports com.keimons.deepjson.test.map;
+	exports com.keimons.deepjson.test.codec.date;
 }
