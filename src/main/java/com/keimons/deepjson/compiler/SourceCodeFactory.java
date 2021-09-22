@@ -1,6 +1,8 @@
 package com.keimons.deepjson.compiler;
 
 import com.keimons.deepjson.*;
+import com.keimons.deepjson.annotation.CodecConfig;
+import com.keimons.deepjson.annotation.Preset;
 import com.keimons.deepjson.support.SyntaxToken;
 import com.keimons.deepjson.util.ArrayUtil;
 import com.keimons.deepjson.util.ClassUtil;
@@ -26,6 +28,7 @@ import java.util.TreeMap;
  **/
 public class SourceCodeFactory {
 
+	@CodecConfig(format = @Preset(formatter = "ios"))
 	private static final List<Class<?>> IMPORT = new ArrayList<Class<?>>();
 
 	static {
@@ -58,19 +61,18 @@ public class SourceCodeFactory {
 		for (Field field : ClassUtil.getFields(clazz)) {
 			fields.add(new FieldInfo(field));
 		}
-		return create(clazz, packageName, className, fields);
+		return create(packageName, className, fields);
 	}
 
 	/**
 	 * 构造一个编解码工具类型
 	 *
-	 * @param clazz       类名
 	 * @param packageName 包名
 	 * @param className   类名
 	 * @param fields      字段
 	 * @return 工具类
 	 */
-	private static String create(Class<?> clazz, String packageName, String className, List<FieldInfo> fields) {
+	private static String create(String packageName, String className, List<FieldInfo> fields) {
 		StringBuilder source = new StringBuilder();
 		packageClass(source, packageName);
 		importClass(source);

@@ -20,16 +20,36 @@ import java.lang.reflect.Field;
  **/
 public abstract class ExtendedCodec extends BaseCodec<Object> {
 
+	/**
+	 * 初始化拓展编解码器
+	 *
+	 * @param clazz 编解码对象类型
+	 */
 	public abstract void init(Class<?> clazz);
 
+	/**
+	 * 创建一个对象实例
+	 *
+	 * @param clazz 对象
+	 * @param <T>   对象类型
+	 * @return 新实例
+	 */
 	protected <T> T newInstance(Class<T> clazz) {
 		try {
-			return clazz.newInstance();
+			return clazz.getDeclaredConstructor().newInstance();
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 
+	/**
+	 * 获取类中的字段
+	 *
+	 * @param clazz     获取字段的类
+	 * @param fieldName 字段名
+	 * @param isPublic  是否公共的
+	 * @return 类中的字段
+	 */
 	public static Field findField(Class<?> clazz, String fieldName, boolean isPublic) {
 		try {
 			if (isPublic) {

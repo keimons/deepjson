@@ -44,6 +44,13 @@ public interface ICodec<T> {
 	Unsafe unsafe = UnsafeUtil.getUnsafe();
 
 	/**
+	 * 获取编解码器类型
+	 *
+	 * @return 编解码器类型
+	 */
+	CodecType getCodecType();
+
+	/**
 	 * 是否需要建立循环索引
 	 *
 	 * @return {@code true}需要搜索，{@code false}不需要搜索

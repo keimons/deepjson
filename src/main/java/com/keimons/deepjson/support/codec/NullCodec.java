@@ -1,8 +1,9 @@
 package com.keimons.deepjson.support.codec;
 
-import com.keimons.deepjson.AbstractBuffer;
-import com.keimons.deepjson.AbstractContext;
-import com.keimons.deepjson.ICodec;
+import com.keimons.deepjson.*;
+import com.keimons.deepjson.support.SyntaxToken;
+
+import java.lang.reflect.Type;
 
 /**
  * {@code null}编解码器
@@ -23,5 +24,11 @@ public class NullCodec extends BaseCodec<Void> {
 	@Override
 	public void encode(AbstractContext context, AbstractBuffer buf, Void value, int uniqueId, long options) {
 		buf.writeNull();
+	}
+
+	@Override
+	public Void decode(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+		buf.assertExpectedSyntax(SyntaxToken.NULL);
+		return null;
 	}
 }

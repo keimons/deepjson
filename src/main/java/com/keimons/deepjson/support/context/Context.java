@@ -68,7 +68,6 @@ public class Context implements IDecodeContext {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public <T> T decode(ReaderBuffer buf, Type type, boolean next, long options) {
 		ICodec<T> codec = CodecFactory.getCodec(type);
 		add(type);
@@ -78,7 +77,7 @@ public class Context implements IDecodeContext {
 			buf.assertExpectedSyntax(SyntaxToken.OBJECTS);
 		}
 		try {
-			return (T) codec.decode(this, buf, type, options);
+			return codec.decode(this, buf, type, options);
 		} finally {
 			poll();
 		}

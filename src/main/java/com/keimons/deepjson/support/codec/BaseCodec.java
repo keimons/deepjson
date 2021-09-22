@@ -1,9 +1,6 @@
 package com.keimons.deepjson.support.codec;
 
-import com.keimons.deepjson.AbstractContext;
-import com.keimons.deepjson.ICodec;
-import com.keimons.deepjson.IDecodeContext;
-import com.keimons.deepjson.ReaderBuffer;
+import com.keimons.deepjson.*;
 import com.keimons.deepjson.support.SyntaxToken;
 
 import java.lang.reflect.Type;
@@ -60,6 +57,11 @@ public abstract class BaseCodec<T> implements ICodec<T> {
 	 * 冒号预期语法
 	 */
 	protected final SyntaxToken colonExpects = SyntaxToken.COLON;
+
+	@Override
+	public CodecType getCodecType() {
+		return CodecType.CODEC;
+	}
 
 	@Override
 	public boolean isSearch() {
