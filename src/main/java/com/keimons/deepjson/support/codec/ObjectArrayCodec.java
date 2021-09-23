@@ -1,9 +1,6 @@
 package com.keimons.deepjson.support.codec;
 
-import com.keimons.deepjson.AbstractBuffer;
-import com.keimons.deepjson.AbstractContext;
-import com.keimons.deepjson.IDecodeContext;
-import com.keimons.deepjson.ReaderBuffer;
+import com.keimons.deepjson.*;
 import com.keimons.deepjson.support.ElementsFuture;
 import com.keimons.deepjson.support.IncompatibleTypeException;
 import com.keimons.deepjson.support.SyntaxToken;
@@ -41,9 +38,19 @@ public class ObjectArrayCodec extends BaseCodec<Object[]> {
 			throw new RuntimeException("deep json bug");
 		}
 		int count = ((ElementsFuture) future).getCount();
+		char mark = '{';
 		if (uniqueId >= 0) {
-			buf.writeValue('{', FIELD_SET_ID, uniqueId);
-			buf.writeName(',', FIELD_VALUE);
+			buf.writeValue(mark, FIELD_SET_ID, uniqueId);
+			mark = ',';
+		}
+		// write class name
+		boolean className = CodecOptions.WriteClassName.isOptions(options);
+		if (className) {
+			buf.writeValue(mark, TYPE, value.getClass().getName());
+			mark = ',';
+		}
+		if (uniqueId >= 0 || className) {
+			buf.writeName(mark, FIELD_VALUE);
 		}
 		buf.writeMark('[');
 		for (int i = 0; i < count; i++) {
@@ -53,7 +60,7 @@ public class ObjectArrayCodec extends BaseCodec<Object[]> {
 			context.encode(buf, options);
 		}
 		buf.writeMark(']');
-		if (uniqueId >= 0) {
+		if (uniqueId >= 0 || className) {
 			buf.writeMark('}');
 		}
 	}
@@ -69,7 +76,7 @@ public class ObjectArrayCodec extends BaseCodec<Object[]> {
 		token = buf.nextToken(); // 下一个有可能是对象也有可能是对象结束
 		Class<?> clazz = typeCheck(context, buf, options);
 		if (clazz != null) {
-			if (Object[].class.isAssignableFrom(clazz)) { // 必须是 对象数组类型 或 子类
+			if (!Object[].class.isAssignableFrom(clazz)) { // 必须是 对象数组类型 或 子类
 				throw new IncompatibleTypeException(clazz, Object[].class);
 			}
 			// TODO 安全性检查
