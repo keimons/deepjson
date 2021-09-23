@@ -17,6 +17,80 @@ import java.util.Map;
 public class ClassUtil {
 
 	/**
+	 * 根据类型查找类型
+	 * <p>
+	 * TODO java 1.6 兼容性测试
+	 *
+	 * @param className 类名
+	 * @return 类型
+	 */
+	public static Class<?> findClass(String className) {
+		// 数组维数不超过255
+		if (className.lastIndexOf("[") > 255) {
+			throw new ClassLookupException("The number of dimensions of the new array must not exceed 255.");
+		}
+		// primitive type
+		if (!className.contains(".")) {
+			Class<?> clazz = findPrimitive(className);
+			if (clazz != null) {
+				return clazz;
+			}
+		}
+		ClassLoader loader = Thread.currentThread().getContextClassLoader();
+		if (loader != null) {
+			try {
+				loader.loadClass(className);
+			} catch (Exception e) {
+				// ignore
+			}
+		}
+		try {
+			// 最后的查找方案，如果找不到，直接抛异常
+			return Class.forName(className);
+		} catch (ClassNotFoundException e) {
+			throw new ClassLookupException("class not found", e);
+		}
+	}
+
+	/**
+	 * 查找基础或者基础类型数组
+	 *
+	 * @param className 类型名
+	 * @return 基础类型 或 基础类型数组
+	 */
+	private static Class<?> findPrimitive(String className) {
+		if ("int".equals(className)) {
+			return Integer.TYPE;
+		}
+		if ("long".equals(className)) {
+			return Long.TYPE;
+		}
+		if ("float".equals(className)) {
+			return Float.TYPE;
+		}
+		if ("double".equals(className)) {
+			return Double.TYPE;
+		}
+		if ("boolean".equals(className)) {
+			return Boolean.TYPE;
+		}
+		if ("byte".equals(className)) {
+			return Byte.TYPE;
+		}
+		if ("char".equals(className)) {
+			return Character.TYPE;
+		}
+		if ("short".equals(className)) {
+			return Short.TYPE;
+		}
+		if ("void".equals(className)) {
+			return Void.TYPE;
+		}
+		// 对于基础类型数组 java可以解析255维以内的数组，返回null，交由后续解析
+		return null;
+	}
+
+	/**
 	 * 获取一个类中的所有字段（包含父类）
 	 *
 	 * @param clazz 要获取所有字段的类
