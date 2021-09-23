@@ -1,6 +1,7 @@
 package com.keimons.deepjson.support.codec;
 
 import com.keimons.deepjson.AbstractBuffer;
+import com.keimons.deepjson.AbstractContext;
 import com.keimons.deepjson.IDecodeContext;
 import com.keimons.deepjson.ReaderBuffer;
 import com.keimons.deepjson.support.SyntaxToken;
@@ -21,7 +22,7 @@ public class DoubleArrayCodec extends BaseArrayCodec<double[]> {
 	public static final DoubleArrayCodec instance = new DoubleArrayCodec();
 
 	@Override
-	public void encode0(double[] values, AbstractBuffer buf, long options) {
+	public void encode0(AbstractContext context, AbstractBuffer buf, double[] values, long options) {
 		for (int i = 0; i < values.length; i++) {
 			if (i != 0) {
 				buf.writeMark(',');

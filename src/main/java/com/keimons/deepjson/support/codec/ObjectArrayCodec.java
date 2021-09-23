@@ -19,7 +19,7 @@ import java.util.List;
  * @version 1.0
  * @since 1.6
  **/
-public class ObjectArrayCodec extends BaseCodec<Object[]> {
+public class ObjectArrayCodec extends BaseArrayCodec<Object[]> {
 
 	public static final ObjectArrayCodec instance = new ObjectArrayCodec();
 
@@ -37,31 +37,16 @@ public class ObjectArrayCodec extends BaseCodec<Object[]> {
 		if (!(future instanceof ElementsFuture)) {
 			throw new RuntimeException("deep json bug");
 		}
-		int count = ((ElementsFuture) future).getCount();
-		char mark = '{';
-		if (uniqueId >= 0) {
-			buf.writeValue(mark, FIELD_SET_ID, uniqueId);
-			mark = ',';
-		}
-		// write class name
-		boolean className = CodecOptions.WriteClassName.isOptions(options);
-		if (className) {
-			buf.writeValue(mark, TYPE, value.getClass().getName());
-			mark = ',';
-		}
-		if (uniqueId >= 0 || className) {
-			buf.writeName(mark, FIELD_VALUE);
-		}
-		buf.writeMark('[');
-		for (int i = 0; i < count; i++) {
+		super.encode(context, buf, value, uniqueId, options);
+	}
+
+	@Override
+	public void encode0(AbstractContext context, AbstractBuffer buf, Object[] values, long options) {
+		for (int i = 0; i < values.length; i++) {
 			if (i != 0) {
 				buf.writeMark(',');
 			}
 			context.encode(buf, options);
-		}
-		buf.writeMark(']');
-		if (uniqueId >= 0 || className) {
-			buf.writeMark('}');
 		}
 	}
 
@@ -81,7 +66,7 @@ public class ObjectArrayCodec extends BaseCodec<Object[]> {
 			}
 			// TODO 安全性检查
 			type = clazz;
-			buf.nextToken();
+			token = buf.nextToken();
 		}
 		int uniqueId = -1;
 		Object[] value = null;
@@ -123,7 +108,7 @@ public class ObjectArrayCodec extends BaseCodec<Object[]> {
 		return value;
 	}
 
-	private Object[] decode0(final IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	public Object[] decode0(final IDecodeContext context, ReaderBuffer buf, Type type, long options) {
 		Type instanceType = findInstanceType(type);
 		List<Object> values = new ArrayList<Object>();
 		int[] hooks = null;

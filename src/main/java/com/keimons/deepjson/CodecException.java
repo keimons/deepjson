@@ -23,6 +23,16 @@ public abstract class CodecException extends RuntimeException {
 	}
 
 	/**
+	 * 构造一个解码异常
+	 *
+	 * @param message 异常信息
+	 * @param cause   异常
+	 */
+	public CodecException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
+	/**
 	 * 构造异常信息
 	 *
 	 * @param buf        缓冲区

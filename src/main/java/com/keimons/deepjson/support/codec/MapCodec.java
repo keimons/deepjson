@@ -50,10 +50,6 @@ public class MapCodec extends BaseCodec<Object> {
 	@Override
 	public void encode(AbstractContext context, AbstractBuffer buf, Object value, int uniqueId, long options) {
 		char mark = '{';
-		if (uniqueId >= 0) {
-			buf.writeValue(mark, FIELD_SET_ID, uniqueId);
-			mark = ',';
-		}
 		// write class name
 		if (CodecOptions.WriteClassName.isOptions(options)) {
 			Class<?> clazz = value.getClass();
@@ -61,6 +57,10 @@ public class MapCodec extends BaseCodec<Object> {
 				buf.writeValue(mark, TYPE, clazz.getName());
 				mark = ',';
 			}
+		}
+		if (uniqueId >= 0) {
+			buf.writeValue(mark, FIELD_SET_ID, uniqueId);
+			mark = ',';
 		}
 		buf.writeMark(mark);
 		Object future = context.poll();

@@ -321,7 +321,14 @@ public abstract class AbstractBuffer implements Closeable {
 			byte[] values = (byte[]) unsafe.getObject(value, CodecUtil.VALUE_OFFSET_STRING);
 			if (CodecUtil.isLatin1(coder)) {
 				for (byte b : values) {
-					buf[writeIndex++] = (char) (b & 0xFF);
+					char[] chars = REPLACEMENT_CHARS[b & 0xFF];
+					if (chars == null) {
+						buf[writeIndex++] = (char) (b & 0xFF);
+					} else {
+						for (char c : chars) {
+							buf[writeIndex++] = c;
+						}
+					}
 				}
 			} else {
 				int i = CodecUtil.BIG_ENCODE ? 0 : 1;

@@ -34,21 +34,21 @@ public abstract class BaseArrayCodec<T> extends BaseCodec<T> {
 	@Override
 	public void encode(AbstractContext context, AbstractBuffer buf, T value, int uniqueId, long options) {
 		char mark = '{';
-		if (uniqueId >= 0) {
-			buf.writeValue(mark, FIELD_SET_ID, uniqueId);
-			mark = ',';
-		}
 		// write class name
 		boolean className = CodecOptions.WriteClassName.isOptions(options);
 		if (className) {
 			buf.writeValue(mark, TYPE, value.getClass().getName());
 			mark = ',';
 		}
+		if (uniqueId >= 0) {
+			buf.writeValue(mark, FIELD_SET_ID, uniqueId);
+			mark = ',';
+		}
 		if (uniqueId >= 0 || className) {
 			buf.writeName(mark, FIELD_VALUE);
 		}
 		buf.writeMark('[');
-		encode0(value, buf, options);
+		encode0(context, buf, value, options);
 		buf.writeMark(']');
 		if (uniqueId >= 0 || className) {
 			buf.writeMark('}');
@@ -56,7 +56,7 @@ public abstract class BaseArrayCodec<T> extends BaseCodec<T> {
 	}
 
 	@Override
-	public final T decode(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	public T decode(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
 		SyntaxToken token = buf.token();
 		if (token == SyntaxToken.LBRACKET) {
 			// 原生进入 [x, y, z]
@@ -111,7 +111,7 @@ public abstract class BaseArrayCodec<T> extends BaseCodec<T> {
 		return value;
 	}
 
-	protected abstract void encode0(T values, AbstractBuffer buf, long options);
+	protected abstract void encode0(AbstractContext context, AbstractBuffer buf, T values, long options);
 
 	protected abstract T decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options);
 }
