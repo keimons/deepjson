@@ -27,7 +27,7 @@ public class ClassUtil {
 	public static Class<?> findClass(String className) {
 		// 数组维数不超过255
 		if (className.lastIndexOf("[") > 255) {
-			throw new ClassLookupException("The number of dimensions of the new array must not exceed 255.");
+			throw new TypeNotFoundException("The number of dimensions of the new array must not exceed 255.");
 		}
 		// primitive type
 		if (!className.contains(".")) {
@@ -48,7 +48,7 @@ public class ClassUtil {
 			// 最后的查找方案，如果找不到，直接抛异常
 			return Class.forName(className);
 		} catch (ClassNotFoundException e) {
-			throw new ClassLookupException("class not found", e);
+			throw new TypeNotFoundException("class not found", e);
 		}
 	}
 

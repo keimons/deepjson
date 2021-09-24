@@ -4,9 +4,7 @@ import com.keimons.deepjson.*;
 import com.keimons.deepjson.support.*;
 
 import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.lang.reflect.WildcardType;
 import java.util.*;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.BlockingQueue;
@@ -87,35 +85,31 @@ public class CollectionCodec extends BaseCodec<Collection<?>> {
 
 	@Override
 	public Collection<?> decode(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+		Type et = context.findType(Collection.class, "E");
+		Class<?> expected = context.findClass(type);
+
 		SyntaxToken token = buf.token();
 		if (token == SyntaxToken.LBRACKET) {
-			Type et = context.findType(Collection.class, "E");
-			Class<?> clazz = null;
-			if (type instanceof ParameterizedType) {
-				clazz = (Class<?>) ((ParameterizedType) type).getRawType();
-			} else if (type instanceof Class) {
-				clazz = (Class<?>) type;
-			} else if (type instanceof WildcardType) {
-				throw new RuntimeException();
-			}
-			final Collection<Object> instance = createInstance(clazz, et);
+			final Collection<Object> instance = createInstance(expected, et);
 			// 原生进入 [x, y, z]
 			decode0(instance, context, buf, et, options);
 			return instance;
 		}
 		// 拓展进入 {"$type":"[X", "$values":[x, y, z]}
 		token = buf.nextToken(); // 下一个有可能是对象也有可能是对象结束
-		Class<?> clazz = typeCheck(context, buf, options);
-		if (clazz != null) {
-			if (!Collection.class.isAssignableFrom(clazz)) { // 必须是 集合类型 或 子类
-				throw new IncompatibleTypeException(clazz, Object[].class);
+		Class<?> target = typeCheck(context, buf, options);
+		if (target != null) {
+			if (!Collection.class.isAssignableFrom(target)) { // 必须是 集合类型 或 子类
+				throw new IncompatibleTypeException(target, Collection.class);
 			}
-			// TODO 安全性检查
-			type = clazz;
+			if (!expected.isAssignableFrom(target)) {
+				throw new IncompatibleTypeException(target, expected);
+			}
+			expected = target;
 			token = buf.nextToken();
 		}
-		Type et = context.findType(Collection.class, "E");
-		final Collection<Object> instance = createInstance(clazz != null ? clazz : type, et);
+
+		final Collection<Object> instance = createInstance(expected, et);
 		if (token == SyntaxToken.STRING && buf.checkPutId()) {
 			buf.nextToken();
 			buf.assertExpectedSyntax(colonExpects); // 预期当前语法是 ":"
@@ -190,36 +184,30 @@ public class CollectionCodec extends BaseCodec<Collection<?>> {
 	}
 
 	/**
-	 * 创建一个{@link Collection}实例。
+	 * 创建一个{@link Collection}实例
+	 * <p>
+	 * 关于{@code type}的类型，一定不是
 	 *
-	 * @param type 集合类型
-	 * @param et   集合中元素类型
+	 * @param clazz 集合类型
+	 * @param et    集合中元素类型
 	 * @return 集合实例
 	 */
 	@SuppressWarnings("unchecked")
-	public Collection<Object> createInstance(Type type, Type et) {
-		if (type instanceof Class) {
-			Class<?> clazz = (Class<?>) type;
-			if (clazz.isInterface()) {
-				return createInterface(clazz);
-			}
-			if (EnumSet.class.isAssignableFrom(clazz)) {
-				return createEnum(et);
-			}
-			if (Modifier.isAbstract(clazz.getModifiers())) {
-				return createAbstract(clazz);
-			}
-			try {
-				return (Collection<Object>) clazz.getDeclaredConstructor().newInstance();
-			} catch (Exception e) {
-				throw new InstantiationFailedException("create instance error, class " + ((Class<?>) type).getName());
-			}
+	private Collection<Object> createInstance(Class<?> clazz, Type et) {
+		if (clazz.isInterface()) {
+			return createInterface(clazz);
 		}
-		if (type instanceof ParameterizedType) {
-			// 不使用这里的泛型，而是使用上下文中查找到的泛型
-			return createInstance(((ParameterizedType) type).getRawType(), et);
+		if (EnumSet.class.isAssignableFrom(clazz)) {
+			return createEnum(et);
 		}
-		throw new InstantiationFailedException("create instance error, type " + type.getTypeName());
+		if (Modifier.isAbstract(clazz.getModifiers())) {
+			return createAbstract(clazz);
+		}
+		try {
+			return (Collection<Object>) clazz.getDeclaredConstructor().newInstance();
+		} catch (Exception e) {
+			throw new InstantiationFailedException("create instance error, class " + clazz.getName());
+		}
 	}
 
 	/**

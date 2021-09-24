@@ -6,9 +6,9 @@ import com.keimons.deepjson.ReaderBuffer;
 import com.keimons.deepjson.support.CodecFactory;
 import com.keimons.deepjson.support.SyntaxToken;
 import com.keimons.deepjson.util.ClassUtil;
+import com.keimons.deepjson.util.TypeNotFoundException;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.util.*;
 
 /**
@@ -55,6 +55,50 @@ public class Context implements IDecodeContext {
 	@Override
 	public Object get(int uniqueId) {
 		return context.get(uniqueId);
+	}
+
+	@Override
+	public Class<?> findClass(Type type) {
+		// 普通类型
+		if (type instanceof Class) {
+			return (Class<?>) type;
+		}
+		// 参数类型
+		if (type instanceof ParameterizedType) {
+			return findClass(((ParameterizedType) type).getRawType());
+		}
+		// 泛型参数
+		if (type instanceof TypeVariable) {
+			TypeVariable<?> variable = (TypeVariable<?>) type;
+			Class<?> clazz = (Class<?>) variable.getGenericDeclaration();
+			String name = variable.getName();
+			return findClass(findType(clazz, name));
+		}
+		// 通配类型
+		if (type instanceof WildcardType) {
+			WildcardType wildcardType = (WildcardType) type;
+			// 上界通配符
+			Type[] upperBounds = wildcardType.getUpperBounds();
+			if (upperBounds.length == 1 && upperBounds[0] != Object.class) {
+				return findClass(upperBounds[0]);
+			}
+			// 下界通配符
+			Type[] lowerBounds = wildcardType.getLowerBounds();
+			if (lowerBounds.length == 1 && lowerBounds[0] != Object.class) {
+				return findClass(lowerBounds[0]);
+			}
+			if (upperBounds[0] == Object.class && lowerBounds[0] == Object.class) {
+				return Object.class;
+			}
+			throw new TypeNotFoundException("unknown wildcard type " + type.getTypeName());
+		}
+		// 泛型数组
+		if (type instanceof GenericArrayType) {
+			GenericArrayType at = (GenericArrayType) type;
+			Class<?> clazz = findClass(at.getGenericComponentType());
+			return Array.newInstance(clazz, 0).getClass();
+		}
+		throw new TypeNotFoundException("unknown type " + type.getTypeName());
 	}
 
 	@Override

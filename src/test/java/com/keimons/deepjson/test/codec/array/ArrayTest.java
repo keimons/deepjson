@@ -1,6 +1,5 @@
 package com.keimons.deepjson.test.codec.array;
 
-import com.keimons.deepjson.CodecOptions;
 import com.keimons.deepjson.DeepJson;
 import org.junit.jupiter.api.Test;
 
@@ -20,14 +19,18 @@ public class ArrayTest {
 		node.value0 = new Boolean[1];
 		node.value1 = new Boolean[1][];
 		node.value1[0] = new Boolean[1];
-		String json1 = DeepJson.toJsonString(node, CodecOptions.WriteClassName);
+		String json1 = DeepJson.toJsonString(node);
 		System.out.println("encode: " + json1);
 		String json2 = DeepJson.toJsonString(node);
 		System.out.println("encode: " + json2);
 		System.out.println("----------------> Array Test Decode <----------------");
 		ArrayNode result1 = DeepJson.parseObject(json1, ArrayNode.class);
 		System.out.println("decode: " + DeepJson.toJsonString(result1));
+		System.out.println("decode: " + result1.value0.getClass());
+		System.out.println("decode: " + result1.value1.getClass());
 		ArrayNode result2 = DeepJson.parseObject(json2, ArrayNode.class);
 		System.out.println("decode: " + DeepJson.toJsonString(result2));
+		System.out.println("decode: " + result2.value0.getClass());
+		System.out.println("decode: " + result2.value1.getClass());
 	}
 }

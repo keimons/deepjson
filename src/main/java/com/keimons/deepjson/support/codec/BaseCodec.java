@@ -128,17 +128,4 @@ public abstract class BaseCodec<T> implements ICodec<T> {
 		}
 		return false;
 	}
-
-	/**
-	 * 判断一个key是否被引用
-	 *
-	 * @param context 上下文
-	 * @param buf     缓冲区
-	 * @param options 解码选项
-	 * @return 是否被引用
-	 */
-	protected boolean isValue(IDecodeContext context, ReaderBuffer buf, long options) {
-		SyntaxToken token = buf.token();
-		return token == SyntaxToken.STRING && buf.checkGetValue();
-	}
 }

@@ -7,7 +7,8 @@ import com.keimons.deepjson.support.SyntaxToken;
 import com.keimons.deepjson.support.UnknownSyntaxException;
 import com.keimons.deepjson.util.ArrayUtil;
 
-import java.lang.reflect.*;
+import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -135,7 +136,7 @@ public class ObjectArrayCodec extends BaseArrayCodec<Object[]> {
 			}
 			buf.assertExpectedSyntax(SyntaxToken.COMMA);
 		}
-		Class<?> clazz = findInstanceType0(context, instanceType);
+		Class<?> clazz = context.findClass(instanceType);
 		final Object[] result = ArrayUtil.newInstance(clazz, values.size());
 		for (int i = 0; i < result.length; i++) {
 			result[i] = values.get(i);
@@ -167,40 +168,5 @@ public class ObjectArrayCodec extends BaseArrayCodec<Object[]> {
 		} else {
 			return ((Class<?>) type).getComponentType();
 		}
-	}
-
-	/**
-	 * 获取类型的数组类型
-	 *
-	 * @param type 类型
-	 * @return 数组类型
-	 */
-	private Class<?> findInstanceType0(IDecodeContext context, Type type) {
-		if (type instanceof Class) {
-			return (Class<?>) type;
-		}
-		if (type instanceof TypeVariable) {
-			TypeVariable<?> variable = (TypeVariable<?>) type;
-			Class<?> clazz = (Class<?>) variable.getGenericDeclaration();
-			String name = variable.getName();
-			return findInstanceType0(context, context.findType(clazz, name));
-		}
-		if (type instanceof ParameterizedType) {
-			return (Class<?>) ((ParameterizedType) type).getRawType();
-		}
-		if (type instanceof GenericArrayType) {
-			GenericArrayType at = (GenericArrayType) type;
-			Class<?> clazz = findInstanceType0(context, at.getGenericComponentType());
-			return Array.newInstance(clazz, 0).getClass();
-		}
-		if (type instanceof WildcardType) {
-			WildcardType wt = (WildcardType) type;
-			Type[] upperBounds = wt.getUpperBounds();
-			if (upperBounds.length == 1) {
-				Type upperBoundType = upperBounds[0];
-				throw new RuntimeException("unsupported");
-			}
-		}
-		throw new RuntimeException("unsupported");
 	}
 }

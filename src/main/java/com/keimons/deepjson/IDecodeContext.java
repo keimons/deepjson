@@ -31,6 +31,14 @@ public interface IDecodeContext {
 	@Nullable Object get(int uniqueId);
 
 	/**
+	 * 根据类型查找真实的{@link Class}
+	 *
+	 * @param type 类型
+	 * @return 实际类型
+	 */
+	Class<?> findClass(Type type);
+
+	/**
 	 * 查找{@link Class}中的泛型类型
 	 *
 	 * @param target 泛型类型，例如{@link java.util.Map}

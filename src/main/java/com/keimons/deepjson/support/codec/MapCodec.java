@@ -8,7 +8,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -97,9 +96,10 @@ public class MapCodec extends BaseCodec<Object> {
 				buf.nextToken();
 			}
 		}
+		Class<?> instanceType = clazz == null ? context.findClass(type) : clazz;
 		Type kt = context.findType(Map.class, "K");
 		Type vt = context.findType(Map.class, "V");
-		final Map<Object, Object> instance = createInstance(clazz != null ? clazz : type, kt, vt);
+		final Map<Object, Object> instance = createInstance(instanceType, kt, vt);
 		SyntaxToken token = buf.token();
 		if (token == SyntaxToken.RBRACE) {
 			return instance;
@@ -167,31 +167,28 @@ public class MapCodec extends BaseCodec<Object> {
 	 * <p>
 	 * 我们已经确定是要创建一个实现了{@link Map}类型接口的实例。
 	 *
-	 * @param type 类型
+	 * @param clazz 类型
 	 * @return 对象
 	 */
-	private @NotNull Map<Object, Object> createInstance(Type type, Type kt, Type vt) {
-		if (type instanceof Class) {
-			// 接口 抽象类 类
-			Class<?> clazz = (Class<?>) type;
-			if (clazz.isInterface()) { // 支持一些接口
-				return createInterface(clazz);
-			} else if (EnumMap.class.isAssignableFrom(clazz)) {
-				return createEnumMap(kt);
-			} else if (Modifier.isAbstract(clazz.getModifiers())) {
-				return createAbstract(clazz);
-			} else {
-				try {
-					return ReflectionUtil.newInstance(clazz);
-				} catch (Throwable cause) {
-					throw new IllegalArgumentException("could not instantiate map type: " + clazz.getName(), cause);
-				}
-			}
+	private @NotNull Map<Object, Object> createInstance(Class<?> clazz, Type kt, Type vt) {
+		// 接口
+		if (clazz.isInterface()) {
+			return createInterface(clazz);
 		}
-		if (type instanceof ParameterizedType) {
-			return createInstance(((ParameterizedType) type).getRawType(), kt, vt);
+		// 枚举
+		if (EnumMap.class.isAssignableFrom(clazz)) {
+			return createEnumMap(kt);
 		}
-		throw new RuntimeException("unsupported");
+		// 抽象类
+		if (Modifier.isAbstract(clazz.getModifiers())) {
+			return createAbstract(clazz);
+		}
+		// 反射创建
+		try {
+			return ReflectionUtil.newInstance(clazz);
+		} catch (Throwable cause) {
+			throw new IllegalArgumentException("cannot instantiate map class: " + clazz.getName(), cause);
+		}
 	}
 
 	/**
