@@ -3,6 +3,7 @@ module deepjson.test {
 	requires org.junit.jupiter.api;
 	exports com.keimons.deepjson.test.codec;
 	exports com.keimons.deepjson.test.codec.adder;
+	exports com.keimons.deepjson.test.codec.atomic;
 	exports com.keimons.deepjson.test.codec.clazz;
 	exports com.keimons.deepjson.test.codec.collection;
 	exports com.keimons.deepjson.test.codec.date;
