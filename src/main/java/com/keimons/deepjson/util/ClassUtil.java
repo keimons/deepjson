@@ -168,11 +168,17 @@ public class ClassUtil {
 			}
 			if (result instanceof WildcardType) {
 				WildcardType wildcardType = (WildcardType) result;
+				// 上界通配符
 				Type[] upperBounds = wildcardType.getUpperBounds();
-				if (upperBounds.length == 1) {
-					// TODO 继续向下查找，找不到使用这个
+				if (upperBounds.length == 1 && upperBounds[0] != Object.class) {
 					return upperBounds[0];
 				}
+				// 下界通配符
+				Type[] lowerBounds = wildcardType.getLowerBounds();
+				if (lowerBounds.length == 1 && lowerBounds[0] != Object.class) {
+					return lowerBounds[0];
+				}
+				return Object.class;
 			}
 			return result;
 		}

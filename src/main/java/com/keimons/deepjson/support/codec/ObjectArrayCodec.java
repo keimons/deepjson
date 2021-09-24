@@ -1,6 +1,9 @@
 package com.keimons.deepjson.support.codec;
 
-import com.keimons.deepjson.*;
+import com.keimons.deepjson.AbstractBuffer;
+import com.keimons.deepjson.AbstractContext;
+import com.keimons.deepjson.IDecodeContext;
+import com.keimons.deepjson.ReaderBuffer;
 import com.keimons.deepjson.support.ElementsFuture;
 import com.keimons.deepjson.support.IncompatibleTypeException;
 import com.keimons.deepjson.support.SyntaxToken;
@@ -141,7 +144,7 @@ public class ObjectArrayCodec extends BaseArrayCodec<Object[]> {
 			result[i] = values.get(i);
 		}
 		if (hooks != null) {
-			for (int i = 0; i < hooks.length; i += 2) {
+			for (int i = 0; i < count; i += 2) {
 				final int index = hooks[i];
 				final int unique = hooks[i + 1];
 				context.addCompleteHook(new Runnable() {

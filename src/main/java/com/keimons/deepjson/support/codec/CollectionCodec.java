@@ -146,7 +146,6 @@ public class CollectionCodec extends BaseCodec<Collection<?>> {
 	}
 
 	private void decode0(Collection<Object> instance, final IDecodeContext context, ReaderBuffer buf, Type et, long options) {
-		List<Object> values = new ArrayList<Object>();
 		int[] hooks = null;
 		int count = 0;
 		for (; ; ) {
@@ -158,12 +157,12 @@ public class CollectionCodec extends BaseCodec<Collection<?>> {
 				if (count >= hooks.length) {
 					hooks = Arrays.copyOf(hooks, hooks.length << 1);
 				}
-				hooks[count++] = values.size();
+				int index = (count >> 1) + instance.size(); // 用于记录位置
+				hooks[count++] = index;
 				hooks[count++] = buf.get$Id();
-				values.add(null); // hold on
 			} else {
 				buf.assertExpectedSyntax(SyntaxToken.OBJECTS);
-				values.add(context.decode(buf, et, false, options));
+				instance.add(context.decode(buf, et, false, options));
 			}
 			token = buf.nextToken();
 			if (token == SyntaxToken.RBRACKET) {
@@ -172,17 +171,18 @@ public class CollectionCodec extends BaseCodec<Collection<?>> {
 			buf.assertExpectedSyntax(SyntaxToken.COMMA);
 		}
 
-		instance.addAll(values);
-
 		if (hooks != null) {
-			for (int i = 0; i < hooks.length; i += 2) {
+			for (int i = 0; i < count; i += 2) {
 				final int index = hooks[i];
 				final int unique = hooks[i + 1];
 				context.addCompleteHook(new Runnable() {
 					@Override
 					public void run() {
-						// TODO 重新整理位置
+						List<Object> list = new ArrayList<>(instance);
+						instance.clear();
+						instance.addAll(list.subList(0, index));
 						instance.add(context.get(unique));
+						instance.addAll(list.subList(index, list.size()));
 					}
 				});
 			}

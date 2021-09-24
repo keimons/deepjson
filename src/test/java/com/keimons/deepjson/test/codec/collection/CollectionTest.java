@@ -4,11 +4,11 @@ import com.keimons.deepjson.DeepJson;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.atomic.LongAdder;
 
 /**
- * {@link Class}测试
+ * {@link Collection}测试
  *
  * @author houyn[monkey@keimons.com]
  * @version 1.0

@@ -179,7 +179,13 @@ public class SourceCodeFactory {
 		source.append("\t\t\tbuf.assertExpectedSyntax(SyntaxToken.COLON);\n");
 		source.append("\t\t\ttoken = buf.nextToken();\n");
 		source.append("\t\t\tswitch (index) {\n");
-		int count = 0;
+
+		source.append("\t\t\t\tcase 0: {\n");
+		source.append("\t\t\t\t\tcontext.put(buf.intValue(), instance);\n");
+		source.append("\t\t\t\t}\n");
+		source.append("\t\t\t\tbreak;\n");
+
+		int count = 1;
 		for (Map.Entry<Integer, ArrayList<FieldInfo>> entry : map.entrySet()) {
 			for (FieldInfo info : entry.getValue()) {
 				appendCase(source, count++, info);
@@ -298,9 +304,14 @@ public class SourceCodeFactory {
 					.append(info.offset())
 					.append("L, value);\n");
 		} else {
-			source.append("\t\t\t\t\tType ft = context.findType($field$_")
+			source.append("\t\t\t\t\tObject value;\n");
+			source.append("\t\t\t\t\tif (token == SyntaxToken.NULL) {\n");
+			source.append("\t\t\t\t\t\tvalue = null;\n");
+			source.append("\t\t\t\t\t} else {\n");
+			source.append("\t\t\t\t\t\tType ft = context.findType($field$_")
 					.append(info.getFieldName()).append(");\n");
-			source.append("\t\t\t\t\tObject value = context.decode(buf, ft, false, options);\n");
+			source.append("\t\t\t\t\t\tvalue = context.decode(buf, ft, false, options);\n");
+			source.append("\t\t\t\t\t}\n");
 			source.append("\t\t\t\t\tunsafe.putObject(instance, ")
 					.append(info.offset()).append("L, value);\n");
 		}
@@ -312,7 +323,10 @@ public class SourceCodeFactory {
 		source.append("\tprivate int switch0(ReaderBuffer buf) {\n");
 		source.append("\t\tint hashcode = buf.valueHashcode();\n");
 		source.append("\t\tswitch (hashcode) {\n");
-		int count = 0;
+
+		// 0 always @id
+
+		int count = 1;
 		for (Map.Entry<Integer, ArrayList<FieldInfo>> entry : map.entrySet()) {
 			int hashcode = entry.getKey();
 			source.append("\t\t\tcase ").append(hashcode).append(": {\n");
@@ -325,7 +339,11 @@ public class SourceCodeFactory {
 			source.append("\t\t\tbreak;\n");
 		}
 		source.append("\t\t\tdefault:\n");
-		source.append("\t\t\t\treturn -1;\n");
+		source.append("\t\t\t\tif (buf.isSame(FIELD_SET_ID)) {\n");
+		source.append("\t\t\t\t\treturn 0;\n");
+		source.append("\t\t\t\t} else {\n");
+		source.append("\t\t\t\t\treturn -1;\n");
+		source.append("\t\t\t\t}\n");
 		source.append("\t\t}\n");
 		source.append("\t\treturn -1;\n");
 		source.append("\t}\n");
