@@ -2,6 +2,7 @@ package com.keimons.deepjson.support.codec;
 
 import com.keimons.deepjson.AbstractBuffer;
 import com.keimons.deepjson.AbstractContext;
+import com.keimons.deepjson.CodecModel;
 import com.keimons.deepjson.support.ElementsFuture;
 
 /**
@@ -29,7 +30,7 @@ public class EmptyCodec extends BaseCodec<ElementsFuture> {
 	}
 
 	@Override
-	public void encode(AbstractContext context, AbstractBuffer buf, ElementsFuture value, int uniqueId, long options) {
+	public void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, ElementsFuture value, int uniqueId, long options) {
 		throw new UnsupportedOperationException();
 	}
 }

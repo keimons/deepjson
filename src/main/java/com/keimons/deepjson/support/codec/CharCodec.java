@@ -1,9 +1,6 @@
 package com.keimons.deepjson.support.codec;
 
-import com.keimons.deepjson.AbstractBuffer;
-import com.keimons.deepjson.AbstractContext;
-import com.keimons.deepjson.IDecodeContext;
-import com.keimons.deepjson.ReaderBuffer;
+import com.keimons.deepjson.*;
 
 import java.lang.reflect.Type;
 
@@ -19,18 +16,17 @@ public class CharCodec extends BasePrimitiveCodec<Character> {
 	public static final CharCodec instance = new CharCodec();
 
 	@Override
-	public void encode(AbstractContext context, AbstractBuffer buf, Character value, int uniqueId, long options) {
+	public void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, Character value, int uniqueId, long options) {
 		buf.writeWithQuote(value);
 	}
 
 	@Override
-	public void writeKey(AbstractContext context, AbstractBuffer buf, Character value, int uniqueId, long options) {
-		// char don't need double quote.
-		encode(context, buf, value, uniqueId, options);
+	protected void encode0(AbstractBuffer buf, Character value) {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public Character decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	protected Character decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
 		buf.assertExpectedSyntax(stringExpects);
 		return buf.charValue();
 	}

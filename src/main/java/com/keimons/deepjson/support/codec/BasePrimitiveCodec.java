@@ -1,9 +1,6 @@
 package com.keimons.deepjson.support.codec;
 
-import com.keimons.deepjson.AbstractBuffer;
-import com.keimons.deepjson.AbstractContext;
-import com.keimons.deepjson.IDecodeContext;
-import com.keimons.deepjson.ReaderBuffer;
+import com.keimons.deepjson.*;
 import com.keimons.deepjson.support.SyntaxToken;
 
 import java.lang.reflect.Type;
@@ -22,10 +19,15 @@ public abstract class BasePrimitiveCodec<T> extends BaseCodec<T> {
 		return false;
 	}
 
-	public void writeKey(AbstractContext context, AbstractBuffer buf, T value, int uniqueId, long options) {
-		buf.writeMark('"');
-		encode(context, buf, value, uniqueId, options);
-		buf.writeMark('"');
+	@Override
+	public void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, T value, int uniqueId, long options) {
+		if (model == CodecModel.V || CodecOptions.PrimitiveKey.isOptions(options)) {
+			encode0(buf, value);
+		} else {
+			buf.writeMark('"');
+			encode0(buf, value);
+			buf.writeMark('"');
+		}
 	}
 
 	@Override
@@ -36,6 +38,8 @@ public abstract class BasePrimitiveCodec<T> extends BaseCodec<T> {
 		}
 		return decode0(context, buf, type, options);
 	}
+
+	protected abstract void encode0(AbstractBuffer buf, T value);
 
 	protected abstract T decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options);
 }

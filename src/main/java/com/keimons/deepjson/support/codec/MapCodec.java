@@ -48,7 +48,7 @@ public class MapCodec extends BaseCodec<Object> {
 	}
 
 	@Override
-	public void encode(AbstractContext context, AbstractBuffer buf, Object value, int uniqueId, long options) {
+	public void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, Object value, int uniqueId, long options) {
 		char mark = '{';
 		// write class name
 		if (CodecOptions.WriteClassName.isOptions(options)) {
@@ -72,9 +72,9 @@ public class MapCodec extends BaseCodec<Object> {
 			if (i != 0) {
 				buf.writeMark(',');
 			}
-			context.encodeKey(buf, options);
+			context.encode(buf, CodecModel.K, options);
 			buf.writeMark(':');
-			context.encode(buf, options);
+			context.encode(buf, CodecModel.V, options);
 		}
 		buf.writeMark('}');
 	}

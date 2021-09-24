@@ -1,7 +1,6 @@
 package com.keimons.deepjson.support.codec;
 
 import com.keimons.deepjson.AbstractBuffer;
-import com.keimons.deepjson.AbstractContext;
 import com.keimons.deepjson.IDecodeContext;
 import com.keimons.deepjson.ReaderBuffer;
 
@@ -19,12 +18,12 @@ public class ShortCodec extends BasePrimitiveCodec<Short> {
 	public static final ShortCodec instance = new ShortCodec();
 
 	@Override
-	public void encode(AbstractContext context, AbstractBuffer buf, Short value, int uniqueId, long options) {
+	protected void encode0(AbstractBuffer buf, Short value) {
 		buf.write(value);
 	}
 
 	@Override
-	public Short decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	protected Short decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
 		buf.assertExpectedSyntax(numberExpects, stringExpects);
 		return Short.valueOf(buf.stringValue());
 	}

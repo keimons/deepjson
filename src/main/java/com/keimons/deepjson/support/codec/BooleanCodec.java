@@ -1,7 +1,6 @@
 package com.keimons.deepjson.support.codec;
 
 import com.keimons.deepjson.AbstractBuffer;
-import com.keimons.deepjson.AbstractContext;
 import com.keimons.deepjson.IDecodeContext;
 import com.keimons.deepjson.ReaderBuffer;
 import com.keimons.deepjson.support.SyntaxToken;
@@ -20,12 +19,12 @@ public class BooleanCodec extends BasePrimitiveCodec<Boolean> {
 	public static final BooleanCodec instance = new BooleanCodec();
 
 	@Override
-	public void encode(AbstractContext context, AbstractBuffer buf, Boolean value, int uniqueId, long options) {
+	protected void encode0(AbstractBuffer buf, Boolean value) {
 		buf.write(value);
 	}
 
 	@Override
-	public Boolean decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	protected Boolean decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
 		buf.assertExpectedSyntax(SyntaxToken.TRUE, SyntaxToken.FALSE, SyntaxToken.STRING);
 		SyntaxToken token = buf.token();
 		if (token == SyntaxToken.TRUE) {

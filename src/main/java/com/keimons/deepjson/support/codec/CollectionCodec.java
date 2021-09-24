@@ -24,7 +24,7 @@ public class CollectionCodec extends BaseCodec<Collection<?>> {
 
 	public static final CollectionCodec instance = new CollectionCodec();
 
-	public static final Map<Class<?>, Class<?>> interfaces = new HashMap<>();
+	public static final Map<Class<?>, Class<?>> interfaces = new HashMap<Class<?>, Class<?>>();
 
 	static {
 		interfaces.put(Collection.class, ArrayList.class);
@@ -49,7 +49,7 @@ public class CollectionCodec extends BaseCodec<Collection<?>> {
 	}
 
 	@Override
-	public void encode(AbstractContext context, AbstractBuffer buf, Collection<?> value, int uniqueId, long options) {
+	public void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, Collection<?> value, int uniqueId, long options) {
 		Object future = context.poll();
 		if (!(future instanceof ElementsFuture)) {
 			throw new RuntimeException("deep json bug");
@@ -77,7 +77,7 @@ public class CollectionCodec extends BaseCodec<Collection<?>> {
 			if (i != 0) {
 				buf.writeMark(',');
 			}
-			context.encode(buf, options);
+			context.encode(buf, CodecModel.V, options);
 		}
 		buf.writeMark(']');
 		if (uniqueId >= 0 || className) {
@@ -145,7 +145,7 @@ public class CollectionCodec extends BaseCodec<Collection<?>> {
 		return instance;
 	}
 
-	private void decode0(Collection<Object> instance, final IDecodeContext context, ReaderBuffer buf, Type et, long options) {
+	private void decode0(final Collection<Object> instance, final IDecodeContext context, ReaderBuffer buf, Type et, long options) {
 		int[] hooks = null;
 		int count = 0;
 		for (; ; ) {
@@ -178,7 +178,7 @@ public class CollectionCodec extends BaseCodec<Collection<?>> {
 				context.addCompleteHook(new Runnable() {
 					@Override
 					public void run() {
-						List<Object> list = new ArrayList<>(instance);
+						List<Object> list = new ArrayList<Object>(instance);
 						instance.clear();
 						instance.addAll(list.subList(0, index));
 						instance.add(context.get(unique));

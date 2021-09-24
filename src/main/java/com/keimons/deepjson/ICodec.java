@@ -70,11 +70,12 @@ public interface ICodec<T> {
 	 *
 	 * @param context  上下文
 	 * @param buf      缓冲区
+	 * @param model    编解码模式
 	 * @param value    对象值
 	 * @param uniqueId 对象唯一ID
 	 * @param options  编码选项
 	 */
-	void encode(AbstractContext context, AbstractBuffer buf, T value, int uniqueId, long options);
+	void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, T value, int uniqueId, long options);
 
 	/**
 	 * 解码

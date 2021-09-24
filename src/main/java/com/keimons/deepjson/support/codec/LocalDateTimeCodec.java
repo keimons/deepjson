@@ -1,9 +1,6 @@
 package com.keimons.deepjson.support.codec;
 
-import com.keimons.deepjson.AbstractBuffer;
-import com.keimons.deepjson.AbstractContext;
-import com.keimons.deepjson.IDecodeContext;
-import com.keimons.deepjson.ReaderBuffer;
+import com.keimons.deepjson.*;
 
 import java.lang.reflect.Type;
 import java.time.LocalDateTime;
@@ -21,7 +18,7 @@ import java.time.LocalDateTime;
 public class LocalDateTimeCodec extends BaseCodec<LocalDateTime> {
 
 	@Override
-	public void encode(AbstractContext context, AbstractBuffer buf, LocalDateTime value, int uniqueId, long options) {
+	public void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, LocalDateTime value, int uniqueId, long options) {
 		buf.write(value.toString());
 	}
 

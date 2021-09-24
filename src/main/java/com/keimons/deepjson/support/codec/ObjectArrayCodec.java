@@ -1,9 +1,6 @@
 package com.keimons.deepjson.support.codec;
 
-import com.keimons.deepjson.AbstractBuffer;
-import com.keimons.deepjson.AbstractContext;
-import com.keimons.deepjson.IDecodeContext;
-import com.keimons.deepjson.ReaderBuffer;
+import com.keimons.deepjson.*;
 import com.keimons.deepjson.support.ElementsFuture;
 import com.keimons.deepjson.support.IncompatibleTypeException;
 import com.keimons.deepjson.support.SyntaxToken;
@@ -35,12 +32,12 @@ public class ObjectArrayCodec extends BaseArrayCodec<Object[]> {
 	}
 
 	@Override
-	public void encode(AbstractContext context, AbstractBuffer buf, Object[] value, int uniqueId, long options) {
+	public void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, Object[] value, int uniqueId, long options) {
 		Object future = context.poll();
 		if (!(future instanceof ElementsFuture)) {
 			throw new RuntimeException("deep json bug");
 		}
-		super.encode(context, buf, value, uniqueId, options);
+		super.encode(context, buf, model, value, uniqueId, options);
 	}
 
 	@Override
@@ -49,7 +46,7 @@ public class ObjectArrayCodec extends BaseArrayCodec<Object[]> {
 			if (i != 0) {
 				buf.writeMark(',');
 			}
-			context.encode(buf, options);
+			context.encode(buf, CodecModel.V, options);
 		}
 	}
 

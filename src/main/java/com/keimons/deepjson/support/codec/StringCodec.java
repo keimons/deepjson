@@ -1,9 +1,6 @@
 package com.keimons.deepjson.support.codec;
 
-import com.keimons.deepjson.AbstractBuffer;
-import com.keimons.deepjson.AbstractContext;
-import com.keimons.deepjson.IDecodeContext;
-import com.keimons.deepjson.ReaderBuffer;
+import com.keimons.deepjson.*;
 import com.keimons.deepjson.support.SyntaxToken;
 
 import java.lang.reflect.Type;
@@ -25,7 +22,7 @@ public class StringCodec extends BaseCodec<String> {
 	}
 
 	@Override
-	public void encode(AbstractContext context, AbstractBuffer buf, String value, int uniqueId, long options) {
+	public void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, String value, int uniqueId, long options) {
 		buf.writeWithQuote(value);
 	}
 

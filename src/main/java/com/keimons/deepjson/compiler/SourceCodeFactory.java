@@ -132,7 +132,7 @@ public class SourceCodeFactory {
 		source.append("\n");
 
 		source.append("\t@Override\n");
-		source.append("\tpublic void encode(AbstractContext context, AbstractBuffer buf, Object object, int uniqueId, long options) {\n");
+		source.append("\tpublic void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, Object object, int uniqueId, long options) {\n");
 		source.append("\t\tchar mark = '{';\n");
 		source.append("\t\tif (uniqueId >= 0) {\n");
 		source.append("\t\t\tbuf.writeValue(mark, FIELD_SET_ID, uniqueId);\n");
@@ -269,7 +269,11 @@ public class SourceCodeFactory {
 	}
 
 	public static void appendObject(StringBuilder source, String ref) {
-		source.append("\t\tif (context.encodeValue(buf, options, mark, $").append(ref).append(")) {\n");
+		source.append("\t\tif (context.isEmptyHead() && CodecOptions.IgnoreNonField.isOptions(options)) {\n");
+		source.append("\t\t\tcontext.poll();\n");
+		source.append("\t\t} else {\n");
+		source.append("\t\t\tbuf.writeName(mark, $").append(ref).append(");\n");
+		source.append("\t\t\tcontext.encode(buf, CodecModel.V, options);\n");
 		source.append("\t\t\tmark = ',';\n");
 		source.append("\t\t}\n");
 	}

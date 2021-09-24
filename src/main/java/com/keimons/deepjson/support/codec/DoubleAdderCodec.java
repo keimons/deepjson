@@ -1,9 +1,6 @@
 package com.keimons.deepjson.support.codec;
 
-import com.keimons.deepjson.AbstractBuffer;
-import com.keimons.deepjson.AbstractContext;
-import com.keimons.deepjson.IDecodeContext;
-import com.keimons.deepjson.ReaderBuffer;
+import com.keimons.deepjson.*;
 import com.keimons.deepjson.support.SyntaxToken;
 
 import java.lang.reflect.Type;
@@ -28,8 +25,14 @@ public class DoubleAdderCodec extends BaseCodec<DoubleAdder> {
 	}
 
 	@Override
-	public void encode(AbstractContext context, AbstractBuffer buf, DoubleAdder value, int uniqueId, long options) {
-		buf.write(value.sum());
+	public void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, DoubleAdder value, int uniqueId, long options) {
+		if (model == CodecModel.V || CodecOptions.PrimitiveKey.isOptions(options)) {
+			buf.write(value.sum());
+		} else {
+			buf.writeMark('"');
+			buf.write(value.sum());
+			buf.writeMark('"');
+		}
 	}
 
 	@Override

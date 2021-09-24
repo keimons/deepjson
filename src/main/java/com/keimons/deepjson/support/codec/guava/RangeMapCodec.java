@@ -3,6 +3,7 @@ package com.keimons.deepjson.support.codec.guava;
 import com.google.common.collect.RangeMap;
 import com.keimons.deepjson.AbstractBuffer;
 import com.keimons.deepjson.AbstractContext;
+import com.keimons.deepjson.CodecModel;
 import com.keimons.deepjson.support.codec.BaseCodec;
 
 /**
@@ -26,7 +27,7 @@ public class RangeMapCodec extends BaseCodec<RangeMap> {
 	}
 
 	@Override
-	public void encode(AbstractContext context, AbstractBuffer buf, RangeMap value, int uniqueId, long options) {
+	public void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, RangeMap value, int uniqueId, long options) {
 
 	}
 }

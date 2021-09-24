@@ -3,6 +3,7 @@ package com.keimons.deepjson.support.codec.guava;
 import com.google.common.collect.Multimap;
 import com.keimons.deepjson.AbstractBuffer;
 import com.keimons.deepjson.AbstractContext;
+import com.keimons.deepjson.CodecModel;
 import com.keimons.deepjson.support.codec.BaseCodec;
 
 /**
@@ -27,7 +28,7 @@ public class MultimapCodec extends BaseCodec<Multimap<?, ?>> {
 	}
 
 	@Override
-	public void encode(AbstractContext context, AbstractBuffer buf, Multimap<?, ?> value, int uniqueId, long options) {
-		context.encode(buf, options);
+	public void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, Multimap<?, ?> value, int uniqueId, long options) {
+		context.encode(buf, CodecModel.V, options);
 	}
 }

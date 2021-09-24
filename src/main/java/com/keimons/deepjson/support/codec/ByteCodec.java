@@ -1,7 +1,6 @@
 package com.keimons.deepjson.support.codec;
 
 import com.keimons.deepjson.AbstractBuffer;
-import com.keimons.deepjson.AbstractContext;
 import com.keimons.deepjson.IDecodeContext;
 import com.keimons.deepjson.ReaderBuffer;
 
@@ -19,12 +18,12 @@ public class ByteCodec extends BasePrimitiveCodec<Byte> {
 	public static final ByteCodec instance = new ByteCodec();
 
 	@Override
-	public void encode(AbstractContext context, AbstractBuffer buf, Byte value, int uniqueId, long options) {
+	protected void encode0(AbstractBuffer buf, Byte value) {
 		buf.write(value);
 	}
 
 	@Override
-	public Byte decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	protected Byte decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
 		buf.assertExpectedSyntax(numberExpects, stringExpects);
 		return Byte.valueOf(buf.stringValue());
 	}

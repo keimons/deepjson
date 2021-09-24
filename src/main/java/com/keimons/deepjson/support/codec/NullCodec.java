@@ -22,7 +22,7 @@ public class NullCodec extends BaseCodec<Void> {
 	}
 
 	@Override
-	public void encode(AbstractContext context, AbstractBuffer buf, Void value, int uniqueId, long options) {
+	public void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, Void value, int uniqueId, long options) {
 		buf.writeNull();
 	}
 

@@ -1,7 +1,6 @@
 package com.keimons.deepjson.support.codec;
 
 import com.keimons.deepjson.AbstractBuffer;
-import com.keimons.deepjson.AbstractContext;
 import com.keimons.deepjson.IDecodeContext;
 import com.keimons.deepjson.ReaderBuffer;
 
@@ -19,12 +18,12 @@ public class DoubleCodec extends BasePrimitiveCodec<Double> {
 	public static final DoubleCodec instance = new DoubleCodec();
 
 	@Override
-	public void encode(AbstractContext context, AbstractBuffer buf, Double value, int uniqueId, long options) {
+	protected void encode0(AbstractBuffer buf, Double value) {
 		buf.write(value);
 	}
 
 	@Override
-	public Double decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	protected Double decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
 		buf.assertExpectedSyntax(numberExpects, stringExpects);
 		return buf.doubleValue();
 	}

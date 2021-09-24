@@ -1,9 +1,6 @@
 package com.keimons.deepjson.support.codec;
 
-import com.keimons.deepjson.AbstractBuffer;
-import com.keimons.deepjson.AbstractContext;
-import com.keimons.deepjson.IDecodeContext;
-import com.keimons.deepjson.ReaderBuffer;
+import com.keimons.deepjson.*;
 import com.keimons.deepjson.support.SyntaxToken;
 import com.keimons.deepjson.util.ClassUtil;
 
@@ -21,7 +18,7 @@ public class ClassCodec extends BaseCodec<Class<?>> {
 	public static final ClassCodec instance = new ClassCodec();
 
 	@Override
-	public void encode(AbstractContext context, AbstractBuffer buf, Class<?> value, int uniqueId, long options) {
+	public void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, Class<?> value, int uniqueId, long options) {
 		buf.writeWithQuote(value.getName());
 	}
 

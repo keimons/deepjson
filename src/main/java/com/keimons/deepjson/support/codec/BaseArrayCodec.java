@@ -32,7 +32,7 @@ public abstract class BaseArrayCodec<T> extends BaseCodec<T> {
 	}
 
 	@Override
-	public void encode(AbstractContext context, AbstractBuffer buf, T value, int uniqueId, long options) {
+	public void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, T value, int uniqueId, long options) {
 		char mark = '{';
 		// write class name
 		boolean className = CodecOptions.WriteClassName.isOptions(options);

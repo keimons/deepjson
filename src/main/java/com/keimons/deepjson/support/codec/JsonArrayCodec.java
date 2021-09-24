@@ -2,6 +2,7 @@ package com.keimons.deepjson.support.codec;
 
 import com.keimons.deepjson.AbstractBuffer;
 import com.keimons.deepjson.AbstractContext;
+import com.keimons.deepjson.CodecModel;
 import com.keimons.deepjson.JsonArray;
 
 /**
@@ -16,7 +17,7 @@ public class JsonArrayCodec extends BaseCodec<JsonArray> {
 	public static final JsonArrayCodec instance = new JsonArrayCodec();
 
 	@Override
-	public void encode(AbstractContext context, AbstractBuffer buf, JsonArray value, int uniqueId, long options) {
+	public void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, JsonArray value, int uniqueId, long options) {
 
 	}
 }

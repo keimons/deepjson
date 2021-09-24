@@ -2,11 +2,10 @@ package com.keimons.deepjson.support.context;
 
 import com.keimons.deepjson.AbstractBuffer;
 import com.keimons.deepjson.AbstractContext;
-import com.keimons.deepjson.CodecOptions;
+import com.keimons.deepjson.CodecModel;
 import com.keimons.deepjson.ICodec;
 import com.keimons.deepjson.support.CodecFactory;
 import com.keimons.deepjson.support.ReferenceNode;
-import com.keimons.deepjson.support.codec.BasePrimitiveCodec;
 import com.keimons.deepjson.support.codec.NullCodec;
 import com.keimons.deepjson.support.codec.ReferenceCodec;
 import com.keimons.deepjson.util.ArrayUtil;
@@ -111,38 +110,16 @@ public class DepthSearchContext extends AbstractContext {
 	}
 
 	@Override
-	public void encodeKey(AbstractBuffer buf, long options) {
-		Object value = values[readIndex];
-		int uniqueId = uniques[readIndex];
-		ICodec<Object> codec = codecs[readIndex++];
-		if (codec instanceof BasePrimitiveCodec && !CodecOptions.PrimitiveKey.isOptions(options)) {
-			((BasePrimitiveCodec<Object>) codec).writeKey(
-					this, buf, value, uniqueId, options
-			);
-		} else {
-			codec.encode(this, buf, value, uniqueId, options);
-		}
+	public boolean isEmptyHead() {
+		return values[readIndex] == null;
 	}
 
 	@Override
-	public void encode(AbstractBuffer buf, long options) {
+	public void encode(AbstractBuffer buf, CodecModel model, long options) {
 		Object value = values[readIndex];
 		int uniqueId = uniques[readIndex];
 		ICodec<Object> codec = codecs[readIndex++];
-		codec.encode(this, buf, value, uniqueId, options);
-	}
-
-	@Override
-	public boolean encodeValue(AbstractBuffer buf, long options, char mark, char[] name) {
-		Object value = values[readIndex];
-		int uniqueId = uniques[readIndex];
-		ICodec<Object> codec = codecs[readIndex++];
-		if (value != null || CodecOptions.IgnoreNonField.noOptions(options)) {
-			buf.writeName(mark, name);
-			codec.encode(this, buf, value, uniqueId, options);
-			return true;
-		}
-		return false;
+		codec.encode(this, buf, model, value, uniqueId, options);
 	}
 
 	/**

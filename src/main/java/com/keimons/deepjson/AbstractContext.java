@@ -34,6 +34,13 @@ public abstract class AbstractContext {
 	public abstract void build(Object root);
 
 	/**
+	 * 头部是否为空
+	 *
+	 * @return {@code true}空 {@code false}非空
+	 */
+	public abstract boolean isEmptyHead();
+
+	/**
 	 * 检索并移除此上下文的头部对象，如果此队列为空，则返回{@code null}。
 	 *
 	 * @return 此上下文的头部，如果此队列为空，则为{@code null}。
@@ -43,25 +50,11 @@ public abstract class AbstractContext {
 	/**
 	 * 将对象写入指定缓冲区中
 	 *
-	 * @param buf 缓冲区
+	 * @param buf     缓冲区
+	 * @param model   编解码模式
+	 * @param options 编解码选项
 	 */
-	public abstract void encodeKey(AbstractBuffer buf, long options);
-
-	/**
-	 * 将对象写入指定缓冲区中
-	 *
-	 * @param buf 缓冲区
-	 */
-	public abstract void encode(AbstractBuffer buf, long options);
-
-	/**
-	 * （作为值）将对象写入缓冲区中
-	 *
-	 * @param mark 分隔标识
-	 * @param name 字段名称
-	 * @return {@code true}已写入，{@code false}未写入。
-	 */
-	public abstract boolean encodeValue(AbstractBuffer buf, long options, char mark, char[] name);
+	public abstract void encode(AbstractBuffer buf, CodecModel model, long options);
 
 	/**
 	 * 释放上下文

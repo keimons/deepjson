@@ -24,7 +24,7 @@ public class ObjectCodec extends BaseCodec<Object> {
 	}
 
 	@Override
-	public void encode(AbstractContext context, AbstractBuffer buf, Object value, int uniqueId, long options) {
+	public void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, Object value, int uniqueId, long options) {
 		buf.writeMark('{');
 		buf.writeMark('}');
 	}
