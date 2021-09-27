@@ -32,7 +32,7 @@ public class LongArrayCodec extends BaseArrayCodec<long[]> {
 	}
 
 	@Override
-	public long[] decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	public long[] decode0(IDecodeContext context, ReaderBuffer buf, Class<?> instanceType, Type componentType, long options) {
 		List<Long> values = new ArrayList<Long>();
 		for (; ; ) {
 			buf.nextToken();

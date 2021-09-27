@@ -1,6 +1,7 @@
 package com.keimons.deepjson.test.codec.array;
 
 import com.keimons.deepjson.DeepJson;
+import com.keimons.deepjson.test.Node;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -16,9 +17,8 @@ public class ArrayTest {
 	public void test() throws NoSuchFieldException {
 		System.out.println("----------------> Array Test Encode <----------------");
 		ArrayNode node = new ArrayNode();
-		node.value0 = new Boolean[1];
-		node.value1 = new Boolean[1][];
-		node.value1[0] = new Boolean[1];
+		node.value0 = Node.array1();
+		node.value1 = Node.array2();
 		String json1 = DeepJson.toJsonString(node);
 		System.out.println("encode: " + json1);
 		String json2 = DeepJson.toJsonString(node);

@@ -2,8 +2,7 @@ package com.keimons.deepjson;
 
 import org.jetbrains.annotations.Nullable;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 
 /**
  * 上线文环境
@@ -31,6 +30,15 @@ public interface IDecodeContext {
 	@Nullable Object get(int uniqueId);
 
 	/**
+	 * 查找一个类型的实例类型
+	 *
+	 * @param type 类型 {@link Class}、{@link GenericArrayType}、{@link ParameterizedType}、
+	 *             {@link TypeVariable}、{@link WildcardType}中的一个。
+	 * @return 实例类型
+	 */
+	Class<?> findInstanceClass(Type type);
+
+	/**
 	 * 根据类型查找真实的{@link Class}
 	 *
 	 * @param type 类型
@@ -56,7 +64,7 @@ public interface IDecodeContext {
 	Type findType(Field field);
 
 	/**
-	 * 对于缓冲区中的内容进行解码
+	 * 对缓冲区中的内容进行解码
 	 *
 	 * @param buf     缓冲区
 	 * @param type    解码目标类型

@@ -8,6 +8,7 @@ import com.keimons.deepjson.support.codec.*;
 import com.keimons.deepjson.support.codec.extended.ExtendedCodec;
 import com.keimons.deepjson.support.codec.guava.MultimapCodec;
 import com.keimons.deepjson.support.codec.guava.TableCodec;
+import com.keimons.deepjson.support.codec.reflect.GenericArrayTypeCodec;
 import com.keimons.deepjson.support.codec.reflect.TypeVariableCodec;
 import com.keimons.deepjson.util.CompilerUtil;
 import com.keimons.deepjson.util.PlatformUtil;
@@ -141,6 +142,7 @@ public abstract class CodecFactory {
 	 * @param <T>  编解码器类型
 	 * @return 编解码器
 	 */
+	@SuppressWarnings("unchecked")
 	public static <T> ICodec<T> getCodec(@NotNull Type type) {
 		if (type instanceof Class<?>) {
 			return getCodec((Class<?>) type);
@@ -158,11 +160,11 @@ public abstract class CodecFactory {
 		}
 
 		if (type instanceof GenericArrayType) {
-			return getCodec(Object[].class);
+			return (ICodec<T>) GenericArrayTypeCodec.instance;
 		}
 
 		if (type instanceof TypeVariable) {
-			return getCodec(TypeVariable.class);
+			return (ICodec<T>) TypeVariableCodec.instance;
 		}
 
 		if (type instanceof WildcardType) { // 通配符

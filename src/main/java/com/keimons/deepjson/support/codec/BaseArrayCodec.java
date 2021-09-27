@@ -25,10 +25,10 @@ import java.lang.reflect.Type;
  **/
 public abstract class BaseArrayCodec<T> extends BaseCodec<T> {
 
-	private final Type clazz;
+	private final Class<?> clazz;
 
 	public BaseArrayCodec() {
-		clazz = ClassUtil.findGenericType(this.getClass(), BaseArrayCodec.class, "T");
+		clazz = (Class<?>) ClassUtil.findGenericType(this.getClass(), BaseArrayCodec.class, "T");
 	}
 
 	@Override
@@ -57,19 +57,24 @@ public abstract class BaseArrayCodec<T> extends BaseCodec<T> {
 
 	@Override
 	public T decode(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+		Type componentType = findComponentType(context, type);
+		Class<?> instanceType = context.findInstanceClass(type).getComponentType();
 		SyntaxToken token = buf.token();
 		if (token == SyntaxToken.LBRACKET) {
 			// 原生进入 [x, y, z]
-			return decode0(context, buf, type, options);
+			return decode0(context, buf, instanceType, componentType, options);
 		}
 		// 拓展进入 {"$type":"[X", "$values":[x, y, z]}
 		token = buf.nextToken(); // 下一个有可能是对象也有可能是对象结束
 		Class<?> clazz = typeCheck(context, buf, options);
 		if (clazz != null) {
-			if (clazz != this.clazz) { // 基础类型，必须直接兼容
-				throw new IncompatibleTypeException(clazz, this.clazz);
+			if (!this.clazz.isAssignableFrom(clazz)) { // 必须是 对象数组类型 或 子类
+				throw new IncompatibleTypeException(clazz, Object[].class);
 			}
-			buf.nextToken();
+			// TODO 安全性检查
+			instanceType = clazz.getComponentType();
+			componentType = clazz.getComponentType();
+			token = buf.nextToken();
 		}
 		int uniqueId = -1;
 		T value = null;
@@ -88,7 +93,7 @@ public abstract class BaseArrayCodec<T> extends BaseCodec<T> {
 				buf.assertExpectedSyntax(colonExpects); // 预期当前语法是 ":"
 				buf.nextToken();
 				buf.assertExpectedSyntax(SyntaxToken.LBRACKET); // 预期当前语法是 "["
-				value = decode0(context, buf, type, options);
+				value = decode0(context, buf, instanceType, componentType, options);
 			} else if (false) {
 				// TODO 新增宽松的解决方案
 				buf.nextToken();
@@ -111,7 +116,21 @@ public abstract class BaseArrayCodec<T> extends BaseCodec<T> {
 		return value;
 	}
 
+	protected Type findComponentType(IDecodeContext context, Type type) {
+		return ((Class<?>) type).getComponentType();
+	}
+
 	protected abstract void encode0(AbstractContext context, AbstractBuffer buf, T values, long options);
 
-	protected abstract T decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options);
+	/**
+	 * 解码数组
+	 *
+	 * @param context       上下文环境
+	 * @param buf           缓冲区
+	 * @param instanceType  实例类型，用于反射创建对象
+	 * @param componentType 组件类型
+	 * @param options       解码选项
+	 * @return 数组对象
+	 */
+	protected abstract T decode0(IDecodeContext context, ReaderBuffer buf, Class<?> instanceType, Type componentType, long options);
 }

@@ -1,5 +1,7 @@
 package com.keimons.deepjson.test.codec.array;
 
-public class ArrayNode extends AbstractArrayNode<Boolean> {
+import com.keimons.deepjson.test.Node;
+
+public class ArrayNode extends AbstractArrayNode<Node> {
 
 }

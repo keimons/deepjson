@@ -32,7 +32,7 @@ public class DoubleArrayCodec extends BaseArrayCodec<double[]> {
 	}
 
 	@Override
-	public double[] decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	public double[] decode0(IDecodeContext context, ReaderBuffer buf, Class<?> instanceType, Type componentType, long options) {
 		List<Double> values = new ArrayList<Double>();
 		for (; ; ) {
 			buf.nextToken();

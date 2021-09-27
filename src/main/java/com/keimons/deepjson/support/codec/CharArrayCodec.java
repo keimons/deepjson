@@ -32,7 +32,7 @@ public class CharArrayCodec extends BaseArrayCodec<char[]> {
 	}
 
 	@Override
-	public char[] decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	public char[] decode0(IDecodeContext context, ReaderBuffer buf, Class<?> instanceType, Type componentType, long options) {
 		List<Character> values = new ArrayList<Character>();
 		for (; ; ) {
 			buf.nextToken();

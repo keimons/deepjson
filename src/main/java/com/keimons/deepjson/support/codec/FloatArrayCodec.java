@@ -32,7 +32,7 @@ public class FloatArrayCodec extends BaseArrayCodec<float[]> {
 	}
 
 	@Override
-	public float[] decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	public float[] decode0(IDecodeContext context, ReaderBuffer buf, Class<?> instanceType, Type componentType, long options) {
 		List<Float> values = new ArrayList<Float>();
 		for (; ; ) {
 			buf.nextToken();
