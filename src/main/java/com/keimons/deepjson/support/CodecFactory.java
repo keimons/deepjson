@@ -8,7 +8,7 @@ import com.keimons.deepjson.support.codec.*;
 import com.keimons.deepjson.support.codec.extended.ExtendedCodec;
 import com.keimons.deepjson.support.codec.guava.MultimapCodec;
 import com.keimons.deepjson.support.codec.guava.TableCodec;
-import com.keimons.deepjson.util.ClassUtil;
+import com.keimons.deepjson.support.codec.reflect.TypeVariableCodec;
 import com.keimons.deepjson.util.CompilerUtil;
 import com.keimons.deepjson.util.PlatformUtil;
 import org.jetbrains.annotations.NotNull;
@@ -68,6 +68,7 @@ public abstract class CodecFactory {
 		CACHE.put(Object.class, ObjectCodec.instance);
 		CACHE.put(String.class, StringCodec.instance);
 		CACHE.put(JsonObject.class, MapCodec.instance);
+		CACHE.put(TypeVariable.class, TypeVariableCodec.instance);
 
 		CACHE.put(boolean.class, BooleanCodec.instance);
 		CACHE.put(Boolean.class, BooleanCodec.instance);
@@ -139,7 +140,6 @@ public abstract class CodecFactory {
 	 * @param type 类型
 	 * @param <T>  编解码器类型
 	 * @return 编解码器
-	 * @see ClassUtil#findGenericType(Type, Class, String) 获取泛型类型
 	 */
 	public static <T> ICodec<T> getCodec(@NotNull Type type) {
 		if (type instanceof Class<?>) {
@@ -162,7 +162,7 @@ public abstract class CodecFactory {
 		}
 
 		if (type instanceof TypeVariable) {
-			return getCodec(Object.class);
+			return getCodec(TypeVariable.class);
 		}
 
 		if (type instanceof WildcardType) { // 通配符

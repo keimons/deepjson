@@ -108,6 +108,10 @@ public class Config {
 		WHITE_OBJECT.remove(clazz);
 	}
 
+	public static void clearWrite() {
+		WHITE_OBJECT.clear();
+	}
+
 	public static boolean containsClass(Class<?> clazz) {
 		return WHITE_OBJECT.contains(clazz);
 	}

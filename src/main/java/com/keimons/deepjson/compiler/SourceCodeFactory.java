@@ -99,6 +99,7 @@ public class SourceCodeFactory {
 
 		source.append("\t@Override\n");
 		source.append("\tpublic void init(Class<?> clazz) {\n");
+		source.append("\t\tacceptInstantiation(clazz);\n");
 		for (FieldInfo field : fields) {
 			source.append("\t\t$field$_")
 					.append(field.getFieldName())
@@ -165,11 +166,10 @@ public class SourceCodeFactory {
 
 		source.append("\n");
 		source.append("\t@Override\n");
-		source.append("\tpublic Object decode(IDecodeContext context, ReaderBuffer buf, Type type, long options) {\n");
-		source.append("\t\tClass<?> clazz = (Class<?>) type;\n");
+		source.append("\tpublic Object decode0(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options) {\n");
 		source.append("\t\tObject instance = newInstance(clazz);\n");
+		source.append("\t\tSyntaxToken token = null;\n");
 		source.append("\t\tfor (; ; ) {\n");
-		source.append("\t\t\tSyntaxToken token = buf.nextToken();\n");
 		source.append("\t\t\tif (token == SyntaxToken.RBRACE) {\n");
 		source.append("\t\t\t\tbreak;\n");
 		source.append("\t\t\t}\n");
@@ -197,6 +197,7 @@ public class SourceCodeFactory {
 		source.append("\t\t\tif (token == SyntaxToken.RBRACE) {\n");
 		source.append("\t\t\t\tbreak;\n");
 		source.append("\t\t\t}\n");
+		source.append("\t\t\ttoken = buf.nextToken();\n");
 		source.append("\t\t}\n");
 		source.append("\t\treturn instance;\n");
 		source.append("\t}\n");
@@ -308,16 +309,18 @@ public class SourceCodeFactory {
 					.append(info.offset())
 					.append("L, value);\n");
 		} else {
-			source.append("\t\t\t\t\tObject value;\n");
 			source.append("\t\t\t\t\tif (token == SyntaxToken.NULL) {\n");
-			source.append("\t\t\t\t\t\tvalue = null;\n");
+			source.append("\t\t\t\t\t\tunsafe.putObject(instance, 12L, null);\n");
+			source.append("\t\t\t\t\t} else if (buf.is$Id()) {\n");
+			source.append("\t\t\t\t\t\tcontext.addCompleteHook(instance, ")
+					.append(info.offset()).append("L, buf.get$Id());\n");
 			source.append("\t\t\t\t\t} else {\n");
 			source.append("\t\t\t\t\t\tType ft = context.findType($field$_")
 					.append(info.getFieldName()).append(");\n");
-			source.append("\t\t\t\t\t\tvalue = context.decode(buf, ft, false, options);\n");
-			source.append("\t\t\t\t\t}\n");
-			source.append("\t\t\t\t\tunsafe.putObject(instance, ")
+			source.append("\t\t\t\t\t\tObject value = context.decode(buf, ft, false, options);\n");
+			source.append("\t\t\t\t\t\tunsafe.putObject(instance, ")
 					.append(info.offset()).append("L, value);\n");
+			source.append("\t\t\t\t\t}\n");
 		}
 		source.append("\t\t\t\t}\n");
 		source.append("\t\t\t\tbreak;\n");

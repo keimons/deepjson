@@ -1,9 +1,14 @@
 package com.keimons.deepjson.support.codec.extended;
 
+import com.keimons.deepjson.IDecodeContext;
+import com.keimons.deepjson.ReaderBuffer;
 import com.keimons.deepjson.compiler.ExtendedCodecClassLoader;
+import com.keimons.deepjson.support.IncompatibleTypeException;
+import com.keimons.deepjson.support.SyntaxToken;
 import com.keimons.deepjson.support.codec.BaseCodec;
+import com.keimons.deepjson.util.ClassUtil;
 
-import java.lang.reflect.Field;
+import java.lang.reflect.*;
 
 /**
  * 拓展编解码器
@@ -21,11 +26,24 @@ import java.lang.reflect.Field;
 public abstract class ExtendedCodec extends BaseCodec<Object> {
 
 	/**
-	 * 初始化拓展编解码器
-	 *
-	 * @param clazz 编解码对象类型
+	 * 编解码对象类型
 	 */
-	public abstract void init(Class<?> clazz);
+	private Class<?> clazz;
+
+	/**
+	 * 确定class可以被实例化
+	 *
+	 * @param clazz 要判断的class
+	 * @throws IncompatibleTypeException 不兼容接口或抽象类
+	 */
+	protected void acceptInstantiation(Class<?> clazz) {
+		if (clazz.isArray() || clazz.isEnum() || clazz.isPrimitive() ||
+				clazz.isInterface() || clazz.isAnnotation() ||
+				Modifier.isAbstract(clazz.getModifiers())) {
+			throw new IncompatibleTypeException("cannot instantiation of class " + clazz.getName());
+		}
+		this.clazz = clazz;
+	}
 
 	/**
 	 * 创建一个对象实例
@@ -61,4 +79,72 @@ public abstract class ExtendedCodec extends BaseCodec<Object> {
 			throw new RuntimeException(e);
 		}
 	}
+
+	/**
+	 * 第三方拓展序列化
+	 * <p>
+	 * 严格限制@code type}是{@link Class}或是使用边界限定的{@link TypeVariable}，其他情况抛出异常。
+	 * <p>
+	 * 当使用边界时，需要判断所有边界是否合法，如果
+	 *
+	 * @param context 上线文环境
+	 * @param buf     读取缓冲区
+	 * @param type    编解码器类型，确保type是{@link Class}或{@link TypeVariable}。
+	 * @param options 解码选项
+	 * @return 对象实例
+	 */
+	@Override
+	public Object decode(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+		if (type instanceof ParameterizedType) {
+			type = ((ParameterizedType) type).getRawType();
+		}
+		SyntaxToken token = buf.token();
+		if (token == SyntaxToken.NULL) {
+			return null;
+		}
+		token = buf.nextToken();
+		if (token == SyntaxToken.STRING && buf.checkGetType()) {
+			buf.nextToken();
+			buf.assertExpectedSyntax(SyntaxToken.COLON);
+			buf.nextToken();
+			buf.assertExpectedSyntax(SyntaxToken.STRING);
+			String className = buf.stringValue();
+			token = buf.nextToken();
+			if (token == SyntaxToken.RBRACE) {
+				return null;
+			}
+			buf.nextToken();
+			Class<?> clazz = ClassUtil.findClass(className); // 解析类中的名字
+			if (clazz == this.clazz) {
+				return decode0(context, buf, (Class<?>) type, options);
+			}
+			if (this.clazz.isAssignableFrom(clazz) || clazz.isAssignableFrom(this.clazz)) {
+				return decode0(context, buf, clazz, options);
+			} else {
+				throw new IncompatibleTypeException(this.clazz, clazz);
+			}
+		}
+		// 确定这是一个class
+		if (clazz == type) {
+			return decode0(context, buf, (Class<?>) type, options);
+		}
+		if (type instanceof TypeVariable) {
+			// 泛型已经不能被解析，所以这里实际上是在使用上边界判定
+			Type[] bounds = ((TypeVariable<?>) type).getBounds();
+			if (bounds[0] != clazz) {
+				throw new IncompatibleTypeException(clazz, type);
+			}
+			throw new RuntimeException();
+		}
+		throw new IncompatibleTypeException(clazz, type);
+	}
+
+	/**
+	 * 初始化拓展编解码器
+	 *
+	 * @param clazz 编解码对象类型
+	 */
+	public abstract void init(Class<?> clazz);
+
+	protected abstract Object decode0(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options);
 }

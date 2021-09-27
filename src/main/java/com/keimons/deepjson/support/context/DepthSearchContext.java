@@ -73,12 +73,12 @@ public class DepthSearchContext extends AbstractContext {
 	/**
 	 * 写入位置
 	 */
-	private int writeIndex;
+	private int writerIndex;
 
 	/**
 	 * 读取位置
 	 */
-	private int readIndex;
+	private int readerIndex;
 
 	/**
 	 * 自增的唯一标识
@@ -88,17 +88,8 @@ public class DepthSearchContext extends AbstractContext {
 	 */
 	private int unique;
 
-	/**
-	 * 获取下一个可用的索引
-	 *
-	 * @return 索引
-	 */
-	public final int nextUniqueId() {
-		return ++unique;
-	}
-
 	public final Object poll() {
-		return values[readIndex++];
+		return values[readerIndex++];
 	}
 
 	public void build(Object root) {
@@ -111,14 +102,14 @@ public class DepthSearchContext extends AbstractContext {
 
 	@Override
 	public boolean isEmptyHead() {
-		return values[readIndex] == null;
+		return values[readerIndex] == null;
 	}
 
 	@Override
 	public void encode(AbstractBuffer buf, CodecModel model, long options) {
-		Object value = values[readIndex];
-		int uniqueId = uniques[readIndex];
-		ICodec<Object> codec = codecs[readIndex++];
+		Object value = values[readerIndex];
+		int uniqueId = uniques[readerIndex];
+		ICodec<Object> codec = codecs[readerIndex++];
 		codec.encode(this, buf, model, value, uniqueId, options);
 	}
 
@@ -132,26 +123,26 @@ public class DepthSearchContext extends AbstractContext {
 	 */
 	@SuppressWarnings("unchecked")
 	private <T> void cache0(@Nullable T value, @NotNull ICodec<T> codec) {
-		if (writeIndex >= values.length) {
+		if (writerIndex >= values.length) {
 			values = Arrays.copyOf(values, values.length << 1);
 			uniques = Arrays.copyOf(uniques, uniques.length << 1);
 			codecs = Arrays.copyOf(codecs, codecs.length << 1);
 		}
-		values[writeIndex] = value;
-		uniques[writeIndex] = DEFAULT_UNIQUE;
-		codecs[writeIndex++] = (ICodec<Object>) codec;
+		values[writerIndex] = value;
+		uniques[writerIndex] = DEFAULT_UNIQUE;
+		codecs[writerIndex++] = (ICodec<Object>) codec;
 	}
 
 	@Override
 	public <T> boolean cache(@Nullable T value, @NotNull ICodec<T> codec) {
 		int index;
-		if (!codec.isSearch() || (index = context.putIfAbsent(value, writeIndex)) == DEFAULT_UNIQUE) {
+		if (!codec.isSearch() || (index = context.putIfAbsent(value, writerIndex)) == DEFAULT_UNIQUE) {
 			cache0(value, codec);
 			return true;
 		}
 		int uniqueId = uniques[index];
 		if (uniqueId == DEFAULT_UNIQUE) {
-			uniqueId = nextUniqueId();
+			uniqueId = ++unique;
 			uniques[index] = uniqueId;
 		}
 		cache0(new ReferenceNode(uniqueId), ReferenceCodec.instance);
@@ -165,18 +156,18 @@ public class DepthSearchContext extends AbstractContext {
 		} else {
 			context.clear();
 		}
-		if (writeIndex >= MAXIMUM_CAPACITY) {
+		if (writerIndex >= MAXIMUM_CAPACITY) {
 			values = new Object[MAXIMUM_CAPACITY << 2];
 			uniques = new int[MAXIMUM_CAPACITY << 2];
 			codecs = ArrayUtil.newInstance(ICodec.class, MAXIMUM_CAPACITY << 2);
 		} else {
-			for (int i = 0; i < writeIndex; i++) {
+			for (int i = 0; i < writerIndex; i++) {
 				values[i] = null;
 			}
 		}
 		this.unique = 0;
-		this.readIndex = 0;
-		this.writeIndex = 0;
+		this.readerIndex = 0;
+		this.writerIndex = 0;
 		buffer.close();
 	}
 }

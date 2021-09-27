@@ -6,9 +6,11 @@ import com.keimons.deepjson.ReaderBuffer;
 import com.keimons.deepjson.support.CodecFactory;
 import com.keimons.deepjson.support.SyntaxToken;
 import com.keimons.deepjson.util.ClassUtil;
-import com.keimons.deepjson.util.TypeNotFoundException;
+import com.keimons.deepjson.util.UnsafeUtil;
+import sun.misc.Unsafe;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.Type;
 import java.util.*;
 
 /**
@@ -20,31 +22,44 @@ import java.util.*;
  **/
 public class Context implements IDecodeContext {
 
+	private static final Unsafe unsafe = UnsafeUtil.getUnsafe();
+
 	Map<Integer, Object> context = new HashMap<Integer, Object>();
 
+	/**
+	 * 钩子函数
+	 * <p>
+	 * 解码完成后，在处理一些东西时，需要使用钩子函数。钩子函数配合
+	 */
 	List<Runnable> hooks = new ArrayList<Runnable>();
 
+	/**
+	 * 依赖于深度优先的栈
+	 */
 	Type[] types = new Type[32];
 
-	int count;
+	/**
+	 * 当前正在写入的位置
+	 */
+	int writerIndex;
 
 	/**
 	 * 增加一个类型
 	 *
 	 * @param type 类型
 	 */
-	public void add(Type type) {
-		if (count >= types.length) {
+	private void add(Type type) {
+		if (writerIndex >= types.length) {
 			types = Arrays.copyOf(types, types.length << 1);
 		}
-		types[count++] = type;
+		types[writerIndex++] = type;
 	}
 
 	/**
 	 * 移除一个类型
 	 */
-	public void poll() {
-		types[--count] = null;
+	private void poll() {
+		types[--writerIndex] = null;
 	}
 
 	@Override
@@ -59,56 +74,18 @@ public class Context implements IDecodeContext {
 
 	@Override
 	public Class<?> findClass(Type type) {
-		// 普通类型
-		if (type instanceof Class) {
-			return (Class<?>) type;
-		}
-		// 参数类型
-		if (type instanceof ParameterizedType) {
-			return findClass(((ParameterizedType) type).getRawType());
-		}
-		// 泛型参数
-		if (type instanceof TypeVariable) {
-			TypeVariable<?> variable = (TypeVariable<?>) type;
-			Class<?> clazz = (Class<?>) variable.getGenericDeclaration();
-			String name = variable.getName();
-			return findClass(findType(clazz, name));
-		}
-		// 通配类型
-		if (type instanceof WildcardType) {
-			WildcardType wildcardType = (WildcardType) type;
-			// 上界通配符
-			Type[] upperBounds = wildcardType.getUpperBounds();
-			if (upperBounds.length == 1 && upperBounds[0] != Object.class) {
-				return findClass(upperBounds[0]);
-			}
-			// 下界通配符
-			Type[] lowerBounds = wildcardType.getLowerBounds();
-			if (lowerBounds.length == 1 && lowerBounds[0] != Object.class) {
-				return findClass(lowerBounds[0]);
-			}
-			if (upperBounds[0] == Object.class && lowerBounds[0] == Object.class) {
-				return Object.class;
-			}
-			throw new TypeNotFoundException("unknown wildcard type " + type.getTypeName());
-		}
-		// 泛型数组
-		if (type instanceof GenericArrayType) {
-			GenericArrayType at = (GenericArrayType) type;
-			Class<?> clazz = findClass(at.getGenericComponentType());
-			return Array.newInstance(clazz, 0).getClass();
-		}
-		throw new TypeNotFoundException("unknown type " + type.getTypeName());
+		return ClassUtil.findClass(types, writerIndex, type);
 	}
 
 	@Override
 	public Type findType(Class<?> target, String name) {
-		return ClassUtil.findGenericType(types, count, target, name);
+		return ClassUtil.findGenericType(types, writerIndex, target, name);
 	}
 
 	@Override
 	public Type findType(Field field) {
-		return ClassUtil.findGenericType(types, count, field);
+		Type type = field.getGenericType();
+		return ClassUtil.findType(types, writerIndex, type);
 	}
 
 	@Override
@@ -130,6 +107,18 @@ public class Context implements IDecodeContext {
 	@Override
 	public void addCompleteHook(Runnable hook) {
 		hooks.add(hook);
+	}
+
+	@Override
+	public void addCompleteHook(final Object instance, long offset, final int uniqueId) {
+		final Map<Integer, Object> context = this.context;
+		addCompleteHook(new Runnable() {
+			@Override
+			public void run() {
+				Object value = context.get(uniqueId);
+				unsafe.putObject(instance, 12L, value);
+			}
+		});
 	}
 
 	@Override

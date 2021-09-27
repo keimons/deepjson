@@ -73,6 +73,15 @@ public interface IDecodeContext {
 	void addCompleteHook(Runnable hook);
 
 	/**
+	 * 增加一个钩子
+	 *
+	 * @param instance 实例
+	 * @param offset   字段偏移
+	 * @param uniqueId 引用
+	 */
+	void addCompleteHook(final Object instance, long offset, final int uniqueId);
+
+	/**
 	 * 执行所有完成钩子
 	 */
 	void runCompleteHooks();

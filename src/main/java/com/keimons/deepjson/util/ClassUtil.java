@@ -114,39 +114,165 @@ public class ClassUtil {
 		return result;
 	}
 
-	public static Type findGenericType(Type[] types, int length, Field field) {
-		Type ft = field.getGenericType();
-		if (ft instanceof GenericArrayType) {
-			Type ct = ((GenericArrayType) ft).getGenericComponentType();
-			if (ct instanceof TypeVariable) {
-				TypeVariable<?> variable = (TypeVariable<?>) ct;
-				Class<?> target = (Class<?>) variable.getGenericDeclaration();
-				String name = variable.getName();
-				Class<?> clazz = (Class<?>) findGenericType(types, length, target, name);
-				return Array.newInstance(clazz, 0).getClass();
-			}
-			return ft;
+	/**
+	 * 查找一个类型的真实类型
+	 * <p>
+	 * 对于一个类型而言，共计有五种。
+	 * <ul>
+	 *     <li>{@link Class}基本类型(raw type)，直接返回</li>
+	 *     <li>{@link ParameterizedType}参数化类型，返回RawType</li>
+	 *     <li>{@link TypeVariable}类型变量，在上下文环境中查找这个类型变量的真实类型。</li>
+	 *     <li>{@link GenericArrayType}泛型数组，首先解析组件类型，然后递归获取真实类型。</li>
+	 *     <li>{@link WildcardType}通配符类型</li>
+	 * </ul>
+	 *
+	 * @param types       上下文环境
+	 * @param writerIndex 栈顶位置
+	 * @param type        要查找的类型
+	 * @return 真实类型
+	 * @see #findGenericType(Type, Class, String) 查找泛型参数的真实类型
+	 */
+	public static Type findType(Type[] types, int writerIndex, Type type) {
+		// 普通类型
+		if (type instanceof Class) {
+			return type; // class
 		}
-		if (ft instanceof TypeVariable) {
-			TypeVariable<?> variable = (TypeVariable<?>) ft;
-			Class<?> target = (Class<?>) variable.getGenericDeclaration();
+		// 参数类型
+		if (type instanceof ParameterizedType) {
+			return type;  // class
+		}
+		// 泛型参数
+		if (type instanceof TypeVariable) {
+			TypeVariable<?> variable = (TypeVariable<?>) type;
+			Class<?> clazz = (Class<?>) variable.getGenericDeclaration();
 			String name = variable.getName();
-			return findGenericType(types, length, target, name);
+			Type genericType = findGenericType(types, writerIndex, clazz, name);
+			return findType(types, writerIndex, genericType);
 		}
-		return ft;
+		// 泛型数组
+		if (type instanceof GenericArrayType) {
+			GenericArrayType arrayType = (GenericArrayType) type;
+			Class<?> clazz = findClass(types, writerIndex, arrayType.getGenericComponentType());
+			return Array.newInstance(clazz, 0).getClass();
+		}
+		// 通配类型
+		if (type instanceof WildcardType) {
+			WildcardType wildcardType = (WildcardType) type;
+			// 上界通配符
+			Type[] upperBounds = wildcardType.getUpperBounds();
+			if (upperBounds.length > 0 && upperBounds[0] != Object.class) {
+				return findType(types, writerIndex, upperBounds[0]);
+			}
+			// 下界通配符
+			Type[] lowerBounds = wildcardType.getLowerBounds();
+			if (lowerBounds.length > 0 && lowerBounds[0] != Object.class) {
+				return findType(types, writerIndex, lowerBounds[0]);
+			}
+			// 上界或者下届通配符且只有1个，那么必然是Object.class
+			if (upperBounds.length > 0 || lowerBounds.length > 0) {
+				return Object.class;
+			}
+			// 无法解析 上下界均为空
+			throw new TypeNotFoundException("unknown wildcard type " + type.getTypeName());
+		}
+		throw new TypeNotFoundException("unknown type " + type.getTypeName());
 	}
 
 	/**
-	 * 在类中查找泛型类型
+	 * 查找一个类型的真实类型
+	 * <p>
+	 * 对于一个类型而言，共计有五种。
+	 * <ul>
+	 *     <li>{@link Class}基本类型(raw type)，直接返回</li>
+	 *     <li>{@link ParameterizedType}参数化类型，返回RawType</li>
+	 *     <li>{@link TypeVariable}类型变量，在上下文环境中查找这个类型变量的真实类型。</li>
+	 *     <li>{@link GenericArrayType}泛型数组，首先解析组件类型，然后递归获取真实类型。</li>
+	 *     <li>{@link WildcardType}通配符类型</li>
+	 * </ul>
 	 *
-	 * @param types  查找起始位置{@link Class}或{@link ParameterizedType}。
-	 * @param target 查找目标
-	 * @param name   查找名称
-	 * @return {@link Type}泛型类型。
+	 * @param types       上下文环境
+	 * @param writerIndex 栈顶位置
+	 * @param type        要查找的类型
+	 * @return 真实类型
+	 * @see #findGenericType(Type, Class, String) 查找泛型参数的真实类型
 	 */
-	public static Type findGenericType(Type[] types, int length, Class<?> target, String name) {
-		for (int i = length - 1; i >= 0; i--) {
+	public static Class<?> findClass(Type[] types, int writerIndex, Type type) {
+		// 普通类型
+		if (type instanceof Class) {
+			return (Class<?>) type;
+		}
+		// 参数类型
+		if (type instanceof ParameterizedType) {
+			Type rawType = ((ParameterizedType) type).getRawType();
+			return findClass(types, writerIndex, rawType);
+		}
+		// 泛型参数
+		if (type instanceof TypeVariable) {
+			TypeVariable<?> variable = (TypeVariable<?>) type;
+			Class<?> clazz = (Class<?>) variable.getGenericDeclaration();
+			String name = variable.getName();
+			Type genericType = findGenericType(types, writerIndex, clazz, name);
+			return findClass(types, writerIndex, genericType);
+		}
+		// 泛型数组
+		if (type instanceof GenericArrayType) {
+			GenericArrayType arrayType = (GenericArrayType) type;
+			Class<?> clazz = findClass(types, writerIndex, arrayType.getGenericComponentType());
+			return Array.newInstance(clazz, 0).getClass();
+		}
+		// 通配类型
+		if (type instanceof WildcardType) {
+			WildcardType wildcardType = (WildcardType) type;
+			// 上界通配符
+			Type[] upperBounds = wildcardType.getUpperBounds();
+			if (upperBounds.length > 0 && upperBounds[0] != Object.class) {
+				return findClass(types, writerIndex, upperBounds[0]);
+			}
+			// 下界通配符
+			Type[] lowerBounds = wildcardType.getLowerBounds();
+			if (lowerBounds.length > 0 && lowerBounds[0] != Object.class) {
+				return findClass(types, writerIndex, lowerBounds[0]);
+			}
+			// 上界或者下届通配符且只有1个，那么必然是Object.class
+			if (upperBounds.length > 0 || lowerBounds.length > 0) {
+				return Object.class;
+			}
+			// 无法解析 上下界均为空
+			throw new TypeNotFoundException("unknown wildcard type " + type.getTypeName());
+		}
+		throw new TypeNotFoundException("unknown type " + type.getTypeName());
+	}
+
+	/**
+	 * 在类中查找泛型类型的实际类型（仅作一层解析）
+	 * <p>
+	 * 多层解析如果当前类型中无法解析，继续向上查找，直到能解析出来为止。
+	 *
+	 * @param types       查找起始位置{@link Class}或{@link ParameterizedType}。
+	 * @param readerIndex 开始读取位置
+	 * @param target      查找目标
+	 * @param name        类型变量，类型变量应该是{@link Class}、{@link TypeVariable}、
+	 *                    {@link ParameterizedType}、{@link GenericArrayType}或者
+	 *                    {@link WildcardType}中的一个。
+	 * @return {@link Type}泛型类型。{@link TypeVariable}仅查找到类型变量。
+	 * <ul>
+	 *     <li>
+	 *         {@link Class}             基本类型(raw type)是一个普通的类。
+	 *         {@link TypeVariable}      类型变量，通过边界判断是否合法。
+	 *         {@link ParameterizedType} 参数化类型，需要进一步解析。
+	 *         {@link GenericArrayType}  泛型数组，需要进一步解析。
+	 *         {@link WildcardType}      通配符，可进一步解析为以上四个。
+	 *     </li>
+	 * </ul>
+	 */
+	public static Type findGenericType(Type[] types, int readerIndex, Class<?> target, String name) {
+		Type result = null;
+		for (int i = readerIndex - 1; i >= 0; i--) {
 			Type type = types[i];
+			// 跳过参数类型
+			if (type instanceof TypeVariable) {
+				continue;
+			}
 			// 跳过泛型数组，只需要泛型数组的组件类型
 			if (type instanceof GenericArrayType) {
 				continue;
@@ -155,7 +281,16 @@ public class ClassUtil {
 			if (type instanceof Class && ((Class<?>) type).isArray()) {
 				continue;
 			}
-			Type result = findGenericType(type, target, name);
+			Type prev = findGenericType(type, target, name);
+			if (prev == null) {
+				if (result == null) {
+					String msg = "the '" + name + "' of " + target.getName() + " cannot be found in " + types[readerIndex - 1].getTypeName();
+					throw new TypeNotFoundException(msg);
+				}
+				return result;
+			} else {
+				result = prev;
+			}
 			// 依然是泛型 继续向上查找
 			if (result instanceof TypeVariable) {
 				TypeVariable<?> tv = (TypeVariable<?>) result;
@@ -163,26 +298,40 @@ public class ClassUtil {
 				target = (Class<?>) tv.getGenericDeclaration();
 				continue;
 			}
-			if (result == null) {
-				return Object.class; // 不存在的泛型类型
-			}
 			if (result instanceof WildcardType) {
 				WildcardType wildcardType = (WildcardType) result;
 				// 上界通配符
 				Type[] upperBounds = wildcardType.getUpperBounds();
-				if (upperBounds.length == 1 && upperBounds[0] != Object.class) {
+				if (upperBounds.length > 0 && upperBounds[0] != Object.class) {
+					if (upperBounds[0] instanceof TypeVariable) {
+						TypeVariable<?> tv = (TypeVariable<?>) upperBounds[0];
+						name = tv.getName();
+						target = (Class<?>) tv.getGenericDeclaration();
+						continue;
+					}
 					return upperBounds[0];
 				}
 				// 下界通配符
 				Type[] lowerBounds = wildcardType.getLowerBounds();
-				if (lowerBounds.length == 1 && lowerBounds[0] != Object.class) {
+				if (lowerBounds.length > 0 && lowerBounds[0] != Object.class) {
+					if (lowerBounds[0] instanceof TypeVariable) {
+						TypeVariable<?> tv = (TypeVariable<?>) lowerBounds[0];
+						name = tv.getName();
+						target = (Class<?>) tv.getGenericDeclaration();
+						continue;
+					}
 					return lowerBounds[0];
 				}
-				return Object.class;
+				// 上界或者下届通配符且只有1个，那么必然是Object.class
+				if (upperBounds.length > 0 || lowerBounds.length > 0) {
+					return Object.class;
+				}
+				throw new TypeNotFoundException("unknown wildcard type " + name);
 			}
 			return result;
 		}
-		return Object.class;
+		// 处理边界问题，例如：T extends Number，实际应该返回Number类型。
+		return result;
 	}
 
 	/**
@@ -213,10 +362,19 @@ public class ClassUtil {
 	 * @param name   查找名称，例如{@link Map}中的{@code K}。
 	 * @return 泛型类型
 	 * <ul>
-	 *     <li>{@link ParameterizedType}依然是带有泛型的子类型，例如：{@code HashMap<String, Integer>}。</li>
-	 *     <li>{@link TypeVariable}依然是泛型，例如：{@link Map}中的{@code K}，对应{@link Object}类型。</li>
-	 *     <li>{@link Class} 内部对象类型</li>
-	 *     <li>{@code null} 查找失败。</li>
+	 *     <li>
+	 *         {@link ParameterizedType} 依然是带有泛型的子类型，例如：{@code HashMap<String, Integer>}。
+	 *     </li>
+	 *     <li>
+	 *         {@link TypeVariable}      依然是泛型，例如：{@link Map}中的{@code K}，对应{@link Object}类型
+	 *         	                         或{@link TypeVariable#getBounds()}。
+	 *     </li>
+	 *     <li>
+	 *         {@link Class}             内部对象类型
+	 *     </li>
+	 *     <li>
+	 *         {@code null}              查找失败
+	 *     </li>
 	 * </ul>
 	 */
 	public static @Nullable Type findGenericType(Type type, Class<?> target, String name) {
@@ -262,6 +420,14 @@ public class ClassUtil {
 				Type inner = findGenericType(itf, target, name);
 				if (inner != null) {
 					return inner;
+				}
+			}
+			if (type == target) {
+				TypeVariable<? extends Class<?>>[] variables = clazz.getTypeParameters();
+				for (TypeVariable<? extends Class<?>> variable : variables) {
+					if (variable.getTypeName().equals(name)) {
+						return variable;
+					}
 				}
 			}
 		}
