@@ -36,7 +36,7 @@ public interface IDecodeContext {
 	 *             {@link TypeVariable}、{@link WildcardType}中的一个。
 	 * @return 实例类型
 	 */
-	Class<?> findInstanceClass(Type type);
+	Class<?> findInstanceType(Type type);
 
 	/**
 	 * 查找一个类型的实例类型
@@ -45,14 +45,6 @@ public interface IDecodeContext {
 	 * @return 有可能是任意类型或者为null，但是{@link Class}真实类型，{@link TypeVariable}泛型类型。
 	 */
 	@Nullable Type findInstanceType(TypeVariable<?> type);
-
-	/**
-	 * 根据类型查找真实的{@link Class}
-	 *
-	 * @param type 类型
-	 * @return 实际类型
-	 */
-	Class<?> findClass(Type type);
 
 	/**
 	 * 查找{@link Class}中的泛型类型
@@ -64,22 +56,13 @@ public interface IDecodeContext {
 	Type findType(Class<?> target, String name);
 
 	/**
-	 * 查找字段的实际类型
-	 *
-	 * @param field 字段
-	 * @return 实际类型
-	 */
-	Type findType(Field field);
-
-	/**
 	 * 对缓冲区中的内容进行解码
 	 *
 	 * @param buf     缓冲区
 	 * @param type    解码目标类型
-	 * @param next    是否读取下一个
 	 * @param options 解码选项
 	 */
-	<T> T decode(ReaderBuffer buf, Type type, boolean next, long options);
+	<T> T decode(ReaderBuffer buf, Type type, long options);
 
 	/**
 	 * 增加一个完成钩子

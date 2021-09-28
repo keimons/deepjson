@@ -9,10 +9,12 @@ import com.keimons.deepjson.support.codec.extended.ExtendedCodec;
 import com.keimons.deepjson.support.codec.guava.MultimapCodec;
 import com.keimons.deepjson.support.codec.guava.TableCodec;
 import com.keimons.deepjson.support.codec.reflect.GenericArrayTypeCodec;
+import com.keimons.deepjson.support.codec.reflect.ParameterizedTypeCodec;
 import com.keimons.deepjson.support.codec.reflect.TypeVariableCodec;
 import com.keimons.deepjson.support.codec.reflect.WildcardTypeCodec;
 import com.keimons.deepjson.util.CompilerUtil;
 import com.keimons.deepjson.util.PlatformUtil;
+import com.keimons.deepjson.util.TypeNotFoundException;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -145,35 +147,32 @@ public abstract class CodecFactory {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> ICodec<T> getCodec(@NotNull Type type) {
+		// 常规类型
 		if (type instanceof Class<?>) {
 			return getCodec((Class<?>) type);
 		}
 
+		// 泛型类型
 		if (type instanceof ParameterizedType) {
-			// 抹掉泛型找到真正的编解码器
-			// TODO 考虑提供泛型编解码器
-			Type rawType = ((ParameterizedType) type).getRawType();
-			if (rawType instanceof Class<?>) {
-				return getCodec((Class<?>) rawType);
-			} else {
-				return getCodec(rawType);
-			}
-			// return (ICodec<T>) ParameterizedTypeCodec.instance;
+			return (ICodec<T>) ParameterizedTypeCodec.instance;
 		}
 
+		// 泛型数组
 		if (type instanceof GenericArrayType) {
 			return (ICodec<T>) GenericArrayTypeCodec.instance;
 		}
 
+		// 泛型参数
 		if (type instanceof TypeVariable) {
 			return (ICodec<T>) TypeVariableCodec.instance;
 		}
 
-		if (type instanceof WildcardType) { // 通配符
+		// 通配类型
+		if (type instanceof WildcardType) {
 			return (ICodec<T>) WildcardTypeCodec.instance;
 		}
 
-		return getCodec(Object.class);
+		throw new TypeNotFoundException("unknown type " + type.getTypeName());
 	}
 
 	@SuppressWarnings("unchecked")

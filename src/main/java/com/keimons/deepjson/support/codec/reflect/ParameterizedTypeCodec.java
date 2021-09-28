@@ -1,6 +1,7 @@
 package com.keimons.deepjson.support.codec.reflect;
 
 import com.keimons.deepjson.*;
+import com.keimons.deepjson.support.CodecFactory;
 import com.keimons.deepjson.support.codec.BaseCodec;
 
 import java.lang.reflect.ParameterizedType;
@@ -27,6 +28,8 @@ public class ParameterizedTypeCodec extends BaseCodec<Object> {
 		assert type instanceof ParameterizedType;
 		ParameterizedType pt = (ParameterizedType) type;
 		Type rawType = pt.getRawType();
-		return context.decode(buf, rawType, false, options);
+		ICodec<?> codec = CodecFactory.getCodec(rawType);
+		assert codec != null;
+		return codec.decode(context, buf, rawType, options);
 	}
 }

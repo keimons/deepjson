@@ -44,7 +44,7 @@ public class ObjectCodec extends BaseCodec<Object> {
 			case NUMBER:
 				return buf.adaptiveNumber();
 			case LBRACE:
-				return context.decode(buf, Map.class, false, options);
+				return context.decode(buf, Map.class, options);
 			case LBRACKET:
 				return JsonArrayCodec.instance.decode(context, buf, type, options);
 			default:

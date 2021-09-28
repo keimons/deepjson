@@ -38,7 +38,7 @@ public class TypeVariableCodec extends BaseCodec<Object> {
 			throw new TypeNotFoundException("unknown TypeVariable type " + type.getTypeName());
 		}
 		if (instanceType instanceof Class) {
-			return context.decode(buf, instanceType, false, options);
+			return context.decode(buf, instanceType, options);
 		}
 		if (instanceType instanceof TypeVariable) {
 			// 泛型已经不能被解析，所以这里实际上是在使用上边界判定
@@ -48,10 +48,10 @@ public class TypeVariableCodec extends BaseCodec<Object> {
 				if (false) { // TODO 设计兼容模式 和 严格模式
 					throw new TypeNotFoundException("");
 				}
-				return context.decode(buf, Object.class, false, options);
+				return context.decode(buf, Object.class, options);
 			}
 			if (bounds.length == 1) {
-				return context.decode(buf, bounds[0], false, options);
+				return context.decode(buf, bounds[0], options);
 			}
 			SyntaxToken token = buf.nextToken();
 			// 边界参数泛型
@@ -76,9 +76,9 @@ public class TypeVariableCodec extends BaseCodec<Object> {
 						throw new IncompatibleTypeException(bound, clazz);
 					}
 				}
-				return context.decode(buf, clazz, false, options);
+				return context.decode(buf, clazz, options);
 			}
 		}
-		return context.decode(buf, instanceType, false, options);
+		return context.decode(buf, instanceType, options);
 	}
 }

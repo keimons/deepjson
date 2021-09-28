@@ -69,7 +69,7 @@ public class ObjectArrayCodec extends BaseArrayCodec<Object[]> {
 				values.add(null); // hold on
 			} else {
 				buf.assertExpectedSyntax(SyntaxToken.OBJECTS);
-				values.add(context.decode(buf, componentType, false, options));
+				values.add(context.decode(buf, componentType, options));
 			}
 			token = buf.nextToken();
 			if (token == SyntaxToken.RBRACKET) {

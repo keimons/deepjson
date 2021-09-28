@@ -87,7 +87,7 @@ public class MapCodec extends BaseCodec<Object> {
 			if (!Map.class.isAssignableFrom(clazz)) {
 				// Map结构的包装类型，例如：{"$type":"int[]","@id":1,"$value":[1,2,3]}，跳转解析方案
 				// TODO 考虑安全漏洞
-				return context.decode(buf, clazz, false, options);
+				return context.decode(buf, clazz, options);
 			}
 			// 如果是 "," 则表示这一段结束，如果是 "}" 则表示对象结束。
 			buf.assertExpectedSyntax(SyntaxToken.COMMA, SyntaxToken.RBRACE);
@@ -96,7 +96,7 @@ public class MapCodec extends BaseCodec<Object> {
 				buf.nextToken();
 			}
 		}
-		Class<?> instanceType = clazz == null ? context.findClass(type) : clazz;
+		Class<?> instanceType = clazz == null ? context.findInstanceType(type) : clazz;
 		Type kt = context.findType(Map.class, "K");
 		Type vt = context.findType(Map.class, "V");
 		final Map<Object, Object> instance = createInstance(instanceType, kt, vt);
@@ -118,7 +118,7 @@ public class MapCodec extends BaseCodec<Object> {
 				} else {
 					kid = -1;
 					// 常规 key-value 结构
-					key = context.decode(buf, kt, false, options);
+					key = context.decode(buf, kt, options);
 				}
 				buf.nextToken();
 				buf.assertExpectedSyntax(colonExpects); // 预期当前语法是 ":"
@@ -132,7 +132,7 @@ public class MapCodec extends BaseCodec<Object> {
 				} else {
 					vid = -1;
 					// 常规 key-value 结构
-					value = context.decode(buf, vt, false, options);
+					value = context.decode(buf, vt, options);
 				}
 				if (kid != -1 || vid != -1) {
 					context.addCompleteHook(new Runnable() {

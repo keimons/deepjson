@@ -58,7 +58,7 @@ public abstract class BaseArrayCodec<T> extends BaseCodec<T> {
 	@Override
 	public T decode(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
 		Type componentType = findComponentType(context, type);
-		Class<?> instanceType = context.findInstanceClass(type).getComponentType();
+		Class<?> instanceType = context.findInstanceType(type).getComponentType();
 		SyntaxToken token = buf.token();
 		if (token == SyntaxToken.LBRACKET) {
 			// 原生进入 [x, y, z]
@@ -100,7 +100,7 @@ public abstract class BaseArrayCodec<T> extends BaseCodec<T> {
 				buf.assertExpectedSyntax(colonExpects); // 预期当前语法是 ":"
 				buf.nextToken();
 				buf.assertExpectedSyntax(SyntaxToken.OBJECTS); // 预期当前语法是一个对象
-				context.decode(buf, Object.class, false, options); // 读取一个对象
+				context.decode(buf, Object.class, options); // 读取一个对象
 			} else {
 				throw new UnknownSyntaxException("array error");
 			}

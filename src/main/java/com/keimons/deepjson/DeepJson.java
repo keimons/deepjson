@@ -1,5 +1,6 @@
 package com.keimons.deepjson;
 
+import com.keimons.deepjson.support.SyntaxToken;
 import com.keimons.deepjson.support.buffer.JsonReaderBuffer;
 import com.keimons.deepjson.support.codec.Template;
 import com.keimons.deepjson.support.context.Context;
@@ -134,28 +135,20 @@ public class DeepJson {
 	}
 
 	public static <T> T parse(String json) {
-		IDecodeContext context = new Context();
-		JsonReaderBuffer buf = new JsonReaderBuffer(json);
-		T value = context.decode(buf, Object.class, true, 0L);
-		context.runCompleteHooks();
-		context.close(buf);
-		return value;
+		return parseObject(json, (Type) Object.class);
 	}
 
 	public static <T> T parseObject(String json, Class<T> clazz) {
-		IDecodeContext context = new Context();
-		JsonReaderBuffer buf = new JsonReaderBuffer(json);
-		T value = context.decode(buf, clazz, true, 0L);
-		context.runCompleteHooks();
-		context.close(buf);
-		return value;
+		return parseObject(json, (Type) clazz);
 	}
 
 
-	public static <T> T parseObject(String json, Type clazz) {
+	public static <T> T parseObject(String json, Type type) {
 		IDecodeContext context = new Context();
 		JsonReaderBuffer buf = new JsonReaderBuffer(json);
-		T value = context.decode(buf, clazz, true, 0L);
+		buf.nextToken();
+		buf.assertExpectedSyntax(SyntaxToken.OBJECTS);
+		T value = context.decode(buf, type, 0L);
 		context.runCompleteHooks();
 		context.close(buf);
 		return value;

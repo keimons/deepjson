@@ -86,7 +86,7 @@ public class CollectionCodec extends BaseCodec<Collection<?>> {
 	@Override
 	public Collection<?> decode(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
 		Type et = context.findType(Collection.class, "E");
-		Class<?> expected = context.findClass(type);
+		Class<?> expected = context.findInstanceType(type);
 
 		SyntaxToken token = buf.token();
 		if (token == SyntaxToken.LBRACKET) {
@@ -156,7 +156,7 @@ public class CollectionCodec extends BaseCodec<Collection<?>> {
 				hooks[count++] = buf.get$Id();
 			} else {
 				buf.assertExpectedSyntax(SyntaxToken.OBJECTS);
-				instance.add(context.decode(buf, et, false, options));
+				instance.add(context.decode(buf, et, options));
 			}
 			token = buf.nextToken();
 			if (token == SyntaxToken.RBRACKET) {

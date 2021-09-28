@@ -72,14 +72,17 @@ public class Context implements IDecodeContext {
 	}
 
 	@Override
-	public Class<?> findInstanceClass(Type type) {
+	public Class<?> findInstanceType(Type type) {
 		// 查找终止条件
 		if (type instanceof Class) {
 			return (Class<?>) type;
 		}
 		if (type instanceof GenericArrayType) {
-			Class<?> clazz = findInstanceClass(((GenericArrayType) type).getGenericComponentType());
+			Class<?> clazz = findInstanceType(((GenericArrayType) type).getGenericComponentType());
 			return Array.newInstance(clazz, 0).getClass();
+		}
+		if (type instanceof ParameterizedType) {
+			return (Class<?>) ((ParameterizedType) type).getRawType();
 		}
 		return ClassUtil.findClass(types, writerIndex, type);
 	}
@@ -88,35 +91,20 @@ public class Context implements IDecodeContext {
 	public Type findInstanceType(final TypeVariable<?> type) {
 		Class<?> clazz = (Class<?>) type.getGenericDeclaration();
 		String name = type.getName();
-		return ClassUtil.findGenericType0(types, writerIndex, clazz, name);
-	}
-
-	@Override
-	public Class<?> findClass(Type type) {
-		return ClassUtil.findClass(types, writerIndex, type);
+		return ClassUtil.findGenericType(types, writerIndex, clazz, name);
 	}
 
 	@Override
 	public Type findType(Class<?> target, String name) {
-		return ClassUtil.findGenericType0(types, writerIndex, target, name);
+		return ClassUtil.findGenericType(types, writerIndex, target, name);
 	}
 
 	@Override
-	public Type findType(Field field) {
-		Type type = field.getGenericType();
-		return type;
-	}
-
-	@Override
-	public <T> T decode(ReaderBuffer buf, Type type, boolean next, long options) {
+	public <T> T decode(ReaderBuffer buf, Type type, long options) {
 		ICodec<T> codec = CodecFactory.getCodec(type);
-		add(type);
 		assert codec != null;
-		if (next) {
-			buf.nextToken();
-			buf.assertExpectedSyntax(SyntaxToken.OBJECTS);
-		}
 		try {
+			add(type);
 			return codec.decode(this, buf, type, options);
 		} finally {
 			poll();
