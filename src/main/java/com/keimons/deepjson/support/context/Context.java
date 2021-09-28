@@ -9,10 +9,7 @@ import com.keimons.deepjson.util.ClassUtil;
 import com.keimons.deepjson.util.UnsafeUtil;
 import sun.misc.Unsafe;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Field;
-import java.lang.reflect.GenericArrayType;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
 import java.util.*;
 
 /**
@@ -88,19 +85,26 @@ public class Context implements IDecodeContext {
 	}
 
 	@Override
+	public Type findInstanceType(final TypeVariable<?> type) {
+		Class<?> clazz = (Class<?>) type.getGenericDeclaration();
+		String name = type.getName();
+		return ClassUtil.findGenericType0(types, writerIndex, clazz, name);
+	}
+
+	@Override
 	public Class<?> findClass(Type type) {
 		return ClassUtil.findClass(types, writerIndex, type);
 	}
 
 	@Override
 	public Type findType(Class<?> target, String name) {
-		return ClassUtil.findGenericType(types, writerIndex, target, name);
+		return ClassUtil.findGenericType0(types, writerIndex, target, name);
 	}
 
 	@Override
 	public Type findType(Field field) {
 		Type type = field.getGenericType();
-		return ClassUtil.findType(types, writerIndex, type);
+		return type;
 	}
 
 	@Override

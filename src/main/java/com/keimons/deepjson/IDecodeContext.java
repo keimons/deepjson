@@ -39,6 +39,14 @@ public interface IDecodeContext {
 	Class<?> findInstanceClass(Type type);
 
 	/**
+	 * 查找一个类型的实例类型
+	 *
+	 * @param type 类型
+	 * @return 有可能是任意类型或者为null，但是{@link Class}真实类型，{@link TypeVariable}泛型类型。
+	 */
+	@Nullable Type findInstanceType(TypeVariable<?> type);
+
+	/**
 	 * 根据类型查找真实的{@link Class}
 	 *
 	 * @param type 类型

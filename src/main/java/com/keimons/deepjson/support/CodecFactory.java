@@ -10,6 +10,7 @@ import com.keimons.deepjson.support.codec.guava.MultimapCodec;
 import com.keimons.deepjson.support.codec.guava.TableCodec;
 import com.keimons.deepjson.support.codec.reflect.GenericArrayTypeCodec;
 import com.keimons.deepjson.support.codec.reflect.TypeVariableCodec;
+import com.keimons.deepjson.support.codec.reflect.WildcardTypeCodec;
 import com.keimons.deepjson.util.CompilerUtil;
 import com.keimons.deepjson.util.PlatformUtil;
 import org.jetbrains.annotations.NotNull;
@@ -157,6 +158,7 @@ public abstract class CodecFactory {
 			} else {
 				return getCodec(rawType);
 			}
+			// return (ICodec<T>) ParameterizedTypeCodec.instance;
 		}
 
 		if (type instanceof GenericArrayType) {
@@ -168,12 +170,7 @@ public abstract class CodecFactory {
 		}
 
 		if (type instanceof WildcardType) { // 通配符
-			WildcardType wildcardType = (WildcardType) type;
-			Type[] upperBounds = wildcardType.getUpperBounds();
-			if (upperBounds.length == 1) {
-				Type upperBoundType = upperBounds[0];
-				return getCodec(upperBoundType);
-			}
+			return (ICodec<T>) WildcardTypeCodec.instance;
 		}
 
 		return getCodec(Object.class);

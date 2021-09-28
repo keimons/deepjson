@@ -31,46 +31,54 @@ public class TypeVariableCodec extends BaseCodec<Object> {
 
 	@Override
 	public Object decode(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
-		if (!(type instanceof TypeVariable)) {
-			throw new UnsupportedOperationException(); // 通常情况下，这是一个多余判断
+		assert type instanceof TypeVariable;
+		TypeVariable<?> tv = (TypeVariable<?>) type;
+		Type instanceType = context.findInstanceType(tv);
+		if (instanceType == null) {
+			throw new TypeNotFoundException("unknown TypeVariable type " + type.getTypeName());
 		}
-		// 泛型已经不能被解析，所以这里实际上是在使用上边界判定
-		Type[] bounds = ((TypeVariable<?>) type).getBounds(); // class(ParameterizedType) interface
-		// we have no idea of type variable
-		if (bounds.length <= 0) {
-			if (false) { // TODO 设计兼容模式 和 严格模式
-				throw new TypeNotFoundException("");
-			}
-			return context.decode(buf, Object.class, false, options);
+		if (instanceType instanceof Class) {
+			return context.decode(buf, instanceType, false, options);
 		}
-		if (bounds.length == 1) {
-			return context.decode(buf, bounds[0], false, options);
-		}
-		SyntaxToken token = buf.nextToken();
-		// 边界参数泛型
-		if (token == SyntaxToken.STRING && buf.checkGetType()) {
-			buf.nextToken();
-			buf.assertExpectedSyntax(SyntaxToken.COLON);
-			buf.nextToken();
-			buf.assertExpectedSyntax(SyntaxToken.STRING);
-			String className = buf.stringValue();
-			Class<?> clazz = ClassUtil.findClass(className); // 解析类中的名字
-			for (Type bound : bounds) {
-				Class<?> parent;
-				if (bound instanceof Class<?>) {
-					parent = (Class<?>) bound;
-				} else if (bound instanceof ParameterizedType) {
-					parent = (Class<?>) ((ParameterizedType) bound).getRawType();
-				} else {
-					String msg = Arrays.toString(bounds);
-					throw new MalformedParameterizedTypeException(msg);
+		if (instanceType instanceof TypeVariable) {
+			// 泛型已经不能被解析，所以这里实际上是在使用上边界判定
+			Type[] bounds = ((TypeVariable<?>) type).getBounds(); // class(ParameterizedType) interface
+			// we have no idea of type variable
+			if (bounds.length <= 0) {
+				if (false) { // TODO 设计兼容模式 和 严格模式
+					throw new TypeNotFoundException("");
 				}
-				if (!parent.isAssignableFrom(clazz)) {
-					throw new IncompatibleTypeException(bound, clazz);
-				}
+				return context.decode(buf, Object.class, false, options);
 			}
-			return context.decode(buf, clazz, false, options);
+			if (bounds.length == 1) {
+				return context.decode(buf, bounds[0], false, options);
+			}
+			SyntaxToken token = buf.nextToken();
+			// 边界参数泛型
+			if (token == SyntaxToken.STRING && buf.checkGetType()) {
+				buf.nextToken();
+				buf.assertExpectedSyntax(SyntaxToken.COLON);
+				buf.nextToken();
+				buf.assertExpectedSyntax(SyntaxToken.STRING);
+				String className = buf.stringValue();
+				Class<?> clazz = ClassUtil.findClass(className); // 解析类中的名字
+				for (Type bound : bounds) {
+					Class<?> parent;
+					if (bound instanceof Class<?>) {
+						parent = (Class<?>) bound;
+					} else if (bound instanceof ParameterizedType) {
+						parent = (Class<?>) ((ParameterizedType) bound).getRawType();
+					} else {
+						String msg = Arrays.toString(bounds);
+						throw new MalformedParameterizedTypeException(msg);
+					}
+					if (!parent.isAssignableFrom(clazz)) {
+						throw new IncompatibleTypeException(bound, clazz);
+					}
+				}
+				return context.decode(buf, clazz, false, options);
+			}
 		}
-		throw new RuntimeException();
+		return context.decode(buf, instanceType, false, options);
 	}
 }

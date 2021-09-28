@@ -265,6 +265,67 @@ public class ClassUtil {
 	 *     </li>
 	 * </ul>
 	 */
+	public static Type findGenericType0(Type[] types, int readerIndex, Class<?> target, String name) {
+		Type result = null;
+		for (int i = readerIndex - 1; i >= 0; i--) {
+			Type type = types[i];
+			// 跳过参数类型、泛型数组
+			if (type instanceof TypeVariable || type instanceof GenericArrayType) {
+				continue;
+			}
+			if (type instanceof WildcardType) {
+				i--;
+				continue;
+			}
+			// 跳过对象数组，只需要对象数组的组件类型
+			if (type instanceof Class && ((Class<?>) type).isArray()) {
+				continue;
+			}
+			Type prev = findGenericType(type, target, name);
+			if (prev == null) {
+				if (result == null) {
+					String msg = "the '" + name + "' of " + target.getName() + " cannot be found in " + types[readerIndex - 1].getTypeName();
+					throw new TypeNotFoundException(msg);
+				}
+				return result;
+			} else {
+				result = prev;
+			}
+			// 依然是泛型 继续向上查找
+			if (result instanceof TypeVariable) {
+				TypeVariable<?> tv = (TypeVariable<?>) result;
+				name = tv.getName();
+				target = (Class<?>) tv.getGenericDeclaration();
+				continue;
+			}
+			return result;
+		}
+		// 处理边界问题，例如：T extends Number，实际应该返回Number类型。
+		return result;
+	}
+
+	/**
+	 * 在类中查找泛型类型的实际类型（仅作一层解析）
+	 * <p>
+	 * 多层解析如果当前类型中无法解析，继续向上查找，直到能解析出来为止。
+	 *
+	 * @param types       查找起始位置{@link Class}或{@link ParameterizedType}。
+	 * @param readerIndex 开始读取位置
+	 * @param target      查找目标
+	 * @param name        类型变量，类型变量应该是{@link Class}、{@link TypeVariable}、
+	 *                    {@link ParameterizedType}、{@link GenericArrayType}或者
+	 *                    {@link WildcardType}中的一个。
+	 * @return {@link Type}泛型类型。{@link TypeVariable}仅查找到类型变量。
+	 * <ul>
+	 *     <li>
+	 *         {@link Class}             基本类型(raw type)是一个普通的类。
+	 *         {@link TypeVariable}      类型变量，通过边界判断是否合法。
+	 *         {@link ParameterizedType} 参数化类型，需要进一步解析。
+	 *         {@link GenericArrayType}  泛型数组，需要进一步解析。
+	 *         {@link WildcardType}      通配符，可进一步解析为以上四个。
+	 *     </li>
+	 * </ul>
+	 */
 	public static Type findGenericType(Type[] types, int readerIndex, Class<?> target, String name) {
 		Type result = null;
 		for (int i = readerIndex - 1; i >= 0; i--) {
