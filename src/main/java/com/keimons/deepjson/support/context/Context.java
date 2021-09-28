@@ -6,6 +6,7 @@ import com.keimons.deepjson.ReaderBuffer;
 import com.keimons.deepjson.support.CodecFactory;
 import com.keimons.deepjson.support.SyntaxToken;
 import com.keimons.deepjson.util.ClassUtil;
+import com.keimons.deepjson.util.TypeNotFoundException;
 import com.keimons.deepjson.util.UnsafeUtil;
 import sun.misc.Unsafe;
 
@@ -91,12 +92,18 @@ public class Context implements IDecodeContext {
 	public Type findInstanceType(final TypeVariable<?> type) {
 		Class<?> clazz = (Class<?>) type.getGenericDeclaration();
 		String name = type.getName();
-		return ClassUtil.findGenericType(types, writerIndex, clazz, name);
+		Type result = ClassUtil.findGenericType(types, writerIndex, clazz, name);
+		return result == null ? type : result;
 	}
 
 	@Override
 	public Type findType(Class<?> target, String name) {
-		return ClassUtil.findGenericType(types, writerIndex, target, name);
+		Type result = ClassUtil.findGenericType(types, writerIndex, target, name);
+		if (result == null) {
+			String msg = "the '" + name + "' of " + target.getName() + " cannot be found.";
+			throw new TypeNotFoundException(msg);
+		}
+		return result;
 	}
 
 	@Override

@@ -119,11 +119,23 @@ public class ClassUtil {
 	 * <p>
 	 * 对于一个类型而言，共计有五种。
 	 * <ul>
-	 *     <li>{@link Class}基本类型(raw type)，直接返回</li>
-	 *     <li>{@link ParameterizedType}参数化类型，返回RawType</li>
-	 *     <li>{@link TypeVariable}类型变量，在上下文环境中查找这个类型变量的真实类型。</li>
-	 *     <li>{@link GenericArrayType}泛型数组，首先解析组件类型，然后递归获取真实类型。</li>
-	 *     <li>{@link WildcardType}通配符类型</li>
+	 *     <li>
+	 *         {@link Class}基本类型(raw type)，直接返回。
+	 *     </li>
+	 *     <li>
+	 *         {@link ParameterizedType}参数化类型，返回RawType。
+	 *     </li>
+	 *     <li>
+	 *         {@link TypeVariable}类型变量，在上下文环境中查找这个类型变量的真实类型。如果获取到的依然是
+	 *         泛型参数，则使用该参数的边界{@link TypeVariable#getBounds()}。
+	 *     </li>
+	 *     <li>
+	 *         {@link GenericArrayType}泛型数组，首先解析组件类型，然后递归获取真实类型。
+	 *     </li>
+	 *     <li>
+	 *         {@link WildcardType}通配符类型，优先使用下界通配符，如果没有下界通配符，使用上界通配符时，
+	 *         需要考虑多类型兼容问题。
+	 *     </li>
 	 * </ul>
 	 *
 	 * @param types       上下文环境
@@ -148,8 +160,13 @@ public class ClassUtil {
 			Class<?> clazz = (Class<?>) variable.getGenericDeclaration();
 			String name = variable.getName();
 			Type genericType = findGenericType(types, writerIndex, clazz, name);
+			if (genericType == null) {
+				return findClass(types, writerIndex, variable.getBounds()[0]);
+			}
+			// 没能查找到真正的Class类型，反而是一个泛型参数
 			if (genericType instanceof TypeVariable) {
 				Type[] bounds = ((TypeVariable<?>) genericType).getBounds();
+				// 预期对象自描述类型，需要判断泛型参数是否能兼容所有边界类型
 				return findClass(types, writerIndex, bounds[0]);
 			} else {
 				return findClass(types, writerIndex, genericType);
@@ -164,15 +181,17 @@ public class ClassUtil {
 		// 通配类型
 		if (type instanceof WildcardType) {
 			WildcardType wildcardType = (WildcardType) type;
-			// 上界通配符
-			Type[] upperBounds = wildcardType.getUpperBounds();
-			if (upperBounds.length > 0 && upperBounds[0] != Object.class) {
-				return findClass(types, writerIndex, upperBounds[0]);
-			}
-			// 下界通配符
+			// 下界通配符 增强包容性，如果包含下界通配符，直接返回下界通配符。
 			Type[] lowerBounds = wildcardType.getLowerBounds();
 			if (lowerBounds.length > 0 && lowerBounds[0] != Object.class) {
 				return findClass(types, writerIndex, lowerBounds[0]);
+			}
+			// 上界通配符 如果包含上界通配符，尝试使用上界通配符。
+			// 使用上界通配符时，可能有多个上界通配符，所以实际上有可能造成解码失败。
+			// 期望对象自描述类型，但是如果没有，则有可能造成类型不兼容。
+			Type[] upperBounds = wildcardType.getUpperBounds();
+			if (upperBounds.length > 0 && upperBounds[0] != Object.class) {
+				return findClass(types, writerIndex, upperBounds[0]);
 			}
 			// 上界或者下届通配符且只有1个，那么必然是Object.class
 			if (upperBounds.length > 0 || lowerBounds.length > 0) {
@@ -195,7 +214,7 @@ public class ClassUtil {
 	 * @param name        类型变量，类型变量应该是{@link Class}、{@link TypeVariable}、
 	 *                    {@link ParameterizedType}、{@link GenericArrayType}或者
 	 *                    {@link WildcardType}中的一个。
-	 * @return {@link Type}泛型类型。{@link TypeVariable}仅查找到类型变量。
+	 * @return {@link Type}泛型类型，{@link TypeVariable}类型变量，{@code null}查找失败。
 	 * <ul>
 	 *     <li>
 	 *         {@link Class}             基本类型(raw type)是一个普通的类。
@@ -206,7 +225,7 @@ public class ClassUtil {
 	 *     </li>
 	 * </ul>
 	 */
-	public static Type findGenericType(Type[] types, int readerIndex, Class<?> target, String name) {
+	public static @Nullable Type findGenericType(Type[] types, int readerIndex, Class<?> target, String name) {
 		Type result = null;
 		for (int i = readerIndex - 1; i >= 0; i--) {
 			Type type = types[i];
@@ -218,15 +237,11 @@ public class ClassUtil {
 			if (type instanceof Class && ((Class<?>) type).isArray()) {
 				continue;
 			}
-			Type prev = findGenericType(type, target, name);
-			if (prev == null) {
-				if (result == null) {
-					String msg = "the '" + name + "' of " + target.getName() + " cannot be found in " + types[readerIndex - 1].getTypeName();
-					throw new TypeNotFoundException(msg);
-				}
+			Type tmp = findGenericType(type, target, name);
+			if (tmp == null) { // 查找中断
 				return result;
 			} else {
-				result = prev;
+				result = tmp;
 			}
 			// 依然是泛型 继续向上查找
 			if (result instanceof TypeVariable) {
