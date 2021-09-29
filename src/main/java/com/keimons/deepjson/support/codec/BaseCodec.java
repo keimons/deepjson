@@ -69,6 +69,11 @@ public abstract class BaseCodec<T> implements ICodec<T> {
 	}
 
 	@Override
+	public boolean isCacheType() {
+		return true;
+	}
+
+	@Override
 	public void build(AbstractContext context, T value) {
 
 	}

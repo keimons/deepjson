@@ -20,6 +20,11 @@ public class WildcardTypeCodec extends BaseCodec<Object> {
 	public static final WildcardTypeCodec instance = new WildcardTypeCodec();
 
 	@Override
+	public boolean isCacheType() {
+		return false;
+	}
+
+	@Override
 	public void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, Object value, int uniqueId, long options) {
 		throw new UnsupportedOperationException();
 	}

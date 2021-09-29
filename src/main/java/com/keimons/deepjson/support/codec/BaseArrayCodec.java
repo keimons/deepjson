@@ -32,6 +32,11 @@ public abstract class BaseArrayCodec<T> extends BaseCodec<T> {
 	}
 
 	@Override
+	public boolean isCacheType() {
+		return false;
+	}
+
+	@Override
 	public void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, T value, int uniqueId, long options) {
 		char mark = '{';
 		// write class name

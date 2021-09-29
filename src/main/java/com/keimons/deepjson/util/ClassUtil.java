@@ -228,16 +228,7 @@ public class ClassUtil {
 	public static @Nullable Type findGenericType(Type[] types, int readerIndex, Class<?> target, String name) {
 		Type result = null;
 		for (int i = readerIndex - 1; i >= 0; i--) {
-			Type type = types[i];
-			// 跳过参数类型、泛型数组、通配类型，因为它们不能解析出来真实类型
-			if (type instanceof TypeVariable || type instanceof GenericArrayType || type instanceof WildcardType) {
-				continue;
-			}
-			// 跳过对象数组，只需要对象数组的组件类型
-			if (type instanceof Class && ((Class<?>) type).isArray()) {
-				continue;
-			}
-			Type tmp = findGenericType(type, target, name);
+			Type tmp = findGenericType(types[i], target, name);
 			if (tmp == null) { // 查找中断
 				return result;
 			} else {

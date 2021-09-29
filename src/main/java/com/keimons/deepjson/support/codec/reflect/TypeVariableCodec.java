@@ -25,6 +25,11 @@ public class TypeVariableCodec extends BaseCodec<Object> {
 	public static final TypeVariableCodec instance = new TypeVariableCodec();
 
 	@Override
+	public boolean isCacheType() {
+		return false;
+	}
+
+	@Override
 	public void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, Object value, int uniqueId, long options) {
 		throw new UnsupportedOperationException();
 	}

@@ -110,11 +110,16 @@ public class Context implements IDecodeContext {
 	public <T> T decode(ReaderBuffer buf, Type type, long options) {
 		ICodec<T> codec = CodecFactory.getCodec(type);
 		assert codec != null;
+		boolean vvv = codec.isCacheType();
 		try {
-			add(type);
+			if (vvv) {
+				add(type);
+			}
 			return codec.decode(this, buf, type, options);
 		} finally {
-			poll();
+			if (vvv) {
+				poll();
+			}
 		}
 	}
 
@@ -144,6 +149,7 @@ public class Context implements IDecodeContext {
 
 	@Override
 	public void close(ReaderBuffer buf) {
+		writerIndex = 0;
 		try {
 			buf.nextToken();
 			buf.assertExpectedSyntax(SyntaxToken.EOF);

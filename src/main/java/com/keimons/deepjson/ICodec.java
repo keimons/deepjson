@@ -2,8 +2,11 @@ package com.keimons.deepjson;
 
 import com.keimons.deepjson.support.ReferenceNode;
 import com.keimons.deepjson.support.SyntaxToken;
+import com.keimons.deepjson.support.codec.BaseArrayCodec;
 import com.keimons.deepjson.support.codec.MapCodec;
 import com.keimons.deepjson.support.codec.ObjectCodec;
+import com.keimons.deepjson.support.codec.reflect.TypeVariableCodec;
+import com.keimons.deepjson.support.codec.reflect.WildcardTypeCodec;
 import com.keimons.deepjson.util.UnsafeUtil;
 import sun.misc.Unsafe;
 
@@ -56,6 +59,18 @@ public interface ICodec<T> {
 	 * @return {@code true}需要搜索，{@code false}不需要搜索
 	 */
 	boolean isSearch();
+
+	/**
+	 * 是否需要缓存类型
+	 * <p>
+	 * 只有数组、参数类型和通配符不需要缓存类型，这是为了避免频繁的调用{@code instanceof}。
+	 *
+	 * @return {@code true}需要缓存，{@code false}不需要缓存
+	 * @see BaseArrayCodec    数组类型，不需要缓存
+	 * @see TypeVariableCodec 参数类型，不需要缓存
+	 * @see WildcardTypeCodec 通配符，不需要缓存
+	 */
+	boolean isCacheType();
 
 	/**
 	 * 根据上下文信息，构造对象链。采用深度优先搜索，将所有的对象构成一个链条，等待写入缓冲区。
