@@ -28,13 +28,6 @@ public abstract class ReaderBuffer implements Closeable {
 	public abstract int readerIndex();
 
 	/**
-	 * 获取标记位置
-	 *
-	 * @return 标记位置
-	 */
-	public abstract int markerIndex();
-
-	/**
 	 * 标记读取位置
 	 *
 	 * @see #resetReaderIndex() 重置读取位置

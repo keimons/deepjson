@@ -2,6 +2,7 @@ package com.keimons.deepjson.support.codec;
 
 import com.keimons.deepjson.*;
 import com.keimons.deepjson.support.SyntaxToken;
+import com.keimons.deepjson.util.TypeNotFoundException;
 
 import java.lang.reflect.Type;
 
@@ -105,7 +106,7 @@ public abstract class BaseCodec<T> implements ICodec<T> {
 			try {
 				return Class.forName(type);
 			} catch (ClassNotFoundException e) {
-				throw new RuntimeException(e);
+				throw new TypeNotFoundException(e);
 			}
 		}
 		return null;

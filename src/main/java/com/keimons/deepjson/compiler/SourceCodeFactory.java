@@ -315,9 +315,8 @@ public class SourceCodeFactory {
 			source.append("\t\t\t\t\t\tcontext.addCompleteHook(instance, ")
 					.append(info.offset()).append("L, buf.get$Id());\n");
 			source.append("\t\t\t\t\t} else {\n");
-			source.append("\t\t\t\t\t\tType ft = context.findInstanceType($field$_")
-					.append(info.getFieldName()).append(".getGenericType());\n");
-			source.append("\t\t\t\t\t\tObject value = context.decode(buf, ft, options);\n");
+			source.append("\t\t\t\t\t\tObject value = context.decode(buf, $field$_")
+					.append(info.getFieldName()).append(".getGenericType(), options);\n");
 			source.append("\t\t\t\t\t\tunsafe.putObject(instance, ")
 					.append(info.offset()).append("L, value);\n");
 			source.append("\t\t\t\t\t}\n");

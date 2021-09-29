@@ -10,7 +10,8 @@ import com.keimons.deepjson.util.TypeNotFoundException;
 import com.keimons.deepjson.util.UnsafeUtil;
 import sun.misc.Unsafe;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.*;
 
 /**
@@ -74,17 +75,6 @@ public class Context implements IDecodeContext {
 
 	@Override
 	public Class<?> findInstanceType(Type type) {
-		// 查找终止条件
-		if (type instanceof Class) {
-			return (Class<?>) type;
-		}
-		if (type instanceof GenericArrayType) {
-			Class<?> clazz = findInstanceType(((GenericArrayType) type).getGenericComponentType());
-			return Array.newInstance(clazz, 0).getClass();
-		}
-		if (type instanceof ParameterizedType) {
-			return (Class<?>) ((ParameterizedType) type).getRawType();
-		}
 		return ClassUtil.findClass(types, writerIndex, type);
 	}
 
@@ -110,14 +100,14 @@ public class Context implements IDecodeContext {
 	public <T> T decode(ReaderBuffer buf, Type type, long options) {
 		ICodec<T> codec = CodecFactory.getCodec(type);
 		assert codec != null;
-		boolean vvv = codec.isCacheType();
+		boolean cacheType = codec.isCacheType();
 		try {
-			if (vvv) {
+			if (cacheType) {
 				add(type);
 			}
 			return codec.decode(this, buf, type, options);
 		} finally {
-			if (vvv) {
+			if (cacheType) {
 				poll();
 			}
 		}

@@ -17,6 +17,10 @@ public class TypeNotFoundException extends RuntimeException {
 		super(message);
 	}
 
+	public TypeNotFoundException(Throwable cause) {
+		super(cause);
+	}
+
 	public TypeNotFoundException(String message, Throwable cause) {
 		super(message, cause);
 	}

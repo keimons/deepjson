@@ -2,13 +2,8 @@ package com.keimons.deepjson.support.codec.reflect;
 
 import com.keimons.deepjson.*;
 import com.keimons.deepjson.support.IncompatibleTypeException;
-import com.keimons.deepjson.support.SyntaxToken;
 import com.keimons.deepjson.support.codec.BaseCodec;
-import com.keimons.deepjson.util.ClassUtil;
-import com.keimons.deepjson.util.TypeNotFoundException;
 
-import java.lang.reflect.MalformedParameterizedTypeException;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.Arrays;
@@ -39,51 +34,55 @@ public class TypeVariableCodec extends BaseCodec<Object> {
 		assert type instanceof TypeVariable;
 		TypeVariable<?> tv = (TypeVariable<?>) type;
 		Type instanceType = context.findInstanceType(tv);
-		if (instanceType == null) {
-			throw new TypeNotFoundException("unknown TypeVariable type " + type.getTypeName());
-		}
-		if (instanceType instanceof Class) {
-			return context.decode(buf, instanceType, options);
-		}
 		if (instanceType instanceof TypeVariable) {
 			// 泛型已经不能被解析，所以这里实际上是在使用上边界判定
 			Type[] bounds = ((TypeVariable<?>) type).getBounds(); // class(ParameterizedType) interface
-			// we have no idea of type variable
-			if (bounds.length <= 0) {
-				if (false) { // TODO 设计兼容模式 和 严格模式
-					throw new TypeNotFoundException("");
-				}
-				return context.decode(buf, Object.class, options);
-			}
 			if (bounds.length == 1) {
 				return context.decode(buf, bounds[0], options);
 			}
-			SyntaxToken token = buf.nextToken();
-			// 边界参数泛型
-			if (token == SyntaxToken.STRING && buf.checkGetType()) {
-				buf.nextToken();
-				buf.assertExpectedSyntax(SyntaxToken.COLON);
-				buf.nextToken();
-				buf.assertExpectedSyntax(SyntaxToken.STRING);
-				String className = buf.stringValue();
-				Class<?> clazz = ClassUtil.findClass(className); // 解析类中的名字
-				for (Type bound : bounds) {
-					Class<?> parent;
-					if (bound instanceof Class<?>) {
-						parent = (Class<?>) bound;
-					} else if (bound instanceof ParameterizedType) {
-						parent = (Class<?>) ((ParameterizedType) bound).getRawType();
-					} else {
-						String msg = Arrays.toString(bounds);
-						throw new MalformedParameterizedTypeException(msg);
-					}
-					if (!parent.isAssignableFrom(clazz)) {
-						throw new IncompatibleTypeException(bound, clazz);
-					}
-				}
-				return context.decode(buf, clazz, options);
+			// more than one
+			Type bound = bounds[0]; // 介于java是单继承，只有第一个可能是类，其它的必然是接口
+			Class<?> clazz = context.findInstanceType(bound);
+			if (!check(context, clazz, bounds)) {
+				throw new IncompatibleTypeException("unknown type bounds " + Arrays.toString(bounds));
 			}
+			instanceType = bounds[0];
 		}
 		return context.decode(buf, instanceType, options);
+	}
+
+	/**
+	 * 检测类型
+	 *
+	 * @param context 上下文信息
+	 * @param target  类型信息
+	 * @param bounds  边界信息
+	 * @return {@code true}检测成功，{@code false}检测失败
+	 * @see Config#DEFAULT 默认实现
+	 */
+	private boolean check(IDecodeContext context, Class<?> target, Type[] bounds) {
+		boolean check = true;
+		for (int i = 1; i < bounds.length; i++) {
+			Class<?> clazz = context.findInstanceType(bounds[i]);
+			if (!clazz.isAssignableFrom(target)) {
+				check = false;
+				break;
+			}
+		}
+		if (!check) {
+			check = true;
+			target = Config.DEFAULT.get(target);
+			if (target == null) {
+				return false;
+			}
+			for (int i = 1; i < bounds.length; i++) {
+				Class<?> clazz = context.findInstanceType(bounds[i]);
+				if (!clazz.isAssignableFrom(target)) {
+					check = false;
+					break;
+				}
+			}
+		}
+		return check;
 	}
 }

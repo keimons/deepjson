@@ -199,7 +199,7 @@ public class MapCodec extends BaseCodec<Object> {
 	 */
 	private Map<Object, Object> createInterface(Class<?> clazz) {
 		if (Map.class == clazz) {
-			return new LinkedHashMap<Object, Object>();
+			return new HashMap<Object, Object>();
 		} else if (SortedMap.class == clazz || NavigableMap.class == clazz) {
 			return new TreeMap<Object, Object>();
 		} else if (ConcurrentMap.class == clazz) {

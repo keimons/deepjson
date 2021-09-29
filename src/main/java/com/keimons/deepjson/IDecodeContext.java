@@ -1,5 +1,7 @@
 package com.keimons.deepjson;
 
+import com.keimons.deepjson.util.TypeNotFoundException;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.*;
@@ -44,14 +46,17 @@ public interface IDecodeContext {
 	 * @param type 类型
 	 * @return 有可能是任意类型或者为null，但是{@link Class}真实类型，{@link TypeVariable}泛型类型。
 	 */
-	@Nullable Type findInstanceType(TypeVariable<?> type);
+	@NotNull Type findInstanceType(TypeVariable<?> type);
 
 	/**
 	 * 查找{@link Class}中的泛型类型
+	 * <p>
+	 * 在上下文中查找泛型的实际类型，如果查找失败，抛出异常。
 	 *
 	 * @param target 泛型类型，例如{@link java.util.Map}
 	 * @param name   泛型名，例如{@link java.util.Map}中的"K"
 	 * @return 泛型的实际类型
+	 * @throws TypeNotFoundException 类型查找失败
 	 */
 	Type findType(Class<?> target, String name);
 

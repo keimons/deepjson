@@ -19,6 +19,10 @@ public class Node {
 
 	private long value4 = 444;
 
+	public static Node of() {
+		return new Node();
+	}
+
 	public static Node[] array1() {
 		return new Node[]{new Node()};
 	}

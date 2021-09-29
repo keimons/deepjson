@@ -640,18 +640,13 @@ public class JsonReaderBuffer extends ReaderBuffer {
 		return readerIndex;
 	}
 
-	@Override
-	public int markerIndex() {
-		return markerIndex;
-	}
-
 	public void markReaderIndex() {
-		markerIndex = readerIndex;
+		markerIndex = startIndex;
 	}
 
 	public void resetReaderIndex() {
-		this.token = null;
 		this.readerIndex = markerIndex;
+		this.token = nextToken();
 	}
 
 	@Override

@@ -41,6 +41,11 @@ public class Config {
 	 */
 	public static final Set<Class<?>> WHITE_OBJECT = new HashSet<Class<?>>();
 
+	/**
+	 * 默认实现
+	 */
+	public static final Map<Class<?>, Class<?>> DEFAULT = new ConcurrentHashMap<Class<?>, Class<?>>();
+
 	static {
 		// 预热编译器
 		String property = System.getProperty("com.keimons.deepjson.Debug");
@@ -98,6 +103,24 @@ public class Config {
 		// comparator is not yet supported. lambda.
 		// MAP_WHITE.add(ConcurrentSkipListMap.class);
 		// endregion
+
+		// default
+		DEFAULT.put(Map.class, HashMap.class);
+		DEFAULT.put(AbstractMap.class, HashMap.class);
+		DEFAULT.put(SortedMap.class, TreeMap.class);
+		DEFAULT.put(NavigableMap.class, TreeMap.class);
+		DEFAULT.put(ConcurrentMap.class, ConcurrentHashMap.class);
+		DEFAULT.put(ConcurrentNavigableMap.class, ConcurrentSkipListMap.class);
+
+		DEFAULT.put(Collection.class, ArrayList.class);
+		DEFAULT.put(List.class, ArrayList.class);
+		DEFAULT.put(Queue.class, LinkedList.class);
+		DEFAULT.put(Deque.class, LinkedList.class);
+		DEFAULT.put(BlockingQueue.class, LinkedBlockingQueue.class);
+		DEFAULT.put(BlockingDeque.class, LinkedBlockingDeque.class);
+		DEFAULT.put(Set.class, HashSet.class);
+		DEFAULT.put(SortedSet.class, TreeSet.class);
+		DEFAULT.put(NavigableSet.class, TreeSet.class);
 	}
 
 	public static void addWrite(Class<?> clazz) {

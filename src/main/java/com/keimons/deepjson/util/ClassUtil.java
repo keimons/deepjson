@@ -151,8 +151,7 @@ public class ClassUtil {
 		}
 		// 参数类型
 		if (type instanceof ParameterizedType) {
-			Type rawType = ((ParameterizedType) type).getRawType();
-			return findClass(types, writerIndex, rawType);
+			return (Class<?>) ((ParameterizedType) type).getRawType();
 		}
 		// 泛型参数
 		if (type instanceof TypeVariable) {
@@ -161,7 +160,7 @@ public class ClassUtil {
 			String name = variable.getName();
 			Type genericType = findGenericType(types, writerIndex, clazz, name);
 			if (genericType == null) {
-				return findClass(types, writerIndex, variable.getBounds()[0]);
+				genericType = variable;
 			}
 			// 没能查找到真正的Class类型，反而是一个泛型参数
 			if (genericType instanceof TypeVariable) {
@@ -183,19 +182,15 @@ public class ClassUtil {
 			WildcardType wildcardType = (WildcardType) type;
 			// 下界通配符 增强包容性，如果包含下界通配符，直接返回下界通配符。
 			Type[] lowerBounds = wildcardType.getLowerBounds();
-			if (lowerBounds.length > 0 && lowerBounds[0] != Object.class) {
+			if (lowerBounds.length > 0) {
 				return findClass(types, writerIndex, lowerBounds[0]);
 			}
 			// 上界通配符 如果包含上界通配符，尝试使用上界通配符。
 			// 使用上界通配符时，可能有多个上界通配符，所以实际上有可能造成解码失败。
 			// 期望对象自描述类型，但是如果没有，则有可能造成类型不兼容。
 			Type[] upperBounds = wildcardType.getUpperBounds();
-			if (upperBounds.length > 0 && upperBounds[0] != Object.class) {
+			if (upperBounds.length > 0) {
 				return findClass(types, writerIndex, upperBounds[0]);
-			}
-			// 上界或者下届通配符且只有1个，那么必然是Object.class
-			if (upperBounds.length > 0 || lowerBounds.length > 0) {
-				return Object.class;
 			}
 			// 无法解析 上下界均为空
 			throw new TypeNotFoundException("unknown wildcard type " + type.getTypeName());
