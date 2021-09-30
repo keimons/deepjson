@@ -8,6 +8,7 @@ import com.keimons.deepjson.support.SyntaxToken;
 import com.keimons.deepjson.util.ClassUtil;
 import com.keimons.deepjson.util.TypeNotFoundException;
 import com.keimons.deepjson.util.UnsafeUtil;
+import org.jetbrains.annotations.NotNull;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Type;
@@ -79,7 +80,7 @@ public class Context implements IDecodeContext {
 	}
 
 	@Override
-	public Type findInstanceType(final TypeVariable<?> type) {
+	public @NotNull Type findInstanceType(final TypeVariable<?> type) {
 		Class<?> clazz = (Class<?>) type.getGenericDeclaration();
 		String name = type.getName();
 		Type result = ClassUtil.findGenericType(types, writerIndex, clazz, name);

@@ -1,5 +1,7 @@
 package com.keimons.deepjson.test;
 
+import java.io.Serializable;
+
 /**
  * 测试节点
  *
@@ -7,7 +9,7 @@ package com.keimons.deepjson.test;
  * @version 1.0
  * @since 1.6
  **/
-public class Node {
+public class Node implements Serializable {
 
 	private boolean value0 = true;
 
