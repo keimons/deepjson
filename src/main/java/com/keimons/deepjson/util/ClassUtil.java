@@ -1,5 +1,6 @@
 package com.keimons.deepjson.util;
 
+import com.keimons.deepjson.Config;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.*;
@@ -165,8 +166,12 @@ public class ClassUtil {
 			// 没能查找到真正的Class类型，反而是一个泛型参数
 			if (genericType instanceof TypeVariable) {
 				Type[] bounds = ((TypeVariable<?>) genericType).getBounds();
-				// 预期对象自描述类型，需要判断泛型参数是否能兼容所有边界类型
-				return findClass(types, writerIndex, bounds[0]);
+				if (bounds.length == 1) {
+					return findClass(types, writerIndex, bounds[0]);
+				} else {
+					// 预期对象自描述类型，需要判断泛型参数是否能兼容所有边界类型
+					return findClass(types, writerIndex, Config.getType(bounds));
+				}
 			} else {
 				return findClass(types, writerIndex, genericType);
 			}

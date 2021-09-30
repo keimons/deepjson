@@ -41,12 +41,10 @@ public class TypeVariableCodec extends BaseCodec<Object> {
 				return context.decode(buf, bounds[0], options);
 			}
 			// more than one
-			Type bound = bounds[0]; // 介于java是单继承，只有第一个可能是类，其它的必然是接口
-			Class<?> clazz = context.findInstanceType(bound);
-			if (!check(context, clazz, bounds)) {
+			instanceType = Config.getType(bounds); // 介于java是单继承，只有第一个可能是类，其它的必然是接口
+			if (instanceType == null) {
 				throw new IncompatibleTypeException("unknown type bounds " + Arrays.toString(bounds));
 			}
-			instanceType = bounds[0];
 		}
 		return context.decode(buf, instanceType, options);
 	}
@@ -58,7 +56,6 @@ public class TypeVariableCodec extends BaseCodec<Object> {
 	 * @param target  类型信息
 	 * @param bounds  边界信息
 	 * @return {@code true}检测成功，{@code false}检测失败
-	 * @see Config#DEFAULT 默认实现
 	 */
 	private boolean check(IDecodeContext context, Class<?> target, Type[] bounds) {
 		boolean check = true;
@@ -71,7 +68,7 @@ public class TypeVariableCodec extends BaseCodec<Object> {
 		}
 		if (!check) {
 			check = true;
-			target = Config.DEFAULT.get(target);
+//			target = Config.DEFAULT.get(target);
 			if (target == null) {
 				return false;
 			}

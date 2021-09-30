@@ -65,4 +65,12 @@ public class ArrayUtil {
 		}
 		return result;
 	}
+
+	public static int unifiedHashcode(Object[] values) {
+		int result = 0;
+		for (Object value : values) {
+			result ^= value.toString().hashCode();
+		}
+		return result;
+	}
 }

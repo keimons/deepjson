@@ -1,7 +1,12 @@
 package com.keimons.deepjson;
 
+import com.keimons.deepjson.util.ArrayUtil;
 import com.keimons.deepjson.util.PlatformUtil;
+import com.keimons.deepjson.util.ReflectUtil;
 
+import java.io.Serializable;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -44,7 +49,7 @@ public class Config {
 	/**
 	 * 默认实现
 	 */
-	public static final Map<Class<?>, Class<?>> DEFAULT = new ConcurrentHashMap<Class<?>, Class<?>>();
+	public static final Map<Node, Type> MAPPER = new ConcurrentHashMap<Node, Type>();
 
 	static {
 		// 预热编译器
@@ -105,22 +110,22 @@ public class Config {
 		// endregion
 
 		// default
-		DEFAULT.put(Map.class, HashMap.class);
-		DEFAULT.put(AbstractMap.class, HashMap.class);
-		DEFAULT.put(SortedMap.class, TreeMap.class);
-		DEFAULT.put(NavigableMap.class, TreeMap.class);
-		DEFAULT.put(ConcurrentMap.class, ConcurrentHashMap.class);
-		DEFAULT.put(ConcurrentNavigableMap.class, ConcurrentSkipListMap.class);
-
-		DEFAULT.put(Collection.class, ArrayList.class);
-		DEFAULT.put(List.class, ArrayList.class);
-		DEFAULT.put(Queue.class, LinkedList.class);
-		DEFAULT.put(Deque.class, LinkedList.class);
-		DEFAULT.put(BlockingQueue.class, LinkedBlockingQueue.class);
-		DEFAULT.put(BlockingDeque.class, LinkedBlockingDeque.class);
-		DEFAULT.put(Set.class, HashSet.class);
-		DEFAULT.put(SortedSet.class, TreeSet.class);
-		DEFAULT.put(NavigableSet.class, TreeSet.class);
+//		DEFAULT.put(Map.class, HashMap.class);
+//		DEFAULT.put(AbstractMap.class, HashMap.class);
+//		DEFAULT.put(SortedMap.class, TreeMap.class);
+//		DEFAULT.put(NavigableMap.class, TreeMap.class);
+//		DEFAULT.put(ConcurrentMap.class, ConcurrentHashMap.class);
+//		DEFAULT.put(ConcurrentNavigableMap.class, ConcurrentSkipListMap.class);
+//
+//		DEFAULT.put(Collection.class, ArrayList.class);
+//		DEFAULT.put(List.class, ArrayList.class);
+//		DEFAULT.put(Queue.class, LinkedList.class);
+//		DEFAULT.put(Deque.class, LinkedList.class);
+//		DEFAULT.put(BlockingQueue.class, LinkedBlockingQueue.class);
+//		DEFAULT.put(BlockingDeque.class, LinkedBlockingDeque.class);
+//		DEFAULT.put(Set.class, HashSet.class);
+//		DEFAULT.put(SortedSet.class, TreeSet.class);
+//		DEFAULT.put(NavigableSet.class, TreeSet.class);
 	}
 
 	public static void addWrite(Class<?> clazz) {
@@ -137,5 +142,80 @@ public class Config {
 
 	public static boolean containsClass(Class<?> clazz) {
 		return WHITE_OBJECT.contains(clazz);
+	}
+
+	public static void registerMapper(Type[] types, Type type) {
+		MAPPER.put(new Node(types), type);
+	}
+
+	public static Type getType(Type[] types) {
+		return MAPPER.get(new Node(types));
+	}
+
+	static {
+		{
+			Type kt = ReflectUtil.makeTypeVariable(Map.class, "K", new Type[]{Object.class});
+			Type vt = ReflectUtil.makeTypeVariable(Map.class, "V", new Type[]{Object.class});
+			ParameterizedType pt = ReflectUtil.makeParameterizedType(null, Map.class, new Type[]{kt, vt});
+			registerMapper(new Type[]{pt, Serializable.class}, HashMap.class); // same as HashMap<Object, Object>
+		}
+		{
+			Type kt = ReflectUtil.makeWildcardType(new Type[]{Object.class}, null);
+			Type vt = ReflectUtil.makeWildcardType(new Type[]{Object.class}, null);
+			ParameterizedType pt = ReflectUtil.makeParameterizedType(null, Map.class, new Type[]{kt, vt});
+			registerMapper(new Type[]{pt, Serializable.class}, HashMap.class); // same as HashMap<?, ?>
+		}
+	}
+
+	/**
+	 * java
+	 *
+	 * @author houyn[monkey@keimons.com]
+	 * @version 1.0
+	 * @since 1.6
+	 **/
+	private static class Node {
+
+		private final Type[] types;
+
+		private final int hashcode;
+
+		private final int length;
+
+		public Node(Type[] types) {
+			this.types = types;
+			this.length = types.length;
+			this.hashcode = ArrayUtil.unifiedHashcode(types);
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) {
+				return true;
+			}
+			if (o == null || getClass() != o.getClass()) {
+				return false;
+			}
+			Node node = (Node) o;
+			if (node.length != length) {
+				return false;
+			}
+			Type[] types = node.types;
+			start:
+			for (Type type : this.types) {
+				for (Type target : types) {
+					if (type != null && type.equals(target)) {
+						continue start;
+					}
+				}
+				return false;
+			}
+			return true;
+		}
+
+		@Override
+		public int hashCode() {
+			return hashcode;
+		}
 	}
 }

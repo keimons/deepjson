@@ -1,11 +1,18 @@
 package com.keimons.deepjson.test.codec.ref;
 
+import com.keimons.deepjson.Config;
 import com.keimons.deepjson.DeepJson;
 import com.keimons.deepjson.test.Node;
+import com.keimons.deepjson.util.ReflectUtil;
 import org.junit.jupiter.api.Test;
 
+import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * {@link TypeVariable}测试
@@ -16,8 +23,15 @@ import java.util.HashMap;
  **/
 public class TypeVariableTest {
 
+	HashMap<String, Node> map;
+
 	@Test
-	public void test() {
+	public void test() throws Exception {
+		Type kt = ReflectUtil.makeWildcardType(new Type[]{String.class}, null);
+		Type vt = ReflectUtil.makeWildcardType(new Type[]{Node.class}, null);
+		ParameterizedType pt = ReflectUtil.makeParameterizedType(null, Map.class, new Type[]{kt, vt});
+		Field field = TypeVariableTest.class.getDeclaredField("map");
+		Config.registerMapper(new Type[]{pt, Serializable.class}, field.getGenericType()); // same as HashMap<String, Node>
 		TVNode node = new TVNode();
 		node.value0 = new Node();
 		node.value1 = new Boolean[]{true, false};
