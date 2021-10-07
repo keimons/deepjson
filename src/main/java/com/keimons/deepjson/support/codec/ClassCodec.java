@@ -4,8 +4,6 @@ import com.keimons.deepjson.*;
 import com.keimons.deepjson.support.SyntaxToken;
 import com.keimons.deepjson.util.ClassUtil;
 
-import java.lang.reflect.Type;
-
 /**
  * {@link Class}编解码器
  *
@@ -13,7 +11,7 @@ import java.lang.reflect.Type;
  * @version 1.0
  * @since 1.6
  **/
-public class ClassCodec extends BaseCodec<Class<?>> {
+public class ClassCodec extends AbstractClassCodec<Class<?>> {
 
 	public static final ClassCodec instance = new ClassCodec();
 
@@ -23,7 +21,7 @@ public class ClassCodec extends BaseCodec<Class<?>> {
 	}
 
 	@Override
-	public Class<?> decode(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	public Class<?> decode(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options) {
 		buf.assertExpectedSyntax(SyntaxToken.STRING);
 		return ClassUtil.findClass(buf.stringValue());
 	}

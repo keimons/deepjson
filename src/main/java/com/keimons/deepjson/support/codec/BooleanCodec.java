@@ -5,8 +5,6 @@ import com.keimons.deepjson.IDecodeContext;
 import com.keimons.deepjson.ReaderBuffer;
 import com.keimons.deepjson.support.SyntaxToken;
 
-import java.lang.reflect.Type;
-
 /**
  * {@link Boolean}编解码器
  *
@@ -24,7 +22,7 @@ public class BooleanCodec extends BasePrimitiveCodec<Boolean> {
 	}
 
 	@Override
-	protected Boolean decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	protected Boolean decode0(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options) {
 		buf.assertExpectedSyntax(SyntaxToken.TRUE, SyntaxToken.FALSE, SyntaxToken.STRING);
 		SyntaxToken token = buf.token();
 		if (token == SyntaxToken.TRUE) {

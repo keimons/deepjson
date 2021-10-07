@@ -1,10 +1,8 @@
 package com.keimons.deepjson.support.codec.guava;
 
 import com.google.common.collect.Table;
-import com.keimons.deepjson.AbstractBuffer;
-import com.keimons.deepjson.AbstractContext;
-import com.keimons.deepjson.CodecModel;
-import com.keimons.deepjson.support.codec.BaseCodec;
+import com.keimons.deepjson.*;
+import com.keimons.deepjson.support.codec.AbstractClassCodec;
 
 /**
  * Google Guava {@link Table}编解码器
@@ -13,7 +11,7 @@ import com.keimons.deepjson.support.codec.BaseCodec;
  * @version 1.0
  * @since 1.6
  **/
-public class TableCodec extends BaseCodec<Table<?, ?, ?>> {
+public class TableCodec extends AbstractClassCodec<Table<?, ?, ?>> {
 
 	public static final TableCodec instance = new TableCodec();
 
@@ -25,6 +23,11 @@ public class TableCodec extends BaseCodec<Table<?, ?, ?>> {
 	@Override
 	public void build(AbstractContext context, Table<?, ?, ?> value) {
 		context.build(value.columnMap());
+	}
+
+	@Override
+	public Table<?, ?, ?> decode(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options) {
+		return null;
 	}
 
 	@Override

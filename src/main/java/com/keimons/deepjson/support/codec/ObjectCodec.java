@@ -4,7 +4,6 @@ import com.keimons.deepjson.*;
 import com.keimons.deepjson.support.SyntaxToken;
 import com.keimons.deepjson.util.UnsupportedException;
 
-import java.lang.reflect.Type;
 import java.util.Map;
 
 /**
@@ -14,7 +13,7 @@ import java.util.Map;
  * @version 1.0
  * @since 1.6
  **/
-public class ObjectCodec extends BaseCodec<Object> {
+public class ObjectCodec extends AbstractClassCodec<Object> {
 
 	public static final ICodec<Object> instance = new ObjectCodec();
 
@@ -30,7 +29,7 @@ public class ObjectCodec extends BaseCodec<Object> {
 	}
 
 	@Override
-	public Object decode(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	public Object decode(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options) {
 		SyntaxToken token = buf.token();
 		switch (token) {
 			case NULL:
@@ -46,7 +45,7 @@ public class ObjectCodec extends BaseCodec<Object> {
 			case LBRACE:
 				return context.decode(buf, Map.class, options);
 			case LBRACKET:
-				return JsonArrayCodec.instance.decode(context, buf, type, options);
+				return JsonArrayCodec.instance.decode(context, buf, clazz, options);
 			default:
 				throw new UnsupportedException();
 		}

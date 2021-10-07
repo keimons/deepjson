@@ -310,7 +310,8 @@ public class SourceCodeFactory {
 					.append("L, value);\n");
 		} else {
 			source.append("\t\t\t\t\tif (token == SyntaxToken.NULL) {\n");
-			source.append("\t\t\t\t\t\tunsafe.putObject(instance, 12L, null);\n");
+			source.append("\t\t\t\t\t\tunsafe.putObject(instance, ")
+					.append(info.offset()).append("L, null);\n");
 			source.append("\t\t\t\t\t} else if (buf.is$Id()) {\n");
 			source.append("\t\t\t\t\t\tcontext.addCompleteHook(instance, ")
 					.append(info.offset()).append("L, buf.get$Id());\n");

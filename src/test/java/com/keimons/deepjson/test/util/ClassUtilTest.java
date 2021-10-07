@@ -38,13 +38,13 @@ public class ClassUtilTest {
 		Config.addWrite(InnerNode.class);
 		Type[] types = new Type[16];
 		types[0] = ClassUtilTest.class.getDeclaredField("value0").getGenericType();
-		Class<?> clazz = ClassUtil.findClass(types, 1, types[0]);
+		Class<?> clazz = ClassUtil.findClass(types, 1, types[0], null);
 		Type[] arguments = ((ParameterizedType) types[0]).getActualTypeArguments();
 		System.out.println("map  clazz: " + clazz);
 		System.out.println("map  key:   " + ClassUtil.findGenericType(types, 1, Map.class, "K"));
 		System.out.println("map  value: " + ClassUtil.findGenericType(types, 1, Map.class, "V"));
-		System.out.println("args key:   " + ClassUtil.findClass(types, 1, arguments[0]));
-		System.out.println("args value: " + ClassUtil.findClass(types, 1, arguments[1]));
+		System.out.println("args key:   " + ClassUtil.findClass(types, 1, arguments[0], null));
+		System.out.println("args value: " + ClassUtil.findClass(types, 1, arguments[1], null));
 
 		types[0] = BotNode.class;
 		System.out.println("node:  " + ClassUtil.findGenericType(types, 1, TopNode.class, "T"));

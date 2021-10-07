@@ -75,8 +75,8 @@ public class Context implements IDecodeContext {
 	}
 
 	@Override
-	public Class<?> findInstanceType(Type type) {
-		return ClassUtil.findClass(types, writerIndex, type);
+	public Class<?> findInstanceType(Type type, Class<?> defaultValue) {
+		return ClassUtil.findClass(types, writerIndex, type, defaultValue);
 	}
 
 	@Override

@@ -1,8 +1,6 @@
 package com.keimons.deepjson.support.codec;
 
-import com.keimons.deepjson.AbstractBuffer;
-import com.keimons.deepjson.AbstractContext;
-import com.keimons.deepjson.CodecModel;
+import com.keimons.deepjson.*;
 import com.keimons.deepjson.support.ElementsFuture;
 
 /**
@@ -15,7 +13,7 @@ import com.keimons.deepjson.support.ElementsFuture;
  * @version 1.0
  * @since 1.6
  **/
-public class EmptyCodec extends BaseCodec<ElementsFuture> {
+public class EmptyCodec extends AbstractClassCodec<ElementsFuture> {
 
 	public static EmptyCodec instance = new EmptyCodec();
 
@@ -26,6 +24,11 @@ public class EmptyCodec extends BaseCodec<ElementsFuture> {
 
 	@Override
 	public void build(AbstractContext context, ElementsFuture value) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public ElementsFuture decode(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options) {
 		throw new UnsupportedOperationException();
 	}
 

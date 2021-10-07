@@ -18,7 +18,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  * @version 1.0
  * @since 1.6
  **/
-public class CollectionCodec extends BaseCodec<Collection<?>> {
+public class CollectionCodec extends AbstractClassCodec<Collection<?>> {
 
 	public static final CollectionCodec instance = new CollectionCodec();
 
@@ -84,32 +84,31 @@ public class CollectionCodec extends BaseCodec<Collection<?>> {
 	}
 
 	@Override
-	public Collection<?> decode(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	public Collection<?> decode(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options) {
 		Type et = context.findType(Collection.class, "E");
-		Class<?> expected = context.findInstanceType(type);
 
 		SyntaxToken token = buf.token();
 		if (token == SyntaxToken.LBRACKET) {
-			final Collection<Object> instance = createInstance(expected, et);
+			final Collection<Object> instance = createInstance(clazz, et);
 			// 原生进入 [x, y, z]
 			decode0(instance, context, buf, et, options);
 			return instance;
 		}
 		// 拓展进入 {"$type":"[X", "$values":[x, y, z]}
 		token = buf.nextToken(); // 下一个有可能是对象也有可能是对象结束
-		Class<?> target = typeCheck(context, buf, options);
-		if (target != null) {
-			if (!Collection.class.isAssignableFrom(target)) { // 必须是 集合类型 或 子类
-				throw new IncompatibleTypeException(target, Collection.class);
+		Class<?> excepted = typeCheck(context, buf, options);
+		if (excepted != null) {
+			if (!Collection.class.isAssignableFrom(excepted)) { // 必须是 集合类型 或 子类
+				throw new IncompatibleTypeException(excepted, Collection.class);
 			}
-			if (!expected.isAssignableFrom(target)) {
-				throw new IncompatibleTypeException(target, expected);
+			if (!clazz.isAssignableFrom(excepted)) {
+				throw new IncompatibleTypeException(excepted, clazz);
 			}
-			expected = target;
+			clazz = excepted;
 			token = buf.nextToken();
 		}
 
-		final Collection<Object> instance = createInstance(expected, et);
+		final Collection<Object> instance = createInstance(clazz, et);
 		if (token == SyntaxToken.STRING && buf.checkPutId()) {
 			buf.nextToken();
 			buf.assertExpectedSyntax(colonExpects); // 预期当前语法是 ":"
@@ -126,7 +125,7 @@ public class CollectionCodec extends BaseCodec<Collection<?>> {
 				buf.assertExpectedSyntax(colonExpects); // 预期当前语法是 ":"
 				buf.nextToken();
 				buf.assertExpectedSyntax(SyntaxToken.LBRACKET); // 预期当前语法是 "["
-				decode0(instance, context, buf, type, options);
+				decode0(instance, context, buf, clazz, options);
 			} else {
 				throw new UnknownSyntaxException("array error");
 			}

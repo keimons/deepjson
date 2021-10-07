@@ -3,7 +3,6 @@ package com.keimons.deepjson.support.codec;
 import com.keimons.deepjson.*;
 import com.keimons.deepjson.support.SyntaxToken;
 
-import java.lang.reflect.Type;
 import java.util.concurrent.atomic.DoubleAdder;
 
 /**
@@ -15,7 +14,7 @@ import java.util.concurrent.atomic.DoubleAdder;
  * @version 1.0
  * @since 1.8
  **/
-public class DoubleAdderCodec extends BaseCodec<DoubleAdder> {
+public class DoubleAdderCodec extends AbstractClassCodec<DoubleAdder> {
 
 	public static final DoubleAdderCodec instance = new DoubleAdderCodec();
 
@@ -36,7 +35,7 @@ public class DoubleAdderCodec extends BaseCodec<DoubleAdder> {
 	}
 
 	@Override
-	public DoubleAdder decode(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	public DoubleAdder decode(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options) {
 		buf.assertExpectedSyntax(SyntaxToken.STRING, SyntaxToken.NUMBER);
 		double sum = buf.doubleValue();
 		DoubleAdder instance = new DoubleAdder();

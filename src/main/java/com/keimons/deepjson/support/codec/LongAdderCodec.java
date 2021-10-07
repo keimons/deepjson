@@ -3,7 +3,6 @@ package com.keimons.deepjson.support.codec;
 import com.keimons.deepjson.*;
 import com.keimons.deepjson.support.SyntaxToken;
 
-import java.lang.reflect.Type;
 import java.util.concurrent.atomic.LongAdder;
 
 /**
@@ -15,7 +14,7 @@ import java.util.concurrent.atomic.LongAdder;
  * @version 1.0
  * @since 1.8
  **/
-public class LongAdderCodec extends BaseCodec<LongAdder> {
+public class LongAdderCodec extends AbstractClassCodec<LongAdder> {
 
 	public static final LongAdderCodec instance = new LongAdderCodec();
 
@@ -36,7 +35,7 @@ public class LongAdderCodec extends BaseCodec<LongAdder> {
 	}
 
 	@Override
-	public LongAdder decode(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	public LongAdder decode(IDecodeContext context, ReaderBuffer buf, Class<?> type, long options) {
 		buf.assertExpectedSyntax(SyntaxToken.STRING, SyntaxToken.NUMBER);
 		int sum = buf.intValue();
 		LongAdder instance = new LongAdder();

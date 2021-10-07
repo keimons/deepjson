@@ -34,11 +34,12 @@ public interface IDecodeContext {
 	/**
 	 * 查找一个类型的实例类型
 	 *
-	 * @param type 类型 {@link Class}、{@link GenericArrayType}、{@link ParameterizedType}、
-	 *             {@link TypeVariable}、{@link WildcardType}中的一个。
+	 * @param type         类型 {@link Class}、{@link GenericArrayType}、{@link ParameterizedType}、
+	 *                     {@link TypeVariable}、{@link WildcardType}中的一个。
+	 * @param defaultValue 默认值
 	 * @return 实例类型
 	 */
-	Class<?> findInstanceType(Type type);
+	Class<?> findInstanceType(Type type, Class<?> defaultValue);
 
 	/**
 	 * 查找一个类型的实例类型

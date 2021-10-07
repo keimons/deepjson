@@ -142,10 +142,11 @@ public class ClassUtil {
 	 * @param types       上下文环境
 	 * @param writerIndex 栈顶位置
 	 * @param type        要查找的类型
+	 * @param excepted
 	 * @return 真实类型
 	 * @see #findGenericType(Type, Class, String) 查找泛型参数的真实类型
 	 */
-	public static Class<?> findClass(Type[] types, int writerIndex, Type type) {
+	public static Class<?> findClass(Type[] types, int writerIndex, Type type, Class<?> excepted) {
 		// 普通类型
 		if (type instanceof Class) {
 			return (Class<?>) type;
@@ -166,21 +167,39 @@ public class ClassUtil {
 			// 没能查找到真正的Class类型，反而是一个泛型参数
 			if (genericType instanceof TypeVariable) {
 				Type[] bounds = ((TypeVariable<?>) genericType).getBounds();
-				if (bounds.length == 1) {
-					return findClass(types, writerIndex, bounds[0]);
+				if (bounds.length == 1 || check(bounds)) {
+					return findClass(types, writerIndex, bounds[0], excepted);
 				} else {
 					// 预期对象自描述类型，需要判断泛型参数是否能兼容所有边界类型
-					// TODO 0位置 是class或ParameterizedType
-					return findClass(types, writerIndex, Config.getType(bounds));
+					if (excepted == null) {
+						Type def = Config.getType(bounds);
+						if (def == null) {
+							throw new TypeNotFoundException("unknown type " + type.getTypeName());
+						}
+						return findClass(types, writerIndex, def, null);
+					} else {
+						for (Type bound : bounds) {
+							Class<?> cls;
+							if (bound instanceof ParameterizedType) {
+								cls = (Class<?>) ((ParameterizedType) bound).getRawType();
+							} else {
+								cls = (Class<?>) bound;
+							}
+							if (!cls.isAssignableFrom(excepted)) {
+								throw new TypeNotFoundException("unknown type " + type.getTypeName());
+							}
+						}
+						return excepted;
+					}
 				}
 			} else {
-				return findClass(types, writerIndex, genericType);
+				return findClass(types, writerIndex, genericType, excepted);
 			}
 		}
 		// 泛型数组
 		if (type instanceof GenericArrayType) {
 			GenericArrayType arrayType = (GenericArrayType) type;
-			Class<?> clazz = findClass(types, writerIndex, arrayType.getGenericComponentType());
+			Class<?> clazz = findClass(types, writerIndex, arrayType.getGenericComponentType(), excepted);
 			return Array.newInstance(clazz, 0).getClass();
 		}
 		// 通配类型
@@ -189,19 +208,43 @@ public class ClassUtil {
 			// 下界通配符 增强包容性，如果包含下界通配符，直接返回下界通配符。
 			Type[] lowerBounds = wildcardType.getLowerBounds();
 			if (lowerBounds.length > 0) {
-				return findClass(types, writerIndex, lowerBounds[0]);
+				return findClass(types, writerIndex, lowerBounds[0], excepted);
 			}
 			// 上界通配符 如果包含上界通配符，尝试使用上界通配符。
 			// 使用上界通配符时，可能有多个上界通配符，所以实际上有可能造成解码失败。
 			// 期望对象自描述类型，但是如果没有，则有可能造成类型不兼容。
 			Type[] upperBounds = wildcardType.getUpperBounds();
 			if (upperBounds.length > 0) {
-				return findClass(types, writerIndex, upperBounds[0]);
+				return findClass(types, writerIndex, upperBounds[0], excepted);
 			}
 			// 无法解析 上下界均为空
 			throw new TypeNotFoundException("unknown wildcard type " + type.getTypeName());
 		}
 		throw new TypeNotFoundException("unknown type " + type.getTypeName());
+	}
+
+	/**
+	 * 检测类型
+	 *
+	 * @param bounds 边界信息
+	 * @return {@code true}检测成功，{@code false}检测失败
+	 */
+	public static boolean check(Type[] bounds) {
+		Class<?> parent;
+		if (bounds[0] instanceof Class) {
+			parent = (Class<?>) bounds[0];
+		} else {
+			parent = (Class<?>) ((ParameterizedType) bounds[0]).getRawType();
+		}
+		boolean check = true;
+		for (int i = 1; i < bounds.length; i++) {
+			Class<?> clazz = (Class<?>) bounds[i];
+			if (!clazz.isAssignableFrom(parent)) {
+				check = false;
+				break;
+			}
+		}
+		return check;
 	}
 
 	/**

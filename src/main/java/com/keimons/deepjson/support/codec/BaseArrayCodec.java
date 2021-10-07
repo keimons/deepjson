@@ -23,7 +23,7 @@ import java.lang.reflect.Type;
  * @see LongArrayCodec long[]
  * @since 1.6
  **/
-public abstract class BaseArrayCodec<T> extends BaseCodec<T> {
+public abstract class BaseArrayCodec<T> extends AbstractClassCodec<T> {
 
 	private final Class<?> clazz;
 
@@ -61,9 +61,9 @@ public abstract class BaseArrayCodec<T> extends BaseCodec<T> {
 	}
 
 	@Override
-	public T decode(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
-		Type componentType = findComponentType(context, type);
-		Class<?> instanceType = context.findInstanceType(type).getComponentType();
+	public T decode(IDecodeContext context, ReaderBuffer buf, Class<?> type, long options) {
+		Type componentType = type.getComponentType();
+		Class<?> instanceType = type.getComponentType();
 		SyntaxToken token = buf.token();
 		if (token == SyntaxToken.LBRACKET) {
 			// 原生进入 [x, y, z]
@@ -99,13 +99,6 @@ public abstract class BaseArrayCodec<T> extends BaseCodec<T> {
 				buf.nextToken();
 				buf.assertExpectedSyntax(SyntaxToken.LBRACKET); // 预期当前语法是 "["
 				value = decode0(context, buf, instanceType, componentType, options);
-			} else if (false) {
-				// TODO 新增宽松的解决方案
-				buf.nextToken();
-				buf.assertExpectedSyntax(colonExpects); // 预期当前语法是 ":"
-				buf.nextToken();
-				buf.assertExpectedSyntax(SyntaxToken.OBJECTS); // 预期当前语法是一个对象
-				context.decode(buf, Object.class, options); // 读取一个对象
 			} else {
 				throw new UnknownSyntaxException("array error");
 			}
@@ -113,7 +106,7 @@ public abstract class BaseArrayCodec<T> extends BaseCodec<T> {
 			if (token == SyntaxToken.RBRACE) {
 				break;
 			}
-			buf.nextToken();
+			token = buf.nextToken();
 		}
 		if (uniqueId != -1) {
 			context.put(uniqueId, value);

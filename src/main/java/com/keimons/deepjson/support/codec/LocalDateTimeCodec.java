@@ -2,7 +2,6 @@ package com.keimons.deepjson.support.codec;
 
 import com.keimons.deepjson.*;
 
-import java.lang.reflect.Type;
 import java.time.LocalDateTime;
 
 /**
@@ -15,7 +14,7 @@ import java.time.LocalDateTime;
  * @version 1.0
  * @since 1.8
  **/
-public class LocalDateTimeCodec extends BaseCodec<LocalDateTime> {
+public class LocalDateTimeCodec extends AbstractClassCodec<LocalDateTime> {
 
 	@Override
 	public void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, LocalDateTime value, int uniqueId, long options) {
@@ -23,7 +22,7 @@ public class LocalDateTimeCodec extends BaseCodec<LocalDateTime> {
 	}
 
 	@Override
-	public LocalDateTime decode(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
-		return super.decode(context, buf, type, options);
+	public LocalDateTime decode(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options) {
+		return null;
 	}
 }

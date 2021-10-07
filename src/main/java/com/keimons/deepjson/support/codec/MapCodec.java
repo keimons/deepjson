@@ -2,6 +2,7 @@ package com.keimons.deepjson.support.codec;
 
 import com.keimons.deepjson.*;
 import com.keimons.deepjson.support.ElementsFuture;
+import com.keimons.deepjson.support.IncompatibleTypeException;
 import com.keimons.deepjson.support.SyntaxToken;
 import com.keimons.deepjson.util.ReflectionUtil;
 import org.jetbrains.annotations.NotNull;
@@ -30,7 +31,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
  * @version 1.0
  * @since 1.6
  **/
-public class MapCodec extends BaseCodec<Object> {
+public class MapCodec extends AbstractClassCodec<Object> {
 
 	public static final MapCodec instance = new MapCodec();
 
@@ -79,15 +80,18 @@ public class MapCodec extends BaseCodec<Object> {
 	}
 
 	@Override
-	public Object decode(final IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	public Object decode(final IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options) {
 		buf.nextToken(); // 下一个有可能是对象也有可能是对象结束
-		Class<?> clazz = typeCheck(context, buf, options);
+		Class<?> excepted = typeCheck(context, buf, options);
 		// 尝试解析成Map时，判断是否为Map，如果不是，转成相应的类型进行解析
-		if (clazz != null) {
-			if (!Map.class.isAssignableFrom(clazz)) {
+		if (excepted != null) {
+			if (!Map.class.isAssignableFrom(excepted)) {
 				// Map结构的包装类型，例如：{"$type":"int[]","@id":1,"$value":[1,2,3]}，跳转解析方案
 				// TODO 考虑安全漏洞
-				return context.decode(buf, clazz, options);
+				return context.decode(buf, excepted, options);
+			}
+			if (!clazz.isAssignableFrom(excepted)) {
+				throw new IncompatibleTypeException(clazz, excepted);
 			}
 			// 如果是 "," 则表示这一段结束，如果是 "}" 则表示对象结束。
 			buf.assertExpectedSyntax(SyntaxToken.COMMA, SyntaxToken.RBRACE);
@@ -96,7 +100,7 @@ public class MapCodec extends BaseCodec<Object> {
 				buf.nextToken();
 			}
 		}
-		Class<?> instanceType = clazz == null ? context.findInstanceType(type) : clazz;
+		Class<?> instanceType = excepted == null ? clazz : excepted;
 		Type kt = context.findType(Map.class, "K");
 		Type vt = context.findType(Map.class, "V");
 		final Map<Object, Object> instance = createInstance(instanceType, kt, vt);

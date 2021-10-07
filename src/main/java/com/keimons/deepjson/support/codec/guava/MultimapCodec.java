@@ -1,10 +1,8 @@
 package com.keimons.deepjson.support.codec.guava;
 
 import com.google.common.collect.Multimap;
-import com.keimons.deepjson.AbstractBuffer;
-import com.keimons.deepjson.AbstractContext;
-import com.keimons.deepjson.CodecModel;
-import com.keimons.deepjson.support.codec.BaseCodec;
+import com.keimons.deepjson.*;
+import com.keimons.deepjson.support.codec.AbstractClassCodec;
 
 /**
  * Google Guava {@link Multimap}编解码器
@@ -13,7 +11,7 @@ import com.keimons.deepjson.support.codec.BaseCodec;
  * @version 1.0
  * @since 1.6
  **/
-public class MultimapCodec extends BaseCodec<Multimap<?, ?>> {
+public class MultimapCodec extends AbstractClassCodec<Multimap<?, ?>> {
 
 	public static final MultimapCodec instance = new MultimapCodec();
 
@@ -25,6 +23,11 @@ public class MultimapCodec extends BaseCodec<Multimap<?, ?>> {
 	@Override
 	public void build(AbstractContext context, Multimap<?, ?> value) {
 		context.build(value.asMap());
+	}
+
+	@Override
+	public Multimap<?, ?> decode(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options) {
+		return null;
 	}
 
 	@Override

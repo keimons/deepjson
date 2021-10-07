@@ -1,10 +1,8 @@
 package com.keimons.deepjson.support.codec.guava;
 
 import com.google.common.collect.RangeMap;
-import com.keimons.deepjson.AbstractBuffer;
-import com.keimons.deepjson.AbstractContext;
-import com.keimons.deepjson.CodecModel;
-import com.keimons.deepjson.support.codec.BaseCodec;
+import com.keimons.deepjson.*;
+import com.keimons.deepjson.support.codec.AbstractClassCodec;
 
 /**
  * Google Guava {@link RangeMap}编解码器 (暂不支持)
@@ -14,7 +12,7 @@ import com.keimons.deepjson.support.codec.BaseCodec;
  * @since 1.6
  **/
 @Deprecated
-public class RangeMapCodec extends BaseCodec<RangeMap> {
+public class RangeMapCodec extends AbstractClassCodec<RangeMap> {
 
 	@Override
 	public boolean isSearch() {
@@ -24,6 +22,11 @@ public class RangeMapCodec extends BaseCodec<RangeMap> {
 	@Override
 	public void build(AbstractContext context, RangeMap value) {
 
+	}
+
+	@Override
+	public RangeMap decode(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options) {
+		return null;
 	}
 
 	@Override

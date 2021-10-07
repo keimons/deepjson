@@ -2,11 +2,7 @@ package com.keimons.deepjson;
 
 import com.keimons.deepjson.support.ReferenceNode;
 import com.keimons.deepjson.support.SyntaxToken;
-import com.keimons.deepjson.support.codec.BaseArrayCodec;
-import com.keimons.deepjson.support.codec.MapCodec;
-import com.keimons.deepjson.support.codec.ObjectCodec;
-import com.keimons.deepjson.support.codec.reflect.TypeVariableCodec;
-import com.keimons.deepjson.support.codec.reflect.WildcardTypeCodec;
+import com.keimons.deepjson.support.codec.*;
 import com.keimons.deepjson.util.UnsafeUtil;
 import sun.misc.Unsafe;
 

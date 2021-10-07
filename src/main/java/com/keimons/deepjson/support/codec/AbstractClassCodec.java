@@ -13,7 +13,7 @@ import java.lang.reflect.Type;
  * @version 1.0
  * @since 1.6
  **/
-public abstract class BaseCodec<T> implements ICodec<T> {
+public abstract class AbstractClassCodec<T> implements ICodec<T> {
 
 	/**
 	 * 循环引用中给一个对象标记一个唯一ID
@@ -80,9 +80,11 @@ public abstract class BaseCodec<T> implements ICodec<T> {
 	}
 
 	@Override
-	public T decode(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
-		return null;
+	public final T decode(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+		return decode(context, buf, (Class<?>) type, options);
 	}
+
+	public abstract T decode(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options);
 
 	/**
 	 * 类型检测

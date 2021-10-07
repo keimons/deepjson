@@ -5,10 +5,12 @@ import com.keimons.deepjson.ReaderBuffer;
 import com.keimons.deepjson.compiler.ExtendedCodecClassLoader;
 import com.keimons.deepjson.support.IncompatibleTypeException;
 import com.keimons.deepjson.support.SyntaxToken;
-import com.keimons.deepjson.support.codec.BaseCodec;
+import com.keimons.deepjson.support.codec.AbstractClassCodec;
 import com.keimons.deepjson.util.ClassUtil;
 
-import java.lang.reflect.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.TypeVariable;
 
 /**
  * 拓展编解码器
@@ -23,7 +25,7 @@ import java.lang.reflect.*;
  * @see ExtendedCodecClassLoader 拓展编解码方案装载器
  * @since 1.6
  **/
-public abstract class ExtendedCodec extends BaseCodec<Object> {
+public abstract class ExtendedCodec extends AbstractClassCodec<Object> {
 
 	/**
 	 * 编解码对象类型
@@ -89,15 +91,12 @@ public abstract class ExtendedCodec extends BaseCodec<Object> {
 	 *
 	 * @param context 上线文环境
 	 * @param buf     读取缓冲区
-	 * @param type    编解码器类型，确保type是{@link Class}或{@link TypeVariable}。
+	 * @param clazz   编解码器类型，确保type是{@link Class}或{@link TypeVariable}。
 	 * @param options 解码选项
 	 * @return 对象实例
 	 */
 	@Override
-	public Object decode(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
-		if (type instanceof ParameterizedType) {
-			type = ((ParameterizedType) type).getRawType();
-		}
+	public Object decode(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options) {
 		SyntaxToken token = buf.token();
 		if (token == SyntaxToken.NULL) {
 			return null;
@@ -114,29 +113,21 @@ public abstract class ExtendedCodec extends BaseCodec<Object> {
 				return null;
 			}
 			buf.nextToken();
-			Class<?> clazz = ClassUtil.findClass(className); // 解析类中的名字
-			if (clazz == this.clazz) {
-				return decode0(context, buf, (Class<?>) type, options);
+			Class<?> excepted = ClassUtil.findClass(className); // 解析类中的名字
+			if (excepted == this.clazz) {
+				return decode0(context, buf, (Class<?>) clazz, options);
 			}
-			if (this.clazz.isAssignableFrom(clazz) || clazz.isAssignableFrom(this.clazz)) {
-				return decode0(context, buf, clazz, options);
+			if (this.clazz.isAssignableFrom(excepted) || excepted.isAssignableFrom(this.clazz)) {
+				return decode0(context, buf, excepted, options);
 			} else {
-				throw new IncompatibleTypeException(this.clazz, clazz);
+				throw new IncompatibleTypeException(this.clazz, excepted);
 			}
 		}
 		// 确定这是一个class
-		if (clazz == type) {
-			return decode0(context, buf, (Class<?>) type, options);
+		if (this.clazz == clazz) {
+			return decode0(context, buf, clazz, options);
 		}
-		if (type instanceof TypeVariable) {
-			// 泛型已经不能被解析，所以这里实际上是在使用上边界判定
-			Type[] bounds = ((TypeVariable<?>) type).getBounds();
-			if (bounds[0] != clazz) {
-				throw new IncompatibleTypeException(clazz, type);
-			}
-			throw new RuntimeException();
-		}
-		throw new IncompatibleTypeException(clazz, type);
+		throw new IncompatibleTypeException(this.clazz, clazz);
 	}
 
 	/**

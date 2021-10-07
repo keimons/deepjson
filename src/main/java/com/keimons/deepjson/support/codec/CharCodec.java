@@ -2,8 +2,6 @@ package com.keimons.deepjson.support.codec;
 
 import com.keimons.deepjson.*;
 
-import java.lang.reflect.Type;
-
 /**
  * {@link Character}编解码器
  *
@@ -26,7 +24,7 @@ public class CharCodec extends BasePrimitiveCodec<Character> {
 	}
 
 	@Override
-	protected Character decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	protected Character decode0(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options) {
 		buf.assertExpectedSyntax(stringExpects);
 		return buf.charValue();
 	}

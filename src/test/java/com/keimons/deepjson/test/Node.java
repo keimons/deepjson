@@ -21,7 +21,7 @@ public class Node implements Serializable {
 
 	private long value4 = 444;
 
-	public static Node of() {
+	public static Node create() {
 		return new Node();
 	}
 

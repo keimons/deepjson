@@ -39,9 +39,9 @@ public class TypeVariableTest {
 		node.value2 = "100";
 		node.value3 = 20;
 		node.value4 = new HashMap<String, Node>();
-		node.value4.put("test1", Node.of());
-		node.value4.put("test2", Node.of());
-		node.value4.put("test3", Node.of());
+		node.value4.put("test1", Node.create());
+		node.value4.put("test2", Node.create());
+		node.value4.put("test3", Node.create());
 		node.value5 = new Node();
 		System.out.println("----------------> TypeVariable Test Encode <----------------");
 		String json = DeepJson.toJsonString(node);

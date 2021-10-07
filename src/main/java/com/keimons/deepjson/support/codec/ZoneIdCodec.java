@@ -1,8 +1,6 @@
 package com.keimons.deepjson.support.codec;
 
-import com.keimons.deepjson.AbstractBuffer;
-import com.keimons.deepjson.AbstractContext;
-import com.keimons.deepjson.CodecModel;
+import com.keimons.deepjson.*;
 
 import java.time.ZoneId;
 
@@ -13,12 +11,17 @@ import java.time.ZoneId;
  * @version 1.0
  * @since 1.8
  **/
-public class ZoneIdCodec extends BaseCodec<ZoneId> {
+public class ZoneIdCodec extends AbstractClassCodec<ZoneId> {
 
 	public static final ZoneIdCodec instance = new ZoneIdCodec();
 
 	@Override
 	public void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, ZoneId zoneId, int uniqueId, long options) {
 		buf.writeWithQuote(zoneId.getId());
+	}
+
+	@Override
+	public ZoneId decode(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options) {
+		return null;
 	}
 }

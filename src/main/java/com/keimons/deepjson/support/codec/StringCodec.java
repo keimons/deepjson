@@ -3,8 +3,6 @@ package com.keimons.deepjson.support.codec;
 import com.keimons.deepjson.*;
 import com.keimons.deepjson.support.SyntaxToken;
 
-import java.lang.reflect.Type;
-
 /**
  * {@link String}编解码器
  *
@@ -12,7 +10,7 @@ import java.lang.reflect.Type;
  * @version 1.0
  * @since 1.6
  **/
-public class StringCodec extends BaseCodec<String> {
+public class StringCodec extends AbstractClassCodec<String> {
 
 	public static final StringCodec instance = new StringCodec();
 
@@ -26,7 +24,7 @@ public class StringCodec extends BaseCodec<String> {
 		buf.writeWithQuote(value);
 	}
 
-	public String decode(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	public String decode(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options) {
 		if (buf.token() == SyntaxToken.NULL) {
 			return null;
 		}

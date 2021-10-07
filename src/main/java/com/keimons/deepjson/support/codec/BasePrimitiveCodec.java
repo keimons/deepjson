@@ -3,8 +3,6 @@ package com.keimons.deepjson.support.codec;
 import com.keimons.deepjson.*;
 import com.keimons.deepjson.support.SyntaxToken;
 
-import java.lang.reflect.Type;
-
 /**
  * 基础类型数组编解码器
  *
@@ -12,7 +10,7 @@ import java.lang.reflect.Type;
  * @version 1.0
  * @since 1.6
  **/
-public abstract class BasePrimitiveCodec<T> extends BaseCodec<T> {
+public abstract class BasePrimitiveCodec<T> extends AbstractClassCodec<T> {
 
 	@Override
 	public boolean isSearch() {
@@ -31,15 +29,15 @@ public abstract class BasePrimitiveCodec<T> extends BaseCodec<T> {
 	}
 
 	@Override
-	public T decode(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	public T decode(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options) {
 		SyntaxToken token = buf.token();
 		if (token == SyntaxToken.NULL) {
 			return null;
 		}
-		return decode0(context, buf, type, options);
+		return decode0(context, buf, clazz, options);
 	}
 
 	protected abstract void encode0(AbstractBuffer buf, T value);
 
-	protected abstract T decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options);
+	protected abstract T decode0(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options);
 }

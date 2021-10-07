@@ -1,8 +1,9 @@
-package com.keimons.deepjson.support.codec.reflect;
+package com.keimons.deepjson.support.codec;
 
-import com.keimons.deepjson.*;
+import com.keimons.deepjson.ICodec;
+import com.keimons.deepjson.IDecodeContext;
+import com.keimons.deepjson.ReaderBuffer;
 import com.keimons.deepjson.support.CodecFactory;
-import com.keimons.deepjson.support.codec.BaseCodec;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -14,22 +15,22 @@ import java.lang.reflect.Type;
  * @version 1.0
  * @since 1.6
  */
-public class ParameterizedTypeCodec extends BaseCodec<Object> {
+public class ParameterizedTypeCodec extends AbstractReflectCodec {
 
 	public static final ParameterizedTypeCodec instance = new ParameterizedTypeCodec();
 
 	@Override
-	public void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, Object value, int uniqueId, long options) {
-		throw new UnsupportedOperationException();
+	public boolean isCacheType() {
+		return true;
 	}
 
 	@Override
 	public Object decode(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
 		assert type instanceof ParameterizedType;
 		ParameterizedType pt = (ParameterizedType) type;
-		Type rawType = pt.getRawType();
-		ICodec<?> codec = CodecFactory.getCodec(rawType);
+		Class<?> clazz = (Class<?>) pt.getRawType();
+		ICodec<?> codec = CodecFactory.getCodec(clazz);
 		assert codec != null;
-		return codec.decode(context, buf, rawType, options);
+		return codec.decode(context, buf, clazz, options);
 	}
 }

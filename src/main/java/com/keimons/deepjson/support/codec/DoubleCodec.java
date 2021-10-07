@@ -4,8 +4,6 @@ import com.keimons.deepjson.AbstractBuffer;
 import com.keimons.deepjson.IDecodeContext;
 import com.keimons.deepjson.ReaderBuffer;
 
-import java.lang.reflect.Type;
-
 /**
  * {@link Double}编解码器
  *
@@ -23,7 +21,7 @@ public class DoubleCodec extends BasePrimitiveCodec<Double> {
 	}
 
 	@Override
-	protected Double decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	protected Double decode0(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options) {
 		buf.assertExpectedSyntax(numberExpects, stringExpects);
 		return buf.doubleValue();
 	}

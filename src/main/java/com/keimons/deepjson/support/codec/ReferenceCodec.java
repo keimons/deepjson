@@ -1,8 +1,6 @@
 package com.keimons.deepjson.support.codec;
 
-import com.keimons.deepjson.AbstractBuffer;
-import com.keimons.deepjson.AbstractContext;
-import com.keimons.deepjson.CodecModel;
+import com.keimons.deepjson.*;
 import com.keimons.deepjson.support.ReferenceNode;
 
 /**
@@ -12,7 +10,7 @@ import com.keimons.deepjson.support.ReferenceNode;
  * @version 1.0
  * @since 1.6
  **/
-public class ReferenceCodec extends BaseCodec<ReferenceNode> {
+public class ReferenceCodec extends AbstractClassCodec<ReferenceNode> {
 
 	public static final ReferenceCodec instance = new ReferenceCodec();
 
@@ -25,5 +23,10 @@ public class ReferenceCodec extends BaseCodec<ReferenceNode> {
 		buf.writeMark(':');
 		buf.write(value.getUnique());
 		buf.writeMark('\"');
+	}
+
+	@Override
+	public ReferenceNode decode(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options) {
+		throw new UnsupportedOperationException();
 	}
 }

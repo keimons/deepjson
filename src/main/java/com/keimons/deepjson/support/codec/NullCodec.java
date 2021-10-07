@@ -3,8 +3,6 @@ package com.keimons.deepjson.support.codec;
 import com.keimons.deepjson.*;
 import com.keimons.deepjson.support.SyntaxToken;
 
-import java.lang.reflect.Type;
-
 /**
  * {@code null}编解码器
  *
@@ -12,7 +10,7 @@ import java.lang.reflect.Type;
  * @version 1.0
  * @since 1.6
  **/
-public class NullCodec extends BaseCodec<Void> {
+public class NullCodec extends AbstractClassCodec<Void> {
 
 	public static final ICodec<Void> instance = new NullCodec();
 
@@ -27,7 +25,7 @@ public class NullCodec extends BaseCodec<Void> {
 	}
 
 	@Override
-	public Void decode(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	public Void decode(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options) {
 		buf.assertExpectedSyntax(SyntaxToken.NULL);
 		return null;
 	}
