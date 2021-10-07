@@ -1,10 +1,12 @@
 package com.keimons.deepjson.util;
 
 import com.keimons.deepjson.Config;
+import com.keimons.deepjson.support.IncompatibleTypeException;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -174,7 +176,7 @@ public class ClassUtil {
 					if (excepted == null) {
 						Type def = Config.getType(bounds);
 						if (def == null) {
-							throw new TypeNotFoundException("unknown type " + type.getTypeName());
+							throw new IncompatibleTypeException("unknown type bounds " + Arrays.toString(bounds));
 						}
 						return findClass(types, writerIndex, def, null);
 					} else {
@@ -186,7 +188,7 @@ public class ClassUtil {
 								cls = (Class<?>) bound;
 							}
 							if (!cls.isAssignableFrom(excepted)) {
-								throw new TypeNotFoundException("unknown type " + type.getTypeName());
+								throw new IncompatibleTypeException("excepted " + excepted + " with bounds " + Arrays.toString(bounds));
 							}
 						}
 						return excepted;

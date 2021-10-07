@@ -37,7 +37,7 @@ public class GenericArrayTypeCodec extends AbstractReflectCodec {
 		assert type instanceof GenericArrayType;
 		SyntaxToken token = buf.token();
 		if (token == SyntaxToken.LBRACKET) {
-			Class<?> clazz = context.findInstanceType(type, Object[].class);
+			Class<?> clazz = context.findInstanceType(type, null);
 			ICodec<?> codec = CodecFactory.getCodec(clazz);
 			assert codec != null;
 			return codec.decode(context, buf, clazz, options);
