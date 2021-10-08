@@ -53,7 +53,7 @@ public class MapCodec extends AbstractClassCodec<Object> {
 		// write class name
 		if (CodecOptions.WriteClassName.isOptions(options)) {
 			Class<?> clazz = value.getClass();
-			if (Config.WHITE_MAP.contains(clazz)) {
+			if (CodecConfig.WHITE_MAP.contains(clazz)) {
 				buf.writeValue(mark, TYPE, clazz.getName());
 				mark = ',';
 			}

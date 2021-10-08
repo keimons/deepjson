@@ -1,6 +1,6 @@
 package com.keimons.deepjson.test.util;
 
-import com.keimons.deepjson.Config;
+import com.keimons.deepjson.CodecConfig;
 import com.keimons.deepjson.util.ClassUtil;
 import com.keimons.deepjson.util.ReflectUtil;
 import org.junit.jupiter.api.Test;
@@ -25,7 +25,7 @@ public class ReflectUtilTest<K, V, T1 extends Map<?, ?> & Serializable, T2 exten
 		Type type2 = ClassUtil.findGenericType(ReflectUtilTest.class, ReflectUtilTest.class, "T2");
 		TypeVariable<?> variable1 = type1 instanceof TypeVariable<?> ? ((TypeVariable<?>) type1) : null;
 		TypeVariable<?> variable2 = type2 instanceof TypeVariable<?> ? ((TypeVariable<?>) type1) : null;
-		System.out.println(Config.getType(variable1.getBounds()));
-		System.out.println(Config.getType(variable2.getBounds()));
+		System.out.println(CodecConfig.getType(variable1.getBounds()));
+		System.out.println(CodecConfig.getType(variable2.getBounds()));
 	}
 }

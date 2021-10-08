@@ -1,6 +1,6 @@
 package com.keimons.deepjson.util;
 
-import com.keimons.deepjson.Config;
+import com.keimons.deepjson.CodecConfig;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
@@ -94,7 +94,7 @@ public class CodecUtil {
 			value = unsafe.getObject("DeepJson", offset);
 		} catch (NoSuchFieldException e) {
 			// ignore
-			if (Config.DEBUG) {
+			if (CodecConfig.DEBUG) {
 				e.printStackTrace();
 			}
 		}

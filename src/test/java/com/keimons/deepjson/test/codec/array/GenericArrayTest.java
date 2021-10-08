@@ -1,6 +1,5 @@
 package com.keimons.deepjson.test.codec.array;
 
-import com.keimons.deepjson.CodecOptions;
 import com.keimons.deepjson.DeepJson;
 import com.keimons.deepjson.test.Node;
 import org.junit.jupiter.api.Test;
@@ -18,20 +17,30 @@ import java.util.LinkedHashMap;
  **/
 public class GenericArrayTest {
 
-	AbstractGenericArrayNode<Node, Node, Node, HashMap<String, Integer>> node = new AbstractGenericArrayNode<>();
+	AbstractGenericArrayNode<Node, Node, Node, HashMap<?, ?>> node = new AbstractGenericArrayNode<>();
 
 	@Test
+	@SuppressWarnings("unchecked")
 	public void test() throws Exception {
-		node.value0 = new HashMap[1];
-		node.value0[0] = new LinkedHashMap<>();
-		node.value0[0].put("test", Node.create());
-		node.value1 = new HashMap[1][];
-		node.value1[0] = node.value0;
-		String json = DeepJson.toJsonString(node, CodecOptions.WriteClassName);
+		node.value0 = new HashMap[]{new LinkedHashMap<>()};
+		node.value1 = new HashMap[][]{new HashMap[]{new LinkedHashMap<>()}};
+
+		node.value00 = new Node[]{Node.create()};
+		node.value01 = new Node[][]{new Node[]{Node.create()}};
+
+		node.value10 = new Node[]{Node.create()};
+		node.value11 = new Node[][]{new Node[]{Node.create()}};
+
+		node.value20 = new Node[]{Node.create()};
+		node.value21 = new Node[][]{new Node[]{Node.create()}};
+
+		node.value30 = new HashMap[]{new LinkedHashMap<>()};
+		node.value31 = new HashMap[][]{new HashMap[]{new LinkedHashMap<>()}};
+
+		String json = DeepJson.toJsonString(node);
 		System.out.println(json);
-		json = "{\"value0\":{\"$type\":\"[Ljava.util.HashMap;\",\"@id\":1,\"$value\":[{\"test\":{\"value0\":true,\"value1\":111,\"value2\":222,\"value3\":333,\"value4\":444}}]},\"value1\":[\"$id:1\"],\"value00\":null,\"value01\":null,\"value10\":null,\"value11\":null,\"value20\":null,\"value21\":null,\"value30\":null,\"value31\":null}";
 		Type type = GenericArrayTest.class.getDeclaredField("node").getGenericType();
-		AbstractGenericArrayNode result = DeepJson.parseObject(json, type);
+		AbstractGenericArrayNode result = DeepJson.parseObject(json, AbstractGenericArrayNode.class);
 		System.out.println(result);
 	}
 }

@@ -68,7 +68,7 @@ public enum CodecOptions {
 	 * <p>
 	 * decode: true, encode: true
 	 *
-	 * @see Config 编解码选项
+	 * @see CodecConfig 编解码选项
 	 */
 	WriteClassName,
 

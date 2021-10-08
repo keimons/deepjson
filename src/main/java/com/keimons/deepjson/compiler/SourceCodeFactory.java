@@ -1,8 +1,6 @@
 package com.keimons.deepjson.compiler;
 
 import com.keimons.deepjson.*;
-import com.keimons.deepjson.annotation.CodecConfig;
-import com.keimons.deepjson.annotation.Preset;
 import com.keimons.deepjson.support.SyntaxToken;
 import com.keimons.deepjson.util.ArrayUtil;
 import com.keimons.deepjson.util.ClassUtil;
@@ -28,11 +26,10 @@ import java.util.TreeMap;
  **/
 public class SourceCodeFactory {
 
-	@CodecConfig(format = @Preset(formatter = "ios"))
 	private static final List<Class<?>> IMPORT = new ArrayList<Class<?>>();
 
 	static {
-		IMPORT.add(Config.class);
+		IMPORT.add(CodecConfig.class);
 		IMPORT.add(CodecOptions.class);
 		IMPORT.add(AbstractBuffer.class);
 		IMPORT.add(AbstractContext.class);
@@ -139,7 +136,7 @@ public class SourceCodeFactory {
 		source.append("\t\t\tbuf.writeValue(mark, FIELD_SET_ID, uniqueId);\n");
 		source.append("\t\t\tmark = ',';\n");
 		source.append("\t\t}\n");
-		source.append("\t\tif (Config.WHITE_OBJECT.contains(object.getClass())) {\n");
+		source.append("\t\tif (CodecConfig.WHITE_OBJECT.contains(object.getClass())) {\n");
 		source.append("\t\t\tbuf.writeValue(mark, TYPE, object.getClass().getName());\n");
 		source.append("\t\t\tmark = ',';\n");
 		source.append("\t\t}\n");

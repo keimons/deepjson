@@ -17,7 +17,7 @@ import java.util.concurrent.*;
  * @version 1.0
  * @since 1.6
  **/
-public class Config {
+public class CodecConfig {
 
 	public static final int HIGHEST = 18;
 

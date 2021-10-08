@@ -1,6 +1,6 @@
 package com.keimons.deepjson.test.codec.ref;
 
-import com.keimons.deepjson.Config;
+import com.keimons.deepjson.CodecConfig;
 import com.keimons.deepjson.DeepJson;
 import com.keimons.deepjson.test.Node;
 import com.keimons.deepjson.util.ReflectUtil;
@@ -29,7 +29,7 @@ public class TypeVariableTest {
 	public void test() throws Exception {
 		ParameterizedType pt = ReflectUtil.makeParameterizedType(null, Map.class, new Type[]{String.class, Node.class});
 		Field field = TypeVariableTest.class.getDeclaredField("map");
-		Config.registerMapper(new Type[]{pt, Serializable.class}, field.getGenericType()); // same as HashMap<String, Node>
+		CodecConfig.registerMapper(new Type[]{pt, Serializable.class}, field.getGenericType()); // same as HashMap<String, Node>
 
 //		Config.registerMapper(new Type[]{Node.class, Serializable.class}, Node.class); // same as HashMap<String, Node>
 

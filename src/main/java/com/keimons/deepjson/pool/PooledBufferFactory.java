@@ -1,6 +1,6 @@
 package com.keimons.deepjson.pool;
 
-import com.keimons.deepjson.Config;
+import com.keimons.deepjson.CodecConfig;
 import com.keimons.deepjson.ICharBuffer;
 import com.keimons.deepjson.util.RingQueue;
 
@@ -27,7 +27,7 @@ public class PooledBufferFactory {
 		}
 		ICharBuffer cache = queue.dequeue();
 		if (cache == null) {
-			cache = new SoftCharBuffer(1 << Config.HIGHEST);
+			cache = new SoftCharBuffer(1 << CodecConfig.HIGHEST);
 		}
 		cache.mark();
 		return cache;

@@ -58,7 +58,7 @@ public class CollectionCodec extends AbstractClassCodec<Collection<?>> {
 		boolean className = CodecOptions.WriteClassName.isOptions(options);
 		if (className) {
 			Class<?> clazz = value.getClass();
-			if (Config.WHITE_COLLECTION.contains(clazz)) {
+			if (CodecConfig.WHITE_COLLECTION.contains(clazz)) {
 				buf.writeValue(mark, TYPE, clazz.getName());
 				mark = ',';
 			}

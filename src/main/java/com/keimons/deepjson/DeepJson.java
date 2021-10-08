@@ -24,11 +24,11 @@ public class DeepJson {
 	static {
 		// 预热编译器
 		String json = DeepJson.toJsonString(new Template());
-		if (Config.DEBUG) {
+		if (CodecConfig.DEBUG) {
 			System.out.println(json);
 		}
 		Template template = DeepJson.parseObject(json, Template.class);
-		if (Config.DEBUG) {
+		if (CodecConfig.DEBUG) {
 			System.out.println(DeepJson.toJsonString(template));
 		}
 	}
@@ -93,7 +93,7 @@ public class DeepJson {
 		try {
 			return encode(object, context, buffer, writer, options);
 		} catch (WriteFailedException e) {
-			if (Config.DEBUG) {
+			if (CodecConfig.DEBUG) {
 				e.printStackTrace();
 			}
 			writer = cache.writer = SafeStringWriter.instance; // 编码时失败切换安全模式

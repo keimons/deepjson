@@ -7,7 +7,7 @@ package com.keimons.deepjson.annotation;
  * @version 1.0
  * @since 1.6
  **/
-public @interface CodecConfig {
+public @interface CodecField {
 
 	/**
 	 * 返回预设方案

@@ -1,6 +1,6 @@
 package com.keimons.deepjson.util;
 
-import com.keimons.deepjson.Config;
+import com.keimons.deepjson.CodecConfig;
 import com.keimons.deepjson.support.IncompatibleTypeException;
 import org.jetbrains.annotations.Nullable;
 
@@ -174,7 +174,7 @@ public class ClassUtil {
 				} else {
 					// 预期对象自描述类型，需要判断泛型参数是否能兼容所有边界类型
 					if (excepted == null) {
-						Type def = Config.getType(bounds);
+						Type def = CodecConfig.getType(bounds);
 						if (def == null) {
 							throw new IncompatibleTypeException("unknown type bounds " + Arrays.toString(bounds));
 						}

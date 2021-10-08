@@ -1,7 +1,7 @@
 package com.keimons.deepjson.test.util;
 
+import com.keimons.deepjson.CodecConfig;
 import com.keimons.deepjson.CodecOptions;
-import com.keimons.deepjson.Config;
 import com.keimons.deepjson.DeepJson;
 import com.keimons.deepjson.test.codec.collection.Node;
 import com.keimons.deepjson.util.ClassUtil;
@@ -27,15 +27,15 @@ public class ClassUtilTest {
 
 	@Test
 	public void test() throws Exception {
-		Config.addWrite(TopNode.class);
-		Config.addWrite(MidNode.class);
-		Config.addWrite(BotNode.class);
-		Config.addWrite(PT1Node.class);
-		Config.addWrite(PT2Node.class);
-		Config.addWrite(PT3Node.class);
-		Config.addWrite(PT4Node.class);
-		Config.addWrite(Node.class);
-		Config.addWrite(InnerNode.class);
+		CodecConfig.addWrite(TopNode.class);
+		CodecConfig.addWrite(MidNode.class);
+		CodecConfig.addWrite(BotNode.class);
+		CodecConfig.addWrite(PT1Node.class);
+		CodecConfig.addWrite(PT2Node.class);
+		CodecConfig.addWrite(PT3Node.class);
+		CodecConfig.addWrite(PT4Node.class);
+		CodecConfig.addWrite(Node.class);
+		CodecConfig.addWrite(InnerNode.class);
 		Type[] types = new Type[16];
 		types[0] = ClassUtilTest.class.getDeclaredField("value0").getGenericType();
 		Class<?> clazz = ClassUtil.findClass(types, 1, types[0], null);
@@ -80,7 +80,7 @@ public class ClassUtilTest {
 
 		TopNode<PT3Node, Integer> topNode = new TopNode<PT3Node, Integer>();
 		topNode.topValue2 = tv2;
-		Config.clearWrite();
+		CodecConfig.clearWrite();
 		json = DeepJson.toJsonString(topNode);
 		System.out.println(json);
 		TopNode tn = DeepJson.parseObject(json, TopNode.class);

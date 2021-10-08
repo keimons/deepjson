@@ -1,6 +1,6 @@
 package com.keimons.deepjson.support.codec;
 
-import com.keimons.deepjson.Config;
+import com.keimons.deepjson.CodecConfig;
 import com.keimons.deepjson.IDecodeContext;
 import com.keimons.deepjson.ReaderBuffer;
 import com.keimons.deepjson.support.IncompatibleTypeException;
@@ -43,7 +43,7 @@ public class TypeVariableCodec extends AbstractReflectCodec {
 				// 0位置 是class或ParameterizedType
 				instanceType = bounds[0];
 			} else {
-				instanceType = Config.getType(bounds);
+				instanceType = CodecConfig.getType(bounds);
 				if (instanceType == null) {
 					throw new IncompatibleTypeException("unknown type bounds " + Arrays.toString(bounds));
 				}

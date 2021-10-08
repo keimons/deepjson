@@ -1,8 +1,8 @@
 package com.keimons.deepjson.support.buffer;
 
 import com.keimons.deepjson.AbstractBuffer;
+import com.keimons.deepjson.CodecConfig;
 import com.keimons.deepjson.CodecOptions;
-import com.keimons.deepjson.Config;
 import com.keimons.deepjson.ICharBuffer;
 import com.keimons.deepjson.pool.PooledBufferFactory;
 import com.keimons.deepjson.util.CodecUtil;
@@ -364,7 +364,7 @@ public class CompositeBuffer extends AbstractBuffer {
 	@Override
 	protected boolean expandCapacity(int minCapacity) {
 		// 4k -> 16k -> 64k -> 256k
-		if (bufferIndex == 0 && capacity < 1 << Config.HIGHEST) {
+		if (bufferIndex == 0 && capacity < 1 << CodecConfig.HIGHEST) {
 			int newCapacity = capacity << 2;
 			buf = Arrays.copyOf(buf, newCapacity);
 			capacity = newCapacity;

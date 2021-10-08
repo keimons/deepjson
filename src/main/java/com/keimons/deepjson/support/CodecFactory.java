@@ -1,6 +1,6 @@
 package com.keimons.deepjson.support;
 
-import com.keimons.deepjson.Config;
+import com.keimons.deepjson.CodecConfig;
 import com.keimons.deepjson.ICodec;
 import com.keimons.deepjson.JsonObject;
 import com.keimons.deepjson.compiler.SourceCodeFactory;
@@ -241,7 +241,7 @@ public abstract class CodecFactory {
 	private Class<? extends ExtendedCodec> create(Class<?> clazz) {
 		long startTime = System.nanoTime();
 		Class<? extends ExtendedCodec> newClass = create0(clazz);
-		if (Config.DEBUG) {
+		if (CodecConfig.DEBUG) {
 			System.out.println("Class " + clazz.getName() + "，编译耗时：" + (System.nanoTime() - startTime) / 1000000f);
 		}
 		return newClass;

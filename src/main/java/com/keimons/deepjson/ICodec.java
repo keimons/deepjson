@@ -32,7 +32,7 @@ import java.util.Map;
  * <p>
  * 关于类型写入：
  * DeepJson允许{@link CodecOptions#WriteClassName}启用类型写入，但
- * 仅可写入{@link Config#WHITE_OBJECT}白名单中允许写入的类型。
+ * 仅可写入{@link CodecConfig#WHITE_OBJECT}白名单中允许写入的类型。
  *
  * @author houyn[monkey@keimons.com]
  * @version 1.0

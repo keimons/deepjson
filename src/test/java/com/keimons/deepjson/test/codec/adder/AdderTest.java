@@ -24,8 +24,6 @@ public class AdderTest {
 		adder1 = DeepJson.parseObject("100", LongAdder.class);
 		System.out.println("decode: " + adder1.sum());
 
-		System.out.println();
-
 		System.out.println("----------------> DoubleAdder Test <----------------");
 		DoubleAdder adder2 = new DoubleAdder();
 		adder2.add(100d);

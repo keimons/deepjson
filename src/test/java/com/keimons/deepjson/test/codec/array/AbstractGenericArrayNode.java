@@ -12,7 +12,7 @@ import java.util.Map;
  * @version 1.0
  * @since 1.6
  **/
-public class AbstractGenericArrayNode<T0, T1 extends Node, T2 extends Node & Serializable, T3 extends Map<String, Integer> & Serializable> {
+public class AbstractGenericArrayNode<T0, T1 extends Node, T2 extends Node & Serializable, T3 extends Map<?, ?> & Serializable> {
 
 	Map<String, T0>[] value0;
 

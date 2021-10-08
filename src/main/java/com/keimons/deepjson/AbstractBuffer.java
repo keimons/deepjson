@@ -166,7 +166,7 @@ public abstract class AbstractBuffer implements Closeable {
 	 * @throws WriteFailedException 写入失败异常
 	 */
 	public <T> T writeTo(AbstractWriter<T> writer) throws WriteFailedException {
-		int length = bufferIndex << Config.HIGHEST + writeIndex;
+		int length = bufferIndex << CodecConfig.HIGHEST + writeIndex;
 		return writer.write(buffers, length, bufferIndex, writeIndex);
 	}
 
