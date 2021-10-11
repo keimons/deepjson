@@ -36,7 +36,7 @@ public interface IDecodeContext {
 	 *
 	 * @param type     类型 {@link Class}、{@link GenericArrayType}、{@link ParameterizedType}、
 	 *                 {@link TypeVariable}、{@link WildcardType}中的一个。
-	 * @param excepted 默认值
+	 * @param excepted 预期类型
 	 * @return 实例类型
 	 */
 	Class<?> findInstanceType(Type type, Class<?> excepted);

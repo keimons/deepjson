@@ -62,7 +62,8 @@ public interface ICodec<T> {
 	 * 只有数组、参数类型和通配符不需要缓存类型，这是为了避免频繁的调用{@code instanceof}。
 	 *
 	 * @return {@code true}需要缓存，{@code false}不需要缓存
-	 * @see BaseArrayCodec    数组类型，不需要缓存
+	 * @see BaseArrayCodec 数组，不需要缓存
+	 * @see GenericArrayTypeCodec 泛型数组，不需要缓存
 	 * @see TypeVariableCodec 参数类型，不需要缓存
 	 * @see WildcardTypeCodec 通配符，不需要缓存
 	 */

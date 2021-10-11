@@ -27,7 +27,7 @@ public class TypeVariableTest {
 
 	@Test
 	public void test() throws Exception {
-		ParameterizedType pt = ReflectUtil.makeParameterizedType(null, Map.class, new Type[]{String.class, Node.class});
+		ParameterizedType pt = ReflectUtil.makeParameterizedType(null, Map.class, String.class, Node.class);
 		Field field = TypeVariableTest.class.getDeclaredField("map");
 		CodecConfig.registerMapper(new Type[]{pt, Serializable.class}, field.getGenericType()); // same as HashMap<String, Node>
 

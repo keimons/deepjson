@@ -20,7 +20,7 @@ public class GenericArrayTest {
 	AbstractGenericArrayNode<Node, Node, Node, HashMap<?, ?>> node = new AbstractGenericArrayNode<>();
 
 	@Test
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	public void test() throws Exception {
 		node.value0 = new HashMap[]{new LinkedHashMap<>()};
 		node.value1 = new HashMap[][]{new HashMap[]{new LinkedHashMap<>()}};
@@ -40,7 +40,9 @@ public class GenericArrayTest {
 		String json = DeepJson.toJsonString(node);
 		System.out.println(json);
 		Type type = GenericArrayTest.class.getDeclaredField("node").getGenericType();
-		AbstractGenericArrayNode result = DeepJson.parseObject(json, AbstractGenericArrayNode.class);
-		System.out.println(result);
+		AbstractGenericArrayNode result1 = DeepJson.parseObject(json, AbstractGenericArrayNode.class);
+		AbstractGenericArrayNode result2 = DeepJson.parseObject(json, type);
+		System.out.println(result1);
+		System.out.println(result2);
 	}
 }

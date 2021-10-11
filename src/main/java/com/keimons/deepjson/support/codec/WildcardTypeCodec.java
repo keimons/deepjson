@@ -10,13 +10,13 @@ import java.lang.reflect.Type;
 import java.lang.reflect.WildcardType;
 
 /**
- * {@link WildcardType}编解码器
+ * {@link WildcardType}通配符编解码器
  *
  * @author houyn[monkey@keimons.com]
  * @version 1.0
  * @since 1.6
  */
-public class WildcardTypeCodec extends AbstractReflectCodec {
+public class WildcardTypeCodec extends PhantomCodec {
 
 	public static final WildcardTypeCodec instance = new WildcardTypeCodec();
 

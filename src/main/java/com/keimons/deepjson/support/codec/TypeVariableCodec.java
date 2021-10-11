@@ -11,13 +11,13 @@ import java.lang.reflect.TypeVariable;
 import java.util.Arrays;
 
 /**
- * {@link TypeVariable}编解码器
+ * {@link TypeVariable}类型变量编解码器
  *
  * @author houyn[monkey@keimons.com]
  * @version 1.0
  * @since 1.6
  */
-public class TypeVariableCodec extends AbstractReflectCodec {
+public class TypeVariableCodec extends PhantomCodec {
 
 	public static final TypeVariableCodec instance = new TypeVariableCodec();
 
@@ -33,7 +33,7 @@ public class TypeVariableCodec extends AbstractReflectCodec {
 		Type instanceType = context.findInstanceType(tv);
 		if (instanceType instanceof TypeVariable) {
 			// 泛型已经不能被解析，所以这里实际上是在使用上边界判定
-			Type[] bounds = ((TypeVariable<?>) type).getBounds(); // class(ParameterizedType) interface
+			Type[] bounds = ((TypeVariable<?>) instanceType).getBounds(); // class(ParameterizedType) interface
 			if (bounds.length == 1) {
 				return context.decode(buf, bounds[0], options);
 			}

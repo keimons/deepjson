@@ -9,13 +9,13 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 /**
- * {@link ParameterizedType}编解码器
+ * {@link ParameterizedType}参数化类型编解码器
  *
  * @author houyn[monkey@keimons.com]
  * @version 1.0
  * @since 1.6
  */
-public class ParameterizedTypeCodec extends AbstractReflectCodec {
+public class ParameterizedTypeCodec extends PhantomCodec {
 
 	public static final ParameterizedTypeCodec instance = new ParameterizedTypeCodec();
 

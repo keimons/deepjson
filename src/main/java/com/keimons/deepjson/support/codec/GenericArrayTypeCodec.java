@@ -15,15 +15,13 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 
 /**
- * {@code T[]}编解码器
- * <p>
- * 同时这也是一个{@link GenericArrayType}专用解码器。
+ * {@code T[]}和{@code Map&lt;String, Integer&gt;[]}泛型数组编解码器
  *
  * @author houyn[monkey@keimons.com]
  * @version 1.0
  * @since 1.6
  **/
-public class GenericArrayTypeCodec extends AbstractReflectCodec {
+public class GenericArrayTypeCodec extends PhantomCodec {
 
 	public static final GenericArrayTypeCodec instance = new GenericArrayTypeCodec();
 

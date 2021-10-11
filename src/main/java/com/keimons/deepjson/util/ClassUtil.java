@@ -144,7 +144,7 @@ public class ClassUtil {
 	 * @param types       上下文环境
 	 * @param writerIndex 栈顶位置
 	 * @param type        要查找的类型
-	 * @param excepted
+	 * @param excepted    预期类型
 	 * @return 真实类型
 	 * @see #findGenericType(Type, Class, String) 查找泛型参数的真实类型
 	 */
@@ -213,8 +213,6 @@ public class ClassUtil {
 				return findClass(types, writerIndex, lowerBounds[0], excepted);
 			}
 			// 上界通配符 如果包含上界通配符，尝试使用上界通配符。
-			// 使用上界通配符时，可能有多个上界通配符，所以实际上有可能造成解码失败。
-			// 期望对象自描述类型，但是如果没有，则有可能造成类型不兼容。
 			Type[] upperBounds = wildcardType.getUpperBounds();
 			if (upperBounds.length > 0) {
 				return findClass(types, writerIndex, upperBounds[0], excepted);

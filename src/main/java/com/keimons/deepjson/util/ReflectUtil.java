@@ -25,7 +25,7 @@ public class ReflectUtil {
 	 * @param arguments 参数列表，例如：{@code K}和{@code V}。
 	 * @return 参数化类型
 	 */
-	public static ParameterizedType makeParameterizedType(@Nullable Type ownerType, Class<?> rawType, Type[] arguments) {
+	public static ParameterizedType makeParameterizedType(@Nullable Type ownerType, Class<?> rawType, Type... arguments) {
 		return new CodecParameterizedType(ownerType == null ? rawType.getDeclaringClass() : ownerType, rawType, arguments);
 	}
 

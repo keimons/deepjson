@@ -156,13 +156,13 @@ public class CodecConfig {
 		{
 			Type kt = ReflectUtil.makeTypeVariable(Map.class, "K", new Type[]{Object.class});
 			Type vt = ReflectUtil.makeTypeVariable(Map.class, "V", new Type[]{Object.class});
-			ParameterizedType pt = ReflectUtil.makeParameterizedType(null, Map.class, new Type[]{kt, vt});
+			ParameterizedType pt = ReflectUtil.makeParameterizedType(null, Map.class, kt, vt);
 			registerMapper(new Type[]{pt, Serializable.class}, HashMap.class); // same as HashMap<Object, Object>
 		}
 		{
 			Type kt = ReflectUtil.makeWildcardType(new Type[]{Object.class}, null);
 			Type vt = ReflectUtil.makeWildcardType(new Type[]{Object.class}, null);
-			ParameterizedType pt = ReflectUtil.makeParameterizedType(null, Map.class, new Type[]{kt, vt});
+			ParameterizedType pt = ReflectUtil.makeParameterizedType(null, Map.class, kt, vt);
 			registerMapper(new Type[]{pt, Serializable.class}, HashMap.class); // same as HashMap<?, ?>
 		}
 	}
