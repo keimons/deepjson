@@ -404,4 +404,84 @@ public class CodecUtil {
 			buf[--writeIndex] = '-';
 		}
 	}
+
+	/**
+	 * 按照十进制在缓冲区中读取{@code int}值
+	 *
+	 * @param buf    缓冲区
+	 * @param start  起始位置
+	 * @param length 读取长度
+	 * @return {@code int}值
+	 */
+	public static int readInt(char[] buf, int start, int length) {
+		if (length <= 0) {
+			throw new NumberFormatException("For input string: \"\"");
+		}
+		int index = start;
+		int c = buf[index];
+		boolean negative = c == '-';
+		if (c == '-' || c == '+') {
+			index++;
+		}
+		if (index == length) { // only "+" or "-"
+			String msg = "Error at index " + index + " in: \"" + new String(buf, 0, length) + "\"";
+			throw new NumberFormatException(msg);
+		}
+		int limit = negative ? Integer.MIN_VALUE : -Integer.MAX_VALUE;
+		long multi = limit / 10;
+		int result = 0;
+		while (index < length) {
+			c = buf[index++];
+			int digit = ((c < 48) || (57 < c)) ? -1 : c - 48;
+			if (digit < 0 || result < multi) {
+				throw new NumberFormatException("For input string: \"" + new String(buf, 0, length) + "\"");
+			}
+			result *= 10;
+			if (result < limit + digit) {
+				throw new NumberFormatException("For input string: \"" + new String(buf, 0, length) + "\"");
+			}
+			result -= digit;
+		}
+		return negative ? result : -result;
+	}
+
+	/**
+	 * 按照十进制在缓冲区中读取{@code long}值
+	 *
+	 * @param buf    缓冲区
+	 * @param start  起始位置
+	 * @param length 读取长度
+	 * @return {@code long}值
+	 */
+	public static long readLong(char[] buf, int start, int length) {
+		if (length <= 0) {
+			throw new NumberFormatException("For input string: \"\"");
+		}
+		int index = start;
+		int c = buf[index];
+		boolean negative = c == '-';
+		if (c == '-' || c == '+') {
+			index++;
+		}
+		if (index == length) { // only "+" or "-"
+			String msg = "Error at index " + index + " in: \"" + new String(buf, 0, length) + "\"";
+			throw new NumberFormatException(msg);
+		}
+		long limit = negative ? Long.MIN_VALUE : -Long.MAX_VALUE;
+		long multi = limit / 10;
+		long result = 0;
+		while (index < length) {
+			c = buf[index++];
+			int digit = ((c < 48) || (57 < c)) ? -1 : c - 48;
+			if (digit < 0 || result < multi) {
+				throw new NumberFormatException("For input string: \"" + new String(buf, 0, length) + "\"");
+			}
+			result *= 10;
+			if (result < limit + digit) {
+				throw new NumberFormatException("For input string: \"" + new String(buf, 0, length) + "\"");
+			}
+			result -= digit;
+		}
+		return negative ? result : -result;
+	}
 }
