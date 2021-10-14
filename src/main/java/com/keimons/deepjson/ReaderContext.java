@@ -13,7 +13,7 @@ import java.lang.reflect.*;
  * @version 1.0
  * @since 1.6
  **/
-public interface ReaderContext {
+public abstract class ReaderContext {
 
 	/**
 	 * 增加一个对象
@@ -21,7 +21,7 @@ public interface ReaderContext {
 	 * @param uniqueId 唯一ID
 	 * @param value    对象
 	 */
-	void put(int uniqueId, Object value);
+	public abstract void put(int uniqueId, Object value);
 
 	/**
 	 * 获取一个对象
@@ -29,7 +29,7 @@ public interface ReaderContext {
 	 * @param uniqueId 对象唯一ID
 	 * @return 对象
 	 */
-	@Nullable Object get(int uniqueId);
+	public abstract @Nullable Object get(int uniqueId);
 
 	/**
 	 * 查找一个类型的实例类型
@@ -39,7 +39,7 @@ public interface ReaderContext {
 	 * @param excepted 预期类型
 	 * @return 实例类型
 	 */
-	Class<?> findInstanceType(Type type, Class<?> excepted);
+	public abstract Class<?> findInstanceType(Type type, Class<?> excepted);
 
 	/**
 	 * 查找一个类型的实例类型
@@ -47,7 +47,7 @@ public interface ReaderContext {
 	 * @param type 类型
 	 * @return 有可能是任意类型或者为null，但是{@link Class}真实类型，{@link TypeVariable}泛型类型。
 	 */
-	@NotNull Type findInstanceType(TypeVariable<?> type);
+	public abstract @NotNull Type findInstanceType(TypeVariable<?> type);
 
 	/**
 	 * 查找{@link Class}中的泛型类型
@@ -59,7 +59,7 @@ public interface ReaderContext {
 	 * @return 泛型的实际类型
 	 * @throws TypeNotFoundException 类型查找失败
 	 */
-	Type findType(Class<?> target, String name);
+	public abstract Type findType(Class<?> target, String name);
 
 	/**
 	 * 对缓冲区中的内容进行解码
@@ -68,14 +68,14 @@ public interface ReaderContext {
 	 * @param type    解码目标类型
 	 * @param options 解码选项
 	 */
-	<T> T decode(ReaderBuffer buf, Type type, long options);
+	public abstract <T> T decode(ReaderBuffer buf, Type type, long options);
 
 	/**
 	 * 增加一个完成钩子
 	 *
 	 * @param hook 回调执行
 	 */
-	void addCompleteHook(Runnable hook);
+	public abstract void addCompleteHook(Runnable hook);
 
 	/**
 	 * 增加一个钩子
@@ -84,17 +84,17 @@ public interface ReaderContext {
 	 * @param offset   字段偏移
 	 * @param uniqueId 引用
 	 */
-	void addCompleteHook(final Object instance, long offset, final int uniqueId);
+	public abstract void addCompleteHook(final Object instance, long offset, final int uniqueId);
 
 	/**
 	 * 执行所有完成钩子
 	 */
-	void runCompleteHooks();
+	public abstract void runCompleteHooks();
 
 	/**
 	 * 关闭缓冲区
 	 *
 	 * @param buf 缓冲区
 	 */
-	void close(ReaderBuffer buf);
+	public abstract void close(ReaderBuffer buf);
 }

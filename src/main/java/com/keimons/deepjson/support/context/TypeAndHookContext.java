@@ -22,7 +22,7 @@ import java.util.*;
  * @version 1.0
  * @since 1.6
  **/
-public class TypeAndHookContext implements ReaderContext {
+public class TypeAndHookContext extends ReaderContext {
 
 	private static final Unsafe unsafe = UnsafeUtil.getUnsafe();
 

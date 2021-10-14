@@ -1,15 +1,10 @@
 package com.keimons.deepjson.compiler;
 
-import com.keimons.deepjson.*;
-import com.keimons.deepjson.support.SyntaxToken;
 import com.keimons.deepjson.util.ArrayUtil;
 import com.keimons.deepjson.util.ClassUtil;
-import com.keimons.deepjson.util.UnsafeUtil;
-import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
