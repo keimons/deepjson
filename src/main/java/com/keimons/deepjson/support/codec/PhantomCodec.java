@@ -40,12 +40,12 @@ public abstract class PhantomCodec implements ICodec<Object> {
 	}
 
 	@Override
-	public final void build(AbstractContext context, Object value) {
+	public final void build(WriterContext context, Object value) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public final void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, Object value, int uniqueId, long options) {
+	public final void encode(WriterContext context, WriterBuffer buf, CodecModel model, Object value, int uniqueId, long options) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -57,7 +57,7 @@ public abstract class PhantomCodec implements ICodec<Object> {
 	 * @param options 解码选项
 	 * @return 类型
 	 */
-	protected Class<?> typeCheck(IDecodeContext context, ReaderBuffer buf, long options) {
+	protected Class<?> typeCheck(ReaderContext context, ReaderBuffer buf, long options) {
 		SyntaxToken token = buf.token();
 		if (token == SyntaxToken.STRING && buf.checkGetType()) {
 			buf.nextToken();

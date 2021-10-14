@@ -11,9 +11,9 @@ import org.jetbrains.annotations.Nullable;
  * @version 1.0
  * @since 1.6
  **/
-public abstract class AbstractContext {
+public abstract class WriterContext {
 
-	public static AbstractContext defaultContext() {
+	public static WriterContext defaultContext() {
 		return new DepthSearchContext();
 	}
 
@@ -54,10 +54,10 @@ public abstract class AbstractContext {
 	 * @param model   编解码模式
 	 * @param options 编解码选项
 	 */
-	public abstract void encode(AbstractBuffer buf, CodecModel model, long options);
+	public abstract void encode(WriterBuffer buf, CodecModel model, long options);
 
 	/**
 	 * 释放上下文
 	 */
-	public abstract void release(AbstractBuffer buf);
+	public abstract void release(WriterBuffer buf);
 }

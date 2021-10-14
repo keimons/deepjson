@@ -24,7 +24,7 @@ public class DoubleAdderCodec extends AbstractClassCodec<DoubleAdder> {
 	}
 
 	@Override
-	public void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, DoubleAdder value, int uniqueId, long options) {
+	public void encode(WriterContext context, WriterBuffer buf, CodecModel model, DoubleAdder value, int uniqueId, long options) {
 		if (model == CodecModel.V || CodecOptions.PrimitiveKey.isOptions(options)) {
 			buf.write(value.sum());
 		} else {
@@ -35,7 +35,7 @@ public class DoubleAdderCodec extends AbstractClassCodec<DoubleAdder> {
 	}
 
 	@Override
-	public DoubleAdder decode(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options) {
+	public DoubleAdder decode(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
 		buf.assertExpectedSyntax(SyntaxToken.STRING, SyntaxToken.NUMBER);
 		double sum = buf.doubleValue();
 		DoubleAdder instance = new DoubleAdder();

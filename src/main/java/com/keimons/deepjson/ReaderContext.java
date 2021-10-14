@@ -13,7 +13,7 @@ import java.lang.reflect.*;
  * @version 1.0
  * @since 1.6
  **/
-public interface IDecodeContext {
+public interface ReaderContext {
 
 	/**
 	 * 增加一个对象

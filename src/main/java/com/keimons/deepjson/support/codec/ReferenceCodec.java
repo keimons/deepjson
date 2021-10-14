@@ -15,7 +15,7 @@ public class ReferenceCodec extends AbstractClassCodec<ReferenceNode> {
 	public static final ReferenceCodec instance = new ReferenceCodec();
 
 	@Override
-	public void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, ReferenceNode value, int uniqueId, long options) {
+	public void encode(WriterContext context, WriterBuffer buf, CodecModel model, ReferenceNode value, int uniqueId, long options) {
 		buf.writeMark('\"');
 		buf.writeMark('$');
 		buf.writeMark('i');
@@ -26,7 +26,7 @@ public class ReferenceCodec extends AbstractClassCodec<ReferenceNode> {
 	}
 
 	@Override
-	public ReferenceNode decode(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options) {
+	public ReferenceNode decode(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
 		throw new UnsupportedOperationException();
 	}
 }

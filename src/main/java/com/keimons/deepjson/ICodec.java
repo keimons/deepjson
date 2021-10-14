@@ -75,7 +75,7 @@ public interface ICodec<T> {
 	 * @param context 上下文
 	 * @param value   对象值
 	 */
-	void build(AbstractContext context, T value);
+	void build(WriterContext context, T value);
 
 	/**
 	 * 编码
@@ -87,7 +87,7 @@ public interface ICodec<T> {
 	 * @param uniqueId 对象唯一ID
 	 * @param options  编码选项
 	 */
-	void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, T value, int uniqueId, long options);
+	void encode(WriterContext context, WriterBuffer buf, CodecModel model, T value, int uniqueId, long options);
 
 	/**
 	 * 解码
@@ -104,5 +104,5 @@ public interface ICodec<T> {
 	 * @return 解码后的对象{@link Object}或者{@link ReferenceNode}。
 	 * @see MapCodec {@link Map}对象解码。
 	 */
-	T decode(IDecodeContext context, ReaderBuffer buf, Type type, long options);
+	T decode(ReaderContext context, ReaderBuffer buf, Type type, long options);
 }

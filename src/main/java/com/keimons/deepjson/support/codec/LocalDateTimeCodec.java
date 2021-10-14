@@ -17,12 +17,12 @@ import java.time.LocalDateTime;
 public class LocalDateTimeCodec extends AbstractClassCodec<LocalDateTime> {
 
 	@Override
-	public void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, LocalDateTime value, int uniqueId, long options) {
+	public void encode(WriterContext context, WriterBuffer buf, CodecModel model, LocalDateTime value, int uniqueId, long options) {
 		buf.write(value.toString());
 	}
 
 	@Override
-	public LocalDateTime decode(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options) {
+	public LocalDateTime decode(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
 		return null;
 	}
 }

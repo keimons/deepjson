@@ -36,7 +36,7 @@ public class MapCodec extends AbstractClassCodec<Object> {
 	public static final MapCodec instance = new MapCodec();
 
 	@Override
-	public void build(AbstractContext context, Object value) {
+	public void build(WriterContext context, Object value) {
 		Map<?, ?> map = (Map<?, ?>) value;
 		ElementsFuture future = new ElementsFuture();
 		context.cache(future, EmptyCodec.instance);
@@ -48,7 +48,7 @@ public class MapCodec extends AbstractClassCodec<Object> {
 	}
 
 	@Override
-	public void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, Object value, int uniqueId, long options) {
+	public void encode(WriterContext context, WriterBuffer buf, CodecModel model, Object value, int uniqueId, long options) {
 		char mark = '{';
 		// write class name
 		if (CodecOptions.WriteClassName.isOptions(options)) {
@@ -80,7 +80,7 @@ public class MapCodec extends AbstractClassCodec<Object> {
 	}
 
 	@Override
-	public Object decode(final IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options) {
+	public Object decode(final ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
 		buf.nextToken(); // 下一个有可能是对象也有可能是对象结束
 		Class<?> excepted = typeCheck(context, buf, options);
 		// 尝试解析成Map时，判断是否为Map，如果不是，转成相应的类型进行解析

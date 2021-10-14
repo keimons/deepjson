@@ -37,7 +37,7 @@ public abstract class BaseArrayCodec<T> extends AbstractClassCodec<T> {
 	}
 
 	@Override
-	public void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, T value, int uniqueId, long options) {
+	public void encode(WriterContext context, WriterBuffer buf, CodecModel model, T value, int uniqueId, long options) {
 		char mark = '{';
 		// write class name
 		boolean className = CodecOptions.WriteClassName.isOptions(options);
@@ -61,7 +61,7 @@ public abstract class BaseArrayCodec<T> extends AbstractClassCodec<T> {
 	}
 
 	@Override
-	public T decode(IDecodeContext context, ReaderBuffer buf, Class<?> type, long options) {
+	public T decode(ReaderContext context, ReaderBuffer buf, Class<?> type, long options) {
 		Type componentType = type.getComponentType();
 		Class<?> instanceType = type.getComponentType();
 		SyntaxToken token = buf.token();
@@ -114,11 +114,11 @@ public abstract class BaseArrayCodec<T> extends AbstractClassCodec<T> {
 		return value;
 	}
 
-	protected Type findComponentType(IDecodeContext context, Type type) {
+	protected Type findComponentType(ReaderContext context, Type type) {
 		return ((Class<?>) type).getComponentType();
 	}
 
-	protected abstract void encode0(AbstractContext context, AbstractBuffer buf, T values, long options);
+	protected abstract void encode0(WriterContext context, WriterBuffer buf, T values, long options);
 
 	/**
 	 * 解码数组
@@ -130,5 +130,5 @@ public abstract class BaseArrayCodec<T> extends AbstractClassCodec<T> {
 	 * @param options       解码选项
 	 * @return 数组对象
 	 */
-	protected abstract T decode0(IDecodeContext context, ReaderBuffer buf, Class<?> instanceType, Type componentType, long options);
+	protected abstract T decode0(ReaderContext context, ReaderBuffer buf, Class<?> instanceType, Type componentType, long options);
 }

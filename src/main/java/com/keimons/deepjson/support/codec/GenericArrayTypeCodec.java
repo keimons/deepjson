@@ -1,8 +1,8 @@
 package com.keimons.deepjson.support.codec;
 
 import com.keimons.deepjson.ICodec;
-import com.keimons.deepjson.IDecodeContext;
 import com.keimons.deepjson.ReaderBuffer;
+import com.keimons.deepjson.ReaderContext;
 import com.keimons.deepjson.support.CodecFactory;
 import com.keimons.deepjson.support.IncompatibleTypeException;
 import com.keimons.deepjson.support.SyntaxToken;
@@ -31,7 +31,7 @@ public class GenericArrayTypeCodec extends PhantomCodec {
 	}
 
 	@Override
-	public Object decode(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	public Object decode(ReaderContext context, ReaderBuffer buf, Type type, long options) {
 		assert type instanceof GenericArrayType;
 		SyntaxToken token = buf.token();
 		if (token == SyntaxToken.LBRACKET) {

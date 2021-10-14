@@ -18,7 +18,7 @@ public abstract class BasePrimitiveCodec<T> extends AbstractClassCodec<T> {
 	}
 
 	@Override
-	public void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, T value, int uniqueId, long options) {
+	public void encode(WriterContext context, WriterBuffer buf, CodecModel model, T value, int uniqueId, long options) {
 		if (model == CodecModel.V || CodecOptions.PrimitiveKey.isOptions(options)) {
 			encode0(buf, value);
 		} else {
@@ -29,7 +29,7 @@ public abstract class BasePrimitiveCodec<T> extends AbstractClassCodec<T> {
 	}
 
 	@Override
-	public T decode(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options) {
+	public T decode(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
 		SyntaxToken token = buf.token();
 		if (token == SyntaxToken.NULL) {
 			return null;
@@ -37,7 +37,7 @@ public abstract class BasePrimitiveCodec<T> extends AbstractClassCodec<T> {
 		return decode0(context, buf, clazz, options);
 	}
 
-	protected abstract void encode0(AbstractBuffer buf, T value);
+	protected abstract void encode0(WriterBuffer buf, T value);
 
-	protected abstract T decode0(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options);
+	protected abstract T decode0(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options);
 }

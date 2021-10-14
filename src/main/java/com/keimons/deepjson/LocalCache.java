@@ -11,9 +11,9 @@ import com.keimons.deepjson.util.StringWriterHelper;
  **/
 class LocalCache {
 
-	AbstractBuffer buffer = AbstractBuffer.compositeBuffer();
+	WriterBuffer buffer = WriterBuffer.compositeBuffer();
 
-	AbstractContext context = AbstractContext.defaultContext();
+	WriterContext context = WriterContext.defaultContext();
 
 	AbstractWriter<String> writer = StringWriterHelper.stringWriter();
 }

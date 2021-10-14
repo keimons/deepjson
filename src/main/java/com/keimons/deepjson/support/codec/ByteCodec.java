@@ -1,8 +1,8 @@
 package com.keimons.deepjson.support.codec;
 
-import com.keimons.deepjson.AbstractBuffer;
-import com.keimons.deepjson.IDecodeContext;
 import com.keimons.deepjson.ReaderBuffer;
+import com.keimons.deepjson.ReaderContext;
+import com.keimons.deepjson.WriterBuffer;
 
 /**
  * {@link Byte}编解码器
@@ -16,12 +16,12 @@ public class ByteCodec extends BasePrimitiveCodec<Byte> {
 	public static final ByteCodec instance = new ByteCodec();
 
 	@Override
-	protected void encode0(AbstractBuffer buf, Byte value) {
+	protected void encode0(WriterBuffer buf, Byte value) {
 		buf.write(value);
 	}
 
 	@Override
-	protected Byte decode0(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options) {
+	protected Byte decode0(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
 		buf.assertExpectedSyntax(numberExpects, stringExpects);
 		return Byte.valueOf(buf.stringValue());
 	}

@@ -20,11 +20,11 @@ public class StringCodec extends AbstractClassCodec<String> {
 	}
 
 	@Override
-	public void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, String value, int uniqueId, long options) {
+	public void encode(WriterContext context, WriterBuffer buf, CodecModel model, String value, int uniqueId, long options) {
 		buf.writeWithQuote(value);
 	}
 
-	public String decode(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options) {
+	public String decode(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
 		if (buf.token() == SyntaxToken.NULL) {
 			return null;
 		}

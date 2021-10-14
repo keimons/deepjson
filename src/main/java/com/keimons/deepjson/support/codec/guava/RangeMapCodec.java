@@ -20,17 +20,17 @@ public class RangeMapCodec extends AbstractClassCodec<RangeMap> {
 	}
 
 	@Override
-	public void build(AbstractContext context, RangeMap value) {
+	public void build(WriterContext context, RangeMap value) {
 
 	}
 
 	@Override
-	public RangeMap decode(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options) {
+	public RangeMap decode(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
 		return null;
 	}
 
 	@Override
-	public void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, RangeMap value, int uniqueId, long options) {
+	public void encode(WriterContext context, WriterBuffer buf, CodecModel model, RangeMap value, int uniqueId, long options) {
 
 	}
 }

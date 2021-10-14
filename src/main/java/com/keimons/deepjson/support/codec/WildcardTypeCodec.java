@@ -1,8 +1,8 @@
 package com.keimons.deepjson.support.codec;
 
 import com.keimons.deepjson.ICodec;
-import com.keimons.deepjson.IDecodeContext;
 import com.keimons.deepjson.ReaderBuffer;
+import com.keimons.deepjson.ReaderContext;
 import com.keimons.deepjson.support.CodecFactory;
 import com.keimons.deepjson.util.TypeNotFoundException;
 
@@ -26,7 +26,7 @@ public class WildcardTypeCodec extends PhantomCodec {
 	}
 
 	@Override
-	public Object decode(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	public Object decode(ReaderContext context, ReaderBuffer buf, Type type, long options) {
 		assert type instanceof WildcardType;
 		WildcardType wildcardType = (WildcardType) type;
 		// 优先匹配 下界通配符
@@ -43,7 +43,7 @@ public class WildcardTypeCodec extends PhantomCodec {
 		throw new TypeNotFoundException("unknown wildcard type " + type.getTypeName());
 	}
 
-	private Object decode0(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	private Object decode0(ReaderContext context, ReaderBuffer buf, Type type, long options) {
 		ICodec<?> codec = CodecFactory.getCodec(type);
 		assert codec != null;
 		return codec.decode(context, buf, type, options);

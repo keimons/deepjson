@@ -21,7 +21,7 @@ import java.io.Closeable;
  * @version 1.0
  * @since 1.6
  **/
-public abstract class AbstractBuffer implements Closeable {
+public abstract class WriterBuffer implements Closeable {
 
 	public static final char[] CHAR_HEX = {
 			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
@@ -88,7 +88,7 @@ public abstract class AbstractBuffer implements Closeable {
 	 */
 	protected int capacity;
 
-	protected AbstractBuffer(int size) {
+	protected WriterBuffer(int size) {
 		buffers = new char[size][];
 	}
 
@@ -97,7 +97,7 @@ public abstract class AbstractBuffer implements Closeable {
 	 *
 	 * @return 复合缓冲区
 	 */
-	public static AbstractBuffer compositeBuffer() {
+	public static WriterBuffer compositeBuffer() {
 		return new CompositeBuffer();
 	}
 
@@ -106,7 +106,7 @@ public abstract class AbstractBuffer implements Closeable {
 	 *
 	 * @return 缓冲区
 	 */
-	public static AbstractBuffer buffer() {
+	public static WriterBuffer buffer() {
 		return new SafeBuffer();
 	}
 
@@ -532,7 +532,7 @@ public abstract class AbstractBuffer implements Closeable {
 	 * <p>
 	 * 扩容时有两种方案：
 	 * <ul>
-	 *     <li>{@link AbstractBuffer}缓冲区扩容</li>
+	 *     <li>{@link WriterBuffer}缓冲区扩容</li>
 	 *     <li>复合缓冲区扩容</li>
 	 * </ul>
 	 * <p>

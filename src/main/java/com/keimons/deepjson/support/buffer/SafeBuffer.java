@@ -1,6 +1,6 @@
 package com.keimons.deepjson.support.buffer;
 
-import com.keimons.deepjson.AbstractBuffer;
+import com.keimons.deepjson.WriterBuffer;
 
 import java.util.Arrays;
 
@@ -11,7 +11,7 @@ import java.util.Arrays;
  * @version 1.0
  * @since 1.6
  **/
-public class SafeBuffer extends AbstractBuffer {
+public class SafeBuffer extends WriterBuffer {
 
 	public SafeBuffer() {
 		super(2);

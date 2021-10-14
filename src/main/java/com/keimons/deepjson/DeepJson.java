@@ -3,7 +3,7 @@ package com.keimons.deepjson;
 import com.keimons.deepjson.support.SyntaxToken;
 import com.keimons.deepjson.support.buffer.JsonReaderBuffer;
 import com.keimons.deepjson.support.codec.Template;
-import com.keimons.deepjson.support.context.Context;
+import com.keimons.deepjson.support.context.TypeAndHookContext;
 import com.keimons.deepjson.support.writer.CharsWriter;
 import com.keimons.deepjson.support.writer.SafeStringWriter;
 import com.keimons.deepjson.support.writer.UTF8BytesWriter;
@@ -71,12 +71,12 @@ public class DeepJson {
 			config = new LocalCache();
 			CACHE.set(config);
 		}
-		AbstractContext context = config.context;
-		AbstractBuffer buffer = config.buffer;
+		WriterContext context = config.context;
+		WriterBuffer buffer = config.buffer;
 		return encode(object, context, buffer, writer, option);
 	}
 
-	public static <T> T encode(Object value, AbstractContext context, AbstractBuffer buffer, AbstractWriter<T> writer, CodecOptions... options) throws WriteFailedException {
+	public static <T> T encode(Object value, WriterContext context, WriterBuffer buffer, AbstractWriter<T> writer, CodecOptions... options) throws WriteFailedException {
 		long option = CodecOptions.getOptions(options);
 		return encode(value, context, buffer, writer, option);
 	}
@@ -87,8 +87,8 @@ public class DeepJson {
 			cache = new LocalCache();
 			CACHE.set(cache);
 		}
-		AbstractContext context = cache.context;
-		AbstractBuffer buffer = cache.buffer;
+		WriterContext context = cache.context;
+		WriterBuffer buffer = cache.buffer;
 		AbstractWriter<String> writer = cache.writer;
 		try {
 			return encode(object, context, buffer, writer, options);
@@ -107,8 +107,8 @@ public class DeepJson {
 			cache = new LocalCache();
 			CACHE.set(cache);
 		}
-		AbstractContext context = cache.context;
-		AbstractBuffer buffer = cache.buffer;
+		WriterContext context = cache.context;
+		WriterBuffer buffer = cache.buffer;
 		return encode(object, context, buffer, UTF8BytesWriter.instance, options);
 	}
 
@@ -118,12 +118,12 @@ public class DeepJson {
 			cache = new LocalCache();
 			CACHE.set(cache);
 		}
-		AbstractContext context = cache.context;
-		AbstractBuffer buffer = cache.buffer;
+		WriterContext context = cache.context;
+		WriterBuffer buffer = cache.buffer;
 		return encode(object, context, buffer, CharsWriter.instance, options);
 	}
 
-	static <T> T encode(Object value, AbstractContext context, AbstractBuffer buf, AbstractWriter<T> writer, long options) throws WriteFailedException {
+	static <T> T encode(Object value, WriterContext context, WriterBuffer buf, AbstractWriter<T> writer, long options) throws WriteFailedException {
 		buf.init(options);
 		try {
 			context.build(value);
@@ -144,7 +144,7 @@ public class DeepJson {
 
 
 	public static <T> T parseObject(String json, Type type) {
-		IDecodeContext context = new Context();
+		ReaderContext context = new TypeAndHookContext();
 		JsonReaderBuffer buf = new JsonReaderBuffer(json);
 		buf.nextToken();
 		buf.assertExpectedSyntax(SyntaxToken.OBJECTS);

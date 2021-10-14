@@ -5,6 +5,7 @@ import com.keimons.deepjson.support.ExpectedSyntaxException;
 import com.keimons.deepjson.support.SyntaxToken;
 import com.keimons.deepjson.support.UnknownSyntaxException;
 import com.keimons.deepjson.util.ArrayUtil;
+import com.keimons.deepjson.util.CodecUtil;
 
 import java.util.Arrays;
 
@@ -397,12 +398,22 @@ public class JsonReaderBuffer extends ReaderBuffer {
 
 	@Override
 	public byte byteValue() {
-		return Byte.parseByte(new String(cache, 0, writerIndex));
+		int i = CodecUtil.readInt(cache, 0, writerIndex);
+		if (i < Byte.MIN_VALUE || i > Byte.MAX_VALUE) {
+			String msg = "Value out of range. Value:\"" + new String(cache, 0, writerIndex) + "\"";
+			throw new NumberFormatException(msg);
+		}
+		return (byte) i;
 	}
 
 	@Override
 	public short shortValue() {
-		return Short.parseShort(new String(cache, 0, writerIndex));
+		int i = CodecUtil.readInt(cache, 0, writerIndex);
+		if (i < Short.MIN_VALUE || Short.MAX_VALUE < i) {
+			String msg = "Value out of range. Value:\"" + new String(cache, 0, writerIndex) + "\"";
+			throw new NumberFormatException(msg);
+		}
+		return (short) i;
 	}
 
 	@Override
@@ -412,8 +423,7 @@ public class JsonReaderBuffer extends ReaderBuffer {
 
 	@Override
 	public int intValue() {
-		// TODO using CharSequence
-		return Integer.parseInt(new String(cache, 0, writerIndex));
+		return CodecUtil.readInt(cache, 0, writerIndex);
 	}
 
 	@Override
@@ -424,8 +434,7 @@ public class JsonReaderBuffer extends ReaderBuffer {
 				writerIndex -= 1;
 			}
 		}
-		// TODO using CharSequence
-		return Long.parseLong(new String(cache, 0, writerIndex));
+		return CodecUtil.readLong(cache, 0, writerIndex);
 	}
 
 	@Override

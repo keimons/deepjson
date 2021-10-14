@@ -1,8 +1,8 @@
 package com.keimons.deepjson.support.context;
 
 import com.keimons.deepjson.ICodec;
-import com.keimons.deepjson.IDecodeContext;
 import com.keimons.deepjson.ReaderBuffer;
+import com.keimons.deepjson.ReaderContext;
 import com.keimons.deepjson.support.CodecFactory;
 import com.keimons.deepjson.support.SyntaxToken;
 import com.keimons.deepjson.util.ClassUtil;
@@ -22,7 +22,7 @@ import java.util.*;
  * @version 1.0
  * @since 1.6
  **/
-public class Context implements IDecodeContext {
+public class TypeAndHookContext implements ReaderContext {
 
 	private static final Unsafe unsafe = UnsafeUtil.getUnsafe();
 

@@ -14,17 +14,17 @@ public class CharCodec extends BasePrimitiveCodec<Character> {
 	public static final CharCodec instance = new CharCodec();
 
 	@Override
-	public void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, Character value, int uniqueId, long options) {
+	public void encode(WriterContext context, WriterBuffer buf, CodecModel model, Character value, int uniqueId, long options) {
 		buf.writeWithQuote(value);
 	}
 
 	@Override
-	protected void encode0(AbstractBuffer buf, Character value) {
+	protected void encode0(WriterBuffer buf, Character value) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	protected Character decode0(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options) {
+	protected Character decode0(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
 		buf.assertExpectedSyntax(stringExpects);
 		return buf.charValue();
 	}

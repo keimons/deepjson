@@ -26,25 +26,6 @@ import java.util.TreeMap;
  **/
 public class SourceCodeFactory {
 
-	private static final List<Class<?>> IMPORT = new ArrayList<Class<?>>();
-
-	static {
-		IMPORT.add(CodecConfig.class);
-		IMPORT.add(CodecOptions.class);
-		IMPORT.add(AbstractBuffer.class);
-		IMPORT.add(AbstractContext.class);
-		IMPORT.add(UnsafeUtil.class);
-		IMPORT.add(Unsafe.class);
-		IMPORT.add(ArrayList.class);
-		IMPORT.add(TreeMap.class);
-		IMPORT.add(List.class);
-		IMPORT.add(ReaderBuffer.class);
-		IMPORT.add(IDecodeContext.class);
-		IMPORT.add(Field.class);
-		IMPORT.add(Type.class);
-		IMPORT.add(SyntaxToken.class);
-	}
-
 	/**
 	 * 构造一个编解码工具类
 	 *
@@ -111,7 +92,7 @@ public class SourceCodeFactory {
 		source.append("\n");
 
 		source.append("\t@Override\n");
-		source.append("\tpublic void build(AbstractContext context, Object value) {\n");
+		source.append("\tpublic void build(WriterContext context, Object value) {\n");
 		for (int i = 0; i < fields.size(); i++) {
 			String fieldName = "value" + i;
 			FieldInfo field = fields.get(i);
@@ -130,7 +111,7 @@ public class SourceCodeFactory {
 		source.append("\n");
 
 		source.append("\t@Override\n");
-		source.append("\tpublic void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, Object object, int uniqueId, long options) {\n");
+		source.append("\tpublic void encode(WriterContext context, WriterBuffer buf, CodecModel model, Object object, int uniqueId, long options) {\n");
 		source.append("\t\tchar mark = '{';\n");
 		source.append("\t\tif (uniqueId >= 0) {\n");
 		source.append("\t\t\tbuf.writeValue(mark, FIELD_SET_ID, uniqueId);\n");
@@ -163,7 +144,7 @@ public class SourceCodeFactory {
 
 		source.append("\n");
 		source.append("\t@Override\n");
-		source.append("\tpublic Object decode0(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options) {\n");
+		source.append("\tpublic Object decode0(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {\n");
 		source.append("\t\tObject instance = newInstance(clazz);\n");
 		source.append("\t\tSyntaxToken token = null;\n");
 		source.append("\t\tfor (; ; ) {\n");
@@ -220,8 +201,6 @@ public class SourceCodeFactory {
 		source.append("import com.keimons.deepjson.support.SyntaxToken;\n");
 		source.append("\n");
 		source.append("import java.lang.reflect.Field;\n");
-		source.append("import java.lang.reflect.Type;\n");
-
 		source.append("\n");
 	}
 

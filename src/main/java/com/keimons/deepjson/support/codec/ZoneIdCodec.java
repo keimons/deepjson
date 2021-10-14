@@ -16,12 +16,12 @@ public class ZoneIdCodec extends AbstractClassCodec<ZoneId> {
 	public static final ZoneIdCodec instance = new ZoneIdCodec();
 
 	@Override
-	public void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, ZoneId zoneId, int uniqueId, long options) {
+	public void encode(WriterContext context, WriterBuffer buf, CodecModel model, ZoneId zoneId, int uniqueId, long options) {
 		buf.writeWithQuote(zoneId.getId());
 	}
 
 	@Override
-	public ZoneId decode(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options) {
+	public ZoneId decode(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
 		return null;
 	}
 }

@@ -23,17 +23,17 @@ public class EmptyCodec extends AbstractClassCodec<ElementsFuture> {
 	}
 
 	@Override
-	public void build(AbstractContext context, ElementsFuture value) {
+	public void build(WriterContext context, ElementsFuture value) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public ElementsFuture decode(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options) {
+	public ElementsFuture decode(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
 		throw new UnsupportedOperationException();
 	}
 
 	@Override
-	public void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, ElementsFuture value, int uniqueId, long options) {
+	public void encode(WriterContext context, WriterBuffer buf, CodecModel model, ElementsFuture value, int uniqueId, long options) {
 		throw new UnsupportedOperationException();
 	}
 }

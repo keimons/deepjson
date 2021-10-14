@@ -14,13 +14,13 @@ public class EnumCodec extends AbstractClassCodec<Enum<?>> {
 	public static final EnumCodec instance = new EnumCodec();
 
 	@Override
-	public void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, Enum<?> value, int uniqueId, long options) {
+	public void encode(WriterContext context, WriterBuffer buf, CodecModel model, Enum<?> value, int uniqueId, long options) {
 		buf.writeWithQuote(value.name());
 	}
 
 	@Override
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	public Enum decode(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options) {
+	public Enum decode(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
 		buf.assertExpectedSyntax(stringExpects);
 		String value = buf.stringValue();
 		return Enum.valueOf((Class) clazz, value);

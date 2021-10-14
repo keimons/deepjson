@@ -21,17 +21,17 @@ public class MultimapCodec extends AbstractClassCodec<Multimap<?, ?>> {
 	}
 
 	@Override
-	public void build(AbstractContext context, Multimap<?, ?> value) {
+	public void build(WriterContext context, Multimap<?, ?> value) {
 		context.build(value.asMap());
 	}
 
 	@Override
-	public Multimap<?, ?> decode(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options) {
+	public Multimap<?, ?> decode(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
 		return null;
 	}
 
 	@Override
-	public void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, Multimap<?, ?> value, int uniqueId, long options) {
+	public void encode(WriterContext context, WriterBuffer buf, CodecModel model, Multimap<?, ?> value, int uniqueId, long options) {
 		context.encode(buf, CodecModel.V, options);
 	}
 }

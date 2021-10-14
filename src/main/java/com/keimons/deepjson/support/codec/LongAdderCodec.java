@@ -24,7 +24,7 @@ public class LongAdderCodec extends AbstractClassCodec<LongAdder> {
 	}
 
 	@Override
-	public void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, LongAdder value, int uniqueId, long options) {
+	public void encode(WriterContext context, WriterBuffer buf, CodecModel model, LongAdder value, int uniqueId, long options) {
 		if (model == CodecModel.V || CodecOptions.PrimitiveKey.isOptions(options)) {
 			buf.write(value.sum());
 		} else {
@@ -35,7 +35,7 @@ public class LongAdderCodec extends AbstractClassCodec<LongAdder> {
 	}
 
 	@Override
-	public LongAdder decode(IDecodeContext context, ReaderBuffer buf, Class<?> type, long options) {
+	public LongAdder decode(ReaderContext context, ReaderBuffer buf, Class<?> type, long options) {
 		buf.assertExpectedSyntax(SyntaxToken.STRING, SyntaxToken.NUMBER);
 		int sum = buf.intValue();
 		LongAdder instance = new LongAdder();

@@ -75,16 +75,16 @@ public abstract class AbstractClassCodec<T> implements ICodec<T> {
 	}
 
 	@Override
-	public void build(AbstractContext context, T value) {
+	public void build(WriterContext context, T value) {
 
 	}
 
 	@Override
-	public final T decode(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	public final T decode(ReaderContext context, ReaderBuffer buf, Type type, long options) {
 		return decode(context, buf, (Class<?>) type, options);
 	}
 
-	public abstract T decode(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options);
+	public abstract T decode(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options);
 
 	/**
 	 * 类型检测
@@ -96,7 +96,7 @@ public abstract class AbstractClassCodec<T> implements ICodec<T> {
 	 * @param options 解码选项
 	 * @return 类型
 	 */
-	protected Class<?> typeCheck(IDecodeContext context, ReaderBuffer buf, long options) {
+	protected Class<?> typeCheck(ReaderContext context, ReaderBuffer buf, long options) {
 		SyntaxToken token = buf.token();
 		if (token == SyntaxToken.STRING && buf.checkGetType()) {
 			buf.nextToken();
@@ -123,7 +123,7 @@ public abstract class AbstractClassCodec<T> implements ICodec<T> {
 	 * @param options  解码选项
 	 * @return 是否被引用
 	 */
-	protected boolean isInstanceId(Object instance, IDecodeContext context, ReaderBuffer buf, long options) {
+	protected boolean isInstanceId(Object instance, ReaderContext context, ReaderBuffer buf, long options) {
 		SyntaxToken token = buf.token();
 		if (token == SyntaxToken.STRING && buf.checkPutId()) {
 			buf.nextToken();

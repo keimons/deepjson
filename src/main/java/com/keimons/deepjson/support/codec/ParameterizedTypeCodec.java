@@ -1,8 +1,8 @@
 package com.keimons.deepjson.support.codec;
 
 import com.keimons.deepjson.ICodec;
-import com.keimons.deepjson.IDecodeContext;
 import com.keimons.deepjson.ReaderBuffer;
+import com.keimons.deepjson.ReaderContext;
 import com.keimons.deepjson.support.CodecFactory;
 
 import java.lang.reflect.ParameterizedType;
@@ -25,7 +25,7 @@ public class ParameterizedTypeCodec extends PhantomCodec {
 	}
 
 	@Override
-	public Object decode(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	public Object decode(ReaderContext context, ReaderBuffer buf, Type type, long options) {
 		assert type instanceof ParameterizedType;
 		ParameterizedType pt = (ParameterizedType) type;
 		Class<?> clazz = (Class<?>) pt.getRawType();

@@ -1,7 +1,7 @@
 package com.keimons.deepjson.support.codec.extended;
 
-import com.keimons.deepjson.IDecodeContext;
 import com.keimons.deepjson.ReaderBuffer;
+import com.keimons.deepjson.ReaderContext;
 import com.keimons.deepjson.compiler.ExtendedCodecClassLoader;
 import com.keimons.deepjson.support.IncompatibleTypeException;
 import com.keimons.deepjson.support.SyntaxToken;
@@ -96,7 +96,7 @@ public abstract class ExtendedCodec extends AbstractClassCodec<Object> {
 	 * @return 对象实例
 	 */
 	@Override
-	public Object decode(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options) {
+	public Object decode(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
 		SyntaxToken token = buf.token();
 		if (token == SyntaxToken.NULL) {
 			return null;
@@ -137,5 +137,5 @@ public abstract class ExtendedCodec extends AbstractClassCodec<Object> {
 	 */
 	public abstract void init(Class<?> clazz);
 
-	protected abstract Object decode0(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options);
+	protected abstract Object decode0(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options);
 }

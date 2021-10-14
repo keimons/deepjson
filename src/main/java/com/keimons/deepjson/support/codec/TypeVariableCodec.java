@@ -1,8 +1,8 @@
 package com.keimons.deepjson.support.codec;
 
 import com.keimons.deepjson.CodecConfig;
-import com.keimons.deepjson.IDecodeContext;
 import com.keimons.deepjson.ReaderBuffer;
+import com.keimons.deepjson.ReaderContext;
 import com.keimons.deepjson.support.IncompatibleTypeException;
 import com.keimons.deepjson.util.ClassUtil;
 
@@ -27,7 +27,7 @@ public class TypeVariableCodec extends PhantomCodec {
 	}
 
 	@Override
-	public Object decode(IDecodeContext context, ReaderBuffer buf, Type type, long options) {
+	public Object decode(ReaderContext context, ReaderBuffer buf, Type type, long options) {
 		assert type instanceof TypeVariable;
 		TypeVariable<?> tv = (TypeVariable<?>) type;
 		Type instanceType = context.findInstanceType(tv);

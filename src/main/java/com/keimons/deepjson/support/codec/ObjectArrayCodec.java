@@ -25,7 +25,7 @@ public class ObjectArrayCodec extends BaseArrayCodec<Object[]> {
 	public static final ObjectArrayCodec instance = new ObjectArrayCodec();
 
 	@Override
-	public void build(AbstractContext context, Object[] value) {
+	public void build(WriterContext context, Object[] value) {
 		context.cache(new ElementsFuture(value.length), EmptyCodec.instance);
 		for (Object obj : value) {
 			context.build(obj);
@@ -33,7 +33,7 @@ public class ObjectArrayCodec extends BaseArrayCodec<Object[]> {
 	}
 
 	@Override
-	public void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, Object[] value, int uniqueId, long options) {
+	public void encode(WriterContext context, WriterBuffer buf, CodecModel model, Object[] value, int uniqueId, long options) {
 		Object future = context.poll();
 		if (!(future instanceof ElementsFuture)) {
 			throw new RuntimeException("deep json bug");
@@ -42,7 +42,7 @@ public class ObjectArrayCodec extends BaseArrayCodec<Object[]> {
 	}
 
 	@Override
-	public void encode0(AbstractContext context, AbstractBuffer buf, Object[] values, long options) {
+	public void encode0(WriterContext context, WriterBuffer buf, Object[] values, long options) {
 		for (int i = 0; i < values.length; i++) {
 			if (i != 0) {
 				buf.writeMark(',');
@@ -51,7 +51,7 @@ public class ObjectArrayCodec extends BaseArrayCodec<Object[]> {
 		}
 	}
 
-	public Object[] decode0(final IDecodeContext context, ReaderBuffer buf, Class<?> instanceType, Type componentType, long options) {
+	public Object[] decode0(final ReaderContext context, ReaderBuffer buf, Class<?> instanceType, Type componentType, long options) {
 		List<Object> values = new ArrayList<Object>();
 		int[] hooks = null;
 		int count = 0;

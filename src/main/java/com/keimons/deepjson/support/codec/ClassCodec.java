@@ -16,12 +16,12 @@ public class ClassCodec extends AbstractClassCodec<Class<?>> {
 	public static final ClassCodec instance = new ClassCodec();
 
 	@Override
-	public void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, Class<?> value, int uniqueId, long options) {
+	public void encode(WriterContext context, WriterBuffer buf, CodecModel model, Class<?> value, int uniqueId, long options) {
 		buf.writeWithQuote(value.getName());
 	}
 
 	@Override
-	public Class<?> decode(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options) {
+	public Class<?> decode(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
 		buf.assertExpectedSyntax(SyntaxToken.STRING);
 		return ClassUtil.findClass(buf.stringValue());
 	}

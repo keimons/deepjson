@@ -1,8 +1,8 @@
 package com.keimons.deepjson.support.codec;
 
-import com.keimons.deepjson.AbstractBuffer;
-import com.keimons.deepjson.IDecodeContext;
 import com.keimons.deepjson.ReaderBuffer;
+import com.keimons.deepjson.ReaderContext;
+import com.keimons.deepjson.WriterBuffer;
 
 /**
  * {@link Float}编解码器
@@ -16,12 +16,12 @@ public class FloatCodec extends BasePrimitiveCodec<Float> {
 	public static final FloatCodec instance = new FloatCodec();
 
 	@Override
-	protected void encode0(AbstractBuffer buf, Float value) {
+	protected void encode0(WriterBuffer buf, Float value) {
 		buf.write(value);
 	}
 
 	@Override
-	protected Float decode0(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options) {
+	protected Float decode0(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
 		buf.assertExpectedSyntax(numberExpects, stringExpects);
 		return buf.floatValue();
 	}

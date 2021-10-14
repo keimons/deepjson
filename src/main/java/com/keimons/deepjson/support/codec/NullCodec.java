@@ -20,12 +20,12 @@ public class NullCodec extends AbstractClassCodec<Void> {
 	}
 
 	@Override
-	public void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, Void value, int uniqueId, long options) {
+	public void encode(WriterContext context, WriterBuffer buf, CodecModel model, Void value, int uniqueId, long options) {
 		buf.writeNull();
 	}
 
 	@Override
-	public Void decode(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options) {
+	public Void decode(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
 		buf.assertExpectedSyntax(SyntaxToken.NULL);
 		return null;
 	}

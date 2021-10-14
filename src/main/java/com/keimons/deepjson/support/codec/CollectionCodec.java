@@ -37,7 +37,7 @@ public class CollectionCodec extends AbstractClassCodec<Collection<?>> {
 	}
 
 	@Override
-	public void build(AbstractContext context, Collection<?> value) {
+	public void build(WriterContext context, Collection<?> value) {
 		ElementsFuture future = new ElementsFuture();
 		context.cache(future, EmptyCodec.instance);
 		for (Object obj : value) {
@@ -47,7 +47,7 @@ public class CollectionCodec extends AbstractClassCodec<Collection<?>> {
 	}
 
 	@Override
-	public void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, Collection<?> value, int uniqueId, long options) {
+	public void encode(WriterContext context, WriterBuffer buf, CodecModel model, Collection<?> value, int uniqueId, long options) {
 		Object future = context.poll();
 		if (!(future instanceof ElementsFuture)) {
 			throw new RuntimeException("deep json bug");
@@ -84,7 +84,7 @@ public class CollectionCodec extends AbstractClassCodec<Collection<?>> {
 	}
 
 	@Override
-	public Collection<?> decode(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options) {
+	public Collection<?> decode(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
 		Type et = context.findType(Collection.class, "E");
 
 		SyntaxToken token = buf.token();
@@ -138,7 +138,7 @@ public class CollectionCodec extends AbstractClassCodec<Collection<?>> {
 		return instance;
 	}
 
-	private void decode0(final Collection<Object> instance, final IDecodeContext context, ReaderBuffer buf, Type et, long options) {
+	private void decode0(final Collection<Object> instance, final ReaderContext context, ReaderBuffer buf, Type et, long options) {
 		int[] hooks = null;
 		int count = 0;
 		for (; ; ) {

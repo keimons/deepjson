@@ -1,9 +1,9 @@
 package com.keimons.deepjson.support.codec;
 
-import com.keimons.deepjson.AbstractBuffer;
-import com.keimons.deepjson.AbstractContext;
-import com.keimons.deepjson.IDecodeContext;
 import com.keimons.deepjson.ReaderBuffer;
+import com.keimons.deepjson.ReaderContext;
+import com.keimons.deepjson.WriterBuffer;
+import com.keimons.deepjson.WriterContext;
 import com.keimons.deepjson.support.SyntaxToken;
 
 import java.lang.reflect.Type;
@@ -22,7 +22,7 @@ public class FloatArrayCodec extends BaseArrayCodec<float[]> {
 	public static final FloatArrayCodec instance = new FloatArrayCodec();
 
 	@Override
-	public void encode0(AbstractContext context, AbstractBuffer buf, float[] values, long options) {
+	public void encode0(WriterContext context, WriterBuffer buf, float[] values, long options) {
 		for (int i = 0; i < values.length; i++) {
 			if (i != 0) {
 				buf.writeMark(',');
@@ -32,7 +32,7 @@ public class FloatArrayCodec extends BaseArrayCodec<float[]> {
 	}
 
 	@Override
-	public float[] decode0(IDecodeContext context, ReaderBuffer buf, Class<?> instanceType, Type componentType, long options) {
+	public float[] decode0(ReaderContext context, ReaderBuffer buf, Class<?> instanceType, Type componentType, long options) {
 		List<Float> values = new ArrayList<Float>();
 		for (; ; ) {
 			buf.nextToken();

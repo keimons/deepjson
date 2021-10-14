@@ -14,12 +14,12 @@ public class JsonArrayCodec extends AbstractClassCodec<JsonArray> {
 	public static final JsonArrayCodec instance = new JsonArrayCodec();
 
 	@Override
-	public void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, JsonArray value, int uniqueId, long options) {
+	public void encode(WriterContext context, WriterBuffer buf, CodecModel model, JsonArray value, int uniqueId, long options) {
 
 	}
 
 	@Override
-	public JsonArray decode(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options) {
+	public JsonArray decode(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
 		return null;
 	}
 }

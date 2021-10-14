@@ -1,8 +1,8 @@
 package com.keimons.deepjson.support.codec;
 
-import com.keimons.deepjson.AbstractBuffer;
-import com.keimons.deepjson.IDecodeContext;
 import com.keimons.deepjson.ReaderBuffer;
+import com.keimons.deepjson.ReaderContext;
+import com.keimons.deepjson.WriterBuffer;
 
 /**
  * {@link Short}编解码器
@@ -16,12 +16,12 @@ public class ShortCodec extends BasePrimitiveCodec<Short> {
 	public static final ShortCodec instance = new ShortCodec();
 
 	@Override
-	protected void encode0(AbstractBuffer buf, Short value) {
+	protected void encode0(WriterBuffer buf, Short value) {
 		buf.write(value);
 	}
 
 	@Override
-	protected Short decode0(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options) {
+	protected Short decode0(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
 		buf.assertExpectedSyntax(numberExpects, stringExpects);
 		return Short.valueOf(buf.stringValue());
 	}

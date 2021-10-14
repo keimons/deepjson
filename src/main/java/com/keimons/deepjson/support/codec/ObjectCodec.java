@@ -23,13 +23,13 @@ public class ObjectCodec extends AbstractClassCodec<Object> {
 	}
 
 	@Override
-	public void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, Object value, int uniqueId, long options) {
+	public void encode(WriterContext context, WriterBuffer buf, CodecModel model, Object value, int uniqueId, long options) {
 		buf.writeMark('{');
 		buf.writeMark('}');
 	}
 
 	@Override
-	public Object decode(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options) {
+	public Object decode(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
 		SyntaxToken token = buf.token();
 		switch (token) {
 			case NULL:

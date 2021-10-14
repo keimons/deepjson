@@ -1,9 +1,9 @@
 package com.keimons.deepjson.support.context;
 
-import com.keimons.deepjson.AbstractBuffer;
-import com.keimons.deepjson.AbstractContext;
 import com.keimons.deepjson.CodecModel;
 import com.keimons.deepjson.ICodec;
+import com.keimons.deepjson.WriterBuffer;
+import com.keimons.deepjson.WriterContext;
 import com.keimons.deepjson.support.CodecFactory;
 import com.keimons.deepjson.support.ReferenceNode;
 import com.keimons.deepjson.support.codec.NullCodec;
@@ -31,7 +31,7 @@ import java.util.Arrays;
  * @version 1.0
  * @since 1.6
  **/
-public class DepthSearchContext extends AbstractContext {
+public class DepthSearchContext extends WriterContext {
 
 	/* 默认最大缓存 */
 	private static final int MAXIMUM_CAPACITY = 16 * 1024; // 16k
@@ -53,7 +53,7 @@ public class DepthSearchContext extends AbstractContext {
 	 * 深度优先算法构建的对象序列（有序）
 	 * <p>
 	 * 编码完成后，需要手动清空，如果没有手动清空，会造成内存泄漏。需要在
-	 * {@link DepthSearchContext#release(AbstractBuffer)}}中手动清空的。
+	 * {@link DepthSearchContext#release(WriterBuffer)}}中手动清空的。
 	 */
 	private Object[] values = new Object[DEFAULT_CAPACITY];
 
@@ -106,7 +106,7 @@ public class DepthSearchContext extends AbstractContext {
 	}
 
 	@Override
-	public void encode(AbstractBuffer buf, CodecModel model, long options) {
+	public void encode(WriterBuffer buf, CodecModel model, long options) {
 		Object value = values[readerIndex];
 		int uniqueId = uniques[readerIndex];
 		ICodec<Object> codec = codecs[readerIndex++];
@@ -150,7 +150,7 @@ public class DepthSearchContext extends AbstractContext {
 	}
 
 	@Override
-	public void release(AbstractBuffer buffer) {
+	public void release(WriterBuffer buffer) {
 		if (context.capacity() >= MAXIMUM_CAPACITY) {
 			context = new WeakIdentityHashMap<Object>(MAXIMUM_CAPACITY);
 		} else {

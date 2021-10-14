@@ -21,17 +21,17 @@ public class TableCodec extends AbstractClassCodec<Table<?, ?, ?>> {
 	}
 
 	@Override
-	public void build(AbstractContext context, Table<?, ?, ?> value) {
+	public void build(WriterContext context, Table<?, ?, ?> value) {
 		context.build(value.columnMap());
 	}
 
 	@Override
-	public Table<?, ?, ?> decode(IDecodeContext context, ReaderBuffer buf, Class<?> clazz, long options) {
+	public Table<?, ?, ?> decode(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
 		return null;
 	}
 
 	@Override
-	public void encode(AbstractContext context, AbstractBuffer buf, CodecModel model, Table<?, ?, ?> value, int uniqueId, long options) {
+	public void encode(WriterContext context, WriterBuffer buf, CodecModel model, Table<?, ?, ?> value, int uniqueId, long options) {
 		context.encode(buf, CodecModel.V, options);
 	}
 }

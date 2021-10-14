@@ -1,9 +1,9 @@
 package com.keimons.deepjson.support.buffer;
 
-import com.keimons.deepjson.AbstractBuffer;
 import com.keimons.deepjson.CodecConfig;
 import com.keimons.deepjson.CodecOptions;
 import com.keimons.deepjson.ICharBuffer;
+import com.keimons.deepjson.WriterBuffer;
 import com.keimons.deepjson.pool.PooledBufferFactory;
 import com.keimons.deepjson.util.CodecUtil;
 
@@ -16,7 +16,7 @@ import java.util.Arrays;
  * @version 1.0
  * @since 1.6
  **/
-public class CompositeBuffer extends AbstractBuffer {
+public class CompositeBuffer extends WriterBuffer {
 
 	/**
 	 * 复合缓冲区初始容量
