@@ -393,7 +393,17 @@ public class JsonReaderBuffer extends ReaderBuffer {
 
 	@Override
 	public boolean booleanValue() {
-		return token == SyntaxToken.TRUE;
+		if (token == SyntaxToken.TRUE) {
+			return Boolean.TRUE;
+		}
+		if (token == SyntaxToken.FALSE) {
+			return Boolean.FALSE;
+		}
+		return writerIndex == 4 &&
+				(cache[0] == 't' || cache[0] == 'T') &&
+				(cache[1] == 'r' || cache[1] == 'R') &&
+				(cache[2] == 'u' || cache[2] == 'U') &&
+				(cache[3] == 'e' || cache[3] == 'E');
 	}
 
 	@Override

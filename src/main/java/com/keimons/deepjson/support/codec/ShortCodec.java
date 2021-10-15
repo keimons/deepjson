@@ -23,6 +23,6 @@ public class ShortCodec extends BasePrimitiveCodec<Short> {
 	@Override
 	protected Short decode0(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
 		buf.assertExpectedSyntax(numberExpects, stringExpects);
-		return Short.valueOf(buf.stringValue());
+		return buf.shortValue();
 	}
 }

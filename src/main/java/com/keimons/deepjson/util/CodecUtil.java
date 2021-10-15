@@ -412,6 +412,7 @@ public class CodecUtil {
 	 * @param start  起始位置
 	 * @param length 读取长度
 	 * @return {@code int}值
+	 * @throws NumberFormatException 数字格式异常
 	 */
 	public static int readInt(char[] buf, int start, int length) {
 		if (length <= 0) {
@@ -452,6 +453,7 @@ public class CodecUtil {
 	 * @param start  起始位置
 	 * @param length 读取长度
 	 * @return {@code long}值
+	 * @throws NumberFormatException 数字格式异常
 	 */
 	public static long readLong(char[] buf, int start, int length) {
 		if (length <= 0) {

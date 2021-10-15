@@ -23,6 +23,6 @@ public class ByteCodec extends BasePrimitiveCodec<Byte> {
 	@Override
 	protected Byte decode0(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
 		buf.assertExpectedSyntax(numberExpects, stringExpects);
-		return Byte.valueOf(buf.stringValue());
+		return buf.byteValue();
 	}
 }

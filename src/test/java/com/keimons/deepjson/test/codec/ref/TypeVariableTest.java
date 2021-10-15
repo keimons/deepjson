@@ -26,12 +26,13 @@ public class TypeVariableTest {
 	HashMap<String, Node> map;
 
 	@Test
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	public void test() throws Exception {
 		ParameterizedType pt = ReflectUtil.makeParameterizedType(null, Map.class, String.class, Node.class);
 		Field field = TypeVariableTest.class.getDeclaredField("map");
 		CodecConfig.registerMapper(new Type[]{pt, Serializable.class}, field.getGenericType()); // same as HashMap<String, Node>
 
-//		Config.registerMapper(new Type[]{Node.class, Serializable.class}, Node.class); // same as HashMap<String, Node>
+//		CodecConfig.registerMapper(new Type[]{Node.class, Serializable.class}, Node.class); // same as HashMap<String, Node>
 
 		TVNode node = new TVNode();
 		node.value0 = new Node();
