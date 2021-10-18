@@ -1,6 +1,6 @@
 package com.keimons.deepjson;
 
-import com.keimons.deepjson.util.StringWriterHelper;
+import com.keimons.deepjson.util.StringGeneratorHelper;
 
 /**
  * 本地缓存
@@ -15,5 +15,5 @@ class LocalCache {
 
 	WriterContext context = WriterContext.defaultContext();
 
-	AbstractWriter<String> writer = StringWriterHelper.stringWriter();
+	AbstractGenerator<String> writer = StringGeneratorHelper.stringGenerator();
 }

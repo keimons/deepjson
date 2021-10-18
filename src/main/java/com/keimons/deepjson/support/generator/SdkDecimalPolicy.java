@@ -23,7 +23,7 @@
  *
  */
 
-package com.keimons.deepjson.support.writer;
+package com.keimons.deepjson.support.generator;
 
 import com.keimons.deepjson.IDecimalStrategy;
 

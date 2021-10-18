@@ -1,6 +1,6 @@
-package com.keimons.deepjson.support.writer;
+package com.keimons.deepjson.support.generator;
 
-import com.keimons.deepjson.AbstractWriter;
+import com.keimons.deepjson.AbstractGenerator;
 import com.keimons.deepjson.util.MethodHandleUtil;
 import com.keimons.deepjson.util.UnsafeUtil;
 import com.keimons.deepjson.util.UnsupportedException;
@@ -19,7 +19,7 @@ import java.lang.reflect.Field;
  * @version 1.0
  * @since 9
  **/
-public class ByteStringWriter extends AbstractWriter<String> {
+public class ByteStringGenerator extends AbstractGenerator<String> {
 
 	public static final long VALUE_OFFSET_STRING;
 
@@ -134,7 +134,7 @@ public class ByteStringWriter extends AbstractWriter<String> {
 	}
 
 	@Override
-	public String write(final char[][] buffers, int length, int bufferIndex, int writeIndex) throws WriteFailedException {
+	public String generate(final char[][] buffers, int length, int bufferIndex, int writeIndex) throws WriteFailedException {
 		if (bufferIndex == 0) {
 			return new String(buffers[0], 0, writeIndex);
 		} else {

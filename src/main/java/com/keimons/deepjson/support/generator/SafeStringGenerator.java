@@ -1,6 +1,6 @@
-package com.keimons.deepjson.support.writer;
+package com.keimons.deepjson.support.generator;
 
-import com.keimons.deepjson.AbstractWriter;
+import com.keimons.deepjson.AbstractGenerator;
 import com.keimons.deepjson.util.SimpleReference;
 
 import java.util.concurrent.locks.Lock;
@@ -15,16 +15,16 @@ import java.util.concurrent.locks.ReentrantLock;
  * @version 1.0
  * @since 1.6
  **/
-public class SafeStringWriter extends AbstractWriter<String> {
+public class SafeStringGenerator extends AbstractGenerator<String> {
 
-	public static final SafeStringWriter instance = new SafeStringWriter();
+	public static final SafeStringGenerator instance = new SafeStringGenerator();
 
 	private final SimpleReference<char[]> CACHE = new SimpleReference<char[]>(null);
 
 	private final Lock LOCK = new ReentrantLock();
 
 	@Override
-	public String write(char[][] buffers, int length, int bufferIndex, int writeIndex) {
+	public String generate(char[][] buffers, int length, int bufferIndex, int writeIndex) {
 		char[] buf;
 		LOCK.lock();
 		try {

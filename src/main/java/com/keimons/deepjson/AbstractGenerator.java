@@ -3,16 +3,16 @@ package com.keimons.deepjson;
 import com.keimons.deepjson.util.WriteFailedException;
 
 /**
- * 写入工具
+ * 生成器，用于将复合缓冲区生成至对应的数据结构
  *
  * @author houyn[monkey@keimons.com]
  * @version 1.0
  * @since 1.6
  **/
-public abstract class AbstractWriter<T> {
+public abstract class AbstractGenerator<T> {
 
 	/**
-	 * 写入策略
+	 * 生成策略
 	 *
 	 * @param buffers     复合缓冲区
 	 * @param length      总字节数
@@ -21,5 +21,5 @@ public abstract class AbstractWriter<T> {
 	 * @return 写入完成后的数据
 	 * @throws WriteFailedException 写入失败异常
 	 */
-	public abstract T write(char[][] buffers, int length, int bufferIndex, int writeIndex) throws WriteFailedException;
+	public abstract T generate(char[][] buffers, int length, int bufferIndex, int writeIndex) throws WriteFailedException;
 }

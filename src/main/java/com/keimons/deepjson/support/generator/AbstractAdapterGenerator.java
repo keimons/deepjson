@@ -1,6 +1,6 @@
-package com.keimons.deepjson.support.writer;
+package com.keimons.deepjson.support.generator;
 
-import com.keimons.deepjson.AbstractWriter;
+import com.keimons.deepjson.AbstractGenerator;
 import com.keimons.deepjson.Charsets;
 import com.keimons.deepjson.IAdapter;
 import com.keimons.deepjson.util.WriteFailedException;
@@ -12,10 +12,10 @@ import com.keimons.deepjson.util.WriteFailedException;
  * @version 1.0
  * @since 1.6
  **/
-public abstract class AbstractAdapterWriter extends AbstractWriter<Void> implements IAdapter {
+public abstract class AbstractAdapterGenerator extends AbstractGenerator<Void> implements IAdapter {
 
 	@Override
-	public final Void write(char[][] buffers, int length, int bufferIndex, int writeIndex) throws WriteFailedException {
+	public final Void generate(char[][] buffers, int length, int bufferIndex, int writeIndex) throws WriteFailedException {
 		int size = Charsets.UTF_8.length(buffers, bufferIndex, writeIndex);
 		before(size);
 		Charsets.UTF_8.encode(buffers, bufferIndex, writeIndex, this);

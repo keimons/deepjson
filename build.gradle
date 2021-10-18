@@ -30,7 +30,7 @@ test {
 }
 
 compileJava {
-    exclude 'module-info.java', 'com/keimons/deepjson/util/MethodHandleUtil.java', 'com/keimons/deepjson/support/writer/ByteStringWriter.java'
+    exclude 'module-info.java', 'com/keimons/deepjson/util/MethodHandleUtil.java', 'com/keimons/deepjson/support/generator/ByteStringGenerator.java'
     options.encoding = "UTF-8"
     options.compilerArgs += ['-source', '1.6']
     options.compilerArgs += ['-target', '1.6']
@@ -46,7 +46,7 @@ task compileVirtualJava(type: JavaCompile) {
     joiner.add('java')
     joiner.add('main')
     String path = classpath.asPath + System.getProperty("path.separator") + joiner.toString()
-    source = ['src/main/java/com/keimons/deepjson/util/MethodHandleUtil.java', 'src/main/java/com/keimons/deepjson/support/writer/ByteStringWriter.java']
+    source = ['src/main/java/com/keimons/deepjson/util/MethodHandleUtil.java', 'src/main/java/com/keimons/deepjson/support/generator/ByteStringGenerator.java']
     destinationDir = compileJava.destinationDir
     doFirst {
         options.encoding = "UTF-8"
