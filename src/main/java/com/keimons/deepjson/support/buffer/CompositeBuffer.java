@@ -2,9 +2,7 @@ package com.keimons.deepjson.support.buffer;
 
 import com.keimons.deepjson.CodecConfig;
 import com.keimons.deepjson.CodecOptions;
-import com.keimons.deepjson.ICharBuffer;
 import com.keimons.deepjson.WriterBuffer;
-import com.keimons.deepjson.pool.PooledBufferFactory;
 import com.keimons.deepjson.util.CodecUtil;
 
 import java.util.Arrays;
@@ -33,7 +31,7 @@ public class CompositeBuffer extends WriterBuffer {
 	/**
 	 * 复合缓冲区
 	 */
-	private ICharBuffer[] caches = new ICharBuffer[COMPOSITE_BUF_SIZE];
+	private CharBuffer[] caches = new CharBuffer[COMPOSITE_BUF_SIZE];
 
 	public CompositeBuffer() {
 		super(COMPOSITE_BUF_SIZE);
@@ -379,7 +377,7 @@ public class CompositeBuffer extends WriterBuffer {
 					buffers = Arrays.copyOf(buffers, buffers.length << 1);
 					caches = Arrays.copyOf(caches, caches.length << 1);
 				}
-				ICharBuffer cache = PooledBufferFactory.borrowBuffer(bufferIndex);
+				CharBuffer cache = PooledBufferFactory.borrowBuffer(bufferIndex);
 				caches[bufferIndex] = cache;
 				char[] newBuffer = cache.get();
 				buffers[bufferIndex++] = newBuffer;

@@ -1,6 +1,5 @@
-package com.keimons.deepjson.pool;
+package com.keimons.deepjson.support.buffer;
 
-import com.keimons.deepjson.ICharBuffer;
 import com.keimons.deepjson.util.SimpleReference;
 
 /**
@@ -10,7 +9,7 @@ import com.keimons.deepjson.util.SimpleReference;
  * @version 1.0
  * @since 1.6
  **/
-public class SoftCharBuffer extends SimpleReference<char[]> implements ICharBuffer {
+public class SoftCharBuffer extends SimpleReference<char[]> implements CharBuffer {
 
 	int length;
 

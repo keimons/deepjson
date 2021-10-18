@@ -1,4 +1,4 @@
-package com.keimons.deepjson;
+package com.keimons.deepjson.support.buffer;
 
 /**
  * 缓冲区缓存
@@ -7,7 +7,7 @@ package com.keimons.deepjson;
  * @version 1.0
  * @since 1.6
  **/
-public interface ICharBuffer {
+interface CharBuffer {
 
 	/**
 	 * 设置缓冲区缓存

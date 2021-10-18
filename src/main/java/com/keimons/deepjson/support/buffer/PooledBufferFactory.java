@@ -1,7 +1,6 @@
-package com.keimons.deepjson.pool;
+package com.keimons.deepjson.support.buffer;
 
 import com.keimons.deepjson.CodecConfig;
-import com.keimons.deepjson.ICharBuffer;
 import com.keimons.deepjson.util.RingQueue;
 
 /**
@@ -13,19 +12,19 @@ import com.keimons.deepjson.util.RingQueue;
  * @version 1.0
  * @since 1.6
  **/
-public class PooledBufferFactory {
+class PooledBufferFactory {
 
 	public static final int THREAD_LOCAL_BUFFER_SIZE = 1;
 
 	public static final int BUFFER_CACHE_SIZE = 32;
 
-	private static final RingQueue<ICharBuffer> queue = new RingQueue<ICharBuffer>(BUFFER_CACHE_SIZE);
+	private static final RingQueue<CharBuffer> queue = new RingQueue<CharBuffer>(BUFFER_CACHE_SIZE);
 
-	public static ICharBuffer borrowBuffer(int bufferIndex) {
+	public static CharBuffer borrowBuffer(int bufferIndex) {
 		if (bufferIndex < THREAD_LOCAL_BUFFER_SIZE) {
 			return new DefaultCharBuffer(4 * 1024);
 		}
-		ICharBuffer cache = queue.dequeue();
+		CharBuffer cache = queue.dequeue();
 		if (cache == null) {
 			cache = new SoftCharBuffer(1 << CodecConfig.HIGHEST);
 		}
@@ -33,7 +32,7 @@ public class PooledBufferFactory {
 		return cache;
 	}
 
-	public static void returnBuffer(ICharBuffer buffer) {
+	public static void returnBuffer(CharBuffer buffer) {
 		if (buffer != null && buffer.isCached()) {
 			buffer.release();
 			queue.enqueue(buffer);

@@ -1,6 +1,4 @@
-package com.keimons.deepjson.pool;
-
-import com.keimons.deepjson.ICharBuffer;
+package com.keimons.deepjson.support.buffer;
 
 /**
  * 缓存
@@ -9,7 +7,7 @@ import com.keimons.deepjson.ICharBuffer;
  * @version 1.0
  * @since 1.6
  **/
-public class DefaultCharBuffer implements ICharBuffer {
+public class DefaultCharBuffer implements CharBuffer {
 
 	private char[] cache;
 
