@@ -1,6 +1,6 @@
 package com.keimons.deepjson.support.generator;
 
-import com.keimons.deepjson.AbstractGenerator;
+import com.keimons.deepjson.Generator;
 import com.keimons.deepjson.util.WriteFailedException;
 
 /**
@@ -10,12 +10,16 @@ import com.keimons.deepjson.util.WriteFailedException;
  * @version 1.0
  * @since 1.6
  **/
-public class CharsGenerator extends AbstractGenerator<char[]> {
+public class CharsGenerator extends Generator<char[]> {
 
 	public static final CharsGenerator instance = new CharsGenerator();
 
+	public CharsGenerator() {
+		super(null);
+	}
+
 	@Override
-	public char[] generate(char[][] buffers, int length, int bufferIndex, int writeIndex) throws WriteFailedException {
+	public char[] generate(char[] dest, char[][] buffers, int length, int bufferIndex, int writeIndex) throws WriteFailedException {
 		char[] chars = new char[length];
 		int index = 0;
 		for (int i = 0; i < bufferIndex; i++) {

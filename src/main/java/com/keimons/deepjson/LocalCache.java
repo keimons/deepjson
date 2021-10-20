@@ -15,5 +15,5 @@ class LocalCache {
 
 	WriterContext context = WriterContext.defaultContext();
 
-	AbstractGenerator<String> writer = StringGeneratorHelper.stringGenerator();
+	Generator<String> writer = StringGeneratorHelper.stringGenerator();
 }

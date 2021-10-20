@@ -22,7 +22,7 @@
  *
  *
  */
-package com.keimons.deepjson.support.generator;
+package com.keimons.deepjson.support.decimal;
 
 import java.math.BigInteger;
 import java.util.Arrays;

@@ -2,8 +2,8 @@ package com.keimons.deepjson;
 
 import com.keimons.deepjson.support.buffer.CompositeBuffer;
 import com.keimons.deepjson.support.buffer.SafeBuffer;
-import com.keimons.deepjson.support.generator.RyuDecimalPolicy;
-import com.keimons.deepjson.support.generator.SdkDecimalPolicy;
+import com.keimons.deepjson.support.decimal.RyuDecimalPolicy;
+import com.keimons.deepjson.support.decimal.SdkDecimalPolicy;
 import com.keimons.deepjson.util.CodecUtil;
 import com.keimons.deepjson.util.UnsafeUtil;
 import com.keimons.deepjson.util.WriteFailedException;
@@ -160,14 +160,14 @@ public abstract class WriterBuffer implements Closeable {
 	/**
 	 * 写入指定位置
 	 *
-	 * @param generator 写入策略
 	 * @param <T>       返回值类型
+	 * @param generator 写入策略
 	 * @return 返回内容
 	 * @throws WriteFailedException 写入失败异常
 	 */
-	public <T> T writeTo(AbstractGenerator<T> generator) throws WriteFailedException {
+	public <T> T writeTo(Generator<T> generator, T dest) throws WriteFailedException {
 		int length = bufferIndex << CodecConfig.HIGHEST + writeIndex;
-		return generator.generate(buffers, length, bufferIndex, writeIndex);
+		return generator.generate(dest, buffers, length, bufferIndex, writeIndex);
 	}
 
 	/**
