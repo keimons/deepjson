@@ -12,18 +12,34 @@ import com.keimons.deepjson.util.WriteFailedException;
  **/
 public class Generator<T> {
 
-	public static final Generator<byte[]> BYTES_GENERATOR = new Generator<byte[]>(new BytesConverter());
+	public static final Generator<byte[]> GENERATOR_BYTES_UTF8 = new Generator<byte[]>(Charsets.UTF_8, new BytesConverter());
 
+	/**
+	 * 转化器
+	 */
 	protected IConverter<T> converter;
 
-	public Generator(IConverter<T> converter) {
+	/**
+	 * 转码器
+	 */
+	protected ITranscoder transcoder;
+
+	/**
+	 * 构造方法
+	 *
+	 * @param transcoder 转码器
+	 * @param converter  转化器
+	 */
+	public Generator(ITranscoder transcoder, IConverter<T> converter) {
+		this.transcoder = transcoder;
 		this.converter = converter;
 	}
 
 	/**
 	 * 生成策略
 	 *
-	 * @param dest        目标写入位置
+	 * @param dest        写入目标
+	 * @param offset      偏移位置
 	 * @param buffers     复合缓冲区
 	 * @param length      总字节数
 	 * @param bufferIndex 缓冲区的位置
@@ -31,10 +47,10 @@ public class Generator<T> {
 	 * @return 写入完成后的数据
 	 * @throws WriteFailedException 写入失败异常
 	 */
-	public T generate(T dest, char[][] buffers, int length, int bufferIndex, int writeIndex) throws WriteFailedException {
-		int size = Charsets.UTF_8.length(buffers, bufferIndex, writeIndex);
-		T bytes = converter.before(dest, size);
-		Charsets.UTF_8.encode(buffers, bufferIndex, writeIndex, converter, bytes);
-		return bytes;
+	public T generate(T dest, int offset, char[][] buffers, int length, int bufferIndex, int writeIndex) throws WriteFailedException {
+		int size = transcoder.length(buffers, length, bufferIndex, writeIndex);
+		T target = converter.before(dest, size);
+		transcoder.encode(buffers, bufferIndex, writeIndex, converter, target, offset);
+		return target;
 	}
 }

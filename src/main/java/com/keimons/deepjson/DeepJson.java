@@ -108,7 +108,7 @@ public class DeepJson {
 		}
 		WriterContext context = cache.context;
 		WriterBuffer buffer = cache.buffer;
-		return encode(object, context, buffer, Generator.BYTES_GENERATOR, null, options);
+		return encode(object, context, buffer, Generator.GENERATOR_BYTES_UTF8, null, options);
 	}
 
 	static char[] toJsonChars(Object object, long options) {
@@ -127,7 +127,7 @@ public class DeepJson {
 		try {
 			context.build(value);
 			context.encode(buf, CodecModel.V, options);
-			return buf.writeTo(writer, dest);
+			return buf.writeTo(writer, dest, );
 		} finally {
 			context.release(buf);
 		}

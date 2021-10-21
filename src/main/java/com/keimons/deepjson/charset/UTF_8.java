@@ -1,7 +1,7 @@
 package com.keimons.deepjson.charset;
 
-import com.keimons.deepjson.IArrayEncoder;
 import com.keimons.deepjson.IConverter;
+import com.keimons.deepjson.ITranscoder;
 
 /**
  * UTF8编解码器
@@ -10,31 +10,31 @@ import com.keimons.deepjson.IConverter;
  * @version 1.0
  * @since 1.6
  **/
-public class UTF_8 implements IArrayEncoder {
+public class UTF_8 implements ITranscoder {
 
 	@Override
-	public int length(char[][] buffers, int bufferIndex, int writeIndex) {
-		int length = 0;
+	public int length(char[][] buffers, int length, int bufferIndex, int writeIndex) {
+		int size = 0;
 		boolean dc = false;
 		for (int i = 0; i < bufferIndex; i++) {
 			char[] cur = buffers[i];
 			char last = cur[cur.length - 1];
 			if ('\uD800' <= last && last <= ('\uDFFF')) {
 				char first = buffers[i + 1][0];
-				length += length(cur, dc ? 1 : 0, cur.length, true, first);
+				size += length(cur, dc ? 1 : 0, cur.length, true, first);
 				dc = true;
 			} else {
-				length += length(cur, dc ? 1 : 0, cur.length, false, '?');
+				size += length(cur, dc ? 1 : 0, cur.length, false, '?');
 				dc = false;
 			}
 		}
-		length += length(buffers[bufferIndex], dc ? 1 : 0, writeIndex, false, '?');
-		return length;
+		size += length(buffers[bufferIndex], dc ? 1 : 0, writeIndex, false, '?');
+		return size;
 	}
 
 	@Override
-	public <T> int encode(char[][] buffers, int bufferIndex, int writeIndex, IConverter<T> converter, T dest) {
-		int length = 0;
+	public <T> int encode(char[][] buffers, int bufferIndex, int writeIndex, IConverter<T> converter, T dest, int offset) {
+		int length = offset;
 		boolean dc = false;
 		for (int i = 0; i < bufferIndex; i++) {
 			char[] cur = buffers[i];
@@ -49,7 +49,7 @@ public class UTF_8 implements IArrayEncoder {
 			}
 		}
 		length += encode(buffers[bufferIndex], dc ? 1 : 0, writeIndex, false, '?', converter, dest, length);
-		return length;
+		return length - offset;
 	}
 
 	private int length(final char[] chars, int index, int length, boolean hasNext, char last) {

@@ -1,6 +1,5 @@
 package com.keimons.deepjson.support.generator;
 
-import com.keimons.deepjson.Generator;
 import com.keimons.deepjson.util.MethodHandleUtil;
 import com.keimons.deepjson.util.UnsafeUtil;
 import com.keimons.deepjson.util.UnsupportedException;
@@ -19,7 +18,7 @@ import java.lang.reflect.Field;
  * @version 1.0
  * @since 9
  **/
-public class ByteStringGenerator extends Generator<String> {
+public class ByteStringGenerator extends AbstractNewGenerator<String> {
 
 	public static final long VALUE_OFFSET_STRING;
 
@@ -77,9 +76,6 @@ public class ByteStringGenerator extends Generator<String> {
 		PUT_CHAR_HANDLE = put_char_handle;
 	}
 
-	public ByteStringGenerator() {
-		super(null);
-	}
 	// endregion
 
 	private static String toString(byte[] value, byte coder) throws InstantiationException {
@@ -138,7 +134,7 @@ public class ByteStringGenerator extends Generator<String> {
 	}
 
 	@Override
-	public String generate(String dest, final char[][] buffers, int length, int bufferIndex, int writeIndex) throws WriteFailedException {
+	public String generate(final char[][] buffers, int length, int bufferIndex, int writeIndex) throws WriteFailedException {
 		if (bufferIndex == 0) {
 			return new String(buffers[0], 0, writeIndex);
 		} else {

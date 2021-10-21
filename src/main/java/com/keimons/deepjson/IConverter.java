@@ -13,6 +13,8 @@ public interface IConverter<T> {
 
 	IConverter<byte[]> BYTES_CONVERTER = new BytesConverter();
 
+//	boolean ensureWritable(T dest, int length);
+
 	T before(T dest, int length);
 
 	void writeByte(T dest, int index, int value);

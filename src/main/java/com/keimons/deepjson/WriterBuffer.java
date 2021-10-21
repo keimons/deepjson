@@ -162,12 +162,13 @@ public abstract class WriterBuffer implements Closeable {
 	 *
 	 * @param <T>       返回值类型
 	 * @param generator 写入策略
+	 * @param offset    偏移位置
 	 * @return 返回内容
 	 * @throws WriteFailedException 写入失败异常
 	 */
-	public <T> T writeTo(Generator<T> generator, T dest) throws WriteFailedException {
+	public <T> T writeTo(Generator<T> generator, T dest, int offset) throws WriteFailedException {
 		int length = bufferIndex << CodecConfig.HIGHEST + writeIndex;
-		return generator.generate(dest, buffers, length, bufferIndex, writeIndex);
+		return generator.generate(dest, offset, buffers, length, bufferIndex, writeIndex);
 	}
 
 	/**
