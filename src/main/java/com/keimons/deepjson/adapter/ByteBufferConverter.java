@@ -5,10 +5,11 @@ import com.keimons.deepjson.IConverter;
 import java.nio.ByteBuffer;
 
 /**
- * @author monkey1993
+ * {@link ByteBuffer}转化器
+ *
+ * @author houyn[monkey@keimons.com]
  * @version 1.0
- * @date 2021-10-20
- * @since 1.8
+ * @since 1.6
  **/
 public class ByteBufferConverter implements IConverter<ByteBuffer> {
 
