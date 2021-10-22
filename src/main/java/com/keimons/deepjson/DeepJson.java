@@ -127,7 +127,7 @@ public class DeepJson {
 		try {
 			context.build(value);
 			context.encode(buf, CodecModel.V, options);
-			return buf.writeTo(writer, dest, );
+			return buf.writeTo(writer, dest, 0);
 		} finally {
 			context.release(buf);
 		}

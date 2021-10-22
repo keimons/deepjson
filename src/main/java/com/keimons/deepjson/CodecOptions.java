@@ -96,7 +96,7 @@ public enum CodecOptions {
 	 * <p>
 	 * eg:
 	 * {"5.0":5.0,"a":"b","1":1,"2":2,"3":3,"4":4,"false":true,"6.0":6.0}
-	 * ---->
+	 * ----&lt;
 	 * {5.0:5.0,"a":"b",1:1,2:2,3:3,4:4,false:true,6.0:6.0}
 	 */
 	PrimitiveKey,

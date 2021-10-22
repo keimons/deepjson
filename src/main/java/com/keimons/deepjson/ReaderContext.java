@@ -67,6 +67,8 @@ public abstract class ReaderContext {
 	 * @param buf     缓冲区
 	 * @param type    解码目标类型
 	 * @param options 解码选项
+	 * @param <T> 解码目标类型
+	 * @return 解码后对象
 	 */
 	public abstract <T> T decode(ReaderBuffer buf, Type type, long options);
 

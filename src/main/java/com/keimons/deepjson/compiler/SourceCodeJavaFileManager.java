@@ -100,6 +100,11 @@ public class SourceCodeJavaFileManager extends ForwardingJavaFileManager<JavaFil
 
 	/**
 	 * 自定义方法,用于添加和缓存待编译的源文件对象
+	 *
+	 * @param location       本地文件
+	 * @param packageName    包名
+	 * @param relativeName   文件名
+	 * @param javaFileObject Java文件
 	 */
 	public void addJavaFileObject(Location location, String packageName, String relativeName, JavaFileObject javaFileObject) {
 		javaFileObjectMap.put(fromLocation(location, packageName, relativeName), javaFileObject);

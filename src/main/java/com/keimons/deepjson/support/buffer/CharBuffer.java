@@ -11,6 +11,8 @@ interface CharBuffer {
 
 	/**
 	 * 设置缓冲区缓存
+	 *
+	 * @param buf 缓冲区
 	 */
 	void set(char[] buf);
 

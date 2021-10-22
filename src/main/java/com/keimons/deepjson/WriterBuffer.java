@@ -162,6 +162,7 @@ public abstract class WriterBuffer implements Closeable {
 	 *
 	 * @param <T>       返回值类型
 	 * @param generator 写入策略
+	 * @param dest      写入目标
 	 * @param offset    偏移位置
 	 * @return 返回内容
 	 * @throws WriteFailedException 写入失败异常

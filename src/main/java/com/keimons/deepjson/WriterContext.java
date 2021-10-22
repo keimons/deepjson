@@ -22,6 +22,7 @@ public abstract class WriterContext {
 	 *
 	 * @param value 需要缓存的对象
 	 * @param codec 该对象对应的编解码工具
+	 * @param <T>   编解码对象类型
 	 * @return {@code true}对象不存在，{@code false}对象已存在。
 	 */
 	public abstract <T> boolean cache(@Nullable T value, @NotNull ICodec<T> codec);
@@ -58,6 +59,8 @@ public abstract class WriterContext {
 
 	/**
 	 * 释放上下文
+	 *
+	 * @param buf 缓冲区
 	 */
 	public abstract void release(WriterBuffer buf);
 }

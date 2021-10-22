@@ -18,7 +18,7 @@ import com.keimons.deepjson.util.TypeNotFoundException;
  * </pre>
  * <pre>
  * +---- ------+       +------------------------+       +----------+
- * | NodeCodec | <---- | ParameterizedTypeCodec | <---- | MapCodec |
+ * | NodeCodec | &lt;---- | ParameterizedTypeCodec | &lt;---- | MapCodec |
  * +-----------+       +------------------------+       +----------+
  * </pre>
  * 通过插入幻影编解码器，实现对象解析时泛型类型的查找。

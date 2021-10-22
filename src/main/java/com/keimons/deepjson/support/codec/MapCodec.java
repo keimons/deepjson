@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
  * <pre>
  *     String json = "{"$type":"[Z","$values"=[true, false, "true", "false"]}"\
  *     MapCodec#decode(IDecodeContext, Buffer, Type, long);
- *     ---> typeCheck() --->
+ *     --- typeCheck() ---
  *     BaseArrayCodec#decode(IDecodeContext, Buffer, Type, long);
  * </pre>
  *
