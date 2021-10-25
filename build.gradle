@@ -5,7 +5,7 @@ plugins {
 }
 
 group 'com.keimons.deepjson'
-version '1.0-alpha'
+version '0.1.2-alpha'
 
 sourceCompatibility = JavaVersion.VERSION_11
 targetCompatibility = JavaVersion.VERSION_11
@@ -20,6 +20,7 @@ dependencies {
     compileOnly 'com.google.guava:guava:30.1.1-jre'
     compileOnly 'org.codehaus.groovy:groovy:3.0.8'
 
+    testImplementation 'io.netty:netty-all:4.1.67.Final'
     testImplementation 'org.jetbrains:annotations:20.1.0'
     testImplementation 'com.google.guava:guava:30.1.1-jre'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
@@ -32,7 +33,8 @@ test {
 
 compileJava {
     exclude 'module-info.java', 'com/keimons/deepjson/util/MethodHandleUtil.java', 'com/keimons/deepjson/support/generator/ByteStringGenerator.java'
-    options.encoding = "UTF-8"
+    options.encoding = 'UTF-8'
+    options.compilerArgs += ['-classpath', classpath.asPath]
     options.compilerArgs += ['-source', '1.6']
     options.compilerArgs += ['-target', '1.6']
     options.compilerArgs += ['-Xlint:-options']
@@ -129,7 +131,14 @@ publishing {
                 licenses {
                     license {
                         name = 'The Apache License, Version 2.0'
-                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        url = 'https://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                // 开发者信息
+                developers {
+                    developer {
+                        name = 'keimons'
+                        email = 'admin@keimons.com'
                     }
                 }
                 // 版本控制仓库地址
@@ -144,8 +153,8 @@ publishing {
     // 定义发布到哪里
     repositories {
         maven {
-            url "https://oss.sonatype.org/content/repositories/snapshots"
-            //url "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+            // url "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+            url "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
             credentials {
                 // 这里就是之前在issues.sonatype.org注册的账号
                 username ossrhUsername
