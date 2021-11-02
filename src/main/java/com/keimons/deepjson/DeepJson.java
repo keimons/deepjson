@@ -4,8 +4,7 @@ import com.keimons.deepjson.support.SyntaxToken;
 import com.keimons.deepjson.support.buffer.JsonReaderBuffer;
 import com.keimons.deepjson.support.codec.Template;
 import com.keimons.deepjson.support.context.TypeAndHookContext;
-import com.keimons.deepjson.support.generator.CharsGenerator;
-import com.keimons.deepjson.support.generator.SafeStringGenerator;
+import com.keimons.deepjson.util.StringGeneratorHelper;
 import com.keimons.deepjson.util.WriteFailedException;
 
 import java.lang.reflect.Type;
@@ -95,7 +94,7 @@ public class DeepJson {
 			if (CodecConfig.DEBUG) {
 				e.printStackTrace();
 			}
-			writer = cache.writer = SafeStringGenerator.instance; // 编码时失败切换安全模式
+			writer = cache.writer = StringGeneratorHelper.SAFE; // 编码时失败切换安全模式
 			return encode(object, context, buffer, writer, null, options);
 		}
 	}
@@ -119,7 +118,7 @@ public class DeepJson {
 		}
 		WriterContext context = cache.context;
 		WriterBuffer buffer = cache.buffer;
-		return encode(object, context, buffer, CharsGenerator.instance, null, options);
+		return encode(object, context, buffer, Generator.CHAR_ARRAY, null, options);
 	}
 
 	static <T> T encode(Object value, WriterContext context, WriterBuffer buf, Generator<T> writer, T dest, long options) throws WriteFailedException {

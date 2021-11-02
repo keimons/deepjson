@@ -5,7 +5,7 @@ import com.keimons.deepjson.support.SyntaxToken;
 import java.io.Closeable;
 
 /**
- * 缓冲区
+ * 读取缓冲区
  *
  * @author houyn[monkey@keimons.com]
  * @version 1.0
@@ -101,7 +101,6 @@ public abstract class ReaderBuffer implements Closeable {
 	 */
 	public abstract void assertExpectedSyntax(SyntaxToken expect1, SyntaxToken expect2) throws CodecException;
 
-
 	/**
 	 * 断言当前语法
 	 * <p>
@@ -124,6 +123,11 @@ public abstract class ReaderBuffer implements Closeable {
 	 */
 	public abstract void assertExpectedSyntax(SyntaxToken... expects) throws CodecException;
 
+	/**
+	 * 获取当前缓冲区的{@code hashcode}值
+	 *
+	 * @return 缓冲区内容的hashcode值
+	 */
 	public abstract int valueHashcode();
 
 	/**

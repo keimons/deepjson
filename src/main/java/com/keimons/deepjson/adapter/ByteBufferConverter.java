@@ -14,7 +14,10 @@ import java.nio.ByteBuffer;
 public class ByteBufferConverter implements IConverter<ByteBuffer> {
 
 	@Override
-	public ByteBuffer before(ByteBuffer dest, int length) {
+	public ByteBuffer ensureWritable(ByteBuffer dest, int writable) {
+		if (dest == null) {
+			return ByteBuffer.allocate(writable);
+		}
 		return dest;
 	}
 

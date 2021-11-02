@@ -9,7 +9,7 @@ package com.keimons.deepjson;
  **/
 public enum CodecType {
 
-	ENCODE(1), DECODE(2), CODEC(3);
+	ENCODE(0x1), DECODE(0x2), CODEC(0x3);
 
 	private final int option;
 
@@ -18,10 +18,10 @@ public enum CodecType {
 	}
 
 	public static boolean isEncode(CodecType type) {
-		return (type.option & 1) != 0;
+		return (type.option & 0x1) != 0;
 	}
 
 	public static boolean isDecode(CodecType type) {
-		return (type.option & 2) != 0;
+		return (type.option & 0x2) != 0;
 	}
 }

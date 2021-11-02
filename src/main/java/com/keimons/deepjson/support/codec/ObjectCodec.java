@@ -8,6 +8,9 @@ import java.util.Map;
 
 /**
  * {@link Object}编解码器
+ * <p>
+ * {@link Object}编解码器是一个特殊编解码。它并不能解析成真正的{@link Object}对象，而是采用
+ * 自适应的策略，解析成一个对象的对象。
  *
  * @author houyn[monkey@keimons.com]
  * @version 1.0

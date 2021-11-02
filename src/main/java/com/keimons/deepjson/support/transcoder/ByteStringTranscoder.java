@@ -1,5 +1,7 @@
-package com.keimons.deepjson.support.generator;
+package com.keimons.deepjson.support.transcoder;
 
+import com.keimons.deepjson.IConverter;
+import com.keimons.deepjson.ITranscoder;
 import com.keimons.deepjson.util.MethodHandleUtil;
 import com.keimons.deepjson.util.UnsafeUtil;
 import com.keimons.deepjson.util.UnsupportedException;
@@ -18,7 +20,7 @@ import java.lang.reflect.Field;
  * @version 1.0
  * @since 9
  **/
-public class ByteStringGenerator extends AbstractNewGenerator<String> {
+public class ByteStringTranscoder implements ITranscoder<String> {
 
 	public static final long VALUE_OFFSET_STRING;
 
@@ -134,20 +136,25 @@ public class ByteStringGenerator extends AbstractNewGenerator<String> {
 	}
 
 	@Override
-	public String generate(final char[][] buffers, int length, int bufferIndex, int writeIndex) throws WriteFailedException {
+	public int length(char[][] buffers, int length, int bufferIndex, int writeIndex) {
+		return length;
+	}
+
+	@Override
+	public String transcoder(char[][] buffers, int length, int bufferIndex, int writerIndex, IConverter<String> converter, String dest, int offset) {
 		if (bufferIndex == 0) {
-			return new String(buffers[0], 0, writeIndex);
+			return new String(buffers[0], 0, writerIndex);
 		} else {
 			try {
 				if (COMPACT_STRINGS) { // 需要进行一次判断，以防止字符串生成失败时造成的内存浪费。
-					if (isCompact(buffers, bufferIndex, writeIndex)) {
+					if (isCompact(buffers, bufferIndex, writerIndex)) {
 						byte[] value = new byte[length];
-						compressLatin(buffers, bufferIndex, writeIndex, value);
+						compressLatin(buffers, bufferIndex, writerIndex, value);
 						return toString(value, (byte) 0);
 					}
 				}
 				byte[] value = new byte[length << 1];
-				compressUtf16(buffers, bufferIndex, writeIndex, value);
+				compressUtf16(buffers, bufferIndex, writerIndex, value);
 				return toString(value, (byte) 1);
 			} catch (Throwable cause) {
 				throw new WriteFailedException(cause);

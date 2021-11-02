@@ -13,10 +13,10 @@ import io.netty.buffer.ByteBuf;
 public class ByteBufConverter implements IConverter<ByteBuf> {
 
 	@Override
-	public ByteBuf before(ByteBuf dest, int length) {
-		dest.ensureWritable(length + 6); // TLV结构，2 + 4 + length
+	public ByteBuf ensureWritable(ByteBuf dest, int writable) {
+		dest.ensureWritable(writable + 6); // TLV结构，2 + 4 + length
 		dest.writeShort(0); // dest.writeShort(type);
-		dest.writeInt(length); // dest.writeInt(length);
+		dest.writeInt(writable); // dest.writeInt(length);
 		return dest;
 	}
 

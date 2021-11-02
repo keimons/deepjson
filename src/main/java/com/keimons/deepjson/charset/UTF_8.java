@@ -10,7 +10,7 @@ import com.keimons.deepjson.ITranscoder;
  * @version 1.0
  * @since 1.6
  **/
-public class UTF_8 implements ITranscoder {
+public class UTF_8<T> implements ITranscoder<T> {
 
 	@Override
 	public int length(char[][] buffers, int length, int bufferIndex, int writeIndex) {
@@ -33,23 +33,23 @@ public class UTF_8 implements ITranscoder {
 	}
 
 	@Override
-	public <T> int encode(char[][] buffers, int bufferIndex, int writeIndex, IConverter<T> converter, T dest, int offset) {
-		int length = offset;
+	public T transcoder(char[][] buffers, int length, int bufferIndex, int writerIndex, IConverter<T> converter, T dest, int offset) {
+		int index = offset;
 		boolean dc = false;
 		for (int i = 0; i < bufferIndex; i++) {
 			char[] cur = buffers[i];
 			char last = cur[cur.length - 1];
 			if ('\uD800' <= last && last <= ('\uDFFF')) {
 				char first = buffers[i + 1][0];
-				length += encode(cur, dc ? 1 : 0, cur.length, true, first, converter, dest, length);
+				index += encode(cur, dc ? 1 : 0, cur.length, true, first, converter, dest, index);
 				dc = true;
 			} else {
-				length += encode(cur, dc ? 1 : 0, cur.length, false, '?', converter, dest, length);
+				index += encode(cur, dc ? 1 : 0, cur.length, false, '?', converter, dest, index);
 				dc = false;
 			}
 		}
-		length += encode(buffers[bufferIndex], dc ? 1 : 0, writeIndex, false, '?', converter, dest, length);
-		return length - offset;
+		encode(buffers[bufferIndex], dc ? 1 : 0, writerIndex, false, '?', converter, dest, index);
+		return dest;
 	}
 
 	private int length(final char[] chars, int index, int length, boolean hasNext, char last) {
@@ -87,16 +87,16 @@ public class UTF_8 implements ITranscoder {
 
 	private <T> int encode(char[] chars, int index, int length,
 						   boolean hasNext, char last,
-						   IConverter<T> consumer, T dest, int offset) {
+						   IConverter<T> converter, T dest, int offset) {
 		int i = offset;
 		int calcLength = length + (hasNext ? 1 : 0);
 		while (index < length) {
 			char c = chars[index++];
 			if (c < 0x80) {
-				consumer.writeByte(dest, i++, c);
+				converter.writeByte(dest, i++, c);
 			} else if (c < 0x800) {
-				consumer.writeByte(dest, i++, 0xC0 | c >> 6);
-				consumer.writeByte(dest, i++, 0x80 | c & 0x3F);
+				converter.writeByte(dest, i++, 0xC0 | c >> 6);
+				converter.writeByte(dest, i++, 0x80 | c & 0x3F);
 			} else if ('\uD800' <= c && c <= ('\uDFFF')) { // 针对于部分char不能表示的字符，采用双char编码
 				final int unicode;
 				int start = index - 1; // 双char编码的开始位置
@@ -120,18 +120,18 @@ public class UTF_8 implements ITranscoder {
 					unicode = -1;
 				}
 				if (unicode < 0) {
-					consumer.writeByte(dest, i++, '?'); // 解析错误 应该是双char的，但是只有一个合法
+					converter.writeByte(dest, i++, '?'); // 解析错误 应该是双char的，但是只有一个合法
 				} else {
-					consumer.writeByte(dest, i++, 0xF0 | unicode >> 18);
-					consumer.writeByte(dest, i++, 0x80 | unicode >> 12 & 0x3F);
-					consumer.writeByte(dest, i++, 0x80 | unicode >> 6 & 0x3F);
-					consumer.writeByte(dest, i++, 0x80 | unicode & 0x3F);
+					converter.writeByte(dest, i++, 0xF0 | unicode >> 18);
+					converter.writeByte(dest, i++, 0x80 | unicode >> 12 & 0x3F);
+					converter.writeByte(dest, i++, 0x80 | unicode >> 6 & 0x3F);
+					converter.writeByte(dest, i++, 0x80 | unicode & 0x3F);
 					++index;
 				}
 			} else {
-				consumer.writeByte(dest, i++, 0xE0 | c >> 12);
-				consumer.writeByte(dest, i++, 0x80 | c >> 6 & 0x3F);
-				consumer.writeByte(dest, i++, 0x80 | c & 0x3F);
+				converter.writeByte(dest, i++, 0xE0 | c >> 12);
+				converter.writeByte(dest, i++, 0x80 | c >> 6 & 0x3F);
+				converter.writeByte(dest, i++, 0x80 | c & 0x3F);
 			}
 		}
 		return i - offset;

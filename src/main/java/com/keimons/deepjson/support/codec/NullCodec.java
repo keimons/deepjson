@@ -15,11 +15,6 @@ public class NullCodec extends AbstractClassCodec<Void> {
 	public static final ICodec<Void> instance = new NullCodec();
 
 	@Override
-	public boolean isSearch() {
-		return false;
-	}
-
-	@Override
 	public void encode(WriterContext context, WriterBuffer buf, CodecModel model, Void value, int uniqueId, long options) {
 		buf.writeNull();
 	}

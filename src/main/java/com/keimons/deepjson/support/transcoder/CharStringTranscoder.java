@@ -1,5 +1,7 @@
-package com.keimons.deepjson.support.generator;
+package com.keimons.deepjson.support.transcoder;
 
+import com.keimons.deepjson.IConverter;
+import com.keimons.deepjson.ITranscoder;
 import com.keimons.deepjson.util.WriteFailedException;
 
 /**
@@ -9,10 +11,17 @@ import com.keimons.deepjson.util.WriteFailedException;
  * @version 1.0
  * @since 1.6
  **/
-public class CharStringGenerator extends AbstractNewGenerator<String> {
+public class CharStringTranscoder implements ITranscoder<String> {
+
+	public static final CharStringTranscoder instance = new CharStringTranscoder();
 
 	@Override
-	public String generate(char[][] buffers, int length, int bufferIndex, int writeIndex) throws WriteFailedException {
+	public int length(char[][] buffers, int length, int bufferIndex, int writeIndex) {
+		return length;
+	}
+
+	@Override
+	public String transcoder(char[][] buffers, int length, int bufferIndex, int writerIndex, IConverter<String> converter, String dest, int offset) {
 		try {
 			int index = 0;
 			char[] buf = new char[length];
@@ -22,7 +31,7 @@ public class CharStringGenerator extends AbstractNewGenerator<String> {
 				index += buffer.length;
 			}
 			char[] buffer = buffers[bufferIndex];
-			System.arraycopy(buffer, 0, buf, index, writeIndex);
+			System.arraycopy(buffer, 0, buf, index, writerIndex);
 
 			return new String(buf, 0, length);
 		} catch (Throwable cause) {

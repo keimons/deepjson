@@ -1,8 +1,10 @@
 package com.keimons.deepjson.util;
 
 import com.keimons.deepjson.Generator;
-import com.keimons.deepjson.support.generator.CharStringGenerator;
-import com.keimons.deepjson.support.generator.SafeStringGenerator;
+import com.keimons.deepjson.ITranscoder;
+import com.keimons.deepjson.adapter.NoneConverter;
+import com.keimons.deepjson.support.transcoder.CharStringTranscoder;
+import com.keimons.deepjson.support.transcoder.SafeStringTranscoder;
 
 /**
  * {@link String}生成器帮助类
@@ -13,29 +15,30 @@ import com.keimons.deepjson.support.generator.SafeStringGenerator;
  **/
 public class StringGeneratorHelper {
 
-	private static final String BYTES_NAME = "com.keimons.deepjson.support.generator.ByteStringGenerator";
+	private static final String BYTES_NAME = "com.keimons.deepjson.support.transcoder.ByteStringTranscoder";
 
-	private static final Generator<String> CHARS = new CharStringGenerator();
-	private static final Generator<String> BYTES;
+	public static final Generator<String> SAFE = new Generator<String>(SafeStringTranscoder.instance, new NoneConverter<String>());
+	private static final Generator<String> CHAR = new Generator<String>(CharStringTranscoder.instance, new NoneConverter<String>());
+	private static final Generator<String> BYTE;
 
 	static {
-		Generator<String> instance = null;
+		ITranscoder<String> instance = null;
 		try {
 			if (PlatformUtil.javaVersion() < 7) {
 				// sun java 1.6 supported compress string.
-				instance = new SafeStringGenerator();
+				instance = SafeStringTranscoder.instance;
 			} else if (!CodecUtil.CHARS) {
 				Class<?> clazz = Class.forName(BYTES_NAME);
 				UnsafeUtil.getUnsafe().ensureClassInitialized(clazz);
 				@SuppressWarnings("unchecked")
-				Generator<String> w = (Generator<String>) clazz.getConstructor().newInstance();
+				ITranscoder<String> w = (ITranscoder<String>) clazz.getConstructor().newInstance();
 				instance = w;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			instance = new SafeStringGenerator();
+			instance = SafeStringTranscoder.instance;
 		}
-		BYTES = instance;
+		BYTE = new Generator<String>(instance, new NoneConverter<String>());
 	}
 
 	/**
@@ -45,9 +48,9 @@ public class StringGeneratorHelper {
 	 */
 	public static Generator<String> stringGenerator() {
 		if (CodecUtil.CHARS) {
-			return CHARS;
+			return CHAR;
 		} else {
-			return BYTES;
+			return BYTE;
 		}
 	}
 }

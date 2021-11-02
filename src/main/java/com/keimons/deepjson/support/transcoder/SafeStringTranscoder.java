@@ -1,5 +1,7 @@
-package com.keimons.deepjson.support.generator;
+package com.keimons.deepjson.support.transcoder;
 
+import com.keimons.deepjson.IConverter;
+import com.keimons.deepjson.ITranscoder;
 import com.keimons.deepjson.util.SimpleReference;
 
 import java.util.concurrent.locks.Lock;
@@ -14,16 +16,21 @@ import java.util.concurrent.locks.ReentrantLock;
  * @version 1.0
  * @since 1.6
  **/
-public class SafeStringGenerator extends AbstractNewGenerator<String> {
+public class SafeStringTranscoder implements ITranscoder<String> {
 
-	public static final SafeStringGenerator instance = new SafeStringGenerator();
+	public static final SafeStringTranscoder instance = new SafeStringTranscoder();
 
 	private final SimpleReference<char[]> CACHE = new SimpleReference<char[]>(null);
 
 	private final Lock LOCK = new ReentrantLock();
 
 	@Override
-	public String generate(char[][] buffers, int length, int bufferIndex, int writeIndex) {
+	public int length(char[][] buffers, int length, int bufferIndex, int writeIndex) {
+		return length;
+	}
+
+	@Override
+	public String transcoder(char[][] buffers, int length, int bufferIndex, int writerIndex, IConverter<String> converter, String dest, int offset) {
 		char[] buf;
 		LOCK.lock();
 		try {
@@ -42,7 +49,7 @@ public class SafeStringGenerator extends AbstractNewGenerator<String> {
 				index += buffer.length;
 			}
 			char[] buffer = buffers[bufferIndex];
-			System.arraycopy(buffer, 0, buf, index, writeIndex);
+			System.arraycopy(buffer, 0, buf, index, writerIndex);
 			return new String(buf, 0, length);
 		} finally {
 			LOCK.unlock();

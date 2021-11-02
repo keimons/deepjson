@@ -1,6 +1,8 @@
 package com.keimons.deepjson;
 
 import com.keimons.deepjson.adapter.BytesConverter;
+import com.keimons.deepjson.adapter.NoneConverter;
+import com.keimons.deepjson.support.transcoder.CharsTranscoder;
 import com.keimons.deepjson.util.WriteFailedException;
 
 /**
@@ -14,6 +16,8 @@ public class Generator<T> {
 
 	public static final Generator<byte[]> GENERATOR_BYTES_UTF8 = new Generator<byte[]>(Charsets.UTF_8, new BytesConverter());
 
+	public static final Generator<char[]> CHAR_ARRAY = new Generator<char[]>(CharsTranscoder.instance, new NoneConverter<char[]>());
+
 	/**
 	 * 转化器
 	 */
@@ -22,7 +26,7 @@ public class Generator<T> {
 	/**
 	 * 转码器
 	 */
-	protected ITranscoder transcoder;
+	protected ITranscoder<T> transcoder;
 
 	/**
 	 * 构造方法
@@ -30,7 +34,7 @@ public class Generator<T> {
 	 * @param transcoder 转码器
 	 * @param converter  转化器
 	 */
-	public Generator(ITranscoder transcoder, IConverter<T> converter) {
+	public Generator(ITranscoder<T> transcoder, IConverter<T> converter) {
 		this.transcoder = transcoder;
 		this.converter = converter;
 	}
@@ -49,8 +53,7 @@ public class Generator<T> {
 	 */
 	public T generate(T dest, int offset, char[][] buffers, int length, int bufferIndex, int writeIndex) throws WriteFailedException {
 		int size = transcoder.length(buffers, length, bufferIndex, writeIndex);
-		T target = converter.before(dest, size);
-		transcoder.encode(buffers, bufferIndex, writeIndex, converter, target, offset);
-		return target;
+		T target = converter.ensureWritable(dest, size);
+		return transcoder.transcoder(buffers, length, bufferIndex, writeIndex, converter, target, offset);
 	}
 }

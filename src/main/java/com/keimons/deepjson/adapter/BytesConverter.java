@@ -12,8 +12,8 @@ import com.keimons.deepjson.IConverter;
 public class BytesConverter implements IConverter<byte[]> {
 
 	@Override
-	public byte[] before(byte[] dest, int length) {
-		return new byte[length];
+	public byte[] ensureWritable(byte[] dest, int writable) {
+		return new byte[writable];
 	}
 
 	@Override
