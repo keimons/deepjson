@@ -11,7 +11,7 @@ import com.keimons.deepjson.WriterBuffer;
  * @version 1.0
  * @since 1.6
  **/
-public class LongCodec extends BasePrimitiveCodec<Long> {
+public class LongCodec extends AbstractPrimitiveCodec<Long> {
 
 	public static final LongCodec instance = new LongCodec();
 

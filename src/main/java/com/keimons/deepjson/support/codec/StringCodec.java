@@ -10,13 +10,18 @@ import com.keimons.deepjson.support.SyntaxToken;
  * @version 1.0
  * @since 1.6
  **/
-public class StringCodec extends AbstractClassCodec<String> {
+public class StringCodec extends AbstractRawCodec<String> {
 
 	public static final StringCodec instance = new StringCodec();
 
 	@Override
 	public boolean isSearch() {
 		return false;
+	}
+
+	@Override
+	public boolean isCacheType() {
+		return true;
 	}
 
 	@Override

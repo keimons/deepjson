@@ -20,7 +20,7 @@ import java.util.List;
  * @version 1.0
  * @since 1.6
  **/
-public class ObjectArrayCodec extends BaseArrayCodec<Object[]> {
+public class ObjectArrayCodec extends AbstractArrayCodec<Object[]> {
 
 	public static final ObjectArrayCodec instance = new ObjectArrayCodec();
 

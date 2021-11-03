@@ -11,7 +11,7 @@ import com.keimons.deepjson.WriterBuffer;
  * @version 1.0
  * @since 1.6
  **/
-public class ByteCodec extends BasePrimitiveCodec<Byte> {
+public class ByteCodec extends AbstractPrimitiveCodec<Byte> {
 
 	public static final ByteCodec instance = new ByteCodec();
 

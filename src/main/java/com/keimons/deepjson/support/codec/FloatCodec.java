@@ -11,7 +11,7 @@ import com.keimons.deepjson.WriterBuffer;
  * @version 1.0
  * @since 1.6
  **/
-public class FloatCodec extends BasePrimitiveCodec<Float> {
+public class FloatCodec extends AbstractPrimitiveCodec<Float> {
 
 	public static final FloatCodec instance = new FloatCodec();
 

@@ -16,13 +16,18 @@ import java.util.Map;
  * @version 1.0
  * @since 1.6
  **/
-public class ObjectCodec extends AbstractClassCodec<Object> {
+public class ObjectCodec extends AbstractRawCodec<Object> {
 
 	public static final ICodec<Object> instance = new ObjectCodec();
 
 	@Override
 	public boolean isSearch() {
 		return false;
+	}
+
+	@Override
+	public boolean isCacheType() {
+		return true;
 	}
 
 	@Override

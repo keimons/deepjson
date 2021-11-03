@@ -11,7 +11,7 @@ import com.keimons.deepjson.WriterBuffer;
  * @version 1.0
  * @since 1.6
  **/
-public class DoubleCodec extends BasePrimitiveCodec<Double> {
+public class DoubleCodec extends AbstractPrimitiveCodec<Double> {
 
 	public static final DoubleCodec instance = new DoubleCodec();
 

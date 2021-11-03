@@ -17,7 +17,7 @@ import java.util.List;
  * @version 1.0
  * @since 1.6
  **/
-public class LongArrayCodec extends BaseArrayCodec<long[]> {
+public class LongArrayCodec extends AbstractArrayCodec<long[]> {
 
 	public static final LongArrayCodec instance = new LongArrayCodec();
 

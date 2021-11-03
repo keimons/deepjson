@@ -1,6 +1,9 @@
 package com.keimons.deepjson.support.codec;
 
-import com.keimons.deepjson.*;
+import com.keimons.deepjson.ICodec;
+import com.keimons.deepjson.ReaderBuffer;
+import com.keimons.deepjson.ReaderContext;
+import com.keimons.deepjson.WriterContext;
 import com.keimons.deepjson.support.SyntaxToken;
 import com.keimons.deepjson.util.TypeNotFoundException;
 
@@ -13,7 +16,7 @@ import java.lang.reflect.Type;
  * @version 1.0
  * @since 1.6
  **/
-public abstract class AbstractClassCodec<T> implements ICodec<T> {
+public abstract class AbstractRawCodec<T> implements ICodec<T> {
 
 	/**
 	 * 循环引用中给一个对象标记一个唯一ID
@@ -60,21 +63,6 @@ public abstract class AbstractClassCodec<T> implements ICodec<T> {
 	protected final SyntaxToken colonExpects = SyntaxToken.COLON;
 
 	@Override
-	public CodecType getCodecType() {
-		return CodecType.CODEC;
-	}
-
-	@Override
-	public boolean isSearch() {
-		return true;
-	}
-
-	@Override
-	public boolean isCacheType() {
-		return true;
-	}
-
-	@Override
 	public void build(WriterContext context, T value) {
 
 	}
@@ -84,6 +72,15 @@ public abstract class AbstractClassCodec<T> implements ICodec<T> {
 		return decode(context, buf, (Class<?>) type, options);
 	}
 
+	/**
+	 * 解码
+	 *
+	 * @param context 上下文环境
+	 * @param buf     缓冲区
+	 * @param clazz   对象类型
+	 * @param options 解码选项
+	 * @return 解码后的对象
+	 */
 	public abstract T decode(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options);
 
 	/**

@@ -31,7 +31,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
  * @version 1.0
  * @since 1.6
  **/
-public class MapCodec extends AbstractClassCodec<Object> {
+public class MapCodec extends AbstractOnlineCodec<Object> {
 
 	public static final MapCodec instance = new MapCodec();
 

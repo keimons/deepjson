@@ -18,7 +18,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  * @version 1.0
  * @since 1.6
  **/
-public class CollectionCodec extends AbstractClassCodec<Collection<?>> {
+public class CollectionCodec extends AbstractOnlineCodec<Collection<?>> {
 
 	public static final CollectionCodec instance = new CollectionCodec();
 

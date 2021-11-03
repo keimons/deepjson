@@ -11,7 +11,7 @@ import java.time.ZoneId;
  * @version 1.0
  * @since 1.8
  **/
-public class ZoneIdCodec extends AbstractClassCodec<ZoneId> {
+public class ZoneIdCodec extends AbstractOnlineCodec<ZoneId> {
 
 	public static final ZoneIdCodec instance = new ZoneIdCodec();
 

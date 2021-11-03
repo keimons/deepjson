@@ -17,7 +17,7 @@ import java.util.Arrays;
  * @version 1.0
  * @since 1.6
  */
-public class TypeVariableCodec extends PhantomCodec {
+public class TypeVariableCodec extends AbstractPhantomCodec {
 
 	public static final TypeVariableCodec instance = new TypeVariableCodec();
 

@@ -2,7 +2,7 @@ package com.keimons.deepjson.support.codec.guava;
 
 import com.google.common.collect.Table;
 import com.keimons.deepjson.*;
-import com.keimons.deepjson.support.codec.AbstractClassCodec;
+import com.keimons.deepjson.support.codec.AbstractOnlineCodec;
 
 /**
  * Google Guava {@link Table}编解码器
@@ -11,14 +11,9 @@ import com.keimons.deepjson.support.codec.AbstractClassCodec;
  * @version 1.0
  * @since 1.6
  **/
-public class TableCodec extends AbstractClassCodec<Table<?, ?, ?>> {
+public class TableCodec extends AbstractOnlineCodec<Table<?, ?, ?>> {
 
 	public static final TableCodec instance = new TableCodec();
-
-	@Override
-	public boolean isSearch() {
-		return true;
-	}
 
 	@Override
 	public void build(WriterContext context, Table<?, ?, ?> value) {

@@ -17,7 +17,7 @@ import java.util.List;
  * @version 1.0
  * @since 1.6
  **/
-public class ShortArrayCodec extends BaseArrayCodec<short[]> {
+public class ShortArrayCodec extends AbstractArrayCodec<short[]> {
 
 	public static final ShortArrayCodec instance = new ShortArrayCodec();
 

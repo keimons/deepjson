@@ -17,7 +17,7 @@ import java.util.List;
  * @version 1.0
  * @since 1.6
  **/
-public class FloatArrayCodec extends BaseArrayCodec<float[]> {
+public class FloatArrayCodec extends AbstractArrayCodec<float[]> {
 
 	public static final FloatArrayCodec instance = new FloatArrayCodec();
 

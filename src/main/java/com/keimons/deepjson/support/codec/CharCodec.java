@@ -9,7 +9,7 @@ import com.keimons.deepjson.*;
  * @version 1.0
  * @since 1.6
  **/
-public class CharCodec extends BasePrimitiveCodec<Character> {
+public class CharCodec extends AbstractPrimitiveCodec<Character> {
 
 	public static final CharCodec instance = new CharCodec();
 

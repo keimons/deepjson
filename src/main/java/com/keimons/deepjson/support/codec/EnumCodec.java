@@ -9,7 +9,7 @@ import com.keimons.deepjson.*;
  * @version 1.0
  * @since 1.6
  **/
-public class EnumCodec extends AbstractClassCodec<Enum<?>> {
+public class EnumCodec extends AbstractOnlineCodec<Enum<?>> {
 
 	public static final EnumCodec instance = new EnumCodec();
 

@@ -10,11 +10,16 @@ import com.keimons.deepjson.support.SyntaxToken;
  * @version 1.0
  * @since 1.6
  **/
-public abstract class BasePrimitiveCodec<T> extends AbstractClassCodec<T> {
+public abstract class AbstractPrimitiveCodec<T> extends AbstractRawCodec<T> {
 
 	@Override
 	public boolean isSearch() {
 		return false;
+	}
+
+	@Override
+	public boolean isCacheType() {
+		return true;
 	}
 
 	@Override

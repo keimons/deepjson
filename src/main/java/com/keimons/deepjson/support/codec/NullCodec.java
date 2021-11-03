@@ -10,7 +10,7 @@ import com.keimons.deepjson.support.SyntaxToken;
  * @version 1.0
  * @since 1.6
  **/
-public class NullCodec extends AbstractClassCodec<Void> {
+public class NullCodec extends AbstractOnlineCodec<Void> {
 
 	public static final ICodec<Void> instance = new NullCodec();
 

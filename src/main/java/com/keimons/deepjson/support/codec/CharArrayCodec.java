@@ -17,7 +17,7 @@ import java.util.List;
  * @version 1.0
  * @since 1.6
  **/
-public class CharArrayCodec extends BaseArrayCodec<char[]> {
+public class CharArrayCodec extends AbstractArrayCodec<char[]> {
 
 	public static final CharArrayCodec instance = new CharArrayCodec();
 

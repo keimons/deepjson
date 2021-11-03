@@ -17,7 +17,7 @@ import java.util.List;
  * @version 1.0
  * @since 1.6
  **/
-public class DoubleArrayCodec extends BaseArrayCodec<double[]> {
+public class DoubleArrayCodec extends AbstractArrayCodec<double[]> {
 
 	public static final DoubleArrayCodec instance = new DoubleArrayCodec();
 

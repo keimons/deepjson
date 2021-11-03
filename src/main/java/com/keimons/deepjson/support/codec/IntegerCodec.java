@@ -11,7 +11,7 @@ import com.keimons.deepjson.WriterBuffer;
  * @version 1.0
  * @since 1.6
  **/
-public class IntegerCodec extends BasePrimitiveCodec<Integer> {
+public class IntegerCodec extends AbstractPrimitiveCodec<Integer> {
 
 	public static final IntegerCodec instance = new IntegerCodec();
 

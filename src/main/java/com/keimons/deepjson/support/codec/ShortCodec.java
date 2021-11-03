@@ -11,7 +11,7 @@ import com.keimons.deepjson.WriterBuffer;
  * @version 1.0
  * @since 1.6
  **/
-public class ShortCodec extends BasePrimitiveCodec<Short> {
+public class ShortCodec extends AbstractPrimitiveCodec<Short> {
 
 	public static final ShortCodec instance = new ShortCodec();
 

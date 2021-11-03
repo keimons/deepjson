@@ -17,7 +17,7 @@ import java.util.List;
  * @version 1.0
  * @since 1.6
  **/
-public class ByteArrayCodec extends BaseArrayCodec<byte[]> {
+public class ByteArrayCodec extends AbstractArrayCodec<byte[]> {
 
 	public static final ByteArrayCodec instance = new ByteArrayCodec();
 

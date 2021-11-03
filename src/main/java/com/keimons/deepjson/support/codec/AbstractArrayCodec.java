@@ -23,12 +23,17 @@ import java.lang.reflect.Type;
  * @see LongArrayCodec long[]
  * @since 1.6
  **/
-public abstract class BaseArrayCodec<T> extends AbstractClassCodec<T> {
+public abstract class AbstractArrayCodec<T> extends AbstractRawCodec<T> {
 
 	private final Class<?> clazz;
 
-	public BaseArrayCodec() {
-		clazz = (Class<?>) ClassUtil.findGenericType(this.getClass(), BaseArrayCodec.class, "T");
+	public AbstractArrayCodec() {
+		clazz = (Class<?>) ClassUtil.findGenericType(this.getClass(), AbstractArrayCodec.class, "T");
+	}
+
+	@Override
+	public boolean isSearch() {
+		return true;
 	}
 
 	@Override
@@ -112,10 +117,6 @@ public abstract class BaseArrayCodec<T> extends AbstractClassCodec<T> {
 			context.put(uniqueId, value);
 		}
 		return value;
-	}
-
-	protected Type findComponentType(ReaderContext context, Type type) {
-		return ((Class<?>) type).getComponentType();
 	}
 
 	protected abstract void encode0(WriterContext context, WriterBuffer buf, T values, long options);

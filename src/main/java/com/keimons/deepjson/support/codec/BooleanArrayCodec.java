@@ -17,7 +17,7 @@ import java.util.List;
  * @version 1.0
  * @since 1.6
  **/
-public class BooleanArrayCodec extends BaseArrayCodec<boolean[]> {
+public class BooleanArrayCodec extends AbstractArrayCodec<boolean[]> {
 
 	public static final BooleanArrayCodec instance = new BooleanArrayCodec();
 

@@ -12,7 +12,7 @@ import com.keimons.deepjson.support.SyntaxToken;
  * @version 1.0
  * @since 1.6
  **/
-public class BooleanCodec extends BasePrimitiveCodec<Boolean> {
+public class BooleanCodec extends AbstractPrimitiveCodec<Boolean> {
 
 	public static final BooleanCodec instance = new BooleanCodec();
 

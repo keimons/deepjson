@@ -17,7 +17,7 @@ import java.util.List;
  * @version 1.0
  * @since 1.6
  **/
-public class IntegerArrayCodec extends BaseArrayCodec<int[]> {
+public class IntegerArrayCodec extends AbstractArrayCodec<int[]> {
 
 	public static final IntegerArrayCodec instance = new IntegerArrayCodec();
 

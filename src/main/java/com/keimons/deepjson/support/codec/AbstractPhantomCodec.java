@@ -27,12 +27,7 @@ import com.keimons.deepjson.util.TypeNotFoundException;
  * @version 1.0
  * @since 1.6
  **/
-public abstract class PhantomCodec implements ICodec<Object> {
-
-	@Override
-	public final CodecType getCodecType() {
-		return CodecType.DECODE;
-	}
+public abstract class AbstractPhantomCodec implements ICodec<Object> {
 
 	@Override
 	public final boolean isSearch() {

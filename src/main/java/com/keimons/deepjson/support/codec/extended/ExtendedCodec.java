@@ -5,7 +5,7 @@ import com.keimons.deepjson.ReaderContext;
 import com.keimons.deepjson.compiler.ExtendedCodecClassLoader;
 import com.keimons.deepjson.support.IncompatibleTypeException;
 import com.keimons.deepjson.support.SyntaxToken;
-import com.keimons.deepjson.support.codec.AbstractClassCodec;
+import com.keimons.deepjson.support.codec.AbstractOnlineCodec;
 import com.keimons.deepjson.util.ClassUtil;
 
 import java.lang.reflect.Field;
@@ -25,7 +25,7 @@ import java.lang.reflect.TypeVariable;
  * @see ExtendedCodecClassLoader 拓展编解码方案装载器
  * @since 1.6
  **/
-public abstract class ExtendedCodec extends AbstractClassCodec<Object> {
+public abstract class ExtendedCodec extends AbstractOnlineCodec<Object> {
 
 	/**
 	 * 编解码对象类型

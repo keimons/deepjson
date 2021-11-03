@@ -1,6 +1,5 @@
 package com.keimons.deepjson;
 
-import com.keimons.deepjson.support.ReferenceNode;
 import com.keimons.deepjson.support.SyntaxToken;
 import com.keimons.deepjson.support.codec.*;
 import com.keimons.deepjson.util.UnsafeUtil;
@@ -43,14 +42,17 @@ public interface ICodec<T> {
 	Unsafe unsafe = UnsafeUtil.getUnsafe();
 
 	/**
-	 * 获取编解码器类型
-	 *
-	 * @return 编解码器类型
-	 */
-	CodecType getCodecType();
-
-	/**
 	 * 是否需要建立循环索引
+	 * <p>
+	 * 对于以下类型，不建立循环索引，直接序列化为值类型。
+	 * <ul>
+	 *     <li>{@link java.lang.Class#isPrimitive()}</li>
+	 *     <li>{@link java.lang.String}</li>
+	 *     <li>{@link java.lang.Object}</li>
+	 *     <li>{@link java.util.concurrent.atomic.LongAdder}</li>
+	 *     <li>{@link java.util.concurrent.atomic.DoubleAdder}</li>
+	 * </ul>
+	 * 对于其他类型，除非已经确定不需要循环搜索它，否则，都则需要循环索引。
 	 *
 	 * @return {@code true}需要搜索，{@code false}不需要搜索
 	 */
@@ -65,7 +67,7 @@ public interface ICodec<T> {
 	 * 只有数组、参数类型和通配符不需要缓存类型，这是为了避免频繁的调用{@code instanceof}。
 	 *
 	 * @return {@code true}需要缓存，{@code false}不需要缓存
-	 * @see BaseArrayCodec 数组，不需要缓存
+	 * @see AbstractArrayCodec 数组，不需要缓存
 	 * @see GenericArrayTypeCodec 泛型数组，不需要缓存
 	 * @see TypeVariableCodec 参数类型，不需要缓存
 	 * @see WildcardTypeCodec 通配符，不需要缓存
@@ -104,7 +106,7 @@ public interface ICodec<T> {
 	 * @param buf     缓冲区
 	 * @param type    对象类型
 	 * @param options 解码选项
-	 * @return 解码后的对象{@link Object}或者{@link ReferenceNode}。
+	 * @return 解码后的对象{@link Object}。
 	 * @see MapCodec {@link Map}对象解码。
 	 */
 	T decode(ReaderContext context, ReaderBuffer buf, Type type, long options);

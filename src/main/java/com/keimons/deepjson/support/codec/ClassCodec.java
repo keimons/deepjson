@@ -11,7 +11,7 @@ import com.keimons.deepjson.util.ClassUtil;
  * @version 1.0
  * @since 1.6
  **/
-public class ClassCodec extends AbstractClassCodec<Class<?>> {
+public class ClassCodec extends AbstractOnlineCodec<Class<?>> {
 
 	public static final ClassCodec instance = new ClassCodec();
 

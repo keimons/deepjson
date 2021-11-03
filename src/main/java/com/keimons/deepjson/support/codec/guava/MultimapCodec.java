@@ -2,7 +2,7 @@ package com.keimons.deepjson.support.codec.guava;
 
 import com.google.common.collect.Multimap;
 import com.keimons.deepjson.*;
-import com.keimons.deepjson.support.codec.AbstractClassCodec;
+import com.keimons.deepjson.support.codec.AbstractOnlineCodec;
 
 /**
  * Google Guava {@link Multimap}编解码器
@@ -11,14 +11,9 @@ import com.keimons.deepjson.support.codec.AbstractClassCodec;
  * @version 1.0
  * @since 1.6
  **/
-public class MultimapCodec extends AbstractClassCodec<Multimap<?, ?>> {
+public class MultimapCodec extends AbstractOnlineCodec<Multimap<?, ?>> {
 
 	public static final MultimapCodec instance = new MultimapCodec();
-
-	@Override
-	public boolean isSearch() {
-		return true;
-	}
 
 	@Override
 	public void build(WriterContext context, Multimap<?, ?> value) {

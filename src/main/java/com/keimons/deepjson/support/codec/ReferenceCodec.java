@@ -10,7 +10,7 @@ import com.keimons.deepjson.support.ReferenceNode;
  * @version 1.0
  * @since 1.6
  **/
-public class ReferenceCodec extends AbstractClassCodec<ReferenceNode> {
+public class ReferenceCodec extends AbstractOnlineCodec<ReferenceNode> {
 
 	public static final ReferenceCodec instance = new ReferenceCodec();
 

@@ -9,7 +9,7 @@ import com.keimons.deepjson.*;
  * @version 1.0
  * @since 1.6
  **/
-public class JsonArrayCodec extends AbstractClassCodec<JsonArray> {
+public class JsonArrayCodec extends AbstractOnlineCodec<JsonArray> {
 
 	public static final JsonArrayCodec instance = new JsonArrayCodec();
 

@@ -14,13 +14,18 @@ import java.util.concurrent.atomic.DoubleAdder;
  * @version 1.0
  * @since 1.8
  **/
-public class DoubleAdderCodec extends AbstractClassCodec<DoubleAdder> {
+public class DoubleAdderCodec extends AbstractRawCodec<DoubleAdder> {
 
 	public static final DoubleAdderCodec instance = new DoubleAdderCodec();
 
 	@Override
 	public boolean isSearch() {
 		return false;
+	}
+
+	@Override
+	public boolean isCacheType() {
+		return true;
 	}
 
 	@Override

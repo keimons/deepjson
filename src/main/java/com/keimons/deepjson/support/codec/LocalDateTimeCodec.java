@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
  * @version 1.0
  * @since 1.8
  **/
-public class LocalDateTimeCodec extends AbstractClassCodec<LocalDateTime> {
+public class LocalDateTimeCodec extends AbstractOnlineCodec<LocalDateTime> {
 
 	@Override
 	public void encode(WriterContext context, WriterBuffer buf, CodecModel model, LocalDateTime value, int uniqueId, long options) {
