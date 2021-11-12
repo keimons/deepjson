@@ -45,4 +45,20 @@ public class PlatformUtil {
 	public static int javaVersion() {
 		return JAVA_VERSION;
 	}
+
+	/**
+	 * 获取当前当前已使用内存的百分比
+	 * <p>
+	 * 通常情况下，在full gc之后调用，能获得更准去的内存使用情况
+	 *
+	 * @return 获取已使用内存的百分比近似值（0~100）
+	 */
+	public static int memoryUsage() {
+		long freeMemory = Runtime.getRuntime().freeMemory();
+		long totalMemory = Runtime.getRuntime().totalMemory();
+		long maxMemory = Runtime.getRuntime().maxMemory();
+
+		long usingMemory = totalMemory - freeMemory;
+		return (int) (usingMemory * 100f / maxMemory);
+	}
 }
