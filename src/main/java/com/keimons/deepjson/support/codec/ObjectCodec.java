@@ -16,7 +16,7 @@ import java.util.Map;
  * @version 1.0
  * @since 1.6
  **/
-public class ObjectCodec extends AbstractRawCodec<Object> {
+public class ObjectCodec extends KlassCodec<Object> {
 
 	public static final ICodec<Object> instance = new ObjectCodec();
 

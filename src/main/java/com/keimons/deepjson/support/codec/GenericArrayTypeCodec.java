@@ -21,7 +21,7 @@ import java.lang.reflect.TypeVariable;
  * @version 1.0
  * @since 1.6
  **/
-public class GenericArrayTypeCodec extends AbstractPhantomCodec {
+public class GenericArrayTypeCodec extends PhantomCodec {
 
 	public static final GenericArrayTypeCodec instance = new GenericArrayTypeCodec();
 

@@ -15,7 +15,7 @@ import java.lang.reflect.Type;
  * @version 1.0
  * @since 1.6
  */
-public class ParameterizedTypeCodec extends AbstractPhantomCodec {
+public class ParameterizedTypeCodec extends PhantomCodec {
 
 	public static final ParameterizedTypeCodec instance = new ParameterizedTypeCodec();
 

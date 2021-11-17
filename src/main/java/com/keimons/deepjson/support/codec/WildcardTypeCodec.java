@@ -16,7 +16,7 @@ import java.lang.reflect.WildcardType;
  * @version 1.0
  * @since 1.6
  */
-public class WildcardTypeCodec extends AbstractPhantomCodec {
+public class WildcardTypeCodec extends PhantomCodec {
 
 	public static final WildcardTypeCodec instance = new WildcardTypeCodec();
 

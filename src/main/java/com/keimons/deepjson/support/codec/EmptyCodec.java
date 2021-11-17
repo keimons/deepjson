@@ -13,7 +13,7 @@ import com.keimons.deepjson.support.ElementsFuture;
  * @version 1.0
  * @since 1.6
  **/
-public class EmptyCodec extends AbstractRawCodec<ElementsFuture> {
+public class EmptyCodec extends KlassCodec<ElementsFuture> {
 
 	public static EmptyCodec instance = new EmptyCodec();
 

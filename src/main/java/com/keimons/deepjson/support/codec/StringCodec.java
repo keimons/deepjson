@@ -10,7 +10,7 @@ import com.keimons.deepjson.support.SyntaxToken;
  * @version 1.0
  * @since 1.6
  **/
-public class StringCodec extends AbstractRawCodec<String> {
+public class StringCodec extends KlassCodec<String> {
 
 	public static final StringCodec instance = new StringCodec();
 

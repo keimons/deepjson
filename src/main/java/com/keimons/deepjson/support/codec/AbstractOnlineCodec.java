@@ -9,7 +9,7 @@ package com.keimons.deepjson.support.codec;
  * @version 1.0
  * @since 1.6
  **/
-public abstract class AbstractOnlineCodec<T> extends AbstractRawCodec<T> {
+public abstract class AbstractOnlineCodec<T> extends KlassCodec<T> {
 
 	@Override
 	public boolean isSearch() {

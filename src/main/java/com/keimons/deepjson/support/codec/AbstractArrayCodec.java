@@ -23,7 +23,7 @@ import java.lang.reflect.Type;
  * @see LongArrayCodec long[]
  * @since 1.6
  **/
-public abstract class AbstractArrayCodec<T> extends AbstractRawCodec<T> {
+public abstract class AbstractArrayCodec<T> extends KlassCodec<T> {
 
 	private final Class<?> clazz;
 

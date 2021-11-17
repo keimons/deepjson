@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.LongAdder;
  * @version 1.0
  * @since 1.8
  **/
-public class LongAdderCodec extends AbstractRawCodec<LongAdder> {
+public class LongAdderCodec extends KlassCodec<LongAdder> {
 
 	public static final LongAdderCodec instance = new LongAdderCodec();
 

@@ -10,7 +10,7 @@ import com.keimons.deepjson.support.SyntaxToken;
  * @version 1.0
  * @since 1.6
  **/
-public abstract class AbstractPrimitiveCodec<T> extends AbstractRawCodec<T> {
+public abstract class AbstractPrimitiveCodec<T> extends KlassCodec<T> {
 
 	@Override
 	public boolean isSearch() {

@@ -10,13 +10,13 @@ import com.keimons.deepjson.util.TypeNotFoundException;
 import java.lang.reflect.Type;
 
 /**
- * 基础编解码器
+ * {@link Class}类型编解码器
  *
  * @author houyn[monkey@keimons.com]
  * @version 1.0
  * @since 1.6
  **/
-public abstract class AbstractRawCodec<T> implements ICodec<T> {
+public abstract class KlassCodec<T> implements ICodec<T> {
 
 	/**
 	 * 循环引用中给一个对象标记一个唯一ID
@@ -81,7 +81,7 @@ public abstract class AbstractRawCodec<T> implements ICodec<T> {
 	 * @param options 解码选项
 	 * @return 解码后的对象
 	 */
-	public abstract T decode(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options);
+	protected abstract T decode(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options);
 
 	/**
 	 * 类型检测

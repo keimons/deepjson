@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.DoubleAdder;
  * @version 1.0
  * @since 1.8
  **/
-public class DoubleAdderCodec extends AbstractRawCodec<DoubleAdder> {
+public class DoubleAdderCodec extends KlassCodec<DoubleAdder> {
 
 	public static final DoubleAdderCodec instance = new DoubleAdderCodec();
 
