@@ -51,14 +51,14 @@ public class PlatformUtil {
 	 * <p>
 	 * 通常情况下，在full gc之后调用，能获得更准去的内存使用情况
 	 *
-	 * @return 获取已使用内存的百分比近似值（0~100）
+	 * @return 获取已使用内存的百分比近似值（0.00~100.00）
 	 */
-	public static int memoryUsage() {
+	public static float memoryUsage() {
 		long freeMemory = Runtime.getRuntime().freeMemory();
 		long totalMemory = Runtime.getRuntime().totalMemory();
 		long maxMemory = Runtime.getRuntime().maxMemory();
 
 		long usingMemory = totalMemory - freeMemory;
-		return (int) (usingMemory * 100f / maxMemory);
+		return Math.round(usingMemory * 10000f / maxMemory) * 0.01f;
 	}
 }
