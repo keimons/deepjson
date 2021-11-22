@@ -7,8 +7,8 @@ plugins {
 group 'com.keimons.deepjson'
 version '0.1.2-alpha'
 
-sourceCompatibility = JavaVersion.VERSION_11
-targetCompatibility = JavaVersion.VERSION_11
+sourceCompatibility = JavaVersion.VERSION_1_9
+targetCompatibility = JavaVersion.VERSION_1_9
 
 repositories {
     mavenCentral()
@@ -31,45 +31,6 @@ test {
     useJUnitPlatform()
 }
 
-compileJava {
-    exclude 'module-info.java', 'com/keimons/deepjson/util/MethodHandleUtil.java', 'com/keimons/deepjson/support/transcoder/ByteStringTranscoder.java'
-    options.encoding = 'UTF-8'
-    options.compilerArgs += ['-classpath', classpath.asPath]
-    options.compilerArgs += ['-source', '1.6']
-    options.compilerArgs += ['-target', '1.6']
-    options.compilerArgs += ['-Xlint:-options']
-}
-
-task compileVirtualJava(type: JavaCompile) {
-    classpath = compileJava.classpath
-    StringJoiner joiner = new StringJoiner(File.separator)
-    joiner.add(projectDir.toString())
-    joiner.add('build')
-    joiner.add('classes')
-    joiner.add('java')
-    joiner.add('main')
-    String path = classpath.asPath + System.getProperty("path.separator") + joiner.toString()
-    source = ['src/main/java/com/keimons/deepjson/util/MethodHandleUtil.java', 'src/main/java/com/keimons/deepjson/support/transcoder/ByteStringTranscoder.java']
-    destinationDir = compileJava.destinationDir
-    doFirst {
-        options.encoding = "UTF-8"
-        options.compilerArgs = ['-source', '1.7', '-target', '1.7', '-classpath', path]
-    }
-}
-
-task compileModuleJava(type: JavaCompile) {
-    classpath = compileJava.classpath
-    source = 'src/main/java/module-info.java'
-    destinationDir = compileJava.destinationDir
-    doFirst {
-        options.encoding = "UTF-8"
-        options.compilerArgs = [
-                '-source', '9', '-target', '9',
-                '--module-path', classpath.asPath
-        ]
-    }
-}
-
 jar {
     manifest {
         attributes 'Bundle-Name': 'DeepJson'
@@ -81,12 +42,6 @@ jar {
         rename "pom-default.xml", "pom.xml"
     }
 }
-
-compileVirtualJava.dependsOn compileJava
-
-compileModuleJava.dependsOn compileVirtualJava
-
-classes.dependsOn compileModuleJava
 
 jar.dependsOn 'generatePomFileForDeepjsonPublication'
 

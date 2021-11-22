@@ -19,6 +19,7 @@ public class MethodHandleTest {
 	@Test
 	public void test() throws Throwable {
 		MethodHandle value = MethodHandles.lookup().findSetter(MethodHandleTest.class, "value", int.class);
+		MethodHandle getter = MethodHandles.lookup().findGetter(MethodHandleTest.class, "value", int.class);
 		MethodHandleTest obj = new MethodHandleTest();
 		for (int i = 0; i < 100000000; i++) {
 			// INVOKEVIRTUAL java/lang/invoke/MethodHandle.invoke (Lcom/keimons/deepjson/test/verification/MethodHandleTest;I)V
@@ -33,7 +34,7 @@ public class MethodHandleTest {
 			// INVOKESTATIC java/lang/Integer.valueOf (I)Ljava/lang/Integer;
 			test2(i);
 		}
-		System.out.println(this.value);
+		System.out.println((int) getter.invoke(this));
 	}
 
 	public void test1(int... values) {
