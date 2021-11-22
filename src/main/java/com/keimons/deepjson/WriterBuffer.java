@@ -2,8 +2,6 @@ package com.keimons.deepjson;
 
 import com.keimons.deepjson.support.buffer.CompositeBuffer;
 import com.keimons.deepjson.support.buffer.SafeBuffer;
-import com.keimons.deepjson.support.decimal.RyuDecimalPolicy;
-import com.keimons.deepjson.support.decimal.SdkDecimalPolicy;
 import com.keimons.deepjson.util.CodecUtil;
 import com.keimons.deepjson.util.UnsafeUtil;
 import com.keimons.deepjson.util.WriteFailedException;
@@ -58,10 +56,7 @@ public abstract class WriterBuffer implements Closeable {
 	 */
 	protected long options;
 
-	/**
-	 * {@code float}和{@code double}写入策略
-	 */
-	protected IDecimalStrategy decimal = RyuDecimalPolicy.instance;
+	protected final StringBuilder DECIMAL = new StringBuilder(64);
 
 	/**
 	 * 复合缓冲区
@@ -157,6 +152,14 @@ public abstract class WriterBuffer implements Closeable {
 		}
 	}
 
+	private void doWrite() {
+		int writable = DECIMAL.length();
+		ensureWritable(writable);
+		DECIMAL.getChars(0, writable, buf, writeIndex);
+		writeIndex += writable;
+		DECIMAL.setLength(0);
+	}
+
 	/**
 	 * 写入指定位置
 	 *
@@ -233,8 +236,8 @@ public abstract class WriterBuffer implements Closeable {
 	 * @param value float值
 	 */
 	public void write(float value) {
-		ensureWritable(15);
-		writeIndex += decimal.write(value, buf, writeIndex);
+		DECIMAL.append(value);
+		doWrite();
 	}
 
 	/**
@@ -243,8 +246,8 @@ public abstract class WriterBuffer implements Closeable {
 	 * @param value double值
 	 */
 	public void write(double value) {
-		ensureWritable(24);
-		writeIndex += decimal.write(value, buf, writeIndex);
+		DECIMAL.append(value);
+		doWrite();
 	}
 
 	/**
@@ -563,11 +566,6 @@ public abstract class WriterBuffer implements Closeable {
 		this.writeIndex = 0;
 		this.bufferIndex = 0;
 		this.options = options;
-		if (CodecOptions.ExactDecimal.isOptions(options)) {
-			decimal = new SdkDecimalPolicy();
-		} else {
-			decimal = RyuDecimalPolicy.instance;
-		}
 		if (buffers[0] == null) {
 			buffers[0] = new char[4096];
 		}

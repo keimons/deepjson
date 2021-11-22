@@ -20,6 +20,7 @@ public class CompositeBuffer extends WriterBuffer {
 	 * 复合缓冲区初始容量
 	 */
 	private static final int COMPOSITE_BUF_SIZE = 8;
+
 	/**
 	 * 临时缓冲区
 	 * <p>
@@ -28,6 +29,7 @@ public class CompositeBuffer extends WriterBuffer {
 	 * 型的临时写入需求。
 	 */
 	private final char[] TEMP = new char[32];
+
 	/**
 	 * 复合缓冲区
 	 */
@@ -91,6 +93,19 @@ public class CompositeBuffer extends WriterBuffer {
 				writeLeap(value);
 			}
 		}
+	}
+
+	private void doWrite() {
+		int writable = DECIMAL.length();
+		if (ensureWritable(writable)) {
+			for (int i = 0; i < writable; i++) {
+				writeLeap(DECIMAL.charAt(i));
+			}
+		} else {
+			DECIMAL.getChars(0, writable, buf, writeIndex);
+			writeIndex += writable;
+		}
+		DECIMAL.setLength(0);
 	}
 
 	@Override
@@ -163,27 +178,14 @@ public class CompositeBuffer extends WriterBuffer {
 
 	@Override
 	public void write(float value) {
-		if (ensureWritable(15)) {
-			int writable = decimal.write(value, TEMP, 0);
-			for (int i = 0; i < writable; i++) {
-				writeLeap(TEMP[i]);
-			}
-		} else {
-			int length = decimal.write(value, buf, writeIndex);
-			writeIndex += length;
-		}
+		DECIMAL.append(value);
+		doWrite();
 	}
 
 	@Override
 	public void write(double value) {
-		if (ensureWritable(24)) {
-			int writable = decimal.write(value, TEMP, 0);
-			for (int i = 0; i < writable; i++) {
-				writeLeap(TEMP[i]);
-			}
-		} else {
-			writeIndex += decimal.write(value, buf, writeIndex);
-		}
+		DECIMAL.append(value);
+		doWrite();
 	}
 
 	@Override

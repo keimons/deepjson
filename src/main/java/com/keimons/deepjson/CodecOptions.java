@@ -83,13 +83,6 @@ public enum CodecOptions {
 	WriteUsingUnicode,
 
 	/**
-	 * 更精确的浮点数
-	 * <p>
-	 * decode: false, encode: true
-	 */
-	ExactDecimal,
-
-	/**
 	 * {@link Map}中的{@code key}保留基础类型。
 	 * <p>
 	 * decode: false, encode: true
