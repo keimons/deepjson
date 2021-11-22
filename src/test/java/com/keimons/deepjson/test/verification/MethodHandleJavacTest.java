@@ -12,15 +12,15 @@ import java.lang.invoke.MethodHandles;
  * @version 1.0
  * @since 1.6
  **/
-public class MethodHandleTest {
+public class MethodHandleJavacTest {
 
 	private int value;
 
 	@Test
 	public void test() throws Throwable {
-		MethodHandle value = MethodHandles.lookup().findSetter(MethodHandleTest.class, "value", int.class);
-		MethodHandle getter = MethodHandles.lookup().findGetter(MethodHandleTest.class, "value", int.class);
-		MethodHandleTest obj = new MethodHandleTest();
+		MethodHandle value = MethodHandles.lookup().findSetter(MethodHandleJavacTest.class, "value", int.class);
+		MethodHandle getter = MethodHandles.lookup().findGetter(MethodHandleJavacTest.class, "value", int.class);
+		MethodHandleJavacTest obj = new MethodHandleJavacTest();
 		for (int i = 0; i < 100000000; i++) {
 			// INVOKEVIRTUAL java/lang/invoke/MethodHandle.invoke (Lcom/keimons/deepjson/test/verification/MethodHandleTest;I)V
 			value.invoke(obj, i);
