@@ -6,6 +6,7 @@ import com.keimons.deepjson.JsonObject;
 import com.keimons.deepjson.compiler.SourceCodeFactory;
 import com.keimons.deepjson.support.codec.*;
 import com.keimons.deepjson.support.codec.extended.ExtendedCodec;
+import com.keimons.deepjson.support.codec.extended.InlineCodec;
 import com.keimons.deepjson.support.codec.guava.MultimapCodec;
 import com.keimons.deepjson.support.codec.guava.TableCodec;
 import com.keimons.deepjson.util.CompilerUtil;
@@ -35,6 +36,8 @@ import java.util.regex.Matcher;
  * @since 1.6
  **/
 public abstract class CodecFactory {
+
+	private static Strategy STRATEGY;
 
 	/**
 	 * 第三方拓展编解码方案包路径
@@ -124,6 +127,9 @@ public abstract class CodecFactory {
 			// ignore
 		}
 		GUAVA_MULTIMAP = guava_multimap;
+
+		final String strategy = System.getProperty("com.keimons.deepjson.factory", "MH");
+		STRATEGY = Strategy.valueOf(strategy);
 	}
 
 	public static void put(Class<?> clazz, ICodec<?> codec) {
@@ -216,9 +222,14 @@ public abstract class CodecFactory {
 						if (clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers())) {
 							throw new IncompatibleTypeException("interface codec not exist: " + clazz);
 						}
-						Class<? extends ExtendedCodec> codecClass = SourceCodeCodec.instance.create(clazz);
 						try {
-							ExtendedCodec instance = codecClass.getDeclaredConstructor().newInstance();
+							ExtendedCodec instance;
+							if (STRATEGY == Strategy.BC) {
+								Class<? extends ExtendedCodec> codecClass = SourceCodeCodec.instance.create(clazz);
+								instance = codecClass.getDeclaredConstructor().newInstance();
+							} else {
+								instance = new InlineCodec();
+							}
 							instance.init(clazz);
 							codec = instance;
 							CACHE.put(clazz, instance);
@@ -329,5 +340,9 @@ public abstract class CodecFactory {
 			}
 			return CompilerUtil.compiler(EXTENDED_PACKAGE, className, source);
 		}
+	}
+
+	private enum Strategy {
+		BC, MH
 	}
 }

@@ -11,6 +11,7 @@ import com.keimons.deepjson.util.UnsafeUtil;
 import org.jetbrains.annotations.NotNull;
 import sun.misc.Unsafe;
 
+import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.*;
@@ -127,6 +128,22 @@ public class TypeAndHookContext extends ReaderContext {
 			public void run() {
 				Object value = context.get(uniqueId);
 				unsafe.putObject(instance, 12L, value);
+			}
+		});
+	}
+
+	@Override
+	public void addCompleteHook(Object instance, MethodHandle setter, int uniqueId) {
+		final Map<Integer, Object> context = this.context;
+		addCompleteHook(new Runnable() {
+			@Override
+			public void run() {
+				Object value = context.get(uniqueId);
+				try {
+					setter.invoke(instance, value);
+				} catch (Throwable e) {
+					e.printStackTrace();
+				}
 			}
 		});
 	}

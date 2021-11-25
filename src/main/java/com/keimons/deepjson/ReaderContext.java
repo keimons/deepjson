@@ -4,6 +4,7 @@ import com.keimons.deepjson.util.TypeNotFoundException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.invoke.MethodHandle;
 import java.lang.reflect.*;
 
 /**
@@ -87,6 +88,15 @@ public abstract class ReaderContext {
 	 * @param uniqueId 引用
 	 */
 	public abstract void addCompleteHook(final Object instance, long offset, final int uniqueId);
+
+	/**
+	 * 增加一个钩子
+	 *
+	 * @param instance 实例
+	 * @param setter   赋值
+	 * @param uniqueId 引用
+	 */
+	public abstract void addCompleteHook(final Object instance, MethodHandle setter, final int uniqueId);
 
 	/**
 	 * 执行所有完成钩子

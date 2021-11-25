@@ -245,4 +245,17 @@ public abstract class ReaderBuffer implements Closeable {
 
 	@Override
 	public abstract void close();
+
+	@Override
+	public int hashCode() {
+		return valueHashcode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof CharArrayNode) {
+			return isSame(((CharArrayNode) obj).values);
+		}
+		return super.equals(obj);
+	}
 }
