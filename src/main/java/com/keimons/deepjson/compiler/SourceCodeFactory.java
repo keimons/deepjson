@@ -165,6 +165,7 @@ public class SourceCodeFactory {
 			}
 		}
 		source.append("\t\t\t\tdefault:\n");
+		source.append("\t\t\t\t\tcontext.decode(buf, Object.class, options);\n");
 		source.append("\t\t\t}\n");
 		source.append("\t\t\ttoken = buf.nextToken();\n");
 		source.append("\t\t\tif (token == SyntaxToken.RBRACE) {\n");
