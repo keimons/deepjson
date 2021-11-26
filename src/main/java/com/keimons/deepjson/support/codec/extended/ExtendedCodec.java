@@ -33,6 +33,11 @@ public abstract class ExtendedCodec extends AbstractOnlineCodec<Object> {
 	private Class<?> clazz;
 
 	/**
+	 * 是否{@code lambda}表达式
+	 */
+	private boolean isLambda;
+
+	/**
 	 * 确定class可以被实例化
 	 *
 	 * @param clazz 要判断的class
@@ -45,6 +50,7 @@ public abstract class ExtendedCodec extends AbstractOnlineCodec<Object> {
 			throw new IncompatibleTypeException("cannot instantiation of class " + clazz.getName());
 		}
 		this.clazz = clazz;
+		this.isLambda = ClassUtil.isLambda(clazz);
 	}
 
 	/**
@@ -56,7 +62,13 @@ public abstract class ExtendedCodec extends AbstractOnlineCodec<Object> {
 	 */
 	protected <T> T newInstance(Class<T> clazz) {
 		try {
-			return clazz.getDeclaredConstructor().newInstance();
+			if (isLambda) { // 针对于lambda直接分配内存
+				@SuppressWarnings("unchecked")
+				T instance = (T) unsafe.allocateInstance(clazz);
+				return instance;
+			} else {
+				return clazz.getDeclaredConstructor().newInstance();
+			}
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}

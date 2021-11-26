@@ -118,6 +118,17 @@ public class ClassUtil {
 	}
 
 	/**
+	 * 判断一个类型是否{@code lambda}表达式
+	 *
+	 * @param clazz 类型
+	 * @return 是否{@code lambda}表达式
+	 */
+	public static boolean isLambda(Class<?> clazz) {
+		String name = clazz.getName();
+		return name.contains("$$Lambda$") && name.contains("/");
+	}
+
+	/**
 	 * 查找一个类型的真实类型
 	 * <p>
 	 * 对于一个类型而言，共计有五种。
