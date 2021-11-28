@@ -9,11 +9,9 @@ import com.keimons.deepjson.internal.AbstractJson;
  * @version 1.0
  * @since 1.6
  **/
-public interface JsonObject {
+public interface Json extends JsonArray, JsonObject {
 
-	Object get(String key);
-
-	static JsonObject create() {
+	static Json create() {
 		return new AbstractJson();
 	}
 }

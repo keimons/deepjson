@@ -1,6 +1,6 @@
 package com.keimons.deepjson;
 
-import java.util.HashMap;
+import com.keimons.deepjson.internal.AbstractJson;
 
 /**
  * 默认{@code json}实现
@@ -9,6 +9,11 @@ import java.util.HashMap;
  * @version 1.0
  * @since 1.6
  **/
-public class JsonArray extends HashMap<String, Object> {
+public interface JsonArray {
 
+	Object get(int index);
+
+	static JsonArray create() {
+		return new AbstractJson();
+	}
 }
