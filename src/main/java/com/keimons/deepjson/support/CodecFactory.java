@@ -2,7 +2,7 @@ package com.keimons.deepjson.support;
 
 import com.keimons.deepjson.CodecConfig;
 import com.keimons.deepjson.ICodec;
-import com.keimons.deepjson.JsonObject;
+import com.keimons.deepjson.Json;
 import com.keimons.deepjson.compiler.SourceCodeFactory;
 import com.keimons.deepjson.support.codec.*;
 import com.keimons.deepjson.support.codec.extended.ExtendedCodec;
@@ -66,11 +66,12 @@ public abstract class CodecFactory {
 	private static final Class<?> GUAVA_MULTIMAP;
 
 	static {
+		CACHE.put(Json.class, JsonCodec.instance);
+
 		CACHE.put(Void.class, NullCodec.instance);
 		CACHE.put(Class.class, ClassCodec.instance);
 		CACHE.put(Object.class, ObjectCodec.instance);
 		CACHE.put(String.class, StringCodec.instance);
-		CACHE.put(JsonObject.class, MapCodec.instance);
 		CACHE.put(TypeVariable.class, TypeVariableCodec.instance);
 
 		CACHE.put(boolean.class, BooleanCodec.instance);

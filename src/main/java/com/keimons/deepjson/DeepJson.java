@@ -1,5 +1,6 @@
 package com.keimons.deepjson;
 
+import com.keimons.deepjson.internal.LocalCache;
 import com.keimons.deepjson.support.SyntaxToken;
 import com.keimons.deepjson.support.buffer.JsonReaderBuffer;
 import com.keimons.deepjson.support.codec.Template;
@@ -134,6 +135,10 @@ public class DeepJson {
 
 	public static <T> T parse(String json) {
 		return parseObject(json, (Type) Object.class);
+	}
+
+	public static Json parseObject(String json) {
+		return parseObject(json, (Type) Json.class);
 	}
 
 	public static <T> T parseObject(String json, Class<T> clazz) {

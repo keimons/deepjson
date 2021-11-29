@@ -1,10 +1,10 @@
 package com.keimons.deepjson.test.codec;
 
-import com.keimons.deepjson.JsonObject;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -18,7 +18,7 @@ public class JsonDecoderTest {
 
 	@Test
 	public void test() {
-		Map obj = new JsonObject();
+		Map obj = new HashMap();
 		Type type = obj.getClass().getGenericSuperclass();
 		if (type instanceof ParameterizedType) {
 			System.out.println(111);

@@ -4,8 +4,6 @@ import com.keimons.deepjson.*;
 import com.keimons.deepjson.support.SyntaxToken;
 import com.keimons.deepjson.util.UnsupportedException;
 
-import java.util.Map;
-
 /**
  * {@link Object}编解码器
  * <p>
@@ -51,9 +49,8 @@ public class ObjectCodec extends KlassCodec<Object> {
 			case NUMBER:
 				return buf.adaptiveNumber();
 			case LBRACE:
-				return context.decode(buf, Map.class, options);
 			case LBRACKET:
-				return JsonArrayCodec.instance.decode(context, buf, clazz, options);
+				return context.decode(buf, Json.class, options);
 			default:
 				throw new UnsupportedException();
 		}

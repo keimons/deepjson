@@ -23,8 +23,14 @@ public class ElementsFuture {
 	 */
 	private int count;
 
+	private boolean dict;
+
 	public ElementsFuture() {
 
+	}
+
+	public ElementsFuture(boolean dict) {
+		this.dict = dict;
 	}
 
 	public ElementsFuture(int count) {
@@ -44,5 +50,13 @@ public class ElementsFuture {
 
 	public void setCount(int count) {
 		this.count = count;
+	}
+
+	public boolean isDict() {
+		return dict;
+	}
+
+	public void setDict(boolean dict) {
+		this.dict = dict;
 	}
 }
