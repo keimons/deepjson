@@ -2,7 +2,6 @@ package com.keimons.deepjson.support.codec;
 
 import com.keimons.deepjson.*;
 import com.keimons.deepjson.internal.BridgeUtil;
-import com.keimons.deepjson.support.SyntaxToken;
 import com.keimons.deepjson.util.ReflectUtil;
 
 import java.lang.reflect.Type;

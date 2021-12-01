@@ -3,9 +3,9 @@ package com.keimons.deepjson.support.codec;
 import com.keimons.deepjson.ICodec;
 import com.keimons.deepjson.ReaderBuffer;
 import com.keimons.deepjson.ReaderContext;
+import com.keimons.deepjson.SyntaxToken;
 import com.keimons.deepjson.support.CodecFactory;
 import com.keimons.deepjson.support.IncompatibleTypeException;
-import com.keimons.deepjson.support.SyntaxToken;
 import com.keimons.deepjson.support.UnknownSyntaxException;
 import com.keimons.deepjson.util.ReflectUtil;
 

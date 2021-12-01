@@ -2,7 +2,6 @@ package com.keimons.deepjson.support.codec;
 
 import com.keimons.deepjson.*;
 import com.keimons.deepjson.support.ElementsFuture;
-import com.keimons.deepjson.support.SyntaxToken;
 import com.keimons.deepjson.util.ArrayUtil;
 
 import java.lang.reflect.GenericArrayType;

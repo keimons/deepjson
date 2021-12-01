@@ -194,7 +194,7 @@ public class SourceCodeFactory {
 	 */
 	private static void importClass(StringBuilder source) {
 		source.append("import com.keimons.deepjson.*;\n");
-		source.append("import com.keimons.deepjson.support.SyntaxToken;\n");
+		source.append("import com.keimons.deepjson.SyntaxToken;\n");
 		source.append("\n");
 		source.append("import java.lang.reflect.Field;\n");
 		source.append("\n");

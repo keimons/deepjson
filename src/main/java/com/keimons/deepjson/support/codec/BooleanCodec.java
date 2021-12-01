@@ -2,8 +2,8 @@ package com.keimons.deepjson.support.codec;
 
 import com.keimons.deepjson.ReaderBuffer;
 import com.keimons.deepjson.ReaderContext;
+import com.keimons.deepjson.SyntaxToken;
 import com.keimons.deepjson.WriterBuffer;
-import com.keimons.deepjson.support.SyntaxToken;
 
 /**
  * {@link Boolean}编解码器

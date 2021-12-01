@@ -1,4 +1,4 @@
-package com.keimons.deepjson.support;
+package com.keimons.deepjson;
 
 /**
  * 语法中的关键值枚举

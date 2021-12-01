@@ -1,6 +1,6 @@
 package com.keimons.deepjson;
 
-import com.keimons.deepjson.support.SyntaxToken;
+import com.keimons.deepjson.util.ArrayUtil;
 
 import java.io.Closeable;
 
@@ -14,11 +14,9 @@ import java.io.Closeable;
 public abstract class ReaderBuffer implements Closeable {
 
 	/**
-	 * 获取基础数据
-	 *
-	 * @return 基础数据
+	 * 获取缓冲区
 	 */
-	public abstract char[] base();
+	public abstract Buffer buffer();
 
 	/**
 	 * 获取读取位置
@@ -124,13 +122,6 @@ public abstract class ReaderBuffer implements Closeable {
 	public abstract void assertExpectedSyntax(SyntaxToken... expects) throws CodecException;
 
 	/**
-	 * 获取当前缓冲区的{@code hashcode}值
-	 *
-	 * @return 缓冲区内容的hashcode值
-	 */
-	public abstract int valueHashcode();
-
-	/**
 	 * 获取该token下的字符串值
 	 *
 	 * @return 字符串
@@ -201,14 +192,6 @@ public abstract class ReaderBuffer implements Closeable {
 	public abstract double doubleValue();
 
 	/**
-	 * 判断缓冲区和目标是否相同
-	 *
-	 * @param values 相同
-	 * @return 是否相同
-	 */
-	public abstract boolean isSame(char[] values);
-
-	/**
 	 * 检测是否引用其他对象
 	 *
 	 * @return 是否引用其他对象
@@ -246,16 +229,78 @@ public abstract class ReaderBuffer implements Closeable {
 	@Override
 	public abstract void close();
 
-	@Override
-	public int hashCode() {
-		return valueHashcode();
-	}
+	/**
+	 * 缓冲区
+	 */
+	public static class Buffer {
 
-	@Override
-	public boolean equals(Object obj) {
-		if (obj instanceof CharArrayNode) {
-			return isSame(((CharArrayNode) obj).values);
+		private char[] buf;
+
+		private int writerIndex;
+
+		public Buffer() {
+			this.buf = new char[64];
+			this.writerIndex = 0;
 		}
-		return super.equals(obj);
+
+		public Buffer(char[] buf) {
+			this.buf = buf;
+			this.writerIndex = buf.length;
+		}
+
+		public char[] base() {
+			return buf;
+		}
+
+		public void write(char value) {
+			if (writerIndex >= buf.length) {
+				char[] tmp = new char[buf.length << 1];
+				System.arraycopy(buf, 0, tmp, 0, buf.length);
+				buf = tmp;
+			}
+			buf[writerIndex++] = value;
+		}
+
+		public char charAt(int index) {
+			return buf[index];
+		}
+
+		public int size() {
+			return writerIndex;
+		}
+
+		public void writerIndex(int writerIndex) {
+			this.writerIndex = writerIndex;
+		}
+
+		public final boolean isSame(char[] values, int length) {
+			if (writerIndex != length) {
+				return false;
+			}
+			for (int i = 0; i < length; i++) {
+				if (buf[i] != values[i]) {
+					return false;
+				}
+			}
+			return true;
+		}
+
+		public void reset() {
+			this.writerIndex = 0;
+		}
+
+		@Override
+		public final int hashCode() {
+			return ArrayUtil.hashcode(base(), 0, size());
+		}
+
+		@Override
+		public final boolean equals(Object obj) {
+			if (obj instanceof Buffer) {
+				Buffer buf = (Buffer) obj;
+				return isSame(buf.base(), buf.size());
+			}
+			return false;
+		}
 	}
 }

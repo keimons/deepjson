@@ -1,13 +1,11 @@
 package com.keimons.deepjson.support.buffer;
 
 import com.keimons.deepjson.ReaderBuffer;
+import com.keimons.deepjson.SyntaxToken;
 import com.keimons.deepjson.support.ExpectedSyntaxException;
-import com.keimons.deepjson.support.SyntaxToken;
 import com.keimons.deepjson.support.UnknownSyntaxException;
 import com.keimons.deepjson.util.ArrayUtil;
 import com.keimons.deepjson.util.CodecUtil;
-
-import java.util.Arrays;
 
 /**
  * Json解码缓冲区
@@ -38,7 +36,8 @@ public class JsonReaderBuffer extends ReaderBuffer {
 		}
 	}
 
-	char[] buf;
+	CharSequence base;
+
 	int readerIndex;
 
 	/**
@@ -49,19 +48,22 @@ public class JsonReaderBuffer extends ReaderBuffer {
 	 * @see #nextToken() 查找下一个token时更新
 	 */
 	int startIndex;
-	char[] cache = new char[64];
-	int writerIndex;
+
 	int markerIndex;
-	int length;
+
+	final int limit;
+
 	SyntaxToken token;
 
+	Buffer buf = new Buffer();
+
 	public JsonReaderBuffer(String context) {
-		buf = context.toCharArray();
-		length = buf.length;
+		base = context;
+		limit = base.length();
 	}
 
 	@Override
-	public char[] base() {
+	public Buffer buffer() {
 		return buf;
 	}
 
@@ -71,9 +73,9 @@ public class JsonReaderBuffer extends ReaderBuffer {
 
 	@Override
 	public SyntaxToken nextToken() {
-		while (readerIndex < length) {
+		while (readerIndex < limit) {
 			startIndex = readerIndex;
-			char ch = buf[readerIndex++];
+			char ch = base.charAt(readerIndex++);
 			switch (ch) {
 				case '\u0000': // blank
 				case '\u0001': // blank
@@ -161,7 +163,7 @@ public class JsonReaderBuffer extends ReaderBuffer {
 					return token;
 				default:
 					token = SyntaxToken.ERROR;
-					throw new UnknownSyntaxException(buf, startIndex);
+					throw new UnknownSyntaxException(base, startIndex);
 			}
 		}
 		if (token == SyntaxToken.EOF) {
@@ -179,7 +181,7 @@ public class JsonReaderBuffer extends ReaderBuffer {
 		if (token == expect) {
 			return;
 		}
-		throw new ExpectedSyntaxException(buf, startIndex, token, expect);
+		throw new ExpectedSyntaxException(base, startIndex, token, expect);
 	}
 
 	@Override
@@ -187,7 +189,7 @@ public class JsonReaderBuffer extends ReaderBuffer {
 		if (token == expect1 || token == expect2) {
 			return;
 		}
-		throw new ExpectedSyntaxException(buf, startIndex, token, expect1, expect2);
+		throw new ExpectedSyntaxException(base, startIndex, token, expect1, expect2);
 	}
 
 	@Override
@@ -195,7 +197,7 @@ public class JsonReaderBuffer extends ReaderBuffer {
 		if (token == expect1 || token == expect2 || token == expect3) {
 			return;
 		}
-		throw new ExpectedSyntaxException(buf, startIndex, token, expect1, expect2, expect3);
+		throw new ExpectedSyntaxException(base, startIndex, token, expect1, expect2, expect3);
 	}
 
 	@Override
@@ -208,170 +210,161 @@ public class JsonReaderBuffer extends ReaderBuffer {
 				return;
 			}
 		}
-		throw new ExpectedSyntaxException(buf, startIndex, token, expects);
+		throw new ExpectedSyntaxException(base, startIndex, token, expects);
 	}
 
 	/**
 	 * 跳过注释
 	 */
 	private void skipNodes() {
-		if (readerIndex >= length) {
-			throw new UnknownSyntaxException(buf, startIndex);
+		if (readerIndex >= limit) {
+			throw new UnknownSyntaxException(base, startIndex);
 		}
-		char ch = buf[readerIndex++];
+		char ch = base.charAt(readerIndex++);
 		if (ch == '/') {
 			// 行注释 查找行末
-			for (; readerIndex < length; readerIndex++) {
-				if (buf[readerIndex] == '\n') {
+			for (; readerIndex < limit; readerIndex++) {
+				if (base.charAt(readerIndex) == '\n') {
 					readerIndex += 1; // jump 1
 					return;
 				}
 			}
 		} else if (ch == '*') {
 			// 快注释 查找块尾
-			for (int limit = length - 1; readerIndex < limit; readerIndex++) {
-				if (buf[readerIndex] == '*' && buf[readerIndex + 1] == '/') {
+			for (int limit = this.limit - 1; readerIndex < limit; readerIndex++) {
+				if (base.charAt(readerIndex) == '*' && base.charAt(readerIndex + 1) == '/') {
 					readerIndex += 2; // jump 2
 					return;
 				}
 			}
 		} else {
 			// 未知的注释，抛出未知语法异常
-			throw new UnknownSyntaxException(buf, markerIndex);
+			throw new UnknownSyntaxException(base, markerIndex);
 		}
 	}
 
 	private void nextString() {
-		writerIndex = 0;
-		int capacity = cache.length;
+		buf.reset();
 		counter:
 		{
 			// 优化 增加一个limit，针对于合法json是不需要扫描到最后的
-			for (int i = readerIndex, limit = length - 1; i < limit; ) {
-				if (capacity <= writerIndex) {
-					cache = Arrays.copyOf(cache, capacity <<= 1);
-				}
-				char c = buf[i++];
+			for (int i = readerIndex, limit = this.limit - 1; i < limit; ) {
+				char c = base.charAt(i++);
 				if (c == '"') {
 					readerIndex = i;
 					break counter;
 				}
 				if (c == '\\') {
-					char cmd = buf[i++];
+					char cmd = base.charAt(i++);
 					switch (cmd) {
 						case '0':
-							cache[writerIndex++] = '\u0000';
+							buf.write('\u0000');
 							break;
 						case '1':
-							cache[writerIndex++] = '\u0001';
+							buf.write('\u0001');
 							break;
 						case '2':
-							cache[writerIndex++] = '\u0002';
+							buf.write('\u0002');
 							break;
 						case '3':
-							cache[writerIndex++] = '\u0003';
+							buf.write('\u0003');
 							break;
 						case '4':
-							cache[writerIndex++] = '\u0004';
+							buf.write('\u0004');
 							break;
 						case '5':
-							cache[writerIndex++] = '\u0005';
+							buf.write('\u0005');
 							break;
 						case '6':
-							cache[writerIndex++] = '\u0006';
+							buf.write('\u0006');
 							break;
 						case '7':
-							cache[writerIndex++] = '\u0007';
+							buf.write('\u0007');
 							break;
 						case 'b':
-							cache[writerIndex++] = '\u0008';
+							buf.write('\u0008');
 							break;
 						case 't':
-							cache[writerIndex++] = '\u0009';
+							buf.write('\u0009');
 							break;
 						case 'n':
-							cache[writerIndex++] = '\n'; // 000A
+							buf.write('\n'); // 000A
 							break;
 						case 'v':
-							cache[writerIndex++] = '\u000B';
+							buf.write('\u000B');
 							break;
 						case 'f':
-							cache[writerIndex++] = '\u000C';
+							buf.write('\u000C');
 							break;
 						case 'r':
-							cache[writerIndex++] = '\r'; // 000D
+							buf.write('\r'); // 000D
 							break;
 						case '"':
-							cache[writerIndex++] = '"';
+							buf.write('"');
 							break;
 						case '\'':
-							cache[writerIndex++] = '\'';
+							buf.write('\'');
 							break;
 						case '/':
-							cache[writerIndex++] = '/';
+							buf.write('/');
 							break;
 						case '\\':
-							cache[writerIndex++] = '\\';
+							buf.write('\\');
 							break;
 						case 'x':
-							if (length - i < 2) {
-								throw new UnknownSyntaxException("incomplete escape character", buf, i - 2);
+							if (this.limit - i < 2) {
+								throw new UnknownSyntaxException("incomplete escape character", base, i - 2);
 							}
-							char c1 = buf[i++];
-							char c2 = buf[i++];
+							char c1 = base.charAt(i++);
+							char c2 = base.charAt(i++);
 							if (checkNotHex16(c1) || checkNotHex16(c1)) {
-								throw new UnknownSyntaxException("illegal hex \\x" + c1 + c2, buf, i - 6);
+								throw new UnknownSyntaxException("illegal hex \\x" + c1 + c2, base, i - 6);
 							}
-							cache[writerIndex++] = (char) (digits[c1] << 4 | digits[c2]);
+							buf.write((char) (digits[c1] << 4 | digits[c2]));
 							break;
 						case 'u':
-							if (length - i < 4) {
-								throw new UnknownSyntaxException("incomplete escape character", buf, i - 2);
+							if (this.limit - i < 4) {
+								throw new UnknownSyntaxException("incomplete escape character", base, i - 2);
 							}
-							char v1 = buf[i++];
-							char v2 = buf[i++];
-							char v3 = buf[i++];
-							char v4 = buf[i++];
+							char v1 = base.charAt(i++);
+							char v2 = base.charAt(i++);
+							char v3 = base.charAt(i++);
+							char v4 = base.charAt(i++);
 							if (checkNotHex16(v1) || checkNotHex16(v2) || checkNotHex16(v3) || checkNotHex16(v4)) {
-								throw new UnknownSyntaxException("illegal unicode \\u" + v1 + v2 + v3 + v4, buf, i - 6);
+								throw new UnknownSyntaxException("illegal unicode \\u" + v1 + v2 + v3 + v4, base, i - 6);
 							}
-							cache[writerIndex++] = (char) ((digits[v1] << 12) | (digits[v2] << 8) | (digits[v3] << 4) | digits[v4]);
+							buf.write((char) ((digits[v1] << 12) | (digits[v2] << 8) | (digits[v3] << 4) | digits[v4]));
 							break;
 						default:
-							throw new UnknownSyntaxException("unknown escape character \\" + cmd, buf, i - 2);
+							throw new UnknownSyntaxException("unknown escape character \\" + cmd, base, i - 2);
 					}
 				} else {
-					cache[writerIndex++] = c;
+					buf.write(c);
 				}
 			}
-			char latest = buf[length - 1];
+			char latest = base.charAt(limit - 1);
 			if (latest == '"') {
 				// 更新读取位置，对于合法的json，最后一个应该是'}'或']'，此操作可能多于。
-				readerIndex = length;
+				readerIndex = limit;
 			} else if (latest == '\\') {
 				// 最后一个字符如果是'\\'代表不完整的转义字符
-				throw new UnknownSyntaxException("incomplete escape character", buf, markerIndex);
+				throw new UnknownSyntaxException("incomplete escape character", base, markerIndex);
 			} else {
-				throw new UnknownSyntaxException("unclose string", buf, markerIndex);
+				throw new UnknownSyntaxException("unclose string", base, markerIndex);
 			}
 		}
 	}
 
 	@Override
-	public int valueHashcode() {
-		return ArrayUtil.hashcode(cache, 0, writerIndex);
-	}
-
-	@Override
 	public String stringValue() {
-		return new String(cache, 0, writerIndex);
+		return new String(buf.base(), 0, buf.size());
 	}
 
 	@Override
 	public Number adaptiveNumber() {
 		boolean isDecimal = false;
-		for (int i = 0; i < writerIndex; i++) {
-			char c = cache[i];
+		for (int i = 0; i < buf.size(); i++) {
+			char c = buf.charAt(i);
 			switch (c) {
 				case 'f':
 				case 'F':
@@ -399,18 +392,18 @@ public class JsonReaderBuffer extends ReaderBuffer {
 		if (token == SyntaxToken.FALSE) {
 			return Boolean.FALSE;
 		}
-		return writerIndex == 4 &&
-				(cache[0] == 't' || cache[0] == 'T') &&
-				(cache[1] == 'r' || cache[1] == 'R') &&
-				(cache[2] == 'u' || cache[2] == 'U') &&
-				(cache[3] == 'e' || cache[3] == 'E');
+		return buf.size() == 4 &&
+				(buf.charAt(0) == 't' || buf.charAt(0) == 'T') &&
+				(buf.charAt(1) == 'r' || buf.charAt(1) == 'R') &&
+				(buf.charAt(2) == 'u' || buf.charAt(2) == 'U') &&
+				(buf.charAt(3) == 'e' || buf.charAt(3) == 'E');
 	}
 
 	@Override
 	public byte byteValue() {
-		int i = CodecUtil.readInt(cache, 0, writerIndex);
+		int i = CodecUtil.readInt(buf.base(), 0, buf.size());
 		if (i < Byte.MIN_VALUE || i > Byte.MAX_VALUE) {
-			String msg = "Value out of range. Value:\"" + new String(cache, 0, writerIndex) + "\"";
+			String msg = "Value out of range. Value:\"" + new String(buf.base(), 0, buf.size()) + "\"";
 			throw new NumberFormatException(msg);
 		}
 		return (byte) i;
@@ -418,9 +411,9 @@ public class JsonReaderBuffer extends ReaderBuffer {
 
 	@Override
 	public short shortValue() {
-		int i = CodecUtil.readInt(cache, 0, writerIndex);
+		int i = CodecUtil.readInt(buf.base(), 0, buf.size());
 		if (i < Short.MIN_VALUE || Short.MAX_VALUE < i) {
-			String msg = "Value out of range. Value:\"" + new String(cache, 0, writerIndex) + "\"";
+			String msg = "Value out of range. Value:\"" + new String(buf.base(), 0, buf.size()) + "\"";
 			throw new NumberFormatException(msg);
 		}
 		return (short) i;
@@ -428,88 +421,79 @@ public class JsonReaderBuffer extends ReaderBuffer {
 
 	@Override
 	public char charValue() {
-		return cache[0];
+		return buf.charAt(0);
 	}
 
 	@Override
 	public int intValue() {
-		return CodecUtil.readInt(cache, 0, writerIndex);
+		return CodecUtil.readInt(buf.base(), 0, buf.size());
 	}
 
 	@Override
 	public long longValue() {
-		if (writerIndex > 0) {
-			char last = cache[writerIndex - 1];
+		if (buf.size() > 0) {
+			char last = buf.charAt(buf.size() - 1);
 			if (last == 'L' || last == 'l') {
-				writerIndex -= 1;
+				buf.writerIndex(buf.size() - 1);
 			}
 		}
-		return CodecUtil.readLong(cache, 0, writerIndex);
+		return CodecUtil.readLong(buf.base(), 0, buf.size());
 	}
 
 	@Override
 	public float floatValue() {
-		return Float.parseFloat(new String(cache, 0, writerIndex));
+		return Float.parseFloat(new String(buf.base(), 0, buf.size()));
 	}
 
 	@Override
 	public double doubleValue() {
-		return Double.parseDouble(new String(cache, 0, writerIndex));
-	}
-
-	@Override
-	public boolean isSame(char[] values) {
-		if (writerIndex != values.length) {
-			return false;
-		}
-		for (int i = 0; i < writerIndex; i++) {
-			if (cache[i] != values[i]) {
-				return false;
-			}
-		}
-		return true;
+		return Double.parseDouble(new String(buf.base(), 0, buf.size()));
 	}
 
 	@Override
 	public boolean is$Id() {
-		if (writerIndex < 5) {
+		if (buf.size() < 5) {
 			return false;
 		}
-		return cache[0] == '$' && cache[1] == 'i' && cache[2] == 'd' && cache[3] == ':';
+		return buf.charAt(0) == '$' && buf.charAt(1) == 'i' && buf.charAt(2) == 'd' && buf.charAt(3) == ':';
 	}
 
 	@Override
 	public int get$Id() {
-		return Integer.parseInt(new String(cache, 4, writerIndex - 4));
+		return CodecUtil.readInt(buf.base(), 4, buf.size());
 	}
 
 	@Override
 	public boolean checkPutId() {
-		if (writerIndex != 3) {
+		if (buf.size() != 3) {
 			return false;
 		}
-		return cache[0] == '@' && cache[1] == 'i' && cache[2] == 'd';
+		return buf.charAt(0) == '@' && buf.charAt(1) == 'i' && buf.charAt(2) == 'd';
 	}
 
 	@Override
 	public boolean checkGetType() {
-		if (writerIndex != 5) {
+		if (buf.size() != 5) {
 			return false;
 		}
-		return cache[0] == '$' && cache[1] == 't' && cache[2] == 'y' && cache[3] == 'p' && cache[4] == 'e';
+		return buf.charAt(0) == '$' &&
+				buf.charAt(1) == 't' &&
+				buf.charAt(2) == 'y' &&
+				buf.charAt(3) == 'p' &&
+				buf.charAt(4) == 'e';
 	}
 
 	@Override
 	public boolean checkGetValue() {
-		if (writerIndex != 6) {
+		if (buf.size() != 6) {
 			return false;
 		}
-		return cache[0] == '$' &&
-				cache[1] == 'v' &&
-				cache[2] == 'a' &&
-				cache[3] == 'l' &&
-				cache[4] == 'u' &&
-				cache[5] == 'e';
+		return buf.charAt(0) == '$' &&
+				buf.charAt(1) == 'v' &&
+				buf.charAt(2) == 'a' &&
+				buf.charAt(3) == 'l' &&
+				buf.charAt(4) == 'u' &&
+				buf.charAt(5) == 'e';
 	}
 
 	@Override
@@ -523,63 +507,58 @@ public class JsonReaderBuffer extends ReaderBuffer {
 	 * 标记字符串包括：true，false，null和它们的各种大小写。
 	 */
 	private void nextMarkString() {
-		writerIndex = 0;
+		buf.reset();
 		// 预读5个字节
-		for (int i = readerIndex - 1, limit = Math.min(i + 5, length); i < limit; i++) {
-			char x = buf[i];
+		for (int i = readerIndex - 1, limit = Math.min(i + 5, this.limit); i < limit; i++) {
+			char x = base.charAt(i);
 			x = x < 97 ? (char) (x + 32) : x;
-			cache[writerIndex++] = x;
+			buf.write(x);
 		}
-		switch (cache[0]) {
+		switch (buf.charAt(0)) {
 			case 't':
-				if (ArrayUtil.isSame(cache, CONST_true, 4)) {
+				if (ArrayUtil.isSame(buf.base(), CONST_true, 4)) {
 					token = SyntaxToken.TRUE;
 					readerIndex += 3;
 					return;
 				} else {
-					throw new UnknownSyntaxException("unknown mark", buf, startIndex);
+					throw new UnknownSyntaxException("unknown mark", base, startIndex);
 				}
 			case 'f':
-				if (ArrayUtil.isSame(cache, CONST_false, 5)) {
+				if (ArrayUtil.isSame(buf.base(), CONST_false, 5)) {
 					token = SyntaxToken.FALSE;
 					readerIndex += 4;
 					return;
 				} else {
-					throw new UnknownSyntaxException("unknown mark", buf, startIndex);
+					throw new UnknownSyntaxException("unknown mark", base, startIndex);
 				}
 			case 'n':
-				if (ArrayUtil.isSame(cache, CONST_null, 4)) {
+				if (ArrayUtil.isSame(buf.base(), CONST_null, 4)) {
 					token = SyntaxToken.NULL;
 					readerIndex += 3;
 					return;
 				} else {
-					throw new UnknownSyntaxException("unknown mark", buf, startIndex);
+					throw new UnknownSyntaxException("unknown mark", base, startIndex);
 				}
 			default:
-				throw new UnknownSyntaxException("unknown mark", buf, startIndex);
+				throw new UnknownSyntaxException("unknown mark", base, startIndex);
 		}
 	}
 
 	private void nextNumber() {
-		writerIndex = 0;
-		int capacity = cache.length;
-		for (int i = readerIndex - 1; i < length; i++) {
-			char c = buf[i];
+		buf.reset();
+		for (int i = readerIndex - 1; i < limit; i++) {
+			char c = base.charAt(i);
 			if (checkNumber(c)) {
-				if (writerIndex > 65535) {
-					throw new UnknownSyntaxException("number overflow", buf, startIndex);
+				if (buf.size() > 65535) {
+					throw new UnknownSyntaxException("number overflow", base, startIndex);
 				}
-				if (capacity <= writerIndex) {
-					cache = Arrays.copyOf(cache, cache.length << 1);
-					capacity = cache.length;
-				}
-				cache[writerIndex++] = c;
+				buf.write(c);
 			} else {
 				readerIndex = i;
 				return;
 			}
 		}
-		readerIndex = length;
+		readerIndex = limit;
 	}
 
 	private boolean checkNumber(char c) {
@@ -646,12 +625,6 @@ public class JsonReaderBuffer extends ReaderBuffer {
 				return false;
 			default:
 				return true;
-		}
-	}
-
-	private void ensureWritable(int minCapacity) {
-		if (cache.length < minCapacity) {
-			cache = Arrays.copyOf(cache, cache.length << 1);
 		}
 	}
 

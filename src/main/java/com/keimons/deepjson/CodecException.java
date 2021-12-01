@@ -39,20 +39,20 @@ public abstract class CodecException extends RuntimeException {
 	 * @param startIndex 标记位置
 	 * @return 异常信息
 	 */
-	public static String buildMessage(final char[] buf, final int startIndex) {
+	public static String buildMessage(final CharSequence buf, final int startIndex) {
 		char[] chars = new char[22];
 		int index = 0;
 		// 复制前10个字符
 		for (int i = Math.max(0, startIndex - 10); i < startIndex; i++) {
-			chars[index++] = buf[i];
+			chars[index++] = buf.charAt(i);
 		}
 		if (index != 0) {
 			chars[index++] = ' ';
 		}
 		chars[index++] = '→';
 		// 复制后10个字符
-		for (int i = startIndex, limit = Math.min(buf.length, startIndex + 10); i < limit; i++) {
-			chars[index++] = buf[i];
+		for (int i = startIndex, limit = Math.min(buf.length(), startIndex + 10); i < limit; i++) {
+			chars[index++] = buf.charAt(i);
 		}
 		return new String(chars, 0, index);
 	}

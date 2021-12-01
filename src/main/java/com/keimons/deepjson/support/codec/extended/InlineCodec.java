@@ -2,7 +2,6 @@ package com.keimons.deepjson.support.codec.extended;
 
 import com.keimons.deepjson.*;
 import com.keimons.deepjson.compiler.FieldInfo;
-import com.keimons.deepjson.support.SyntaxToken;
 import com.keimons.deepjson.util.ClassUtil;
 import com.keimons.deepjson.util.MethodHandleUtil;
 
@@ -29,7 +28,7 @@ public class InlineCodec extends ExtendedCodec {
 
 	private List<MethodHandle> writers = new ArrayList<MethodHandle>();
 
-	private Map<Object, MethodHandle> readers = new HashMap<Object, MethodHandle>();
+	private Map<ReaderBuffer.Buffer, MethodHandle> readers = new HashMap<ReaderBuffer.Buffer, MethodHandle>();
 
 	@Override
 	public void init(Class<?> clazz) {
@@ -87,14 +86,14 @@ public class InlineCodec extends ExtendedCodec {
 					reader = MethodHandles.insertArguments(reader, 4, info.getField().getGenericType());
 					reader = MethodHandles.insertArguments(reader, 4, setter);
 				}
-				readers.put(new CharArrayNode(name), reader);
+				readers.put(new ReaderBuffer.Buffer(name), reader);
 			}
 			MethodType mt = MethodType.methodType(
 					void.class,
 					Object.class, ReaderBuffer.class, ReaderContext.class, long.class
 			);
 			MethodHandle fSetId = lookup.findStatic(CodecUtil.class, "read", mt);
-			readers.put(new CharArrayNode(FIELD_SET_ID), fSetId);
+			readers.put(new ReaderBuffer.Buffer(FIELD_SET_ID), fSetId);
 		} catch (NoSuchMethodException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
@@ -144,7 +143,7 @@ public class InlineCodec extends ExtendedCodec {
 					break;
 				}
 				buf.assertExpectedSyntax(SyntaxToken.STRING);
-				MethodHandle reader = readers.get(buf);
+				MethodHandle reader = readers.get(buf.buffer());
 				buf.nextToken();
 				buf.assertExpectedSyntax(SyntaxToken.COLON);
 				buf.nextToken();

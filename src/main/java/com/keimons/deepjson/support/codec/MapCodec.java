@@ -3,7 +3,6 @@ package com.keimons.deepjson.support.codec;
 import com.keimons.deepjson.*;
 import com.keimons.deepjson.support.ElementsFuture;
 import com.keimons.deepjson.support.IncompatibleTypeException;
-import com.keimons.deepjson.support.SyntaxToken;
 import com.keimons.deepjson.util.ReflectionUtil;
 import org.jetbrains.annotations.NotNull;
 

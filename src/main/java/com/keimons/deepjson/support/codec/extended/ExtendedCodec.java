@@ -2,9 +2,9 @@ package com.keimons.deepjson.support.codec.extended;
 
 import com.keimons.deepjson.ReaderBuffer;
 import com.keimons.deepjson.ReaderContext;
+import com.keimons.deepjson.SyntaxToken;
 import com.keimons.deepjson.compiler.ExtendedCodecClassLoader;
 import com.keimons.deepjson.support.IncompatibleTypeException;
-import com.keimons.deepjson.support.SyntaxToken;
 import com.keimons.deepjson.support.codec.AbstractOnlineCodec;
 import com.keimons.deepjson.util.ClassUtil;
 

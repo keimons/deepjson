@@ -1,6 +1,7 @@
 package com.keimons.deepjson.support;
 
 import com.keimons.deepjson.CodecException;
+import com.keimons.deepjson.SyntaxToken;
 
 import java.util.Arrays;
 
@@ -27,7 +28,7 @@ public class ExpectedSyntaxException extends CodecException {
 	 * @param current    当前语法
 	 * @param targets    目标语法
 	 */
-	public ExpectedSyntaxException(char[] buf, int startIndex, SyntaxToken current, SyntaxToken... targets) {
+	public ExpectedSyntaxException(CharSequence buf, int startIndex, SyntaxToken current, SyntaxToken... targets) {
 		super("syntax error at " + startIndex +
 				": " + buildMessage(buf, startIndex) +
 				", token: " + current +

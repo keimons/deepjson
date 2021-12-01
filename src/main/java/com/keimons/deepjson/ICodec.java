@@ -1,6 +1,5 @@
 package com.keimons.deepjson;
 
-import com.keimons.deepjson.support.SyntaxToken;
 import com.keimons.deepjson.support.codec.*;
 import com.keimons.deepjson.util.UnsafeUtil;
 import sun.misc.Unsafe;

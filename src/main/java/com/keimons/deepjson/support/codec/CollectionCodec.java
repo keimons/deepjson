@@ -1,7 +1,10 @@
 package com.keimons.deepjson.support.codec;
 
 import com.keimons.deepjson.*;
-import com.keimons.deepjson.support.*;
+import com.keimons.deepjson.support.ElementsFuture;
+import com.keimons.deepjson.support.IncompatibleTypeException;
+import com.keimons.deepjson.support.InstantiationFailedException;
+import com.keimons.deepjson.support.UnknownSyntaxException;
 
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;

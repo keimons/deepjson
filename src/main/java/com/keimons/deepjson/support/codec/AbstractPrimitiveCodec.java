@@ -1,7 +1,6 @@
 package com.keimons.deepjson.support.codec;
 
 import com.keimons.deepjson.*;
-import com.keimons.deepjson.support.SyntaxToken;
 
 /**
  * 基础类型数组编解码器

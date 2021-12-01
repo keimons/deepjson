@@ -31,7 +31,7 @@ public class UnknownSyntaxException extends CodecException {
 	 * @param buf        缓冲区
 	 * @param startIndex 标记位置
 	 */
-	public UnknownSyntaxException(final char[] buf, final int startIndex) {
+	public UnknownSyntaxException(final CharSequence buf, final int startIndex) {
 		super("unknown syntax at " + startIndex + ": " + buildMessage(buf, startIndex));
 	}
 
@@ -44,7 +44,7 @@ public class UnknownSyntaxException extends CodecException {
 	 * @param buf        缓冲区
 	 * @param startIndex 标记位置
 	 */
-	public UnknownSyntaxException(String message, char[] buf, int startIndex) {
+	public UnknownSyntaxException(String message, CharSequence buf, int startIndex) {
 		super(message + " " + startIndex + ": " + buildMessage(buf, startIndex));
 	}
 }

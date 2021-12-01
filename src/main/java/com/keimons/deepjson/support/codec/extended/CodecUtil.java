@@ -1,7 +1,6 @@
 package com.keimons.deepjson.support.codec.extended;
 
 import com.keimons.deepjson.*;
-import com.keimons.deepjson.support.SyntaxToken;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Type;
