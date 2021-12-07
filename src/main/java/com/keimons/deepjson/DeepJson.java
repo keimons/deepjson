@@ -2,7 +2,6 @@ package com.keimons.deepjson;
 
 import com.keimons.deepjson.internal.LocalCache;
 import com.keimons.deepjson.support.buffer.JsonReaderBuffer;
-import com.keimons.deepjson.support.codec.Template;
 import com.keimons.deepjson.support.context.TypeAndHookContext;
 import com.keimons.deepjson.util.StringGeneratorHelper;
 import com.keimons.deepjson.util.WriteFailedException;
@@ -19,16 +18,13 @@ public class DeepJson {
 	// empty options
 	private static final CodecOptions[] EMPTY = new CodecOptions[0];
 
-	static {
-		// 预热编译器
-		String json = DeepJson.toJsonString(new Template());
-		if (CodecConfig.DEBUG) {
-			System.out.println(json);
+	private static LocalCache getLocalCache() {
+		LocalCache config = CACHE.get();
+		if (config == null) {
+			config = new LocalCache();
+			CACHE.set(config);
 		}
-		Template template = DeepJson.parseObject(json, Template.class);
-		if (CodecConfig.DEBUG) {
-			System.out.println(DeepJson.toJsonString(template));
-		}
+		return config;
 	}
 
 	public static String toJsonString(Object object) {
@@ -64,13 +60,9 @@ public class DeepJson {
 
 	public static <T> T writeTo(Object object, Generator<T> writer, T dest, CodecOptions... options) {
 		long option = CodecOptions.getOptions(options);
-		LocalCache config = CACHE.get();
-		if (config == null) {
-			config = new LocalCache();
-			CACHE.set(config);
-		}
-		WriterContext context = config.context;
-		WriterBuffer buffer = config.buffer;
+		LocalCache cache = getLocalCache();
+		WriterContext context = cache.context;
+		WriterBuffer buffer = cache.buffer;
 		return encode(object, context, buffer, writer, dest, option);
 	}
 
@@ -80,11 +72,7 @@ public class DeepJson {
 	}
 
 	static String toJsonString(Object object, long options) {
-		LocalCache cache = CACHE.get();
-		if (cache == null) {
-			cache = new LocalCache();
-			CACHE.set(cache);
-		}
+		LocalCache cache = getLocalCache();
 		WriterContext context = cache.context;
 		WriterBuffer buffer = cache.buffer;
 		Generator<String> writer = cache.writer;
@@ -100,22 +88,14 @@ public class DeepJson {
 	}
 
 	static byte[] toJsonBytes(Object object, long options) {
-		LocalCache cache = CACHE.get();
-		if (cache == null) {
-			cache = new LocalCache();
-			CACHE.set(cache);
-		}
+		LocalCache cache = getLocalCache();
 		WriterContext context = cache.context;
 		WriterBuffer buffer = cache.buffer;
 		return encode(object, context, buffer, Generator.GENERATOR_BYTES_UTF8, null, options);
 	}
 
 	static char[] toJsonChars(Object object, long options) {
-		LocalCache cache = CACHE.get();
-		if (cache == null) {
-			cache = new LocalCache();
-			CACHE.set(cache);
-		}
+		LocalCache cache = getLocalCache();
 		WriterContext context = cache.context;
 		WriterBuffer buffer = cache.buffer;
 		return encode(object, context, buffer, Generator.CHAR_ARRAY, null, options);

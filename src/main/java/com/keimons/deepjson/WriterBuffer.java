@@ -3,10 +3,8 @@ package com.keimons.deepjson;
 import com.keimons.deepjson.support.buffer.CompositeBuffer;
 import com.keimons.deepjson.support.buffer.SafeBuffer;
 import com.keimons.deepjson.util.CodecUtil;
-import com.keimons.deepjson.util.UnsafeUtil;
 import com.keimons.deepjson.util.WriteFailedException;
 import org.jetbrains.annotations.Nullable;
-import sun.misc.Unsafe;
 
 import java.io.Closeable;
 
@@ -25,7 +23,6 @@ public abstract class WriterBuffer implements Closeable {
 			'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
 	};
 	public static final char[][] REPLACEMENT_CHARS;
-	protected static final Unsafe unsafe = UnsafeUtil.getUnsafe();
 
 	static {
 		REPLACEMENT_CHARS = new char[256][];
@@ -72,6 +69,8 @@ public abstract class WriterBuffer implements Closeable {
 	 * 当前正在写入的缓冲区
 	 */
 	protected char[] buf;
+
+	Appendable appendable;
 
 	/**
 	 * 写入位置
@@ -274,37 +273,8 @@ public abstract class WriterBuffer implements Closeable {
 	 */
 	protected void writeStringUnicode(String value) {
 		buf[writeIndex++] = '"';
-		if (CodecUtil.CHARS) {
-			char[] values = (char[]) unsafe.getObject(value, CodecUtil.VALUES_OFFSET_STRING);
-			for (char c : values) {
-				writeUnicode(c);
-			}
-		} else {
-			byte coder = unsafe.getByte(value, CodecUtil.CODER_OFFSET_STRING);
-			byte[] values = (byte[]) unsafe.getObject(value, CodecUtil.VALUE_OFFSET_STRING);
-			if (CodecUtil.isLatin1(coder)) {
-				for (byte b : values) {
-					buf[writeIndex++] = '\\';
-					buf[writeIndex++] = 'u';
-					buf[writeIndex++] = '0';
-					buf[writeIndex++] = '0';
-					buf[writeIndex++] = CHAR_HEX[b >> 4 & 0xF];
-					buf[writeIndex++] = CHAR_HEX[b & 0xF];
-				}
-			} else {
-				int i = CodecUtil.BIG_ENCODE ? 0 : 1;
-				int j = CodecUtil.BIG_ENCODE ? 1 : 0;
-				for (int length = values.length; i < length; i += 2, j += 2) {
-					byte hi = values[i];
-					byte lo = values[j];
-					buf[writeIndex++] = '\\';
-					buf[writeIndex++] = 'u';
-					buf[writeIndex++] = CHAR_HEX[hi >> 4 & 0xF];
-					buf[writeIndex++] = CHAR_HEX[hi & 0xF];
-					buf[writeIndex++] = CHAR_HEX[lo >> 4 & 0xF];
-					buf[writeIndex++] = CHAR_HEX[lo & 0xF];
-				}
-			}
+		for (int i = 0, length = value.length(); i < length; i++) {
+			writeUnicode(value.charAt(i));
 		}
 		buf[writeIndex++] = '"';
 	}
@@ -316,56 +286,8 @@ public abstract class WriterBuffer implements Closeable {
 	 */
 	protected void writeStringNormal(String value) {
 		buf[writeIndex++] = '"';
-		if (CodecUtil.CHARS) {
-			char[] values = (char[]) unsafe.getObject(value, CodecUtil.VALUES_OFFSET_STRING);
-			for (char c : values) {
-				writeNormal(c);
-			}
-		} else {
-			byte coder = unsafe.getByte(value, CodecUtil.CODER_OFFSET_STRING);
-			byte[] values = (byte[]) unsafe.getObject(value, CodecUtil.VALUE_OFFSET_STRING);
-			if (CodecUtil.isLatin1(coder)) {
-				for (byte b : values) {
-					char[] chars = REPLACEMENT_CHARS[b & 0xFF];
-					if (chars == null) {
-						buf[writeIndex++] = (char) (b & 0xFF);
-					} else {
-						for (char c : chars) {
-							buf[writeIndex++] = c;
-						}
-					}
-				}
-			} else {
-				int i = CodecUtil.BIG_ENCODE ? 0 : 1;
-				int j = CodecUtil.BIG_ENCODE ? 1 : 0;
-				for (int length = values.length; i < length; i += 2, j += 2) {
-					byte hi = values[i];
-					byte lo = values[j];
-					if (hi == 0) { // 高8位为0
-						char[] chars = REPLACEMENT_CHARS[lo & 0xFF];
-						if (chars == null) {
-							buf[writeIndex++] = (char) (lo & 0xFF);
-						} else {
-							for (char c : chars) {
-								buf[writeIndex++] = c;
-							}
-						}
-					} else if (hi == 0x20 && (lo == 0x28 || lo == 0x29)) {
-						buf[writeIndex++] = '\\';
-						buf[writeIndex++] = 'u';
-						buf[writeIndex++] = '2';
-						buf[writeIndex++] = '0';
-						buf[writeIndex++] = '2';
-						if (lo == 0x28) {
-							buf[writeIndex++] = '8'; // 0x2028
-						} else {
-							buf[writeIndex++] = '9'; // 0x2029
-						}
-					} else {
-						buf[writeIndex++] = (char) (((hi & 0xFF) << 8) | (lo & 0xFF));
-					}
-				}
-			}
+		for (int i = 0, length = value.length(); i < length; i++) {
+			writeNormal(value.charAt(i));
 		}
 		buf[writeIndex++] = '"';
 	}

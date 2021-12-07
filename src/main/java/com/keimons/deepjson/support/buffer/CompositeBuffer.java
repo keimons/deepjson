@@ -201,37 +201,8 @@ public class CompositeBuffer extends WriterBuffer {
 	protected void writeStringUnicode(String value) {
 		if (ensureWritable(value.length() * 6 + 2)) {
 			writeLeap('"');
-			if (CodecUtil.CHARS) {
-				char[] values = (char[]) unsafe.getObject(value, CodecUtil.VALUES_OFFSET_STRING);
-				for (char c : values) {
-					writeUnicodeLeap(c);
-				}
-			} else {
-				byte coder = unsafe.getByte(value, CodecUtil.CODER_OFFSET_STRING);
-				byte[] values = (byte[]) unsafe.getObject(value, CodecUtil.VALUE_OFFSET_STRING);
-				if (CodecUtil.isLatin1(coder)) {
-					for (byte b : values) {
-						writeLeap('\\');
-						writeLeap('u');
-						writeLeap('0');
-						writeLeap('0');
-						writeLeap(CHAR_HEX[b >> 4 & 0xF]);
-						writeLeap(CHAR_HEX[b & 0xF]);
-					}
-				} else {
-					int i = CodecUtil.BIG_ENCODE ? 0 : 1;
-					int j = CodecUtil.BIG_ENCODE ? 1 : 0;
-					for (int length = values.length; i < length; i += 2, j += 2) {
-						byte hi = values[i];
-						byte lo = values[j];
-						writeLeap('\\');
-						writeLeap('u');
-						writeLeap(CHAR_HEX[hi >> 4 & 0xF]);
-						writeLeap(CHAR_HEX[hi & 0xF]);
-						writeLeap(CHAR_HEX[lo >> 4 & 0xF]);
-						writeLeap(CHAR_HEX[lo & 0xF]);
-					}
-				}
+			for (int i = 0, length = value.length(); i < length; i++) {
+				writeUnicodeLeap(value.charAt(i));
 			}
 			writeLeap('"');
 		} else {
@@ -243,54 +214,11 @@ public class CompositeBuffer extends WriterBuffer {
 	protected void writeStringNormal(String value) {
 		int writable = CodecUtil.length(value) + 2;
 		if (ensureWritable(writable)) {
-			if (CodecUtil.CHARS) {
-				writeLeap('"');
-				char[] values = (char[]) unsafe.getObject(value, CodecUtil.VALUES_OFFSET_STRING);
-				for (char c : values) {
-					writeNormalLeap(c);
-				}
-				writeLeap('"');
-			} else {
-				writeLeap('"');
-				byte coder = unsafe.getByte(value, CodecUtil.CODER_OFFSET_STRING);
-				byte[] values = (byte[]) unsafe.getObject(value, CodecUtil.VALUE_OFFSET_STRING);
-				if (CodecUtil.isLatin1(coder)) {
-					for (byte b : values) {
-						writeLeap((char) (b & 0xFF));
-					}
-				} else {
-					int i = CodecUtil.BIG_ENCODE ? 0 : 1;
-					int j = CodecUtil.BIG_ENCODE ? 1 : 0;
-					for (int length = values.length; i < length; i += 2, j += 2) {
-						byte hi = values[i];
-						byte lo = values[j];
-						if (hi == 0) { // 高8位为0
-							char[] chars = REPLACEMENT_CHARS[lo & 0xFF];
-							if (chars == null) {
-								writeLeap((char) (lo & 0xFF));
-							} else {
-								for (char c : chars) {
-									writeLeap(c);
-								}
-							}
-						} else if (hi == 0x20 && (lo == 0x28 || lo == 0x29)) {
-							writeLeap('\\');
-							writeLeap('u');
-							writeLeap('2');
-							writeLeap('0');
-							writeLeap('2');
-							if (lo == 0x28) {
-								writeLeap('8'); // 0x2028
-							} else {
-								writeLeap('9'); // 0x2029
-							}
-						} else {
-							writeLeap((char) (((hi & 0xFF) << 8) | (lo & 0xFF)));
-						}
-					}
-				}
-				writeLeap('"');
+			writeLeap('"');
+			for (int i = 0, length = value.length(); i < length; i++) {
+				writeNormalLeap(value.charAt(i));
 			}
+			writeLeap('"');
 		} else {
 			super.writeStringNormal(value);
 		}
