@@ -61,4 +61,13 @@ public class PlatformUtil {
 		long usingMemory = totalMemory - freeMemory;
 		return Math.round(usingMemory * 10000f / maxMemory) * 0.01f;
 	}
+
+	/**
+	 * 返回CPU核心数量
+	 *
+	 * @return CPU核心数量
+	 */
+	public static int cores() {
+		return Runtime.getRuntime().availableProcessors();
+	}
 }

@@ -2,7 +2,7 @@ package com.keimons.deepjson.support.context;
 
 import com.keimons.deepjson.CodecModel;
 import com.keimons.deepjson.ICodec;
-import com.keimons.deepjson.WriterBuffer;
+import com.keimons.deepjson.JsonWriter;
 import com.keimons.deepjson.WriterContext;
 import com.keimons.deepjson.support.CodecFactory;
 import com.keimons.deepjson.support.ReferenceNode;
@@ -13,6 +13,7 @@ import com.keimons.deepjson.util.WeakIdentityHashMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
 import java.util.Arrays;
 
 /**
@@ -53,7 +54,7 @@ public class DepthSearchContext extends WriterContext {
 	 * 深度优先算法构建的对象序列（有序）
 	 * <p>
 	 * 编码完成后，需要手动清空，如果没有手动清空，会造成内存泄漏。需要在
-	 * {@link DepthSearchContext#release(WriterBuffer)}}中手动清空的。
+	 * {@link DepthSearchContext#release(JsonWriter)}}中手动清空的。
 	 */
 	private Object[] values = new Object[DEFAULT_CAPACITY];
 
@@ -106,11 +107,11 @@ public class DepthSearchContext extends WriterContext {
 	}
 
 	@Override
-	public void encode(WriterBuffer buf, CodecModel model, long options) {
+	public void encode(JsonWriter writer, CodecModel model, long options) throws IOException {
 		Object value = values[readerIndex];
 		int uniqueId = uniques[readerIndex];
 		ICodec<Object> codec = codecs[readerIndex++];
-		codec.encode(this, buf, model, value, uniqueId, options);
+		codec.encode(this, writer, model, value, uniqueId, options);
 	}
 
 	/**
@@ -150,7 +151,7 @@ public class DepthSearchContext extends WriterContext {
 	}
 
 	@Override
-	public void release(WriterBuffer buffer) {
+	public void release(JsonWriter writer) throws IOException {
 		if (context.capacity() >= MAXIMUM_CAPACITY) {
 			context = new WeakIdentityHashMap<Object>(MAXIMUM_CAPACITY);
 		} else {
@@ -168,6 +169,6 @@ public class DepthSearchContext extends WriterContext {
 		this.unique = 0;
 		this.readerIndex = 0;
 		this.writerIndex = 0;
-		buffer.close();
+		writer.close();
 	}
 }

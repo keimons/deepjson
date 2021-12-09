@@ -1,8 +1,10 @@
 package com.keimons.deepjson.support.codec;
 
+import com.keimons.deepjson.JsonWriter;
 import com.keimons.deepjson.ReaderBuffer;
 import com.keimons.deepjson.ReaderContext;
-import com.keimons.deepjson.WriterBuffer;
+
+import java.io.IOException;
 
 /**
  * {@link Double}编解码器
@@ -16,8 +18,8 @@ public class DoubleCodec extends AbstractPrimitiveCodec<Double> {
 	public static final DoubleCodec instance = new DoubleCodec();
 
 	@Override
-	protected void encode0(WriterBuffer buf, Double value) {
-		buf.write(value);
+	protected void encode0(JsonWriter writer, Double value) throws IOException {
+		writer.write(value);
 	}
 
 	@Override

@@ -4,6 +4,8 @@ import com.keimons.deepjson.support.context.DepthSearchContext;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
+
 /**
  * 上下文信息
  *
@@ -51,16 +53,16 @@ public abstract class WriterContext {
 	/**
 	 * 将对象写入指定缓冲区中
 	 *
-	 * @param buf     缓冲区
+	 * @param writer  缓冲区
 	 * @param model   编解码模式
 	 * @param options 编解码选项
 	 */
-	public abstract void encode(WriterBuffer buf, CodecModel model, long options);
+	public abstract void encode(JsonWriter writer, CodecModel model, long options) throws IOException;
 
 	/**
 	 * 释放上下文
 	 *
-	 * @param buf 缓冲区
+	 * @param writer 缓冲区
 	 */
-	public abstract void release(WriterBuffer buf);
+	public abstract void release(JsonWriter writer) throws IOException;
 }

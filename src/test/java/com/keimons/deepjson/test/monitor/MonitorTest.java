@@ -1,7 +1,7 @@
 package com.keimons.deepjson.test.monitor;
 
-import com.keimons.deepjson.monitor.Monitor;
-import com.keimons.deepjson.monitor.MonitorConsumer;
+import com.keimons.deepjson.internal.monitor.GCConsumer;
+import com.keimons.deepjson.internal.monitor.Monitor;
 import com.keimons.deepjson.util.PlatformUtil;
 import org.junit.jupiter.api.Test;
 
@@ -21,7 +21,7 @@ public class MonitorTest {
 
 	@Test
 	public void test() throws InterruptedException {
-		Monitor.register("MonitorTest", new MonitorConsumer() {
+		Monitor.register("MonitorTest", new GCConsumer() {
 
 			int times = 0;
 

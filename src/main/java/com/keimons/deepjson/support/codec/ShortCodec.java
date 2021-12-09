@@ -1,8 +1,10 @@
 package com.keimons.deepjson.support.codec;
 
+import com.keimons.deepjson.JsonWriter;
 import com.keimons.deepjson.ReaderBuffer;
 import com.keimons.deepjson.ReaderContext;
-import com.keimons.deepjson.WriterBuffer;
+
+import java.io.IOException;
 
 /**
  * {@link Short}编解码器
@@ -16,8 +18,8 @@ public class ShortCodec extends AbstractPrimitiveCodec<Short> {
 	public static final ShortCodec instance = new ShortCodec();
 
 	@Override
-	protected void encode0(WriterBuffer buf, Short value) {
-		buf.write(value);
+	protected void encode0(JsonWriter writer, Short value) throws IOException {
+		writer.write(value);
 	}
 
 	@Override

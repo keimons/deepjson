@@ -1,6 +1,8 @@
 module deepjson.test {
 	requires deepjson;
 	requires org.junit.jupiter.api;
+	requires java.management;
+	requires jdk.management;
 	exports com.keimons.deepjson.test;
 	exports com.keimons.deepjson.test.codec;
 	exports com.keimons.deepjson.test.codec.adder;

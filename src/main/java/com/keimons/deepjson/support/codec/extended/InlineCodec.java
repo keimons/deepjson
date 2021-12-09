@@ -45,7 +45,7 @@ public class InlineCodec extends ExtendedCodec {
 				if (type.isPrimitive() || type == String.class) {
 					MethodType mt = MethodType.methodType(
 							boolean.class,
-							WriterBuffer.class, long.class, char.class, char[].class, type
+							JsonWriter.class, long.class, char.class, char[].class, type
 					);
 					writer = lookup.findStatic(CodecUtil.class, "write", mt);
 					// 插入一个新的参数在参数列表的最后
@@ -59,7 +59,7 @@ public class InlineCodec extends ExtendedCodec {
 					builds.add(lookup.unreflectGetter(info.getField()));
 					MethodType mt = MethodType.methodType(
 							boolean.class,
-							WriterContext.class, WriterBuffer.class, long.class, char.class, char[].class
+							WriterContext.class, JsonWriter.class, long.class, char.class, char[].class
 					);
 					writer = lookup.findStatic(CodecUtil.class, "write", mt);
 					// 调整成固定格式
@@ -111,23 +111,23 @@ public class InlineCodec extends ExtendedCodec {
 	}
 
 	@Override
-	public void encode(WriterContext context, WriterBuffer buf, CodecModel model, Object value, int uniqueId, long options) {
+	public void encode(WriterContext context, JsonWriter writer, CodecModel model, Object value, int uniqueId, long options) {
 		try {
 			char mark = '{';
 			if (uniqueId >= 0) {
-				buf.writeValue(mark, FIELD_SET_ID, uniqueId);
+				writer.writeValue(mark, FIELD_SET_ID, uniqueId);
 				mark = ',';
 			}
 			if (CodecConfig.WHITE_OBJECT.contains(value.getClass())) {
-				buf.writeValue(mark, TYPE, value.getClass().getName());
+				writer.writeValue(mark, TYPE, value.getClass().getName());
 				mark = ',';
 			}
-			for (MethodHandle writer : writers) {
-				if ((boolean) writer.invoke(context, buf, options, mark, value)) {
+			for (MethodHandle handle : writers) {
+				if ((boolean) handle.invoke(context, writer, options, mark, value)) {
 					mark = ',';
 				}
 			}
-			buf.writeMark('}');
+			writer.writeMark('}');
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}

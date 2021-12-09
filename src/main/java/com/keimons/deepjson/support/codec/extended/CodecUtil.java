@@ -2,6 +2,7 @@ package com.keimons.deepjson.support.codec.extended;
 
 import com.keimons.deepjson.*;
 
+import java.io.IOException;
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Type;
 
@@ -14,61 +15,61 @@ import java.lang.reflect.Type;
  **/
 class CodecUtil {
 
-	static boolean write(WriterBuffer buf, long options, char mark, char[] name, boolean value) {
-		buf.writeValue(mark, name, value);
+	static boolean write(JsonWriter writer, long options, char mark, char[] name, boolean value) throws IOException {
+		writer.writeValue(mark, name, value);
 		return true;
 	}
 
-	static boolean write(WriterBuffer buf, long options, char mark, char[] name, char value) {
-		buf.writeValue(mark, name, value);
+	static boolean write(JsonWriter writer, long options, char mark, char[] name, char value) throws IOException {
+		writer.writeValue(mark, name, value);
 		return true;
 	}
 
-	static boolean write(WriterBuffer buf, long options, char mark, char[] name, byte value) {
-		buf.writeValue(mark, name, value);
+	static boolean write(JsonWriter writer, long options, char mark, char[] name, byte value) throws IOException {
+		writer.writeValue(mark, name, value);
 		return true;
 	}
 
-	static boolean write(WriterBuffer buf, long options, char mark, char[] name, short value) {
-		buf.writeValue(mark, name, value);
+	static boolean write(JsonWriter writer, long options, char mark, char[] name, short value) throws IOException {
+		writer.writeValue(mark, name, value);
 		return true;
 	}
 
-	static boolean write(WriterBuffer buf, long options, char mark, char[] name, int value) {
-		buf.writeValue(mark, name, value);
+	static boolean write(JsonWriter writer, long options, char mark, char[] name, int value) throws IOException {
+		writer.writeValue(mark, name, value);
 		return true;
 	}
 
-	static boolean write(WriterBuffer buf, long options, char mark, char[] name, long value) {
-		buf.writeValue(mark, name, value);
+	static boolean write(JsonWriter writer, long options, char mark, char[] name, long value) throws IOException {
+		writer.writeValue(mark, name, value);
 		return true;
 	}
 
-	static boolean write(WriterBuffer buf, long options, char mark, char[] name, float value) {
-		buf.writeValue(mark, name, value);
+	static boolean write(JsonWriter writer, long options, char mark, char[] name, float value) throws IOException {
+		writer.writeValue(mark, name, value);
 		return true;
 	}
 
-	static boolean write(WriterBuffer buf, long options, char mark, char[] name, double value) {
-		buf.writeValue(mark, name, value);
+	static boolean write(JsonWriter writer, long options, char mark, char[] name, double value) throws IOException {
+		writer.writeValue(mark, name, value);
 		return true;
 	}
 
-	static boolean write(WriterBuffer buf, long options, char mark, char[] name, String value) {
+	static boolean write(JsonWriter writer, long options, char mark, char[] name, String value) throws IOException {
 		if (value != null || CodecOptions.IgnoreNonField.noOptions(options)) {
-			buf.writeValue(mark, name, value);
+			writer.writeValue(mark, name, value);
 			return true;
 		}
 		return false;
 	}
 
-	static boolean write(WriterContext context, WriterBuffer buf, long options, char mark, char[] name) {
+	static boolean write(WriterContext context, JsonWriter writer, long options, char mark, char[] name) throws IOException {
 		if (context.isEmptyHead() && CodecOptions.IgnoreNonField.isOptions(options)) {
 			context.poll();
 			return false;
 		} else {
-			buf.writeName(mark, name);
-			context.encode(buf, CodecModel.V, options);
+			writer.writeName(mark, name);
+			context.encode(writer, CodecModel.V, options);
 			return true;
 		}
 	}

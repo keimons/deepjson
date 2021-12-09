@@ -4,6 +4,7 @@ import com.keimons.deepjson.support.codec.*;
 import com.keimons.deepjson.util.UnsafeUtil;
 import sun.misc.Unsafe;
 
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Map;
 
@@ -85,13 +86,13 @@ public interface ICodec<T> {
 	 * 编码
 	 *
 	 * @param context  上下文
-	 * @param buf      缓冲区
+	 * @param writer   缓冲区
 	 * @param model    编解码模式
 	 * @param value    对象值
 	 * @param uniqueId 对象唯一ID
 	 * @param options  编码选项
 	 */
-	void encode(WriterContext context, WriterBuffer buf, CodecModel model, T value, int uniqueId, long options);
+	void encode(WriterContext context, JsonWriter writer, CodecModel model, T value, int uniqueId, long options) throws IOException;
 
 	/**
 	 * 解码

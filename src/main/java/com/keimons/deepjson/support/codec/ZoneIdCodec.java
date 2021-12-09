@@ -2,6 +2,7 @@ package com.keimons.deepjson.support.codec;
 
 import com.keimons.deepjson.*;
 
+import java.io.IOException;
 import java.time.ZoneId;
 
 /**
@@ -16,8 +17,8 @@ public class ZoneIdCodec extends AbstractOnlineCodec<ZoneId> {
 	public static final ZoneIdCodec instance = new ZoneIdCodec();
 
 	@Override
-	public void encode(WriterContext context, WriterBuffer buf, CodecModel model, ZoneId zoneId, int uniqueId, long options) {
-		buf.writeWithQuote(zoneId.getId());
+	public void encode(WriterContext context, JsonWriter writer, CodecModel model, ZoneId zoneId, int uniqueId, long options) throws IOException {
+		writer.writeWithQuote(zoneId.getId());
 	}
 
 	@Override

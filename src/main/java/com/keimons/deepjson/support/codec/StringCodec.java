@@ -2,6 +2,8 @@ package com.keimons.deepjson.support.codec;
 
 import com.keimons.deepjson.*;
 
+import java.io.IOException;
+
 /**
  * {@link String}编解码器
  *
@@ -24,8 +26,8 @@ public class StringCodec extends KlassCodec<String> {
 	}
 
 	@Override
-	public void encode(WriterContext context, WriterBuffer buf, CodecModel model, String value, int uniqueId, long options) {
-		buf.writeWithQuote(value);
+	public void encode(WriterContext context, JsonWriter writer, CodecModel model, String value, int uniqueId, long options) throws IOException {
+		writer.writeWithQuote(value);
 	}
 
 	public String decode(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {

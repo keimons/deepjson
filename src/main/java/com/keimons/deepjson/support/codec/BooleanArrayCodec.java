@@ -2,6 +2,7 @@ package com.keimons.deepjson.support.codec;
 
 import com.keimons.deepjson.*;
 
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,12 +19,12 @@ public class BooleanArrayCodec extends AbstractArrayCodec<boolean[]> {
 	public static final BooleanArrayCodec instance = new BooleanArrayCodec();
 
 	@Override
-	public void encode0(WriterContext context, WriterBuffer buf, boolean[] values, long options) {
+	public void encode0(WriterContext context, JsonWriter writer, boolean[] values, long options) throws IOException {
 		for (int i = 0; i < values.length; i++) {
 			if (i != 0) {
-				buf.writeMark(',');
+				writer.writeMark(',');
 			}
-			buf.write(values[i]);
+			writer.write(values[i]);
 		}
 	}
 

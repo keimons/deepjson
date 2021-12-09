@@ -19,7 +19,20 @@ import java.util.concurrent.*;
  **/
 public class CodecConfig {
 
-	public static final int HIGHEST = 18;
+	/**
+	 * 线程本地缓冲区数量
+	 */
+	public static final int BUFFER_LOCAL_SIZE = 1;
+
+	/**
+	 * 线程本地缓冲区初试容量
+	 */
+	public static final int BUFFER_LOCAL_MIN_CAPACITY = 4 * 1024;
+
+	/**
+	 * 线程本地缓冲区最大容量
+	 */
+	public static final int BUFFER_LOCAL_MAX_CAPACITY = 256 * 1024;
 
 	/**
 	 * run as debug.

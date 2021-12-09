@@ -1,4 +1,4 @@
-package com.keimons.deepjson.monitor;
+package com.keimons.deepjson.internal.monitor;
 
 import java.util.List;
 
@@ -9,7 +9,7 @@ import java.util.List;
  * @version 1.0
  * @since 1.6
  **/
-public interface MonitorConsumer {
+public interface GCConsumer {
 
 	/**
 	 * 消费函数

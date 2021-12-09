@@ -2,6 +2,7 @@ package com.keimons.deepjson.support.codec;
 
 import com.keimons.deepjson.*;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 
 /**
@@ -17,8 +18,8 @@ import java.time.LocalDateTime;
 public class LocalDateTimeCodec extends AbstractOnlineCodec<LocalDateTime> {
 
 	@Override
-	public void encode(WriterContext context, WriterBuffer buf, CodecModel model, LocalDateTime value, int uniqueId, long options) {
-		buf.write(value.toString());
+	public void encode(WriterContext context, JsonWriter writer, CodecModel model, LocalDateTime value, int uniqueId, long options) throws IOException {
+		writer.write(value.toString());
 	}
 
 	@Override

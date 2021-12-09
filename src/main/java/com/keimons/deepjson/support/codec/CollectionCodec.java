@@ -6,6 +6,7 @@ import com.keimons.deepjson.support.IncompatibleTypeException;
 import com.keimons.deepjson.support.InstantiationFailedException;
 import com.keimons.deepjson.support.UnknownSyntaxException;
 
+import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.*;
@@ -50,7 +51,7 @@ public class CollectionCodec extends AbstractOnlineCodec<Collection<?>> {
 	}
 
 	@Override
-	public void encode(WriterContext context, WriterBuffer buf, CodecModel model, Collection<?> value, int uniqueId, long options) {
+	public void encode(WriterContext context, JsonWriter writer, CodecModel model, Collection<?> value, int uniqueId, long options) throws IOException {
 		Object future = context.poll();
 		if (!(future instanceof ElementsFuture)) {
 			throw new RuntimeException("deep json bug");
@@ -62,27 +63,27 @@ public class CollectionCodec extends AbstractOnlineCodec<Collection<?>> {
 		if (className) {
 			Class<?> clazz = value.getClass();
 			if (CodecConfig.WHITE_COLLECTION.contains(clazz)) {
-				buf.writeValue(mark, TYPE, clazz.getName());
+				writer.writeValue(mark, TYPE, clazz.getName());
 				mark = ',';
 			}
 		}
 		if (uniqueId >= 0) {
-			buf.writeValue(mark, FIELD_SET_ID, uniqueId);
+			writer.writeValue(mark, FIELD_SET_ID, uniqueId);
 			mark = ',';
 		}
 		if (uniqueId >= 0 || className) {
-			buf.writeName(mark, FIELD_VALUE);
+			writer.writeName(mark, FIELD_VALUE);
 		}
-		buf.writeMark('[');
+		writer.writeMark('[');
 		for (int i = 0; i < count; i++) {
 			if (i != 0) {
-				buf.writeMark(',');
+				writer.writeMark(',');
 			}
-			context.encode(buf, CodecModel.V, options);
+			context.encode(writer, CodecModel.V, options);
 		}
-		buf.writeMark(']');
+		writer.writeMark(']');
 		if (uniqueId >= 0 || className) {
-			buf.writeMark('}');
+			writer.writeMark('}');
 		}
 	}
 

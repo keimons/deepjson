@@ -3,6 +3,8 @@ package com.keimons.deepjson.support.codec;
 import com.keimons.deepjson.*;
 import com.keimons.deepjson.util.UnsupportedException;
 
+import java.io.IOException;
+
 /**
  * {@link Object}编解码器
  * <p>
@@ -28,9 +30,9 @@ public class ObjectCodec extends KlassCodec<Object> {
 	}
 
 	@Override
-	public void encode(WriterContext context, WriterBuffer buf, CodecModel model, Object value, int uniqueId, long options) {
-		buf.writeMark('{');
-		buf.writeMark('}');
+	public void encode(WriterContext context, JsonWriter writer, CodecModel model, Object value, int uniqueId, long options) throws IOException {
+		writer.writeMark('{');
+		writer.writeMark('}');
 	}
 
 	@Override

@@ -1,4 +1,4 @@
-package com.keimons.deepjson.monitor;
+package com.keimons.deepjson.internal.monitor;
 
 import com.keimons.deepjson.util.PlatformUtil;
 
@@ -36,7 +36,7 @@ public class Monitor {
 	 * @param name     监视器名称
 	 * @param consumer GC发生时触发行为
 	 */
-	public static void register(String name, final MonitorConsumer consumer) {
+	public static void register(String name, final GCConsumer consumer) {
 		MemoryMonitor monitor = new MemoryMonitor(consumer);
 		monitor.monitor();
 		MONITORS.put(name, monitor);
@@ -66,7 +66,7 @@ public class Monitor {
 		 * <p>
 		 * 当{@code Full GC}发生后，如果监视器{@link #active}仍处于活跃状态，则执行消费函数。
 		 */
-		private final MonitorConsumer consumer;
+		private final GCConsumer consumer;
 
 		/**
 		 * 监视器是否处于活动中
@@ -94,7 +94,7 @@ public class Monitor {
 		 *
 		 * @param consumer {@code Full GC}发生时触发
 		 */
-		private MemoryMonitor(MonitorConsumer consumer) {
+		private MemoryMonitor(GCConsumer consumer) {
 			this.consumer = consumer;
 		}
 

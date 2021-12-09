@@ -2,6 +2,7 @@ package com.keimons.deepjson.support.codec;
 
 import com.keimons.deepjson.*;
 
+import java.io.IOException;
 import java.util.concurrent.atomic.LongAdder;
 
 /**
@@ -28,13 +29,13 @@ public class LongAdderCodec extends KlassCodec<LongAdder> {
 	}
 
 	@Override
-	public void encode(WriterContext context, WriterBuffer buf, CodecModel model, LongAdder value, int uniqueId, long options) {
+	public void encode(WriterContext context, JsonWriter writer, CodecModel model, LongAdder value, int uniqueId, long options) throws IOException {
 		if (model == CodecModel.V || CodecOptions.PrimitiveKey.isOptions(options)) {
-			buf.write(value.sum());
+			writer.write(value.sum());
 		} else {
-			buf.writeMark('"');
-			buf.write(value.sum());
-			buf.writeMark('"');
+			writer.writeMark('"');
+			writer.write(value.sum());
+			writer.writeMark('"');
 		}
 	}
 

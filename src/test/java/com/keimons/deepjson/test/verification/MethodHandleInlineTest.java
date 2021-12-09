@@ -1,6 +1,6 @@
 package com.keimons.deepjson.test.verification;
 
-import com.keimons.deepjson.WriterBuffer;
+import com.keimons.deepjson.JsonWriter;
 import com.keimons.deepjson.util.MethodHandleUtil;
 import org.junit.jupiter.api.Test;
 
@@ -25,7 +25,7 @@ public class MethodHandleInlineTest {
 
 		Class<?> clazz = this.getClass();
 
-		MethodType mt = MethodType.methodType(void.class, WriterBuffer.class, int.class);
+		MethodType mt = MethodType.methodType(void.class, JsonWriter.class, int.class);
 		MethodHandle write = lookup.findStatic(clazz, "write", mt);
 		MethodHandle getter = lookup.findGetter(clazz, "value", int.class);
 		// 插入一个新的参数在参数列表的最后
@@ -37,10 +37,10 @@ public class MethodHandleInlineTest {
 		// 测试
 		MethodHandleInlineTest test = new MethodHandleInlineTest();
 		test.value = 1024;
-		write.invoke((WriterBuffer) null, test);
+		write.invoke((JsonWriter) null, test);
 	}
 
-	public static void write(WriterBuffer buffer, int value) {
+	public static void write(JsonWriter writer, int value) {
 		System.out.println("测试打印值：" + value);
 	}
 }

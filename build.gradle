@@ -29,6 +29,10 @@ dependencies {
 
 test {
     useJUnitPlatform()
+    filter {
+        // 跳过测试包路径
+        excludeTestsMatching "com.keimons.deepjson.test.verification.*"
+    }
 }
 
 jar {

@@ -4,6 +4,7 @@ import com.keimons.deepjson.*;
 import com.keimons.deepjson.internal.BridgeUtil;
 import com.keimons.deepjson.util.ReflectUtil;
 
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.Map;
@@ -41,15 +42,15 @@ public class JsonCodec extends AbstractOnlineCodec<Json> {
 	}
 
 	@Override
-	public void encode(WriterContext context, WriterBuffer buf, CodecModel model, Json value, int uniqueId, long options) {
+	public void encode(WriterContext context, JsonWriter writer, CodecModel model, Json value, int uniqueId, long options) throws IOException {
 		Object v = context.poll();
 		if (!(v instanceof Map || v instanceof List)) {
 			throw new RuntimeException("deep json bug");
 		}
 		if (v instanceof Map) {
-			MapCodec.instance.encode(context, buf, model, v, uniqueId, options);
+			MapCodec.instance.encode(context, writer, model, v, uniqueId, options);
 		} else {
-			CollectionCodec.instance.encode(context, buf, model, (List<?>) v, uniqueId, options);
+			CollectionCodec.instance.encode(context, writer, model, (List<?>) v, uniqueId, options);
 		}
 	}
 

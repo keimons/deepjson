@@ -1,11 +1,11 @@
 package com.keimons.deepjson;
 
 import com.keimons.deepjson.internal.LocalCache;
-import com.keimons.deepjson.support.buffer.JsonReaderBuffer;
+import com.keimons.deepjson.support.DefaultReader;
 import com.keimons.deepjson.support.context.TypeAndHookContext;
-import com.keimons.deepjson.util.StringGeneratorHelper;
 import com.keimons.deepjson.util.WriteFailedException;
 
+import java.io.IOException;
 import java.lang.reflect.Type;
 
 public class DeepJson {
@@ -54,61 +54,73 @@ public class DeepJson {
 		return toJsonChars(object, option);
 	}
 
-	public static <T> T writeTo(Object object, Generator<T> writer, T dest) {
+	public static <T> T writeTo(Object object, Generator<T> writer, T dest) throws IOException {
 		return writeTo(object, writer, dest, EMPTY);
 	}
 
-	public static <T> T writeTo(Object object, Generator<T> writer, T dest, CodecOptions... options) {
+	public static <T> T writeTo(Object object, Generator<T> gen, T dest, CodecOptions... options) throws IOException {
 		long option = CodecOptions.getOptions(options);
 		LocalCache cache = getLocalCache();
 		WriterContext context = cache.context;
-		WriterBuffer buffer = cache.buffer;
-		return encode(object, context, buffer, writer, dest, option);
+		JsonWriter writer = cache.writer;
+		Buffer buf = cache.buf;
+		return encode(object, context, writer, buf, gen, dest, option);
 	}
 
-	public static <T> T encode(Object value, WriterContext context, WriterBuffer buffer, Generator<T> writer, CodecOptions... options) throws WriteFailedException {
+	public static <T> T encode(Object value, WriterContext context, JsonWriter writer, Buffer buf, Generator<T> gen, CodecOptions... options) throws WriteFailedException, IOException {
 		long option = CodecOptions.getOptions(options);
-		return encode(value, context, buffer, writer, null, option);
+		return encode(value, context, writer, buf, gen, null, option);
 	}
 
 	static String toJsonString(Object object, long options) {
 		LocalCache cache = getLocalCache();
 		WriterContext context = cache.context;
-		WriterBuffer buffer = cache.buffer;
-		Generator<String> writer = cache.writer;
+		JsonWriter writer = cache.writer;
+		Buffer buf = cache.buf;
+		Generator<String> gen = cache.gen;
 		try {
-			return encode(object, context, buffer, writer, null, options);
-		} catch (WriteFailedException e) {
-			if (CodecConfig.DEBUG) {
-				e.printStackTrace();
-			}
-			writer = cache.writer = StringGeneratorHelper.SAFE; // 编码时失败切换安全模式
-			return encode(object, context, buffer, writer, null, options);
+			return encode(object, context, writer, buf, gen, null, options);
+		} catch (WriteFailedException | IOException e) {
+			e.printStackTrace();
 		}
+		return null;
 	}
 
 	static byte[] toJsonBytes(Object object, long options) {
 		LocalCache cache = getLocalCache();
 		WriterContext context = cache.context;
-		WriterBuffer buffer = cache.buffer;
-		return encode(object, context, buffer, Generator.GENERATOR_BYTES_UTF8, null, options);
+		JsonWriter writer = cache.writer;
+		Buffer buf = cache.buf;
+		try {
+			return encode(object, context, writer, buf, Generator.GENERATOR_BYTES_UTF8, null, options);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	static char[] toJsonChars(Object object, long options) {
 		LocalCache cache = getLocalCache();
 		WriterContext context = cache.context;
-		WriterBuffer buffer = cache.buffer;
-		return encode(object, context, buffer, Generator.CHAR_ARRAY, null, options);
+		JsonWriter writer = cache.writer;
+		Buffer buf = cache.buf;
+		try {
+			return encode(object, context, writer, buf, Generator.CHAR_ARRAY, null, options);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
-	static <T> T encode(Object value, WriterContext context, WriterBuffer buf, Generator<T> writer, T dest, long options) throws WriteFailedException {
-		buf.init(options);
+	static <T> T encode(Object value, WriterContext context, JsonWriter writer, Buffer buf, Generator<T> gen, T dest, long options) throws WriteFailedException, IOException {
 		try {
+			writer.init(buf, options);
 			context.build(value);
-			context.encode(buf, CodecModel.V, options);
-			return buf.writeTo(writer, dest, 0);
+			context.encode(writer, CodecModel.V, options);
+			return buf.writeTo(gen, dest, 0);
 		} finally {
-			context.release(buf);
+			context.release(writer);
+			buf.close();
 		}
 	}
 
@@ -123,7 +135,7 @@ public class DeepJson {
 
 	public static <T> T parseObject(String json, Type type) {
 		ReaderContext context = new TypeAndHookContext();
-		JsonReaderBuffer buf = new JsonReaderBuffer(json);
+		DefaultReader buf = new DefaultReader(json);
 		buf.nextToken();
 		buf.assertExpectedSyntax(SyntaxToken.OBJECTS);
 		T value = context.decode(buf, type, 0L);

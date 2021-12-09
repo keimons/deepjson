@@ -1,9 +1,7 @@
-package com.keimons.deepjson.support.buffer;
+package com.keimons.deepjson.support;
 
 import com.keimons.deepjson.ReaderBuffer;
 import com.keimons.deepjson.SyntaxToken;
-import com.keimons.deepjson.support.ExpectedSyntaxException;
-import com.keimons.deepjson.support.UnknownSyntaxException;
 import com.keimons.deepjson.util.ArrayUtil;
 import com.keimons.deepjson.util.CodecUtil;
 
@@ -14,7 +12,7 @@ import com.keimons.deepjson.util.CodecUtil;
  * @version 1.0
  * @since 1.6
  **/
-public class JsonReaderBuffer extends ReaderBuffer {
+public class DefaultReader extends ReaderBuffer {
 
 	protected final static int[] digits = new int[128];
 	protected final static char[] CONST_true = new char[]{'t', 'r', 'u', 'e'};
@@ -57,7 +55,7 @@ public class JsonReaderBuffer extends ReaderBuffer {
 
 	Buffer buf = new Buffer();
 
-	public JsonReaderBuffer(String context) {
+	public DefaultReader(String context) {
 		base = context;
 		limit = base.length();
 	}

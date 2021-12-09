@@ -1,8 +1,10 @@
 package com.keimons.deepjson.support.codec;
 
+import com.keimons.deepjson.JsonWriter;
 import com.keimons.deepjson.ReaderBuffer;
 import com.keimons.deepjson.ReaderContext;
-import com.keimons.deepjson.WriterBuffer;
+
+import java.io.IOException;
 
 /**
  * {@link Byte}编解码器
@@ -16,8 +18,8 @@ public class ByteCodec extends AbstractPrimitiveCodec<Byte> {
 	public static final ByteCodec instance = new ByteCodec();
 
 	@Override
-	protected void encode0(WriterBuffer buf, Byte value) {
-		buf.write(value);
+	protected void encode0(JsonWriter writer, Byte value) throws IOException {
+		writer.write(value);
 	}
 
 	@Override

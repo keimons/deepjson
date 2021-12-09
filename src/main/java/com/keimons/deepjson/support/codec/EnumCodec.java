@@ -2,6 +2,8 @@ package com.keimons.deepjson.support.codec;
 
 import com.keimons.deepjson.*;
 
+import java.io.IOException;
+
 /**
  * {@link Enum}编解码器
  *
@@ -14,8 +16,8 @@ public class EnumCodec extends AbstractOnlineCodec<Enum<?>> {
 	public static final EnumCodec instance = new EnumCodec();
 
 	@Override
-	public void encode(WriterContext context, WriterBuffer buf, CodecModel model, Enum<?> value, int uniqueId, long options) {
-		buf.writeWithQuote(value.name());
+	public void encode(WriterContext context, JsonWriter writer, CodecModel model, Enum<?> value, int uniqueId, long options) throws IOException {
+		writer.writeWithQuote(value.name());
 	}
 
 	@Override

@@ -1,8 +1,10 @@
 package com.keimons.deepjson.internal;
 
+import com.keimons.deepjson.Buffer;
 import com.keimons.deepjson.Generator;
-import com.keimons.deepjson.WriterBuffer;
+import com.keimons.deepjson.JsonWriter;
 import com.keimons.deepjson.WriterContext;
+import com.keimons.deepjson.internal.buffer.CompositeBuffer;
 import com.keimons.deepjson.util.StringGeneratorHelper;
 
 /**
@@ -14,9 +16,11 @@ import com.keimons.deepjson.util.StringGeneratorHelper;
  **/
 public class LocalCache {
 
-	public WriterBuffer buffer = WriterBuffer.compositeBuffer();
+	public JsonWriter writer = JsonWriter.defaultWriter();
+
+	public Buffer buf = new CompositeBuffer();
 
 	public WriterContext context = WriterContext.defaultContext();
 
-	public Generator<String> writer = StringGeneratorHelper.stringGenerator();
+	public Generator<String> gen = StringGeneratorHelper.stringGenerator();
 }

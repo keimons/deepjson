@@ -1,9 +1,11 @@
 package com.keimons.deepjson.support.codec;
 
+import com.keimons.deepjson.JsonWriter;
 import com.keimons.deepjson.ReaderBuffer;
 import com.keimons.deepjson.ReaderContext;
 import com.keimons.deepjson.SyntaxToken;
-import com.keimons.deepjson.WriterBuffer;
+
+import java.io.IOException;
 
 /**
  * {@link Boolean}编解码器
@@ -17,8 +19,8 @@ public class BooleanCodec extends AbstractPrimitiveCodec<Boolean> {
 	public static final BooleanCodec instance = new BooleanCodec();
 
 	@Override
-	protected void encode0(WriterBuffer buf, Boolean value) {
-		buf.write(value);
+	protected void encode0(JsonWriter writer, Boolean value) throws IOException {
+		writer.write(value);
 	}
 
 	@Override

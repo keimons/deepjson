@@ -2,6 +2,8 @@ package com.keimons.deepjson.support.codec;
 
 import com.keimons.deepjson.*;
 
+import java.io.IOException;
+
 /**
  * 基础类型数组编解码器
  *
@@ -22,13 +24,13 @@ public abstract class AbstractPrimitiveCodec<T> extends KlassCodec<T> {
 	}
 
 	@Override
-	public void encode(WriterContext context, WriterBuffer buf, CodecModel model, T value, int uniqueId, long options) {
+	public void encode(WriterContext context, JsonWriter writer, CodecModel model, T value, int uniqueId, long options) throws IOException {
 		if (model == CodecModel.V || CodecOptions.PrimitiveKey.isOptions(options)) {
-			encode0(buf, value);
+			encode0(writer, value);
 		} else {
-			buf.writeMark('"');
-			encode0(buf, value);
-			buf.writeMark('"');
+			writer.writeMark('"');
+			encode0(writer, value);
+			writer.writeMark('"');
 		}
 	}
 
@@ -41,7 +43,7 @@ public abstract class AbstractPrimitiveCodec<T> extends KlassCodec<T> {
 		return decode0(context, buf, clazz, options);
 	}
 
-	protected abstract void encode0(WriterBuffer buf, T value);
+	protected abstract void encode0(JsonWriter writer, T value) throws IOException;
 
 	protected abstract T decode0(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options);
 }

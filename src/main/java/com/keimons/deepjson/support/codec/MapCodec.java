@@ -6,6 +6,7 @@ import com.keimons.deepjson.support.IncompatibleTypeException;
 import com.keimons.deepjson.util.ReflectionUtil;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
@@ -47,21 +48,21 @@ public class MapCodec extends AbstractOnlineCodec<Object> {
 	}
 
 	@Override
-	public void encode(WriterContext context, WriterBuffer buf, CodecModel model, Object value, int uniqueId, long options) {
+	public void encode(WriterContext context, JsonWriter writer, CodecModel model, Object value, int uniqueId, long options) throws IOException {
 		char mark = '{';
 		// write class name
 		if (CodecOptions.WriteClassName.isOptions(options)) {
 			Class<?> clazz = value.getClass();
 			if (CodecConfig.WHITE_MAP.contains(clazz)) {
-				buf.writeValue(mark, TYPE, clazz.getName());
+				writer.writeValue(mark, TYPE, clazz.getName());
 				mark = ',';
 			}
 		}
 		if (uniqueId >= 0) {
-			buf.writeValue(mark, FIELD_SET_ID, uniqueId);
+			writer.writeValue(mark, FIELD_SET_ID, uniqueId);
 			mark = ',';
 		}
-		buf.writeMark(mark);
+		writer.writeMark(mark);
 		Object future = context.poll();
 		if (!(future instanceof ElementsFuture)) {
 			throw new RuntimeException("deep json bug");
@@ -69,13 +70,13 @@ public class MapCodec extends AbstractOnlineCodec<Object> {
 		int count = ((ElementsFuture) future).getCount();
 		for (int i = 0; i < count; i++) {
 			if (i != 0) {
-				buf.writeMark(',');
+				writer.writeMark(',');
 			}
-			context.encode(buf, CodecModel.K, options);
-			buf.writeMark(':');
-			context.encode(buf, CodecModel.V, options);
+			context.encode(writer, CodecModel.K, options);
+			writer.writeMark(':');
+			context.encode(writer, CodecModel.V, options);
 		}
-		buf.writeMark('}');
+		writer.writeMark('}');
 	}
 
 	@Override

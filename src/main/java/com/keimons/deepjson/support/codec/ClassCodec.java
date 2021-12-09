@@ -3,6 +3,8 @@ package com.keimons.deepjson.support.codec;
 import com.keimons.deepjson.*;
 import com.keimons.deepjson.util.ClassUtil;
 
+import java.io.IOException;
+
 /**
  * {@link Class}编解码器
  *
@@ -15,8 +17,8 @@ public class ClassCodec extends AbstractOnlineCodec<Class<?>> {
 	public static final ClassCodec instance = new ClassCodec();
 
 	@Override
-	public void encode(WriterContext context, WriterBuffer buf, CodecModel model, Class<?> value, int uniqueId, long options) {
-		buf.writeWithQuote(value.getName());
+	public void encode(WriterContext context, JsonWriter writer, CodecModel model, Class<?> value, int uniqueId, long options) throws IOException {
+		writer.writeWithQuote(value.getName());
 	}
 
 	@Override

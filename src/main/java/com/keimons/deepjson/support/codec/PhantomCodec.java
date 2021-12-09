@@ -39,7 +39,7 @@ public abstract class PhantomCodec implements ICodec<Object> {
 	}
 
 	@Override
-	public final void encode(WriterContext context, WriterBuffer buf, CodecModel model, Object value, int uniqueId, long options) {
+	public final void encode(WriterContext context, JsonWriter writer, CodecModel model, Object value, int uniqueId, long options) {
 		throw new UnsupportedOperationException();
 	}
 

@@ -38,7 +38,7 @@ public class EmptyCodec extends KlassCodec<ElementsFuture> {
 	}
 
 	@Override
-	public void encode(WriterContext context, WriterBuffer buf, CodecModel model, ElementsFuture value, int uniqueId, long options) {
+	public void encode(WriterContext context, JsonWriter writer, CodecModel model, ElementsFuture value, int uniqueId, long options) {
 		throw new UnsupportedOperationException();
 	}
 }

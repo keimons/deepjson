@@ -2,6 +2,8 @@ package com.keimons.deepjson.support.codec;
 
 import com.keimons.deepjson.*;
 
+import java.io.IOException;
+
 /**
  * {@link Character}编解码器
  *
@@ -14,12 +16,12 @@ public class CharCodec extends AbstractPrimitiveCodec<Character> {
 	public static final CharCodec instance = new CharCodec();
 
 	@Override
-	public void encode(WriterContext context, WriterBuffer buf, CodecModel model, Character value, int uniqueId, long options) {
-		buf.writeWithQuote(value);
+	public void encode(WriterContext context, JsonWriter writer, CodecModel model, Character value, int uniqueId, long options) throws IOException {
+		writer.writeWithQuote(value);
 	}
 
 	@Override
-	protected void encode0(WriterBuffer buf, Character value) {
+	protected void encode0(JsonWriter writer, Character value) {
 		throw new UnsupportedOperationException();
 	}
 

@@ -25,7 +25,7 @@ public class RangeMapCodec extends AbstractOnlineCodec<RangeMap> {
 	}
 
 	@Override
-	public void encode(WriterContext context, WriterBuffer buf, CodecModel model, RangeMap value, int uniqueId, long options) {
+	public void encode(WriterContext context, JsonWriter writer, CodecModel model, RangeMap value, int uniqueId, long options) {
 
 	}
 }

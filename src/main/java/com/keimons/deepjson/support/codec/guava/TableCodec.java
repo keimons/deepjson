@@ -4,6 +4,8 @@ import com.google.common.collect.Table;
 import com.keimons.deepjson.*;
 import com.keimons.deepjson.support.codec.AbstractOnlineCodec;
 
+import java.io.IOException;
+
 /**
  * Google Guava {@link Table}编解码器
  *
@@ -26,7 +28,7 @@ public class TableCodec extends AbstractOnlineCodec<Table<?, ?, ?>> {
 	}
 
 	@Override
-	public void encode(WriterContext context, WriterBuffer buf, CodecModel model, Table<?, ?, ?> value, int uniqueId, long options) {
-		context.encode(buf, CodecModel.V, options);
+	public void encode(WriterContext context, JsonWriter writer, CodecModel model, Table<?, ?, ?> value, int uniqueId, long options) throws IOException {
+		context.encode(writer, CodecModel.V, options);
 	}
 }

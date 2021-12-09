@@ -5,6 +5,7 @@ import com.keimons.deepjson.support.IncompatibleTypeException;
 import com.keimons.deepjson.support.UnknownSyntaxException;
 import com.keimons.deepjson.util.ClassUtil;
 
+import java.io.IOException;
 import java.lang.reflect.Type;
 
 /**
@@ -41,26 +42,26 @@ public abstract class AbstractArrayCodec<T> extends KlassCodec<T> {
 	}
 
 	@Override
-	public void encode(WriterContext context, WriterBuffer buf, CodecModel model, T value, int uniqueId, long options) {
+	public void encode(WriterContext context, JsonWriter writer, CodecModel model, T value, int uniqueId, long options) throws IOException {
 		char mark = '{';
 		// write class name
 		boolean className = CodecOptions.WriteClassName.isOptions(options);
 		if (className) {
-			buf.writeValue(mark, TYPE, value.getClass().getName());
+			writer.writeValue(mark, TYPE, value.getClass().getName());
 			mark = ',';
 		}
 		if (uniqueId >= 0) {
-			buf.writeValue(mark, FIELD_SET_ID, uniqueId);
+			writer.writeValue(mark, FIELD_SET_ID, uniqueId);
 			mark = ',';
 		}
 		if (uniqueId >= 0 || className) {
-			buf.writeName(mark, FIELD_VALUE);
+			writer.writeName(mark, FIELD_VALUE);
 		}
-		buf.writeMark('[');
-		encode0(context, buf, value, options);
-		buf.writeMark(']');
+		writer.writeMark('[');
+		encode0(context, writer, value, options);
+		writer.writeMark(']');
 		if (uniqueId >= 0 || className) {
-			buf.writeMark('}');
+			writer.writeMark('}');
 		}
 	}
 
@@ -118,7 +119,7 @@ public abstract class AbstractArrayCodec<T> extends KlassCodec<T> {
 		return value;
 	}
 
-	protected abstract void encode0(WriterContext context, WriterBuffer buf, T values, long options);
+	protected abstract void encode0(WriterContext context, JsonWriter writer, T values, long options) throws IOException;
 
 	/**
 	 * 解码数组

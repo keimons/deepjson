@@ -4,6 +4,8 @@ import com.google.common.collect.Multimap;
 import com.keimons.deepjson.*;
 import com.keimons.deepjson.support.codec.AbstractOnlineCodec;
 
+import java.io.IOException;
+
 /**
  * Google Guava {@link Multimap}编解码器
  *
@@ -26,7 +28,7 @@ public class MultimapCodec extends AbstractOnlineCodec<Multimap<?, ?>> {
 	}
 
 	@Override
-	public void encode(WriterContext context, WriterBuffer buf, CodecModel model, Multimap<?, ?> value, int uniqueId, long options) {
-		context.encode(buf, CodecModel.V, options);
+	public void encode(WriterContext context, JsonWriter writer, CodecModel model, Multimap<?, ?> value, int uniqueId, long options) throws IOException {
+		context.encode(writer, CodecModel.V, options);
 	}
 }
