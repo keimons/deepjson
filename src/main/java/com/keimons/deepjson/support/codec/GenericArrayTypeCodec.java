@@ -36,9 +36,19 @@ public class GenericArrayTypeCodec extends PhantomCodec {
 		SyntaxToken token = buf.token();
 		if (token == SyntaxToken.LBRACKET) {
 			Class<?> clazz = context.findInstanceType(type, null);
-			ICodec<?> codec = CodecFactory.getCodec(clazz);
-			assert codec != null;
-			return codec.decode(context, buf, clazz, options);
+			Type componentType = ((GenericArrayType) type).getGenericComponentType();
+			if (componentType instanceof TypeVariable) {
+				return ObjectArrayCodec.instance.decode0(context, buf, clazz.getComponentType(), componentType, options);
+			} else if (componentType instanceof ParameterizedType) {
+				ParameterizedType pt = (ParameterizedType) componentType;
+				pt = ReflectUtil.makeParameterizedType(pt.getOwnerType(), clazz.getComponentType(), pt.getActualTypeArguments());
+				return ObjectArrayCodec.instance.decode0(context, buf, clazz.getComponentType(), pt, options);
+			} else if (componentType instanceof GenericArrayType) {
+				GenericArrayType gat = (GenericArrayType) componentType;
+				return ObjectArrayCodec.instance.decode0(context, buf, clazz.getComponentType(), gat, options);
+			} else {
+				throw new IncompatibleTypeException(type);
+			}
 		}
 		// 拓展进入 {"$type":"[X", "$values":[x, y, z]}
 		token = buf.nextToken(); // 下一个有可能是对象也有可能是对象结束
