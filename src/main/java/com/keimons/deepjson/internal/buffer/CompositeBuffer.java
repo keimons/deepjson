@@ -73,7 +73,7 @@ public class CompositeBuffer implements Buffer {
 			buf = buffers[bufferIndex]; // 设置当前缓冲区
 			capacity = buf.length; // 设置当前缓冲区容量
 		}
-		buffers[bufferIndex][writerIndex++] = value;
+		buf[writerIndex++] = value;
 	}
 
 	@Override

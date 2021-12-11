@@ -255,8 +255,7 @@ public class DefaultWriter extends JsonWriter {
 	}
 
 	private void writeStringNormal(String value) throws IOException {
-		int writable = CodecUtil.length(value) + 2;
-		if (buf.ensureWritable(writable)) {
+		if (buf.ensureWritable(value.length() * 6 + 2)) {
 			buf.safeWrite('"');
 			for (int i = 0, length = value.length(); i < length; i++) {
 				safeWriteNormal(value.charAt(i));
@@ -274,13 +273,7 @@ public class DefaultWriter extends JsonWriter {
 	@Override
 	public void writeWithQuote(char value) throws IOException {
 		boolean unicode = CodecOptions.WriteUsingUnicode.isOptions(options);
-		int length = 2;
-		if (unicode) {
-			length += 6;
-		} else {
-			length += CodecUtil.length(value);
-		}
-		if (buf.ensureWritable(length)) {
+		if (buf.ensureWritable(8)) {
 			buf.safeWrite('"');
 			if (unicode) {
 				safeWriteUnicode(value);
@@ -301,7 +294,7 @@ public class DefaultWriter extends JsonWriter {
 
 	@Override
 	public void writeName(char mark, char[] name) throws IOException {
-		int writable = 4 + CodecUtil.length(name);
+		int writable = 4 + name.length * 6;
 		if (buf.ensureWritable(writable)) {
 			buf.safeWrite(mark);
 			buf.safeWrite('"');
