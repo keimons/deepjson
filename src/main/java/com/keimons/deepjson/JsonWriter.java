@@ -246,16 +246,6 @@ public abstract class JsonWriter implements Closeable {
 	public abstract void writeNull() throws IOException;
 
 	/**
-	 * 确保缓冲区的可写入字节数大于或等于即将写入的字节数。
-	 *
-	 * @param writable 即将写入的字节数
-	 * @return 是否横跨缓冲区。{@code true}横跨缓冲区写入，{@code false}当前缓冲区写入。
-	 */
-	public boolean ensureWritable(int writable) {
-		return buf.ensureWritable(writable);
-	}
-
-	/**
 	 * 初始化
 	 *
 	 * @param buf     缓冲区

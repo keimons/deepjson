@@ -106,14 +106,14 @@ public class SourceCodeFactory {
 		source.append("\n");
 
 		source.append("\t@Override\n");
-		source.append("\tpublic void encode(WriterContext context, WriterBuffer buf, CodecModel model, Object object, int uniqueId, long options) {\n");
+		source.append("\tpublic void encode(WriterContext context, JsonWriter writer, CodecModel model, Object object, int uniqueId, long options) throws IOException {\n");
 		source.append("\t\tchar mark = '{';\n");
 		source.append("\t\tif (uniqueId >= 0) {\n");
-		source.append("\t\t\tbuf.writeValue(mark, FIELD_SET_ID, uniqueId);\n");
+		source.append("\t\t\twriter.writeValue(mark, FIELD_SET_ID, uniqueId);\n");
 		source.append("\t\t\tmark = ',';\n");
 		source.append("\t\t}\n");
 		source.append("\t\tif (CodecConfig.WHITE_OBJECT.contains(object.getClass())) {\n");
-		source.append("\t\t\tbuf.writeValue(mark, TYPE, object.getClass().getName());\n");
+		source.append("\t\t\twriter.writeValue(mark, TYPE, object.getClass().getName());\n");
 		source.append("\t\t\tmark = ',';\n");
 		source.append("\t\t}\n");
 
@@ -130,9 +130,9 @@ public class SourceCodeFactory {
 			}
 		}
 		source.append("\t\tif (mark == '{') {\n");
-		source.append("\t\t\tbuf.writeMark('{');\n");
+		source.append("\t\t\twriter.writeMark('{');\n");
 		source.append("\t\t}\n");
-		source.append("\t\tbuf.writeMark('}');\n");
+		source.append("\t\twriter.writeMark('}');\n");
 		source.append("\t}\n");
 
 		TreeMap<Integer, ArrayList<FieldInfo>> map = makeCase(fields);
@@ -194,8 +194,8 @@ public class SourceCodeFactory {
 	 */
 	private static void importClass(StringBuilder source) {
 		source.append("import com.keimons.deepjson.*;\n");
-		source.append("import com.keimons.deepjson.SyntaxToken;\n");
 		source.append("\n");
+		source.append("import java.io.IOException;\n");
 		source.append("import java.lang.reflect.Field;\n");
 		source.append("\n");
 	}
@@ -211,7 +211,7 @@ public class SourceCodeFactory {
 				.append(offset)
 				.append("L);\n");
 
-		source.append("\t\tbuf.writeValue(mark, $")
+		source.append("\t\twriter.writeValue(mark, $")
 				.append(ref)
 				.append(", ")
 				.append(name)
@@ -231,7 +231,7 @@ public class SourceCodeFactory {
 				.append(name)
 				.append(" != null || CodecOptions.IgnoreNonField.noOptions(options)) {\n")
 		;
-		source.append("\t\t\tbuf.writeValue(mark, $")
+		source.append("\t\t\twriter.writeValue(mark, $")
 				.append(ref)
 				.append(", ")
 				.append(name)
@@ -245,8 +245,8 @@ public class SourceCodeFactory {
 		source.append("\t\tif (context.isEmptyHead() && CodecOptions.IgnoreNonField.isOptions(options)) {\n");
 		source.append("\t\t\tcontext.poll();\n");
 		source.append("\t\t} else {\n");
-		source.append("\t\t\tbuf.writeName(mark, $").append(ref).append(");\n");
-		source.append("\t\t\tcontext.encode(buf, CodecModel.V, options);\n");
+		source.append("\t\t\twriter.writeName(mark, $").append(ref).append(");\n");
+		source.append("\t\t\tcontext.encode(writer, CodecModel.V, options);\n");
 		source.append("\t\t\tmark = ',';\n");
 		source.append("\t\t}\n");
 	}
@@ -299,7 +299,8 @@ public class SourceCodeFactory {
 	}
 
 	public static void appendSwitch(StringBuilder source, TreeMap<Integer, ArrayList<FieldInfo>> map) {
-		source.append("\tprivate int switch0(ReaderBuffer buf) {\n");
+		source.append("\tprivate int switch0(ReaderBuffer buffer) {\n");
+		source.append("\t\tReaderBuffer.Buffer buf = buffer.buffer();\n");
 		source.append("\t\tint hashcode = buf.valueHashcode();\n");
 		source.append("\t\tswitch (hashcode) {\n");
 

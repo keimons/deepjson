@@ -306,6 +306,26 @@ public class CodecUtil {
 	}
 
 	/**
+	 * 计算{@code char}值的字符串长度
+	 *
+	 * @param values {@code char}值
+	 * @return 字符串长度
+	 */
+	public static int length(char[] values) {
+		int length = 0;
+		for (char value : values) {
+			if (value < 256) {
+				length += REPLACEMENT_LENGTH[value];
+			} else if (value == 0x2028 || value == 0x2029) {
+				length += 6;
+			} else {
+				length += 1;
+			}
+		}
+		return length;
+	}
+
+	/**
 	 * 计算{@link String}值的字符串长度
 	 *
 	 * @param value {@link String}值

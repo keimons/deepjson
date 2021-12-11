@@ -135,7 +135,7 @@ public class DefaultWriter extends JsonWriter {
 	 */
 	private void writeTmp() throws IOException {
 		int writable = DECIMAL.length();
-		if (ensureWritable(writable)) {
+		if (buf.ensureWritable(writable)) {
 			for (int i = 0; i < writable; i++) {
 				buf.safeWrite(DECIMAL.charAt(i));
 			}
@@ -149,40 +149,40 @@ public class DefaultWriter extends JsonWriter {
 
 	@Override
 	public void writeMark(char mark) throws IOException {
-		if (ensureWritable(1)) {
-			safeWrite(mark);
+		if (buf.ensureWritable(1)) {
+			buf.safeWrite(mark);
 		} else {
-			write(mark);
+			buf.write(mark);
 		}
 	}
 
 	@Override
 	public void write(boolean value) throws IOException {
-		if (ensureWritable(value ? 4 : 5)) {
+		if (buf.ensureWritable(value ? 4 : 5)) {
 			if (value) {
-				safeWrite('t');
-				safeWrite('r');
-				safeWrite('u');
-				safeWrite('e');
+				buf.safeWrite('t');
+				buf.safeWrite('r');
+				buf.safeWrite('u');
+				buf.safeWrite('e');
 			} else {
-				safeWrite('f');
-				safeWrite('a');
-				safeWrite('l');
-				safeWrite('s');
-				safeWrite('e');
+				buf.safeWrite('f');
+				buf.safeWrite('a');
+				buf.safeWrite('l');
+				buf.safeWrite('s');
+				buf.safeWrite('e');
 			}
 		} else {
 			if (value) {
-				write('t');
-				write('r');
-				write('u');
-				write('e');
+				buf.write('t');
+				buf.write('r');
+				buf.write('u');
+				buf.write('e');
 			} else {
-				write('f');
-				write('a');
-				write('l');
-				write('s');
-				write('e');
+				buf.write('f');
+				buf.write('a');
+				buf.write('l');
+				buf.write('s');
+				buf.write('e');
 			}
 		}
 	}
@@ -191,13 +191,13 @@ public class DefaultWriter extends JsonWriter {
 	public void write(int value) throws IOException {
 		int writable = CodecUtil.length(value);
 		CodecUtil.writeInt(TEMP, writable, value);
-		if (ensureWritable(writable)) {
+		if (buf.ensureWritable(writable)) {
 			for (int i = 0; i < writable; i++) {
-				safeWrite(TEMP[i]);
+				buf.safeWrite(TEMP[i]);
 			}
 		} else {
 			for (int i = 0; i < writable; i++) {
-				write(TEMP[i]);
+				buf.write(TEMP[i]);
 			}
 		}
 	}
@@ -206,13 +206,13 @@ public class DefaultWriter extends JsonWriter {
 	public void write(long value) throws IOException {
 		int writable = CodecUtil.length(value);
 		CodecUtil.writeLong(TEMP, writable, value);
-		if (ensureWritable(writable)) {
+		if (buf.ensureWritable(writable)) {
 			for (int i = 0; i < writable; i++) {
-				safeWrite(TEMP[i]);
+				buf.safeWrite(TEMP[i]);
 			}
 		} else {
 			for (int i = 0; i < writable; i++) {
-				write(TEMP[i]);
+				buf.write(TEMP[i]);
 			}
 		}
 	}
@@ -239,35 +239,35 @@ public class DefaultWriter extends JsonWriter {
 	}
 
 	private void writeStringUnicode(String value) throws IOException {
-		if (ensureWritable(value.length() * 6 + 2)) {
-			safeWrite('"');
+		if (buf.ensureWritable(value.length() * 6 + 2)) {
+			buf.safeWrite('"');
 			for (int i = 0, length = value.length(); i < length; i++) {
 				safeWriteUnicode(value.charAt(i));
 			}
-			safeWrite('"');
+			buf.safeWrite('"');
 		} else {
-			write('"');
+			buf.write('"');
 			for (int i = 0, length = value.length(); i < length; i++) {
 				writeUnicode(value.charAt(i));
 			}
-			write('"');
+			buf.write('"');
 		}
 	}
 
 	private void writeStringNormal(String value) throws IOException {
 		int writable = CodecUtil.length(value) + 2;
-		if (ensureWritable(writable)) {
-			safeWrite('"');
+		if (buf.ensureWritable(writable)) {
+			buf.safeWrite('"');
 			for (int i = 0, length = value.length(); i < length; i++) {
 				safeWriteNormal(value.charAt(i));
 			}
-			safeWrite('"');
+			buf.safeWrite('"');
 		} else {
-			write('"');
+			buf.write('"');
 			for (int i = 0, length = value.length(); i < length; i++) {
 				writeNormal(value.charAt(i));
 			}
-			write('"');
+			buf.write('"');
 		}
 	}
 
@@ -280,59 +280,59 @@ public class DefaultWriter extends JsonWriter {
 		} else {
 			length += CodecUtil.length(value);
 		}
-		if (ensureWritable(length)) {
-			safeWrite('"');
+		if (buf.ensureWritable(length)) {
+			buf.safeWrite('"');
 			if (unicode) {
 				safeWriteUnicode(value);
 			} else {
 				safeWriteNormal(value);
 			}
-			safeWrite('"');
+			buf.safeWrite('"');
 		} else {
-			write('"');
+			buf.write('"');
 			if (unicode) {
 				writeUnicode(value);
 			} else {
 				writeNormal(value);
 			}
-			write('"');
+			buf.write('"');
 		}
 	}
 
 	@Override
 	public void writeName(char mark, char[] name) throws IOException {
-		int writable = 4 + CodecUtil.length(name.length);
-		if (ensureWritable(writable)) {
-			safeWrite(mark);
-			safeWrite('"');
+		int writable = 4 + CodecUtil.length(name);
+		if (buf.ensureWritable(writable)) {
+			buf.safeWrite(mark);
+			buf.safeWrite('"');
 			for (char c : name) {
 				safeWriteNormal(c);
 			}
-			safeWrite('"');
-			safeWrite(':');
+			buf.safeWrite('"');
+			buf.safeWrite(':');
 		} else {
-			write(mark);
-			write('"');
+			buf.write(mark);
+			buf.write('"');
 			for (char c : name) {
 				writeNormal(c);
 			}
-			write('"');
-			write(':');
+			buf.write('"');
+			buf.write(':');
 		}
 	}
 
 	@Override
 	public void writeNull() throws IOException {
-		if (ensureWritable(4)) {
-			safeWrite('n');
-			safeWrite('u');
-			safeWrite('l');
-			safeWrite('l');
+		if (buf.ensureWritable(4)) {
+			buf.safeWrite('n');
+			buf.safeWrite('u');
+			buf.safeWrite('l');
+			buf.safeWrite('l');
 		} else {
-			write('n');
-			write('u');
-			write('l');
-			write('l');
+			buf.write('n');
+			buf.write('u');
+			buf.write('l');
+			buf.write('l');
 		}
 	}
 

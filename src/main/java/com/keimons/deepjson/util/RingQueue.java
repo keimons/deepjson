@@ -102,11 +102,11 @@ abstract class VPadding<T> extends LPadding {
 	}
 
 	protected T get(int index) {
-		return nodes[index & mark];
+		return nodes[BUFFER_PAD + (index & mark)];
 	}
 
 	protected boolean cas(long index, Object expected, Object newValue) {
-		return UNSAFE.compareAndSwapObject(nodes, OFFSET + (index & mark) * BUFFER_PAD, expected, newValue);
+		return UNSAFE.compareAndSwapObject(nodes, OFFSET + (index & mark) * UnsafeUtil.ARRAY_OBJECT_INDEX_SCALE, expected, newValue);
 	}
 }
 

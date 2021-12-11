@@ -252,6 +252,10 @@ public abstract class ReaderBuffer implements Closeable {
 			return buf;
 		}
 
+		public int valueHashcode() {
+			return ArrayUtil.hashcode(buf, 0, writerIndex);
+		}
+
 		public void write(char value) {
 			if (writerIndex >= buf.length) {
 				char[] tmp = new char[buf.length << 1];
@@ -271,6 +275,18 @@ public abstract class ReaderBuffer implements Closeable {
 
 		public void writerIndex(int writerIndex) {
 			this.writerIndex = writerIndex;
+		}
+
+		public final boolean isSame(char[] values) {
+			if (writerIndex != values.length) {
+				return false;
+			}
+			for (int i = 0; i < writerIndex; i++) {
+				if (buf[i] != values[i]) {
+					return false;
+				}
+			}
+			return true;
 		}
 
 		public final boolean isSame(char[] values, int length) {

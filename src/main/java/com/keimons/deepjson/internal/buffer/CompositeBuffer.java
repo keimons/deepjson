@@ -78,7 +78,7 @@ public class CompositeBuffer implements Buffer {
 
 	@Override
 	public boolean ensureWritable(int writable) {
-		if (writable + writerIndex >= capacity) {
+		if (writable + writerIndex > capacity) {
 			return expandCapacity(writable + capacity);
 		}
 		return false;
@@ -108,8 +108,8 @@ public class CompositeBuffer implements Buffer {
 			buffers[bufferIndex] = buf;
 			return false;
 		} else {
-			if (components[bufferIndex] == null) {
-				int bufferIndex = this.bufferIndex + 1;
+			int bufferIndex = this.bufferIndex + 1;
+			if (bufferIndex >= components.length || components[bufferIndex] == null) {
 				int capacity = this.capacity;
 				while (capacity < minCapacity) {
 					if (bufferIndex >= buffers.length) {
