@@ -11,9 +11,19 @@ import java.io.IOException;
  * @version 1.0
  * @since 1.6
  **/
-public class NullCodec extends AbstractOnlineCodec<Void> {
+public class NullCodec extends KlassCodec<Void> {
 
 	public static final ICodec<Void> instance = new NullCodec();
+
+	@Override
+	public boolean isSearch() {
+		return false;
+	}
+
+	@Override
+	public boolean isCacheType() {
+		return true;
+	}
 
 	@Override
 	public void encode(WriterContext context, JsonWriter writer, CodecModel model, Void value, int uniqueId, long options) throws IOException {
