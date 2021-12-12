@@ -11,9 +11,19 @@ import java.io.IOException;
  * @version 1.0
  * @since 1.6
  **/
-public class EnumCodec extends AbstractOnlineCodec<Enum<?>> {
+public class EnumCodec extends KlassCodec<Enum<?>> {
 
 	public static final EnumCodec instance = new EnumCodec();
+
+	@Override
+	public boolean isSearch() {
+		return false;
+	}
+
+	@Override
+	public boolean isCacheType() {
+		return true;
+	}
 
 	@Override
 	public void encode(WriterContext context, JsonWriter writer, CodecModel model, Enum<?> value, int uniqueId, long options) throws IOException {

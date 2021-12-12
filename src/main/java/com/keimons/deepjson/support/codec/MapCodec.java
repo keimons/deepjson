@@ -40,9 +40,9 @@ public class MapCodec extends AbstractOnlineCodec<Object> {
 		Map<?, ?> map = (Map<?, ?>) value;
 		ElementsFuture future = new ElementsFuture();
 		context.cache(future, EmptyCodec.instance);
-		for (Map.Entry<?, ?> obj : map.entrySet()) {
-			context.build(obj.getKey());
-			context.build(obj.getValue());
+		for (Map.Entry<?, ?> entry : map.entrySet()) {
+			context.build(entry.getKey());
+			context.build(entry.getValue());
 			future.addCount();
 		}
 	}
