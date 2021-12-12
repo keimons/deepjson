@@ -55,7 +55,10 @@ public class InlineCodec extends ExtendedCodec {
 					writer = MethodHandles.foldArguments(writer, 4, getter);
 					// 调整成固定格式
 					writer = MethodHandles.dropArguments(writer, 0, WriterContext.class);
-				} else {
+				} /*else if (CodecUtil.checkTyped(info.getField())) {
+					// TODO 优化提升速度
+					writer = null;
+				} */else {
 					builds.add(lookup.unreflectGetter(info.getField()));
 					MethodType mt = MethodType.methodType(
 							boolean.class,

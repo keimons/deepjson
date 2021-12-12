@@ -64,6 +64,11 @@ public class CodecConfig {
 	 */
 	public static final Map<Node, Type> MAPPER = new ConcurrentHashMap<Node, Type>();
 
+	/**
+	 * 已知类型
+	 */
+	public static final Set<Type> TYPED_CLASS = new HashSet<Type>();
+
 	static {
 		// 预热编译器
 		String property = System.getProperty("com.keimons.deepjson.Debug");
@@ -139,6 +144,16 @@ public class CodecConfig {
 //		DEFAULT.put(Set.class, HashSet.class);
 //		DEFAULT.put(SortedSet.class, TreeSet.class);
 //		DEFAULT.put(NavigableSet.class, TreeSet.class);
+
+		TYPED_CLASS.add(Boolean.class);
+		TYPED_CLASS.add(Character.class);
+		TYPED_CLASS.add(Byte.class);
+		TYPED_CLASS.add(Short.class);
+		TYPED_CLASS.add(Integer.class);
+		TYPED_CLASS.add(Long.class);
+		TYPED_CLASS.add(Float.class);
+		TYPED_CLASS.add(Double.class);
+		TYPED_CLASS.add(String.class);
 	}
 
 	public static void addWrite(Class<?> clazz) {
