@@ -1,14 +1,10 @@
 package com.keimons.deepjson.support.codec.extended;
 
 import com.keimons.deepjson.*;
-import com.keimons.deepjson.util.ClassUtil;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandle;
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.Collection;
 
 /**
  * 拓展编解码器
@@ -18,25 +14,6 @@ import java.util.Collection;
  * @since 1.6
  **/
 public class CodecUtil {
-
-	public static boolean checkTyped(Field field) {
-		Type type = field.getGenericType();
-		if (type instanceof ParameterizedType) {
-			ParameterizedType pt = (ParameterizedType) type;
-			if (Collection.class.isAssignableFrom((Class<?>) pt.getRawType())) {
-				Type innerType = ClassUtil.findGenericType(pt, Collection.class, "E");
-				if (innerType != null) {
-					if (CodecConfig.TYPED_CLASS.contains(innerType)) {
-						return true;
-					}
-					if (innerType instanceof Class) {
-						return Enum.class.isAssignableFrom((Class<?>) innerType);
-					}
-				}
-			}
-		}
-		return false;
-	}
 
 	static boolean write(JsonWriter writer, long options, char mark, char[] name, boolean value) throws IOException {
 		writer.writeValue(mark, name, value);

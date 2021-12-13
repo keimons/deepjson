@@ -24,7 +24,7 @@ import java.util.Map;
  **/
 public class InlineCodec extends ExtendedCodec {
 
-	private List<MethodHandle> builds = new ArrayList<MethodHandle>();
+	private List<BuildNode> builds = new ArrayList<BuildNode>();
 
 	private List<MethodHandle> writers = new ArrayList<MethodHandle>();
 
@@ -55,11 +55,19 @@ public class InlineCodec extends ExtendedCodec {
 					writer = MethodHandles.foldArguments(writer, 4, getter);
 					// 调整成固定格式
 					writer = MethodHandles.dropArguments(writer, 0, WriterContext.class);
-				} /*else if (CodecUtil.checkTyped(info.getField())) {
-					// TODO 优化提升速度
-					writer = null;
-				} */else {
-					builds.add(lookup.unreflectGetter(info.getField()));
+				} else {
+					// 更加保守的保守策略
+					if (TypedCollectionCodec.test(info.getField())) {
+						@SuppressWarnings({"rawtypes", "unchecked"})
+						ICodec<Object> codec = new TypedCollectionCodec(info.getField());
+						builds.add(new BuildNode(lookup.unreflectGetter(info.getField()), codec));
+					} else if (TypedMapCodec.test(info.getField())) {
+						@SuppressWarnings({"rawtypes", "unchecked"})
+						ICodec<Object> codec = new TypedMapCodec(info.getField());
+						builds.add(new BuildNode(lookup.unreflectGetter(info.getField()), codec));
+					} else {
+						builds.add(new BuildNode(lookup.unreflectGetter(info.getField())));
+					}
 					MethodType mt = MethodType.methodType(
 							boolean.class,
 							WriterContext.class, JsonWriter.class, long.class, char.class, char[].class
@@ -105,8 +113,14 @@ public class InlineCodec extends ExtendedCodec {
 	@Override
 	public void build(WriterContext context, Object value) {
 		try {
-			for (MethodHandle build : builds) {
-				context.build(build.invoke(value));
+			for (BuildNode node : builds) {
+				// 对象中取值
+				Object item = node.handle.invoke(value);
+				if (item == null || !node.typed) {
+					context.build(item);
+				} else {
+					context.build(node.handle.invoke(value), node.codec);
+				}
 			}
 		} catch (Throwable e) {
 			e.printStackTrace();
@@ -172,5 +186,28 @@ public class InlineCodec extends ExtendedCodec {
 		return MethodHandleUtil.Lookup().findVirtual(
 				ReaderBuffer.class, clazz.getSimpleName() + "Value", MethodType.methodType(clazz)
 		);
+	}
+
+	/**
+	 * 构造节点
+	 */
+	private static class BuildNode {
+
+		boolean typed;
+
+		MethodHandle handle;
+
+		ICodec<Object> codec;
+
+		public BuildNode(MethodHandle handle) {
+			this.handle = handle;
+			this.typed = false;
+		}
+
+		public BuildNode(MethodHandle handle, ICodec<Object> codec) {
+			this.handle = handle;
+			this.codec = codec;
+			this.typed = true;
+		}
 	}
 }

@@ -89,12 +89,22 @@ public class DepthSearchContext extends WriterContext {
 	 */
 	private int unique;
 
+	@Override
 	public final Object poll() {
 		return values[readerIndex++];
 	}
 
+	@Override
 	public void build(Object root) {
 		ICodec<Object> codec = CodecFactory.getCodec(root);
+		if (!cache(root, codec)) {
+			return;
+		}
+		codec.build(this, root);
+	}
+
+	@Override
+	public void build(Object root, ICodec<Object> codec) {
 		if (!cache(root, codec)) {
 			return;
 		}

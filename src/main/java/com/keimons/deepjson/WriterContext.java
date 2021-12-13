@@ -37,6 +37,14 @@ public abstract class WriterContext {
 	public abstract void build(Object root);
 
 	/**
+	 * 以对象为根节点，使用指定的编解码器构建对象树。
+	 *
+	 * @param root  根节点
+	 * @param codec 编解码器
+	 */
+	public abstract void build(Object root, ICodec<Object> codec);
+
+	/**
 	 * 头部是否为空
 	 *
 	 * @return {@code true}空 {@code false}非空
