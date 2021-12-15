@@ -199,7 +199,7 @@ public class CompositeBuffer implements Buffer {
 
 	public static class ComponentFactory {
 
-		public static final int BUFFER_CACHE_SIZE = PlatformUtil.cores() * 4; // 按照每个核心1M缓存设定
+		public static final int BUFFER_CACHE_SIZE = PlatformUtil.cores() * 8; // 按照每个核心1M缓存设定
 
 		private static final RingQueue<Component> queue = new RingQueue<Component>(BUFFER_CACHE_SIZE);
 

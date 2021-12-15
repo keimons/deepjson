@@ -35,7 +35,7 @@ import java.util.Arrays;
 public class DepthSearchContext extends WriterContext {
 
 	/* 默认最大缓存 */
-	private static final int MAXIMUM_CAPACITY = 16 * 1024; // 16k
+	private static final int MAXIMUM_CAPACITY = 64 * 1024; // 64k
 
 	/* 默认初始缓存 */
 	private static final int DEFAULT_CAPACITY = 64;
@@ -162,15 +162,15 @@ public class DepthSearchContext extends WriterContext {
 
 	@Override
 	public void release(JsonWriter writer) throws IOException {
-		if (context.capacity() >= MAXIMUM_CAPACITY) {
+		if (context.capacity() > MAXIMUM_CAPACITY) {
 			context = new WeakIdentityHashMap<Object>(DEFAULT_UNIQUE, MAXIMUM_CAPACITY);
 		} else {
 			context.clear();
 		}
-		if (writerIndex >= MAXIMUM_CAPACITY) {
-			values = new Object[MAXIMUM_CAPACITY << 2];
-			uniques = new int[MAXIMUM_CAPACITY << 2];
-			codecs = ArrayUtil.newInstance(ICodec.class, MAXIMUM_CAPACITY << 2);
+		if (writerIndex > MAXIMUM_CAPACITY) {
+			values = new Object[MAXIMUM_CAPACITY];
+			uniques = new int[MAXIMUM_CAPACITY];
+			codecs = ArrayUtil.newInstance(ICodec.class, MAXIMUM_CAPACITY);
 		} else {
 			for (int i = 0; i < writerIndex; i++) {
 				values[i] = null;
