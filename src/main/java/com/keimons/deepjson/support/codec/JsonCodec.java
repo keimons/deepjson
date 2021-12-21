@@ -61,17 +61,23 @@ public class JsonCodec extends AbstractOnlineCodec<Json> {
 			if (values instanceof Map) {
 				@SuppressWarnings("unchecked")
 				Map<String, Object> dict = (Map<String, Object>) values;
-				return new Json(dict);
+				Json json = new Json();
+				BridgeUtil.putValues(json, dict);
+				return json;
 			} else if (values instanceof List) {
 				@SuppressWarnings("unchecked")
 				List<Object> list = (List<Object>) values;
-				return new Json(list);
+				Json json = new Json();
+				BridgeUtil.putValues(json, list);
+				return json;
 			} else {
 				throw new RuntimeException();
 			}
 		} else if (buf.token() == SyntaxToken.LBRACKET) {
 			List<Object> values = context.decode(buf, TYPE_LIST, options);
-			return new Json(values);
+			Json json = new Json();
+			BridgeUtil.putValues(json, values);
+			return json;
 		}
 		throw new RuntimeException();
 	}

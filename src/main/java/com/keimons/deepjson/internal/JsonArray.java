@@ -51,6 +51,10 @@ public interface JsonArray extends Iterable<Object> {
 
 	Iterator<Object> iterator();
 
+	Object remove(int index);
+
+	boolean remove(Object value);
+
 	void clear();
 
 	boolean equals(Object obj);

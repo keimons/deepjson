@@ -52,6 +52,8 @@ public interface JsonObject {
 
 	Set<Map.Entry<String, Object>> entrySet();
 
+	Object removeKey(String key);
+
 	void clear();
 
 	boolean equals(Object obj);

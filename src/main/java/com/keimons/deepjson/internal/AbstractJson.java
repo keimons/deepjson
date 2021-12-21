@@ -15,28 +15,76 @@ import java.util.*;
  **/
 public abstract class AbstractJson implements Json {
 
-	@SuppressWarnings("rawtypes")
 	static final AbstractNode<?> EMPTY_LIST = new ListNode();
 
-	@SuppressWarnings("rawtypes")
 	static final AbstractNode<?> EMPTY_DICT = new DictNode();
 
-	@SuppressWarnings("rawtypes")
-	AbstractNode node; // must be private
+	final Type type;
+
+	AbstractNode<?> node; // must be not public
 
 	public AbstractJson() {
-
+		this.type = Type.AUTO;
 	}
 
-	protected AbstractJson(List<Object> values) {
-		this.node = new ListNode(values);
+	public AbstractJson(Type type) {
+		if (type == Type.LIST) {
+			this.node = new ListNode();
+		}
+		if (type == Type.DICT) {
+			this.node = new DictNode();
+		}
+		this.type = type;
 	}
 
-	protected AbstractJson(Map<String, Object> values) {
-		this.node = new DictNode(values);
+	@SuppressWarnings("unchecked")
+	protected AbstractJson(List<?> values) {
+		this.type = Type.LIST;
+		this.node = new ListNode((List<Object>) values);
 	}
 
-	private void assertType(Type type) {
+	@SuppressWarnings("unchecked")
+	protected AbstractJson(Map<String, ?> values) {
+		this.type = Type.DICT;
+		this.node = new DictNode((Map<String, Object>) values);
+	}
+
+	AbstractNode<?> base() {
+		if (type == Type.AUTO && (node == null || node.isEmpty())) {
+			return EMPTY_DICT;
+		}
+		return node;
+	}
+
+	/**
+	 * 获取内部节点
+	 *
+	 * @param def 默认值
+	 * @return 内部节点
+	 */
+	private AbstractNode<?> base(AbstractNode<?> def) {
+		if (type == Type.AUTO && (node == null || node.isEmpty())) {
+			return def;
+		}
+		return node;
+	}
+
+	private AbstractNode<?> base(Type type) {
+		// quickly
+		if (node != null && node.type == type) {
+			return node;
+		}
+		if (this.type == Type.AUTO && (node == null || node.isEmpty())) {
+			if (type == Type.LIST) {
+				node = new ListNode();
+			} else {
+				node = new DictNode();
+			}
+		}
+		return node;
+	}
+
+	private void assertType(Type type, AbstractNode<?> node) {
 		if (node.type != type) {
 			throw new RuntimeException();
 		}
@@ -48,7 +96,8 @@ public abstract class AbstractJson implements Json {
 	 * @return 是否数组
 	 */
 	public boolean isArray() {
-		return node == null || node.type == Type.LIST || node.size() == 0;
+		AbstractNode<?> node = base(Type.LIST);
+		return node.type == Type.LIST;
 	}
 
 	/**
@@ -57,26 +106,23 @@ public abstract class AbstractJson implements Json {
 	 * @return 是否映射
 	 */
 	public boolean isDict() {
-		return node == null || node.type == Type.DICT || node.size() == 0;
+		AbstractNode<?> node = base(Type.DICT);
+		return node.type == Type.DICT;
 	}
 
 	@Override
 	public void add(Object value) {
-		// empty map convert to list
-		if (node == null || (node.type == Type.DICT && node.size() == 0)) {
-			node = new ListNode();
-		}
-		assertType(Type.LIST);
+		// empty dict convert to list
+		AbstractNode<?> node = base(Type.LIST);
+		assertType(Type.LIST, node);
 		node.add(value);
 	}
 
 	@Override
 	public void put(String key, Object value) {
-		// empty list convert to map
-		if (node == null || (node.type == Type.LIST && node.size() == 0)) {
-			node = new DictNode();
-		}
-		assertType(Type.DICT);
+		// empty list convert to dict
+		AbstractNode<?> node = base(Type.DICT);
+		assertType(Type.DICT, node);
 		node.put(key, value);
 	}
 
@@ -86,15 +132,15 @@ public abstract class AbstractJson implements Json {
 
 	@Override
 	public Object get(int index) {
-		AbstractNode<?> node = this.node == null ? EMPTY_LIST : this.node;
-		assertType(Type.LIST);
+		AbstractNode<?> node = base(EMPTY_LIST);
+		assertType(Type.LIST, node);
 		return node.get(index);
 	}
 
 	@Override
 	public Object get(String key) {
-		AbstractNode<?> node = this.node == null ? EMPTY_DICT : this.node;
-		assertType(Type.DICT);
+		AbstractNode<?> node = base(EMPTY_DICT);
+		assertType(Type.DICT, node);
 		return node.get(key);
 	}
 
@@ -308,40 +354,77 @@ public abstract class AbstractJson implements Json {
 
 	@Override
 	public Iterator<Object> iterator() {
-		// empty list convert to map
-		if (node == null || node.size() == 0) {
-			return EMPTY_LIST.iterator();
-		} else {
-			assertType(Type.LIST);
-			return node.iterator();
-		}
+		// empty dict convert to list
+		AbstractNode<?> node = base(EMPTY_LIST);
+		assertType(Type.LIST, node);
+		return node.iterator();
 	}
 
 	@Override
 	public Set<Map.Entry<String, Object>> entrySet() {
-		if (node == null || node.size() == 0) {
-			return EMPTY_DICT.entrySet();
-		} else {
-			assertType(Type.DICT);
-			return node.entrySet();
-		}
+		// empty list convert to dict
+		AbstractNode<?> node = base(EMPTY_DICT);
+		assertType(Type.DICT, node);
+		return node.entrySet();
+	}
+
+	@Override
+	public Object remove(int index) {
+		AbstractNode<?> node = base(EMPTY_LIST);
+		assertType(Type.LIST, node);
+		return node.remove(index);
+	}
+
+	@Override
+	public boolean remove(Object value) {
+		AbstractNode<?> node = base(EMPTY_LIST);
+		assertType(Type.LIST, node);
+		return node.remove(value);
+	}
+
+	@Override
+	public Object removeKey(String key) {
+		AbstractNode<?> node = base(EMPTY_DICT);
+		assertType(Type.DICT, node);
+		return node.removeKey(key);
 	}
 
 	@Override
 	public void clear() {
-		this.node.clear();
+		if (node != null) {
+			node.clear();
+		}
+	}
+
+	@Override
+	public int hashCode() {
+		if (node == null) {
+			return 0;
+		}
+		return node.hashCode();
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (node == null || node.size() == 0) {
-			return EMPTY_DICT.values.equals(obj) || EMPTY_LIST.values.equals(obj);
+		Object values;
+		if (obj instanceof AbstractJson) {
+			AbstractNode<?> node = ((AbstractJson) obj).node;
+			if (this.node == null && node == null) {
+				return true;
+			}
+			values = node.values;
+		} else {
+			values = obj;
 		}
-		return node.values.equals(obj);
+		if (this.node == null) {
+			return EMPTY_DICT.equals(values) || EMPTY_LIST.equals(values);
+		} else {
+			return this.node.equals(values);
+		}
 	}
 
 	public enum Type {
-		LIST, DICT
+		AUTO, LIST, DICT
 	}
 
 	public interface Node {
@@ -359,6 +442,8 @@ public abstract class AbstractJson implements Json {
 			this.type = type;
 			this.values = values;
 		}
+
+		public abstract boolean isEmpty();
 
 		public abstract int size();
 
@@ -378,6 +463,12 @@ public abstract class AbstractJson implements Json {
 			throw new UnsupportedOperationException();
 		}
 
+		@Override
+		public abstract int hashCode();
+
+		@Override
+		public abstract boolean equals(Object o);
+
 		@NotNull
 		@Override
 		public Iterator<Object> iterator() {
@@ -388,10 +479,22 @@ public abstract class AbstractJson implements Json {
 			throw new UnsupportedOperationException();
 		}
 
+		public Object remove(int index) {
+			throw new UnsupportedOperationException();
+		}
+
+		public boolean remove(Object value) {
+			throw new UnsupportedOperationException();
+		}
+
+		public Object removeKey(String key) {
+			throw new UnsupportedOperationException();
+		}
+
 		public abstract void clear();
 	}
 
-	private static class ListNode extends AbstractNode<List<Object>> implements Iterable<Object> {
+	static class ListNode extends AbstractNode<List<Object>> implements Iterable<Object> {
 
 		public ListNode() {
 			super(Type.LIST, new ArrayList<Object>());
@@ -399,6 +502,11 @@ public abstract class AbstractJson implements Json {
 
 		public ListNode(List<Object> values) {
 			super(Type.LIST, values);
+		}
+
+		@Override
+		public boolean isEmpty() {
+			return values.isEmpty();
 		}
 
 		@Override
@@ -417,8 +525,17 @@ public abstract class AbstractJson implements Json {
 		}
 
 		@Override
-		public void clear() {
-			values.clear();
+		public int hashCode() {
+			return values.hashCode();
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (o instanceof List) {
+				List<?> list = (List<?>) o;
+				return list.equals(o);
+			}
+			return false;
 		}
 
 		@NotNull
@@ -426,9 +543,24 @@ public abstract class AbstractJson implements Json {
 		public Iterator<Object> iterator() {
 			return values.iterator();
 		}
+
+		@Override
+		public Object remove(int index) {
+			return values.remove(index);
+		}
+
+		@Override
+		public boolean remove(Object value) {
+			return values.remove(value);
+		}
+
+		@Override
+		public void clear() {
+			values.clear();
+		}
 	}
 
-	private static class DictNode extends AbstractNode<Map<String, Object>> {
+	static class DictNode extends AbstractNode<Map<String, Object>> {
 
 		public DictNode() {
 			super(Type.DICT, new HashMap<String, Object>());
@@ -436,6 +568,11 @@ public abstract class AbstractJson implements Json {
 
 		public DictNode(Map<String, Object> values) {
 			super(Type.LIST, values);
+		}
+
+		@Override
+		public boolean isEmpty() {
+			return values.isEmpty();
 		}
 
 		@Override
@@ -454,8 +591,27 @@ public abstract class AbstractJson implements Json {
 		}
 
 		@Override
+		public int hashCode() {
+			return values.hashCode();
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (o instanceof Map) {
+				Map<?, ?> dict = (Map<?, ?>) o;
+				return dict.equals(o);
+			}
+			return false;
+		}
+
+		@Override
 		public Set<Map.Entry<String, Object>> entrySet() {
 			return values.entrySet();
+		}
+
+		@Override
+		public Object removeKey(String key) {
+			return values.remove(key);
 		}
 
 		@Override

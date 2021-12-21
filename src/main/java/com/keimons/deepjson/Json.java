@@ -22,11 +22,11 @@ public class Json extends AbstractJson {
 
 	}
 
-	public Json(List<Object> values) {
+	public Json(List<?> values) {
 		super(values);
 	}
 
-	public Json(Map<String, Object> values) {
+	public Json(Map<String, ?> values) {
 		super(values);
 	}
 }
