@@ -144,6 +144,9 @@ public class InlineCodec extends ExtendedCodec {
 					mark = ',';
 				}
 			}
+			if (mark == '{') {
+				writer.writeMark('{');
+			}
 			writer.writeMark('}');
 		} catch (Throwable e) {
 			e.printStackTrace();
