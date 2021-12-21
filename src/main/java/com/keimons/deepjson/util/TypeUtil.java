@@ -1,5 +1,8 @@
 package com.keimons.deepjson.util;
 
+import java.lang.reflect.Type;
+import java.util.Collection;
+
 /**
  * 类型工具
  *
@@ -135,5 +138,18 @@ public class TypeUtil {
 			return Double.parseDouble((String) value);
 		}
 		throw new TypeCaseException("type " + value.getClass() + " can not cast to Double, value: " + value);
+	}
+
+	/**
+	 * 生成一个泛型类型的参数化类型
+	 *
+	 * @param clazz     原始类型
+	 * @param innerType 参数类型
+	 * @return 参数化类型
+	 */
+	@SuppressWarnings("rawtypes")
+	public static Type makeType(Class<? extends Collection> clazz, Type innerType) {
+		Type et = ReflectUtil.makeTypeVariable(clazz, "E", new Type[]{innerType});
+		return ReflectUtil.makeParameterizedType(null, clazz, et);
 	}
 }

@@ -82,7 +82,7 @@ public class CodecUtil {
 	static void read(Object instance, ReaderBuffer buf, ReaderContext context, long options, Type type, MethodHandle setter) throws Throwable {
 		if (buf.token() == SyntaxToken.NULL) {
 			setter.invoke(instance, null);
-		} else if (buf.is$Id()) {
+		} else if (buf.check$Id()) {
 			context.addCompleteHook(instance, setter, buf.get$Id());
 		} else {
 			Object value = context.decode(buf, type, options);

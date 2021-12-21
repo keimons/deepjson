@@ -449,7 +449,7 @@ public class DefaultReader extends ReaderBuffer {
 	}
 
 	@Override
-	public boolean is$Id() {
+	public boolean check$Id() {
 		if (buf.size() < 5) {
 			return false;
 		}
@@ -459,6 +459,51 @@ public class DefaultReader extends ReaderBuffer {
 	@Override
 	public int get$Id() {
 		return CodecUtil.readInt(buf.base(), 4, buf.size());
+	}
+
+	@Override
+	public boolean check$Type() {
+		if (buf.size() < 7) {
+			return false;
+		}
+		return buf.charAt(0) == '$' &&
+				buf.charAt(1) == 't' &&
+				buf.charAt(2) == 'y' &&
+				buf.charAt(3) == 'p' &&
+				buf.charAt(4) == 'e' &&
+				buf.charAt(5) == ':';
+	}
+
+	@Override
+	public String get$Type() {
+		int i = buf.indexOf(',');
+		return new String(buf.base(), 6, (i == -1 ? buf.size() : i) - 6);
+	}
+
+	@Override
+	public boolean checkAtId() {
+		int i = buf.indexOf(',');
+		if (i == -1) {
+			if (buf.size() < 5) {
+				return false;
+			}
+			return buf.charAt(0) == '@' && buf.charAt(1) == 'i' && buf.charAt(2) == 'd' && buf.charAt(3) == ':';
+		} else {
+			if (buf.size() < i + 6) {
+				return false;
+			}
+			return buf.charAt(i + 1) == '@' && buf.charAt(i + 2) == 'i' && buf.charAt(i + 3) == 'd' && buf.charAt(i + 4) == ':';
+		}
+	}
+
+	@Override
+	public int getAtId() {
+		int i = buf.indexOf(',');
+		if (i == -1) {
+			return Integer.parseInt(new String(buf.base(), 4, buf.size() - 4));
+		} else {
+			return Integer.parseInt(new String(buf.base(), i + 5, buf.size() - i - 5));
+		}
 	}
 
 	@Override

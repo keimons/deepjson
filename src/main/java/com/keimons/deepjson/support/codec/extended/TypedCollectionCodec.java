@@ -2,7 +2,7 @@ package com.keimons.deepjson.support.codec.extended;
 
 import com.keimons.deepjson.*;
 import com.keimons.deepjson.support.CodecFactory;
-import com.keimons.deepjson.support.codec.AbstractOnlineCodec;
+import com.keimons.deepjson.support.codec.CollectionCodec;
 import com.keimons.deepjson.support.codec.NullCodec;
 import com.keimons.deepjson.util.ClassUtil;
 
@@ -19,7 +19,7 @@ import java.util.Collection;
  * @version 1.0
  * @since 1.6
  **/
-public class TypedCollectionCodec<T> extends AbstractOnlineCodec<Collection<T>> {
+public class TypedCollectionCodec<T> extends CollectionCodec {
 
 	final Class<T> clazz;
 
@@ -38,46 +38,23 @@ public class TypedCollectionCodec<T> extends AbstractOnlineCodec<Collection<T>> 
 	}
 
 	@Override
-	public void encode(WriterContext context, JsonWriter writer, CodecModel model, Collection<T> values, int uniqueId, long options) throws IOException {
-		char mark = '{';
-		// write class name
-		boolean className = CodecOptions.WriteClassName.isOptions(options);
-		if (className) {
-			Class<?> clazz = values.getClass();
-			if (CodecConfig.WHITE_COLLECTION.contains(clazz)) {
-				writer.writeValue(mark, TYPE, clazz.getName());
-				mark = ',';
-			}
-		}
-		if (uniqueId >= 0) {
-			writer.writeValue(mark, FIELD_SET_ID, uniqueId);
-			mark = ',';
-		}
-		if (uniqueId >= 0 || className) {
-			writer.writeName(mark, FIELD_VALUE);
-		}
-		mark = '[';
-		for (T value : values) {
-			writer.writeMark(mark);
-			if (value == null) {
-				NullCodec.instance.encode(context, writer, model, null, -1, options);
-			} else {
-				codec.encode(context, writer, model, value, -1, options);
-			}
-			mark = ',';
-		}
-		if (mark == '[') {
-			writer.writeMark('[');
-		}
-		writer.writeMark(']');
-		if (uniqueId >= 0 || className) {
-			writer.writeMark('}');
-		}
+	public void build(WriterContext context, Collection<?> value) {
+
 	}
 
 	@Override
-	protected Collection<T> decode(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
-		throw new UnsupportedOperationException();
+	@SuppressWarnings("unchecked")
+	protected char encode(WriterContext context, JsonWriter writer, Collection<?> values, long options, char mark) throws IOException {
+		for (Object value : values) {
+			writer.writeMark(mark);
+			if (value == null) {
+				NullCodec.instance.encode(context, writer, CodecModel.V, null, -1, options);
+			} else {
+				codec.encode(context, writer, CodecModel.V, (T) value, -1, options);
+			}
+			mark = ',';
+		}
+		return mark;
 	}
 
 	private static Class<?> getInnerType(Field field) {

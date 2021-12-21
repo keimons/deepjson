@@ -567,7 +567,7 @@ public abstract class AbstractJson implements Json {
 		}
 
 		public DictNode(Map<String, Object> values) {
-			super(Type.LIST, values);
+			super(Type.DICT, values);
 		}
 
 		@Override

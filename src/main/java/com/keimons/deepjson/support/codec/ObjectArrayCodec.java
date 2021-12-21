@@ -57,7 +57,7 @@ public class ObjectArrayCodec extends AbstractArrayCodec<Object[]> {
 		int count = 0;
 		for (; ; ) {
 			SyntaxToken token = buf.nextToken();
-			if (token == SyntaxToken.STRING && buf.is$Id()) {
+			if (token == SyntaxToken.STRING && buf.check$Id()) {
 				if (hooks == null) {
 					hooks = new int[16]; // 准备8个引用
 				}

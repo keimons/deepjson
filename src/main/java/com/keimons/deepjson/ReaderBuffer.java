@@ -196,7 +196,7 @@ public abstract class ReaderBuffer implements Closeable {
 	 *
 	 * @return 是否引用其他对象
 	 */
-	public abstract boolean is$Id();
+	public abstract boolean check$Id();
 
 	/**
 	 * 获取引用对象的ID
@@ -204,6 +204,34 @@ public abstract class ReaderBuffer implements Closeable {
 	 * @return 引用对象的ID
 	 */
 	public abstract int get$Id();
+
+	/**
+	 * 检测是否引用其他类型
+	 *
+	 * @return 是否引用其他类型
+	 */
+	public abstract boolean check$Type();
+
+	/**
+	 * 获取引用对象的ID
+	 *
+	 * @return 引用对象的ID
+	 */
+	public abstract String get$Type();
+
+	/**
+	 * 检测是否存放ID
+	 *
+	 * @return 是否存放ID键
+	 */
+	public abstract boolean checkAtId();
+
+	/**
+	 * 获取引用对象的ID
+	 *
+	 * @return 引用对象的ID
+	 */
+	public abstract int getAtId();
 
 	/**
 	 * 检测是否存放ID
@@ -267,6 +295,15 @@ public abstract class ReaderBuffer implements Closeable {
 
 		public char charAt(int index) {
 			return buf[index];
+		}
+
+		public int indexOf(char value) {
+			for (int i = 0; i < writerIndex; i++) {
+				if (buf[i] == value) {
+					return i;
+				}
+			}
+			return -1;
 		}
 
 		public int size() {

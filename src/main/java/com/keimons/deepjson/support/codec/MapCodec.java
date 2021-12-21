@@ -116,7 +116,7 @@ public class MapCodec extends AbstractOnlineCodec<Object> {
 				final int kid;
 				final Object key;
 				// key 也有可能是一个循环引用
-				if (buf.token() == SyntaxToken.STRING && buf.is$Id()) {
+				if (buf.token() == SyntaxToken.STRING && buf.check$Id()) {
 					kid = buf.get$Id();
 					key = null;
 				} else {
@@ -130,7 +130,7 @@ public class MapCodec extends AbstractOnlineCodec<Object> {
 				buf.assertExpectedSyntax(SyntaxToken.OBJECTS);
 				final int vid;
 				final Object value;
-				if (token == SyntaxToken.STRING && buf.is$Id()) {
+				if (token == SyntaxToken.STRING && buf.check$Id()) {
 					vid = buf.get$Id();
 					value = null;
 				} else {

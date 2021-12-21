@@ -61,10 +61,7 @@ public class JsonTest {
 		Json json = new Json(map);
 
 		String str1 = DeepJson.toJsonString(json);
-		AssertUtil.assertEquals("JsonObject编码测试", str1, "{\"test0\":0,\"test1\":1,\"test2\":2}");
-
-		String str2 = DeepJson.toJsonString(json);
-		AssertUtil.assertEquals("JsonObject编码测试", str2, "{\"test0\":0,\"test1\":1,\"test2\":2}");
+		AssertUtil.assertEquals("JsonObject编码测试", str1, "{\"test2\":2,\"test0\":0,\"test1\":1}");
 
 		Object none = json.removeKey("test3");
 		AssertUtil.assertNull("JsonObject移除测试", none);
