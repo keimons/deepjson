@@ -156,7 +156,7 @@ public class InlineCodec extends ExtendedCodec {
 	@Override
 	protected Object decode0(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
 		Object instance = newInstance(clazz);
-		SyntaxToken token = null;
+		SyntaxToken token = buf.token();
 		try {
 			for (; ; ) {
 				if (token == SyntaxToken.RBRACE) {
