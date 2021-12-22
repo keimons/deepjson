@@ -31,11 +31,15 @@ public class ShortArrayCodec extends AbstractArrayCodec<short[]> {
 	@Override
 	public short[] decode0(ReaderContext context, ReaderBuffer buf, Class<?> instanceType, Type componentType, long options) {
 		List<Short> values = new ArrayList<Short>();
+		SyntaxToken token;
 		for (; ; ) {
-			buf.nextToken();
+			token = buf.nextToken();
+			if (token == SyntaxToken.RBRACKET) {
+				break;
+			}
 			buf.assertExpectedSyntax(numberExpects, stringExpects);
-			values.add(Short.valueOf(buf.stringValue()));
-			SyntaxToken token = buf.nextToken();
+			values.add(buf.shortValue());
+			token = buf.nextToken();
 			if (token == SyntaxToken.RBRACKET) {
 				break;
 			}

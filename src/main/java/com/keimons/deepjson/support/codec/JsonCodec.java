@@ -78,6 +78,8 @@ public class JsonCodec extends AbstractOnlineCodec<Json> {
 			Json json = new Json();
 			BridgeUtil.putValues(json, values);
 			return json;
+		} else if (buf.token() == SyntaxToken.NULL) {
+			return null;
 		}
 		throw new RuntimeException();
 	}

@@ -31,8 +31,12 @@ public class BooleanArrayCodec extends AbstractArrayCodec<boolean[]> {
 	@Override
 	public boolean[] decode0(ReaderContext context, ReaderBuffer buf, Class<?> instanceType, Type componentType, long options) {
 		List<Boolean> values = new ArrayList<Boolean>();
+		SyntaxToken token;
 		for (; ; ) {
-			SyntaxToken token = buf.nextToken();
+			token = buf.nextToken();
+			if (token == SyntaxToken.RBRACKET) {
+				break;
+			}
 			buf.assertExpectedSyntax(SyntaxToken.TRUE, SyntaxToken.FALSE, SyntaxToken.STRING);
 			if (token == SyntaxToken.TRUE) {
 				values.add(Boolean.TRUE);
@@ -41,7 +45,7 @@ public class BooleanArrayCodec extends AbstractArrayCodec<boolean[]> {
 				values.add(Boolean.FALSE);
 			}
 			if (token == SyntaxToken.STRING) {
-				values.add(Boolean.valueOf(buf.stringValue()));
+				values.add(buf.booleanValue());
 			}
 			token = buf.nextToken();
 			if (token == SyntaxToken.RBRACKET) {

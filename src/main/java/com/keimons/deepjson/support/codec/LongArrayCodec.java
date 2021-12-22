@@ -31,11 +31,15 @@ public class LongArrayCodec extends AbstractArrayCodec<long[]> {
 	@Override
 	public long[] decode0(ReaderContext context, ReaderBuffer buf, Class<?> instanceType, Type componentType, long options) {
 		List<Long> values = new ArrayList<Long>();
+		SyntaxToken token;
 		for (; ; ) {
-			buf.nextToken();
+			token = buf.nextToken();
+			if (token == SyntaxToken.RBRACKET) {
+				break;
+			}
 			buf.assertExpectedSyntax(numberExpects, stringExpects);
 			values.add(buf.longValue());
-			SyntaxToken token = buf.nextToken();
+			token = buf.nextToken();
 			if (token == SyntaxToken.RBRACKET) {
 				break;
 			}

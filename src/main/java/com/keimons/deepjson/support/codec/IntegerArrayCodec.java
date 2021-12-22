@@ -31,11 +31,15 @@ public class IntegerArrayCodec extends AbstractArrayCodec<int[]> {
 	@Override
 	public int[] decode0(ReaderContext context, ReaderBuffer buf, Class<?> instanceType, Type componentType, long options) {
 		List<Integer> values = new ArrayList<Integer>();
+		SyntaxToken token;
 		for (; ; ) {
-			buf.nextToken();
+			token = buf.nextToken();
+			if (token == SyntaxToken.RBRACKET) {
+				break;
+			}
 			buf.assertExpectedSyntax(numberExpects, stringExpects);
 			values.add(buf.intValue());
-			SyntaxToken token = buf.nextToken();
+			token = buf.nextToken();
 			if (token == SyntaxToken.RBRACKET) {
 				break;
 			}

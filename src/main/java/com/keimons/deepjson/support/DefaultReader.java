@@ -18,6 +18,8 @@ public class DefaultReader extends ReaderBuffer {
 	protected final static char[] CONST_true = new char[]{'t', 'r', 'u', 'e'};
 	protected final static char[] CONST_false = new char[]{'f', 'a', 'l', 's', 'e'};
 	protected final static char[] CONST_null = new char[]{'n', 'u', 'l', 'l'};
+	protected final static char[] CONST_NaN = new char[]{'n', 'a', 'n'};
+	protected final static char[] CONST_Infinity = new char[]{'I', 'n', 'f', 'i', 'n', 'i', 't', 'y'};
 
 	static {
 		// '0' - '9'
@@ -130,6 +132,8 @@ public class DefaultReader extends ReaderBuffer {
 				case '8':
 				case '9':
 				case '.': // .5 == 0.5, what's up?
+				case 'i':
+				case 'I':
 					token = SyntaxToken.NUMBER;
 					nextNumber();
 					return token;
@@ -156,7 +160,7 @@ public class DefaultReader extends ReaderBuffer {
 				case 'f': // false
 				case 'F': // FALSE
 				case 'n': // null
-				case 'N': // NULL
+				case 'N': // NULL / NaN
 					nextMarkString();
 					return token;
 				default:
@@ -547,7 +551,7 @@ public class DefaultReader extends ReaderBuffer {
 	/**
 	 * 读取下一个标价字符串
 	 * <p>
-	 * 标记字符串包括：true，false，null和它们的各种大小写。
+	 * 标记字符串包括：true，false，null,NaN和它们的各种大小写。
 	 */
 	private void nextMarkString() {
 		buf.reset();
@@ -579,6 +583,14 @@ public class DefaultReader extends ReaderBuffer {
 					token = SyntaxToken.NULL;
 					readerIndex += 3;
 					return;
+				} else if (ArrayUtil.isSame(buf.base(), CONST_NaN, 3)) {
+					buf.reset();
+					token = SyntaxToken.NUMBER;
+					buf.write('N');
+					buf.write('a');
+					buf.write('N');
+					readerIndex += 2;
+					return;
 				} else {
 					throw new UnknownSyntaxException("unknown mark", base, startIndex);
 				}
@@ -596,6 +608,21 @@ public class DefaultReader extends ReaderBuffer {
 					throw new UnknownSyntaxException("number overflow", base, startIndex);
 				}
 				buf.write(c);
+			} else if (checkInfinity(i, c)) {
+				i += 7;
+				buf.write('I'); // Infinity
+				buf.write('n');
+				buf.write('f');
+				buf.write('i');
+				buf.write('n');
+				buf.write('i');
+				buf.write('t');
+				buf.write('y');
+			} else if (checkNaN(i, c)) {
+				i += 2;
+				buf.write('N');
+				buf.write('a');
+				buf.write('N');
 			} else {
 				readerIndex = i;
 				return;
@@ -632,6 +659,38 @@ public class DefaultReader extends ReaderBuffer {
 			default:
 				return false;
 		}
+	}
+
+	private boolean checkInfinity(int i, char c) {
+		if (c == 'i' || c == 'I') {
+			i++;
+			// Infinity
+			for (int length = i + 7, j = 1; i < length && i < limit; i++, j++) {
+				char x = base.charAt(i);
+				x = x < 97 ? (char) (x + 32) : x;
+				if (x != CONST_Infinity[j]) {
+					return false;
+				}
+			}
+			return true;
+		}
+		return false;
+	}
+
+	private boolean checkNaN(int i, char c) {
+		if (c == 'n' || c == 'N') {
+			i++;
+			// Infinity
+			for (int length = i + 2, j = 1; i < length && i < limit; i++, j++) {
+				char x = base.charAt(i);
+				x = x < 97 ? (char) (x + 32) : x;
+				if (x != CONST_NaN[j]) {
+					return false;
+				}
+			}
+			return true;
+		}
+		return false;
 	}
 
 	/**

@@ -55,8 +55,12 @@ public class ObjectArrayCodec extends AbstractArrayCodec<Object[]> {
 		List<Object> values = new ArrayList<Object>();
 		int[] hooks = null;
 		int count = 0;
+		SyntaxToken token;
 		for (; ; ) {
-			SyntaxToken token = buf.nextToken();
+			token = buf.nextToken();
+			if (token == SyntaxToken.RBRACKET) {
+				break;
+			}
 			if (token == SyntaxToken.STRING && buf.check$Id()) {
 				if (hooks == null) {
 					hooks = new int[16]; // 准备8个引用

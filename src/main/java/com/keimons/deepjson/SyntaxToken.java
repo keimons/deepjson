@@ -29,6 +29,9 @@ public enum SyntaxToken {
 	NULL(true),
 	// "string"
 	STRING(true),
+	NAN(true),
+	Infinity(true),
+	_Infinity(true),
 	// 0-9
 	NUMBER(true),
 	// eof

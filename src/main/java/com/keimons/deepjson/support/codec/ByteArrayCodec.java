@@ -31,11 +31,15 @@ public class ByteArrayCodec extends AbstractArrayCodec<byte[]> {
 	@Override
 	public byte[] decode0(ReaderContext context, ReaderBuffer buf, Class<?> instanceType, Type componentType, long options) {
 		List<Byte> values = new ArrayList<Byte>();
+		SyntaxToken token;
 		for (; ; ) {
-			buf.nextToken();
+			token = buf.nextToken();
+			if (token == SyntaxToken.RBRACKET) {
+				break;
+			}
 			buf.assertExpectedSyntax(numberExpects, stringExpects);
-			values.add(Byte.valueOf(buf.stringValue()));
-			SyntaxToken token = buf.nextToken();
+			values.add(buf.byteValue());
+			token = buf.nextToken();
 			if (token == SyntaxToken.RBRACKET) {
 				break;
 			}

@@ -31,11 +31,15 @@ public class FloatArrayCodec extends AbstractArrayCodec<float[]> {
 	@Override
 	public float[] decode0(ReaderContext context, ReaderBuffer buf, Class<?> instanceType, Type componentType, long options) {
 		List<Float> values = new ArrayList<Float>();
+		SyntaxToken token;
 		for (; ; ) {
-			buf.nextToken();
+			token = buf.nextToken();
+			if (token == SyntaxToken.RBRACKET) {
+				break;
+			}
 			buf.assertExpectedSyntax(numberExpects, stringExpects);
 			values.add(buf.floatValue());
-			SyntaxToken token = buf.nextToken();
+			token = buf.nextToken();
 			if (token == SyntaxToken.RBRACKET) {
 				break;
 			}
