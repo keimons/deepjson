@@ -10,7 +10,7 @@ import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * {@link Collection}测试
+ * {@link Collection}编解码器测试
  *
  * @author houyn[monkey@keimons.com]
  * @version 1.0
@@ -207,6 +207,23 @@ public class CollectionTest {
 	}
 
 	@Test
+	public void testTypeIdFieldList() {
+		List<EmptyNode> list = new CopyOnWriteArrayList<EmptyNode>();
+		list.add(new EmptyNode(1));
+		list.add(new EmptyNode(2));
+		list.add(new EmptyNode(3));
+		ListNode node = new ListNode();
+		node.value0 = list;
+		node.value1 = list;
+
+		String json = DeepJson.toJsonString(node, CodecOptions.WriteClassName);
+		AssertUtil.assertEquals("List字段带type和id编码测试", json, "{\"value0\":[\"$type:java.util.concurrent.CopyOnWriteArrayList,@id:1\",{\"value\":1},{\"value\":2},{\"value\":3}],\"value1\":\"$id:1\"}");
+
+		ListNode newNode = DeepJson.parseObject(json, ListNode.class);
+		AssertUtil.assertEquals("List字段带type和id解码测试", newNode, node);
+	}
+
+	@Test
 	public void testTypeIdFieldSet() {
 		Set<EmptyNode> set = new LinkedHashSet<EmptyNode>();
 		set.add(new EmptyNode(1));
@@ -217,10 +234,10 @@ public class CollectionTest {
 		node.value1 = set;
 
 		String json = DeepJson.toJsonString(node, CodecOptions.WriteClassName);
-		AssertUtil.assertEquals("Set字段带ID编码测试", json, "{\"value0\":[\"$type:java.util.LinkedHashSet,@id:1\",{\"value\":1},{\"value\":2},{\"value\":3}],\"value1\":\"$id:1\"}");
+		AssertUtil.assertEquals("Set字段带type和id编码测试", json, "{\"value0\":[\"$type:java.util.LinkedHashSet,@id:1\",{\"value\":1},{\"value\":2},{\"value\":3}],\"value1\":\"$id:1\"}");
 
 		SetNode newNode = DeepJson.parseObject(json, SetNode.class);
-		AssertUtil.assertEquals("Set字段带ID解码测试", newNode, node);
+		AssertUtil.assertEquals("Set字段带type和id解码测试", newNode, node);
 	}
 
 	public static class EmptyNode {
