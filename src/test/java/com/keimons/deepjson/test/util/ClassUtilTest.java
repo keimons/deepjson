@@ -3,6 +3,8 @@ package com.keimons.deepjson.test.util;
 import com.keimons.deepjson.CodecConfig;
 import com.keimons.deepjson.CodecOptions;
 import com.keimons.deepjson.DeepJson;
+import com.keimons.deepjson.internal.util.GenericUtil;
+import com.keimons.deepjson.internal.util.Stack;
 import com.keimons.deepjson.test.codec.collection.Node;
 import com.keimons.deepjson.util.ClassUtil;
 import org.junit.jupiter.api.Test;
@@ -36,21 +38,24 @@ public class ClassUtilTest {
 		CodecConfig.addWrite(PT4Node.class);
 		CodecConfig.addWrite(Node.class);
 		CodecConfig.addWrite(InnerNode.class);
-		Type[] types = new Type[16];
-		types[0] = ClassUtilTest.class.getDeclaredField("value0").getGenericType();
-		Class<?> clazz = ClassUtil.findClass(types, 1, types[0], null);
-		Type[] arguments = ((ParameterizedType) types[0]).getActualTypeArguments();
+		Type type = ClassUtilTest.class.getDeclaredField("value0").getGenericType();
+		Stack<Type> types = new Stack<Type>();
+		types.push(ClassUtilTest.class.getDeclaredField("value0").getGenericType());
+		Class<?> clazz = GenericUtil.findClass(types, type, null);
+		Type[] arguments = ((ParameterizedType) type).getActualTypeArguments();
 		System.out.println("map  clazz: " + clazz);
-		System.out.println("map  key:   " + ClassUtil.findGenericType(types, 1, Map.class, "K"));
-		System.out.println("map  value: " + ClassUtil.findGenericType(types, 1, Map.class, "V"));
-		System.out.println("args key:   " + ClassUtil.findClass(types, 1, arguments[0], null));
-		System.out.println("args value: " + ClassUtil.findClass(types, 1, arguments[1], null));
+		System.out.println("map  key:   " + GenericUtil.findGenericType(types, Map.class, "K"));
+		System.out.println("map  value: " + GenericUtil.findGenericType(types, Map.class, "V"));
+		System.out.println("args key:   " + GenericUtil.findClass(types, arguments[0], null));
+		System.out.println("args value: " + GenericUtil.findClass(types, arguments[1], null));
 
-		types[0] = BotNode.class;
-		System.out.println("node:  " + ClassUtil.findGenericType(types, 1, TopNode.class, "T"));
+		types.poll();
+		types.push(BotNode.class);
+		System.out.println("node:  " + GenericUtil.findGenericType(types, TopNode.class, "T"));
 
-		types[0] = MidNode.class;
-		Type type = ClassUtil.findGenericType(types, 1, TopNode.class, "T");
+		types.poll();
+		types.push(MidNode.class);
+		type = GenericUtil.findGenericType(types, TopNode.class, "T");
 		if (type instanceof TypeVariable) {
 			System.out.println("node:  " + Arrays.toString(((TypeVariable<?>) type).getBounds()));
 		} else {

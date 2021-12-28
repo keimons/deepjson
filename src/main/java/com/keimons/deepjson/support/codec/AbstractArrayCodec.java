@@ -1,7 +1,7 @@
 package com.keimons.deepjson.support.codec;
 
 import com.keimons.deepjson.*;
-import com.keimons.deepjson.util.ClassUtil;
+import com.keimons.deepjson.internal.util.GenericUtil;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -26,7 +26,7 @@ public abstract class AbstractArrayCodec<T> extends KlassCodec<T> {
 	private final Class<?> clazz;
 
 	public AbstractArrayCodec() {
-		clazz = (Class<?>) ClassUtil.findGenericType(this.getClass(), AbstractArrayCodec.class, "T");
+		clazz = (Class<?>) GenericUtil.findGenericType(this.getClass(), AbstractArrayCodec.class, "T");
 	}
 
 	@Override

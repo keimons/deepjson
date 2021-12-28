@@ -9,5 +9,6 @@ module deepjson {
 
 	exports com.keimons.deepjson;
 	exports com.keimons.deepjson.util;
-	exports com.keimons.deepjson.internal.monitor;
+	exports com.keimons.deepjson.internal.monitor to deepjson.test;
+	exports com.keimons.deepjson.internal.util to deepjson.test;
 }

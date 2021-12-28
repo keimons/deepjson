@@ -4,8 +4,9 @@ import com.keimons.deepjson.ICodec;
 import com.keimons.deepjson.JsonReader;
 import com.keimons.deepjson.ReaderContext;
 import com.keimons.deepjson.SyntaxToken;
+import com.keimons.deepjson.internal.util.GenericUtil;
+import com.keimons.deepjson.internal.util.Stack;
 import com.keimons.deepjson.support.CodecFactory;
-import com.keimons.deepjson.util.ClassUtil;
 import com.keimons.deepjson.util.TypeNotFoundException;
 import com.keimons.deepjson.util.UnsafeUtil;
 import org.jetbrains.annotations.NotNull;
@@ -14,7 +15,10 @@ import sun.misc.Unsafe;
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 上下文环境
@@ -36,34 +40,7 @@ public class HookContext extends ReaderContext {
 	 */
 	List<Runnable> hooks = new ArrayList<Runnable>();
 
-	/**
-	 * 依赖于深度优先的栈
-	 */
-	Type[] types = new Type[32];
-
-	/**
-	 * 当前正在写入的位置
-	 */
-	int writerIndex;
-
-	/**
-	 * 增加一个类型
-	 *
-	 * @param type 类型
-	 */
-	private void add(Type type) {
-		if (writerIndex >= types.length) {
-			types = Arrays.copyOf(types, types.length << 1);
-		}
-		types[writerIndex++] = type;
-	}
-
-	/**
-	 * 移除一个类型
-	 */
-	private void poll() {
-		types[--writerIndex] = null;
-	}
+	Stack<Type> types = new Stack<Type>();
 
 	@Override
 	public void put(int uniqueId, Object value) {
@@ -77,20 +54,20 @@ public class HookContext extends ReaderContext {
 
 	@Override
 	public Class<?> findInstanceType(Type type, Class<?> excepted) {
-		return ClassUtil.findClass(types, writerIndex, type, excepted);
+		return GenericUtil.findClass(types, type, excepted);
 	}
 
 	@Override
 	public @NotNull Type findInstanceType(final TypeVariable<?> type) {
 		Class<?> clazz = (Class<?>) type.getGenericDeclaration();
 		String name = type.getName();
-		Type result = ClassUtil.findGenericType(types, writerIndex, clazz, name);
+		Type result = GenericUtil.findGenericType(types, clazz, name);
 		return result == null ? type : result;
 	}
 
 	@Override
 	public Type findType(Class<?> target, String name) {
-		Type result = ClassUtil.findGenericType(types, writerIndex, target, name);
+		Type result = GenericUtil.findGenericType(types, target, name);
 		if (result == null) {
 			String msg = "the '" + name + "' of " + target.getName() + " cannot be found.";
 			throw new TypeNotFoundException(msg);
@@ -105,12 +82,12 @@ public class HookContext extends ReaderContext {
 		boolean cacheType = codec.isCacheType();
 		try {
 			if (cacheType) {
-				add(type);
+				types.push(type);
 			}
 			return codec.decode(this, reader, type, options);
 		} finally {
 			if (cacheType) {
-				poll();
+				types.poll();
 			}
 		}
 	}
@@ -157,7 +134,6 @@ public class HookContext extends ReaderContext {
 
 	@Override
 	public void close(JsonReader reader) {
-		writerIndex = 0;
 		try {
 			reader.nextToken();
 			reader.assertExpectedSyntax(SyntaxToken.EOF);

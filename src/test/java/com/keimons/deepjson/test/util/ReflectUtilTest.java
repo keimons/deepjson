@@ -1,7 +1,7 @@
 package com.keimons.deepjson.test.util;
 
 import com.keimons.deepjson.CodecConfig;
-import com.keimons.deepjson.util.ClassUtil;
+import com.keimons.deepjson.internal.util.GenericUtil;
 import com.keimons.deepjson.util.ReflectUtil;
 import org.junit.jupiter.api.Test;
 
@@ -21,8 +21,8 @@ public class ReflectUtilTest<K, V, T1 extends Map<?, ?> & Serializable, T2 exten
 
 	@Test
 	public void test() throws Exception {
-		Type type1 = ClassUtil.findGenericType(ReflectUtilTest.class, ReflectUtilTest.class, "T1");
-		Type type2 = ClassUtil.findGenericType(ReflectUtilTest.class, ReflectUtilTest.class, "T2");
+		Type type1 = GenericUtil.findGenericType(ReflectUtilTest.class, ReflectUtilTest.class, "T1");
+		Type type2 = GenericUtil.findGenericType(ReflectUtilTest.class, ReflectUtilTest.class, "T2");
 		TypeVariable<?> variable1 = type1 instanceof TypeVariable<?> ? ((TypeVariable<?>) type1) : null;
 		TypeVariable<?> variable2 = type2 instanceof TypeVariable<?> ? ((TypeVariable<?>) type1) : null;
 		System.out.println(CodecConfig.getType(variable1.getBounds()));

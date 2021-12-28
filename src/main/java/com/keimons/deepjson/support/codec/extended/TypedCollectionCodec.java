@@ -1,10 +1,10 @@
 package com.keimons.deepjson.support.codec.extended;
 
 import com.keimons.deepjson.*;
+import com.keimons.deepjson.internal.util.GenericUtil;
 import com.keimons.deepjson.support.CodecFactory;
 import com.keimons.deepjson.support.codec.CollectionCodec;
 import com.keimons.deepjson.support.codec.NullCodec;
-import com.keimons.deepjson.util.ClassUtil;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -62,7 +62,7 @@ public class TypedCollectionCodec<T> extends CollectionCodec {
 		if (type instanceof ParameterizedType) {
 			ParameterizedType pt = (ParameterizedType) type;
 			if (Collection.class.isAssignableFrom((Class<?>) pt.getRawType())) {
-				Type innerType = ClassUtil.findGenericType(pt, Collection.class, "E");
+				Type innerType = GenericUtil.findGenericType(pt, Collection.class, "E");
 				if (innerType != null) {
 					if (CodecConfig.TYPED_CLASS.contains(innerType)) {
 						return (Class<?>) innerType;

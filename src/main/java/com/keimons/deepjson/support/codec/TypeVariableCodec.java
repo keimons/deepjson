@@ -3,8 +3,8 @@ package com.keimons.deepjson.support.codec;
 import com.keimons.deepjson.CodecConfig;
 import com.keimons.deepjson.JsonReader;
 import com.keimons.deepjson.ReaderContext;
+import com.keimons.deepjson.internal.util.GenericUtil;
 import com.keimons.deepjson.support.IncompatibleTypeException;
-import com.keimons.deepjson.util.ClassUtil;
 
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -38,7 +38,7 @@ public class TypeVariableCodec extends PhantomCodec {
 				return context.decode(reader, bounds[0], options);
 			}
 			// more than one
-			if (ClassUtil.check(bounds)) {
+			if (GenericUtil.check(bounds)) {
 				// 介于java是单继承，只有第一个可能是类，其它的必然是接口或接口类型ParameterizedType
 				// 0位置 是class或ParameterizedType
 				instanceType = bounds[0];

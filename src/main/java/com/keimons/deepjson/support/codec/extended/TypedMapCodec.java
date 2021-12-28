@@ -1,10 +1,10 @@
 package com.keimons.deepjson.support.codec.extended;
 
 import com.keimons.deepjson.*;
+import com.keimons.deepjson.internal.util.GenericUtil;
 import com.keimons.deepjson.support.CodecFactory;
 import com.keimons.deepjson.support.codec.AbstractOnlineCodec;
 import com.keimons.deepjson.support.codec.NullCodec;
-import com.keimons.deepjson.util.ClassUtil;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -33,8 +33,8 @@ public class TypedMapCodec<K, V> extends AbstractOnlineCodec<Map<K, V>> {
 	public TypedMapCodec(Field field) {
 		Type type = field.getGenericType();
 		ParameterizedType pt = (ParameterizedType) type;
-		kClass = (Class<K>) ClassUtil.findGenericType(pt, Map.class, "K");
-		vClass = (Class<V>) ClassUtil.findGenericType(pt, Map.class, "V");
+		kClass = (Class<K>) GenericUtil.findGenericType(pt, Map.class, "K");
+		vClass = (Class<V>) GenericUtil.findGenericType(pt, Map.class, "V");
 		assert kClass != null;
 		assert vClass != null;
 		this.kCodec = CodecFactory.getCodec(kClass);
@@ -46,8 +46,8 @@ public class TypedMapCodec<K, V> extends AbstractOnlineCodec<Map<K, V>> {
 		if (type instanceof ParameterizedType) {
 			ParameterizedType pt = (ParameterizedType) type;
 			if (Map.class.isAssignableFrom((Class<?>) pt.getRawType())) {
-				Type innerType1 = ClassUtil.findGenericType(pt, Map.class, "K");
-				Type innerType2 = ClassUtil.findGenericType(pt, Map.class, "V");
+				Type innerType1 = GenericUtil.findGenericType(pt, Map.class, "K");
+				Type innerType2 = GenericUtil.findGenericType(pt, Map.class, "V");
 				if (innerType1 != null || innerType2 != null) {
 					if (CodecConfig.TYPED_CLASS.contains(innerType1)) {
 						if (CodecConfig.TYPED_CLASS.contains(innerType2)) {
