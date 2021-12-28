@@ -47,19 +47,19 @@ public abstract class PhantomCodec implements ICodec<Object> {
 	 * 类型检测
 	 *
 	 * @param context 上下文
-	 * @param buf     缓冲区
+	 * @param reader  读取器
 	 * @param options 解码选项
 	 * @return 类型
 	 */
-	protected Class<?> typeCheck(ReaderContext context, ReaderBuffer buf, long options) {
-		SyntaxToken token = buf.token();
-		if (token == SyntaxToken.STRING && buf.checkGetType()) {
-			buf.nextToken();
-			buf.assertExpectedSyntax(SyntaxToken.COLON); // 预期当前语法是 ":"
-			buf.nextToken();
-			buf.assertExpectedSyntax(SyntaxToken.STRING);
-			String type = buf.stringValue();
-			buf.nextToken(); // 读取下一个token
+	protected Class<?> typeCheck(ReaderContext context, JsonReader reader, long options) {
+		SyntaxToken token = reader.token();
+		if (token == SyntaxToken.STRING && reader.checkGetType()) {
+			reader.nextToken();
+			reader.assertExpectedSyntax(SyntaxToken.COLON); // 预期当前语法是 ":"
+			reader.nextToken();
+			reader.assertExpectedSyntax(SyntaxToken.STRING);
+			String type = reader.stringValue();
+			reader.nextToken(); // 读取下一个token
 			try {
 				return Class.forName(type);
 			} catch (ClassNotFoundException e) {

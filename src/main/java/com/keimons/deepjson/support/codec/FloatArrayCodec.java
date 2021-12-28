@@ -29,21 +29,21 @@ public class FloatArrayCodec extends AbstractArrayCodec<float[]> {
 	}
 
 	@Override
-	public float[] decode0(ReaderContext context, ReaderBuffer buf, Class<?> instanceType, Type componentType, long options) {
+	public float[] decode0(ReaderContext context, JsonReader reader, Class<?> instanceType, Type componentType, long options) {
 		List<Float> values = new ArrayList<Float>();
 		SyntaxToken token;
 		for (; ; ) {
-			token = buf.nextToken();
+			token = reader.nextToken();
 			if (token == SyntaxToken.RBRACKET) {
 				break;
 			}
-			buf.assertExpectedSyntax(numberExpects, stringExpects);
-			values.add(buf.floatValue());
-			token = buf.nextToken();
+			reader.assertExpectedSyntax(numberExpects, stringExpects);
+			values.add(reader.floatValue());
+			token = reader.nextToken();
 			if (token == SyntaxToken.RBRACKET) {
 				break;
 			}
-			buf.assertExpectedSyntax(SyntaxToken.COMMA);
+			reader.assertExpectedSyntax(SyntaxToken.COMMA);
 		}
 		float[] result = new float[values.size()];
 		for (int i = 0; i < result.length; i++) {

@@ -31,8 +31,8 @@ public class NullCodec extends KlassCodec<Void> {
 	}
 
 	@Override
-	public Void decode(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
-		buf.assertExpectedSyntax(SyntaxToken.NULL);
+	public Void decode(ReaderContext context, JsonReader reader, Class<?> clazz, long options) {
+		reader.assertExpectedSyntax(SyntaxToken.NULL);
 		return null;
 	}
 }

@@ -110,7 +110,7 @@ public class TypedMapCodec<K, V> extends AbstractOnlineCodec<Map<K, V>> {
 	}
 
 	@Override
-	public Map<K, V> decode(final ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
+	public Map<K, V> decode(final ReaderContext context, JsonReader reader, Class<?> clazz, long options) {
 		throw new UnsupportedOperationException();
 	}
 }

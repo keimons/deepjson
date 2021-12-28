@@ -29,21 +29,21 @@ public class IntegerArrayCodec extends AbstractArrayCodec<int[]> {
 	}
 
 	@Override
-	public int[] decode0(ReaderContext context, ReaderBuffer buf, Class<?> instanceType, Type componentType, long options) {
+	public int[] decode0(ReaderContext context, JsonReader reader, Class<?> instanceType, Type componentType, long options) {
 		List<Integer> values = new ArrayList<Integer>();
 		SyntaxToken token;
 		for (; ; ) {
-			token = buf.nextToken();
+			token = reader.nextToken();
 			if (token == SyntaxToken.RBRACKET) {
 				break;
 			}
-			buf.assertExpectedSyntax(numberExpects, stringExpects);
-			values.add(buf.intValue());
-			token = buf.nextToken();
+			reader.assertExpectedSyntax(numberExpects, stringExpects);
+			values.add(reader.intValue());
+			token = reader.nextToken();
 			if (token == SyntaxToken.RBRACKET) {
 				break;
 			}
-			buf.assertExpectedSyntax(SyntaxToken.COMMA);
+			reader.assertExpectedSyntax(SyntaxToken.COMMA);
 		}
 		int[] result = new int[values.size()];
 		for (int i = 0; i < result.length; i++) {

@@ -23,7 +23,7 @@ public class MultimapCodec extends AbstractOnlineCodec<Multimap<?, ?>> {
 	}
 
 	@Override
-	public Multimap<?, ?> decode(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
+	public Multimap<?, ?> decode(ReaderContext context, JsonReader reader, Class<?> clazz, long options) {
 		return null;
 	}
 

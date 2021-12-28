@@ -20,7 +20,7 @@ public class RangeMapCodec extends AbstractOnlineCodec<RangeMap> {
 	}
 
 	@Override
-	public RangeMap decode(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
+	public RangeMap decode(ReaderContext context, JsonReader reader, Class<?> clazz, long options) {
 		return null;
 	}
 

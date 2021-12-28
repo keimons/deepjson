@@ -1,6 +1,6 @@
 package com.keimons.deepjson.support;
 
-import com.keimons.deepjson.ReaderBuffer;
+import com.keimons.deepjson.JsonReader;
 import com.keimons.deepjson.SyntaxToken;
 import com.keimons.deepjson.util.ArrayUtil;
 import com.keimons.deepjson.util.CodecUtil;
@@ -12,7 +12,7 @@ import com.keimons.deepjson.util.CodecUtil;
  * @version 1.0
  * @since 1.6
  **/
-public class DefaultReader extends ReaderBuffer {
+public class DefaultReader extends JsonReader {
 
 	protected final static int[] digits = new int[128];
 	protected final static char[] CONST_true = new char[]{'t', 'r', 'u', 'e'};

@@ -29,21 +29,21 @@ public class DoubleArrayCodec extends AbstractArrayCodec<double[]> {
 	}
 
 	@Override
-	public double[] decode0(ReaderContext context, ReaderBuffer buf, Class<?> instanceType, Type componentType, long options) {
+	public double[] decode0(ReaderContext context, JsonReader reader, Class<?> instanceType, Type componentType, long options) {
 		List<Double> values = new ArrayList<Double>();
 		SyntaxToken token;
 		for (; ; ) {
-			token = buf.nextToken();
+			token = reader.nextToken();
 			if (token == SyntaxToken.RBRACKET) {
 				break;
 			}
-			buf.assertExpectedSyntax(numberExpects, stringExpects);
-			values.add(buf.doubleValue());
-			token = buf.nextToken();
+			reader.assertExpectedSyntax(numberExpects, stringExpects);
+			values.add(reader.doubleValue());
+			token = reader.nextToken();
 			if (token == SyntaxToken.RBRACKET) {
 				break;
 			}
-			buf.assertExpectedSyntax(SyntaxToken.COMMA);
+			reader.assertExpectedSyntax(SyntaxToken.COMMA);
 		}
 		double[] result = new double[values.size()];
 		for (int i = 0; i < result.length; i++) {

@@ -1,7 +1,7 @@
 package com.keimons.deepjson.support.context;
 
 import com.keimons.deepjson.ICodec;
-import com.keimons.deepjson.ReaderBuffer;
+import com.keimons.deepjson.JsonReader;
 import com.keimons.deepjson.ReaderContext;
 import com.keimons.deepjson.SyntaxToken;
 import com.keimons.deepjson.support.CodecFactory;
@@ -23,7 +23,7 @@ import java.util.*;
  * @version 1.0
  * @since 1.6
  **/
-public class TypeAndHookContext extends ReaderContext {
+public class HookContext extends ReaderContext {
 
 	private static final Unsafe unsafe = UnsafeUtil.getUnsafe();
 
@@ -99,7 +99,7 @@ public class TypeAndHookContext extends ReaderContext {
 	}
 
 	@Override
-	public <T> T decode(ReaderBuffer buf, Type type, long options) {
+	public <T> T decode(JsonReader reader, Type type, long options) {
 		ICodec<T> codec = CodecFactory.getCodec(type);
 		assert codec != null;
 		boolean cacheType = codec.isCacheType();
@@ -107,7 +107,7 @@ public class TypeAndHookContext extends ReaderContext {
 			if (cacheType) {
 				add(type);
 			}
-			return codec.decode(this, buf, type, options);
+			return codec.decode(this, reader, type, options);
 		} finally {
 			if (cacheType) {
 				poll();
@@ -156,14 +156,14 @@ public class TypeAndHookContext extends ReaderContext {
 	}
 
 	@Override
-	public void close(ReaderBuffer buf) {
+	public void close(JsonReader reader) {
 		writerIndex = 0;
 		try {
-			buf.nextToken();
-			buf.assertExpectedSyntax(SyntaxToken.EOF);
+			reader.nextToken();
+			reader.assertExpectedSyntax(SyntaxToken.EOF);
 		} finally {
 			hooks.clear();
-			buf.close();
+			reader.close();
 		}
 	}
 }

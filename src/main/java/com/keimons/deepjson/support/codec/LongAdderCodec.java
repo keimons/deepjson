@@ -40,9 +40,9 @@ public class LongAdderCodec extends KlassCodec<LongAdder> {
 	}
 
 	@Override
-	public LongAdder decode(ReaderContext context, ReaderBuffer buf, Class<?> type, long options) {
-		buf.assertExpectedSyntax(SyntaxToken.STRING, SyntaxToken.NUMBER);
-		int sum = buf.intValue();
+	public LongAdder decode(ReaderContext context, JsonReader reader, Class<?> type, long options) {
+		reader.assertExpectedSyntax(SyntaxToken.STRING, SyntaxToken.NUMBER);
+		int sum = reader.intValue();
 		LongAdder instance = new LongAdder();
 		instance.add(sum);
 		return instance;

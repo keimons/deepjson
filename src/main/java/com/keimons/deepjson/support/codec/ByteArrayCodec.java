@@ -29,21 +29,21 @@ public class ByteArrayCodec extends AbstractArrayCodec<byte[]> {
 	}
 
 	@Override
-	public byte[] decode0(ReaderContext context, ReaderBuffer buf, Class<?> instanceType, Type componentType, long options) {
+	public byte[] decode0(ReaderContext context, JsonReader reader, Class<?> instanceType, Type componentType, long options) {
 		List<Byte> values = new ArrayList<Byte>();
 		SyntaxToken token;
 		for (; ; ) {
-			token = buf.nextToken();
+			token = reader.nextToken();
 			if (token == SyntaxToken.RBRACKET) {
 				break;
 			}
-			buf.assertExpectedSyntax(numberExpects, stringExpects);
-			values.add(buf.byteValue());
-			token = buf.nextToken();
+			reader.assertExpectedSyntax(numberExpects, stringExpects);
+			values.add(reader.byteValue());
+			token = reader.nextToken();
 			if (token == SyntaxToken.RBRACKET) {
 				break;
 			}
-			buf.assertExpectedSyntax(SyntaxToken.COMMA);
+			reader.assertExpectedSyntax(SyntaxToken.COMMA);
 		}
 		byte[] result = new byte[values.size()];
 		for (int i = 0; i < result.length; i++) {

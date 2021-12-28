@@ -55,9 +55,9 @@ public class JsonCodec extends AbstractOnlineCodec<Json> {
 	}
 
 	@Override
-	protected Json decode(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
-		if (buf.token() == SyntaxToken.LBRACE) {
-			Object values = context.decode(buf, TYPE_DICT, options);
+	protected Json decode(ReaderContext context, JsonReader reader, Class<?> clazz, long options) {
+		if (reader.token() == SyntaxToken.LBRACE) {
+			Object values = context.decode(reader, TYPE_DICT, options);
 			if (values instanceof Map) {
 				@SuppressWarnings("unchecked")
 				Map<String, Object> dict = (Map<String, Object>) values;
@@ -73,12 +73,12 @@ public class JsonCodec extends AbstractOnlineCodec<Json> {
 			} else {
 				throw new RuntimeException();
 			}
-		} else if (buf.token() == SyntaxToken.LBRACKET) {
-			List<Object> values = context.decode(buf, TYPE_LIST, options);
+		} else if (reader.token() == SyntaxToken.LBRACKET) {
+			List<Object> values = context.decode(reader, TYPE_LIST, options);
 			Json json = new Json();
 			BridgeUtil.putValues(json, values);
 			return json;
-		} else if (buf.token() == SyntaxToken.NULL) {
+		} else if (reader.token() == SyntaxToken.NULL) {
 			return null;
 		}
 		throw new RuntimeException();

@@ -35,15 +35,15 @@ public abstract class AbstractPrimitiveCodec<T> extends KlassCodec<T> {
 	}
 
 	@Override
-	public T decode(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
-		SyntaxToken token = buf.token();
+	public T decode(ReaderContext context, JsonReader reader, Class<?> clazz, long options) {
+		SyntaxToken token = reader.token();
 		if (token == SyntaxToken.NULL) {
 			return null;
 		}
-		return decode0(context, buf, clazz, options);
+		return decode0(context, reader, clazz, options);
 	}
 
 	protected abstract void encode0(JsonWriter writer, T value) throws IOException;
 
-	protected abstract T decode0(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options);
+	protected abstract T decode0(ReaderContext context, JsonReader reader, Class<?> clazz, long options);
 }

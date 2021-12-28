@@ -86,7 +86,7 @@ public interface ICodec<T> {
 	 * 编码
 	 *
 	 * @param context  上下文
-	 * @param writer   缓冲区
+	 * @param writer   写入器
 	 * @param model    编解码模式
 	 * @param value    对象值
 	 * @param uniqueId 对象唯一ID
@@ -103,11 +103,11 @@ public interface ICodec<T> {
 	 * token是{@link SyntaxToken#COMMA}。
 	 *
 	 * @param context 上下文环境
-	 * @param buf     缓冲区
+	 * @param reader  读取器
 	 * @param type    对象类型
 	 * @param options 解码选项
 	 * @return 解码后的对象{@link Object}。
 	 * @see MapCodec {@link Map}对象解码。
 	 */
-	T decode(ReaderContext context, ReaderBuffer buf, Type type, long options);
+	T decode(ReaderContext context, JsonReader reader, Type type, long options);
 }

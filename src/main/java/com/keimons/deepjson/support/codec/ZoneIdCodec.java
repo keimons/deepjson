@@ -22,7 +22,7 @@ public class ZoneIdCodec extends AbstractOnlineCodec<ZoneId> {
 	}
 
 	@Override
-	public ZoneId decode(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
+	public ZoneId decode(ReaderContext context, JsonReader reader, Class<?> clazz, long options) {
 		return null;
 	}
 }

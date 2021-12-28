@@ -30,11 +30,11 @@ public class StringCodec extends KlassCodec<String> {
 		writer.writeWithQuote(value);
 	}
 
-	public String decode(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
-		if (buf.token() == SyntaxToken.NULL) {
+	public String decode(ReaderContext context, JsonReader reader, Class<?> clazz, long options) {
+		if (reader.token() == SyntaxToken.NULL) {
 			return null;
 		}
-		buf.assertExpectedSyntax(SyntaxToken.STRING);
-		return buf.stringValue(); // successful
+		reader.assertExpectedSyntax(SyntaxToken.STRING);
+		return reader.stringValue(); // successful
 	}
 }

@@ -33,7 +33,7 @@ public class EmptyCodec extends KlassCodec<ElementsFuture> {
 	}
 
 	@Override
-	public ElementsFuture decode(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
+	public ElementsFuture decode(ReaderContext context, JsonReader reader, Class<?> clazz, long options) {
 		throw new UnsupportedOperationException();
 	}
 

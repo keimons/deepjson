@@ -65,13 +65,13 @@ public abstract class ReaderContext {
 	/**
 	 * 对缓冲区中的内容进行解码
 	 *
-	 * @param buf     缓冲区
+	 * @param reader  读取器
 	 * @param type    解码目标类型
 	 * @param options 解码选项
 	 * @param <T>     解码目标类型
 	 * @return 解码后对象
 	 */
-	public abstract <T> T decode(ReaderBuffer buf, Type type, long options);
+	public abstract <T> T decode(JsonReader reader, Type type, long options);
 
 	/**
 	 * 增加一个完成钩子
@@ -106,7 +106,7 @@ public abstract class ReaderContext {
 	/**
 	 * 关闭缓冲区
 	 *
-	 * @param buf 缓冲区
+	 * @param reader 读取器
 	 */
-	public abstract void close(ReaderBuffer buf);
+	public abstract void close(JsonReader reader);
 }

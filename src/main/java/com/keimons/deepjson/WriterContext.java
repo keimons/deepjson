@@ -61,7 +61,7 @@ public abstract class WriterContext {
 	/**
 	 * 将对象写入指定缓冲区中
 	 *
-	 * @param writer  缓冲区
+	 * @param writer  写入器
 	 * @param model   编解码模式
 	 * @param options 编解码选项
 	 */
@@ -70,7 +70,7 @@ public abstract class WriterContext {
 	/**
 	 * 释放上下文
 	 *
-	 * @param writer 缓冲区
+	 * @param writer 写入器
 	 */
 	public abstract void release(JsonWriter writer) throws IOException;
 }

@@ -32,9 +32,9 @@ public class EnumCodec extends KlassCodec<Enum<?>> {
 
 	@Override
 	@SuppressWarnings({"unchecked", "rawtypes"})
-	public Enum decode(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
-		buf.assertExpectedSyntax(stringExpects);
-		String value = buf.stringValue();
+	public Enum decode(ReaderContext context, JsonReader reader, Class<?> clazz, long options) {
+		reader.assertExpectedSyntax(stringExpects);
+		String value = reader.stringValue();
 		return Enum.valueOf((Class) clazz, value);
 	}
 }

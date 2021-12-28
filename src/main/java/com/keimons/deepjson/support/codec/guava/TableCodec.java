@@ -23,7 +23,7 @@ public class TableCodec extends AbstractOnlineCodec<Table<?, ?, ?>> {
 	}
 
 	@Override
-	public Table<?, ?, ?> decode(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
+	public Table<?, ?, ?> decode(ReaderContext context, JsonReader reader, Class<?> clazz, long options) {
 		return null;
 	}
 

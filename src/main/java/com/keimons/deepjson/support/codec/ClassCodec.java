@@ -22,8 +22,8 @@ public class ClassCodec extends AbstractOnlineCodec<Class<?>> {
 	}
 
 	@Override
-	public Class<?> decode(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
-		buf.assertExpectedSyntax(SyntaxToken.STRING);
-		return ClassUtil.findClass(buf.stringValue());
+	public Class<?> decode(ReaderContext context, JsonReader reader, Class<?> clazz, long options) {
+		reader.assertExpectedSyntax(SyntaxToken.STRING);
+		return ClassUtil.findClass(reader.stringValue());
 	}
 }

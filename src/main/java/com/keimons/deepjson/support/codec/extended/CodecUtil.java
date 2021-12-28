@@ -74,18 +74,18 @@ public class CodecUtil {
 		}
 	}
 
-	static void read(Object instance, ReaderBuffer buf, ReaderContext context, long options) {
-		int value = buf.intValue();
+	static void read(Object instance, JsonReader reader, ReaderContext context, long options) {
+		int value = reader.intValue();
 		context.put(value, instance);
 	}
 
-	static void read(Object instance, ReaderBuffer buf, ReaderContext context, long options, Type type, MethodHandle setter) throws Throwable {
-		if (buf.token() == SyntaxToken.NULL) {
+	static void read(Object instance, JsonReader reader, ReaderContext context, long options, Type type, MethodHandle setter) throws Throwable {
+		if (reader.token() == SyntaxToken.NULL) {
 			setter.invoke(instance, null);
-		} else if (buf.check$Id()) {
-			context.addCompleteHook(instance, setter, buf.get$Id());
+		} else if (reader.check$Id()) {
+			context.addCompleteHook(instance, setter, reader.get$Id());
 		} else {
-			Object value = context.decode(buf, type, options);
+			Object value = context.decode(reader, type, options);
 			setter.invoke(instance, value);
 		}
 	}

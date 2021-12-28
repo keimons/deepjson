@@ -36,8 +36,8 @@ public class ObjectCodec extends KlassCodec<Object> {
 	}
 
 	@Override
-	public Object decode(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
-		SyntaxToken token = buf.token();
+	public Object decode(ReaderContext context, JsonReader reader, Class<?> clazz, long options) {
+		SyntaxToken token = reader.token();
 		switch (token) {
 			case NULL:
 				return null;
@@ -46,12 +46,12 @@ public class ObjectCodec extends KlassCodec<Object> {
 			case FALSE:
 				return Boolean.FALSE;
 			case STRING:
-				return buf.stringValue();
+				return reader.stringValue();
 			case NUMBER:
-				return buf.adaptiveNumber();
+				return reader.adaptiveNumber();
 			case LBRACE:
 			case LBRACKET:
-				return context.decode(buf, Json.class, options);
+				return context.decode(reader, Json.class, options);
 			default:
 				throw new UnsupportedException();
 		}

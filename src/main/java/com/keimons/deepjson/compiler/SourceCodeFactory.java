@@ -139,22 +139,22 @@ public class SourceCodeFactory {
 
 		source.append("\n");
 		source.append("\t@Override\n");
-		source.append("\tpublic Object decode0(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {\n");
+		source.append("\tpublic Object decode0(ReaderContext context, JsonReader reader, Class<?> clazz, long options) {\n");
 		source.append("\t\tObject instance = newInstance(clazz);\n");
 		source.append("\t\tSyntaxToken token = null;\n");
 		source.append("\t\tfor (; ; ) {\n");
 		source.append("\t\t\tif (token == SyntaxToken.RBRACE) {\n");
 		source.append("\t\t\t\tbreak;\n");
 		source.append("\t\t\t}\n");
-		source.append("\t\t\tbuf.assertExpectedSyntax(SyntaxToken.STRING);\n");
-		source.append("\t\t\tint index = switch0(buf);\n");
-		source.append("\t\t\tbuf.nextToken();\n");
-		source.append("\t\t\tbuf.assertExpectedSyntax(SyntaxToken.COLON);\n");
-		source.append("\t\t\ttoken = buf.nextToken();\n");
+		source.append("\t\t\treader.assertExpectedSyntax(SyntaxToken.STRING);\n");
+		source.append("\t\t\tint index = switch0(reader);\n");
+		source.append("\t\t\treader.nextToken();\n");
+		source.append("\t\t\treader.assertExpectedSyntax(SyntaxToken.COLON);\n");
+		source.append("\t\t\ttoken = reader.nextToken();\n");
 		source.append("\t\t\tswitch (index) {\n");
 
 		source.append("\t\t\t\tcase 0: {\n");
-		source.append("\t\t\t\t\tcontext.put(buf.intValue(), instance);\n");
+		source.append("\t\t\t\t\tcontext.put(reader.intValue(), instance);\n");
 		source.append("\t\t\t\t}\n");
 		source.append("\t\t\t\tbreak;\n");
 
@@ -165,13 +165,13 @@ public class SourceCodeFactory {
 			}
 		}
 		source.append("\t\t\t\tdefault:\n");
-		source.append("\t\t\t\t\tcontext.decode(buf, Object.class, options);\n");
+		source.append("\t\t\t\t\tcontext.decode(reader, Object.class, options);\n");
 		source.append("\t\t\t}\n");
-		source.append("\t\t\ttoken = buf.nextToken();\n");
+		source.append("\t\t\ttoken = reader.nextToken();\n");
 		source.append("\t\t\tif (token == SyntaxToken.RBRACE) {\n");
 		source.append("\t\t\t\tbreak;\n");
 		source.append("\t\t\t}\n");
-		source.append("\t\t\ttoken = buf.nextToken();\n");
+		source.append("\t\t\ttoken = reader.nextToken();\n");
 		source.append("\t\t}\n");
 		source.append("\t\treturn instance;\n");
 		source.append("\t}\n");
@@ -272,7 +272,7 @@ public class SourceCodeFactory {
 		if (type.isPrimitive()) {
 			source.append("\t\t\t\t\t")
 					.append(name)
-					.append(" value = buf.")
+					.append(" value = reader.")
 					.append(name)
 					.append("Value();\n");
 			source.append("\t\t\t\t\tunsafe.put")
@@ -284,11 +284,11 @@ public class SourceCodeFactory {
 			source.append("\t\t\t\t\tif (token == SyntaxToken.NULL) {\n");
 			source.append("\t\t\t\t\t\tunsafe.putObject(instance, ")
 					.append(info.offset()).append("L, null);\n");
-			source.append("\t\t\t\t\t} else if (buf.is$Id()) {\n");
+			source.append("\t\t\t\t\t} else if (reader.is$Id()) {\n");
 			source.append("\t\t\t\t\t\tcontext.addCompleteHook(instance, ")
-					.append(info.offset()).append("L, buf.get$Id());\n");
+					.append(info.offset()).append("L, reader.get$Id());\n");
 			source.append("\t\t\t\t\t} else {\n");
-			source.append("\t\t\t\t\t\tObject value = context.decode(buf, $field$_")
+			source.append("\t\t\t\t\t\tObject value = context.decode(reader, $field$_")
 					.append(info.getFieldName()).append(".getGenericType(), options);\n");
 			source.append("\t\t\t\t\t\tunsafe.putObject(instance, ")
 					.append(info.offset()).append("L, value);\n");
@@ -299,8 +299,8 @@ public class SourceCodeFactory {
 	}
 
 	public static void appendSwitch(StringBuilder source, TreeMap<Integer, ArrayList<FieldInfo>> map) {
-		source.append("\tprivate int switch0(ReaderBuffer buffer) {\n");
-		source.append("\t\tReaderBuffer.Buffer buf = buffer.buffer();\n");
+		source.append("\tprivate int switch0(JsonReader buffer) {\n");
+		source.append("\t\tJsonReader.Buffer buf = buffer.buffer();\n");
 		source.append("\t\tint hashcode = buf.valueHashcode();\n");
 		source.append("\t\tswitch (hashcode) {\n");
 

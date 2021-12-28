@@ -51,17 +51,17 @@ public class ObjectArrayCodec extends AbstractArrayCodec<Object[]> {
 		}
 	}
 
-	public Object[] decode0(final ReaderContext context, ReaderBuffer buf, Class<?> instanceType, Type componentType, long options) {
+	public Object[] decode0(final ReaderContext context, JsonReader reader, Class<?> instanceType, Type componentType, long options) {
 		List<Object> values = new ArrayList<Object>();
 		int[] hooks = null;
 		int count = 0;
 		SyntaxToken token;
 		for (; ; ) {
-			token = buf.nextToken();
+			token = reader.nextToken();
 			if (token == SyntaxToken.RBRACKET) {
 				break;
 			}
-			if (token == SyntaxToken.STRING && buf.check$Id()) {
+			if (token == SyntaxToken.STRING && reader.check$Id()) {
 				if (hooks == null) {
 					hooks = new int[16]; // 准备8个引用
 				}
@@ -69,17 +69,17 @@ public class ObjectArrayCodec extends AbstractArrayCodec<Object[]> {
 					hooks = Arrays.copyOf(hooks, hooks.length << 1);
 				}
 				hooks[count++] = values.size();
-				hooks[count++] = buf.get$Id();
+				hooks[count++] = reader.get$Id();
 				values.add(null); // hold on
 			} else {
-				buf.assertExpectedSyntax(SyntaxToken.OBJECTS);
-				values.add(context.decode(buf, componentType, options));
+				reader.assertExpectedSyntax(SyntaxToken.OBJECTS);
+				values.add(context.decode(reader, componentType, options));
 			}
-			token = buf.nextToken();
+			token = reader.nextToken();
 			if (token == SyntaxToken.RBRACKET) {
 				break;
 			}
-			buf.assertExpectedSyntax(SyntaxToken.COMMA);
+			reader.assertExpectedSyntax(SyntaxToken.COMMA);
 		}
 		final Object[] result = ArrayUtil.newInstance(instanceType, values.size());
 		for (int i = 0; i < result.length; i++) {

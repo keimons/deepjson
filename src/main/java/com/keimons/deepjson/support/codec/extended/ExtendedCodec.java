@@ -1,6 +1,6 @@
 package com.keimons.deepjson.support.codec.extended;
 
-import com.keimons.deepjson.ReaderBuffer;
+import com.keimons.deepjson.JsonReader;
 import com.keimons.deepjson.ReaderContext;
 import com.keimons.deepjson.SyntaxToken;
 import com.keimons.deepjson.compiler.ExtendedCodecClassLoader;
@@ -103,42 +103,42 @@ public abstract class ExtendedCodec extends AbstractOnlineCodec<Object> {
 	 * 当使用边界时，需要判断所有边界是否合法，如果
 	 *
 	 * @param context 上线文环境
-	 * @param buf     读取缓冲区
+	 * @param reader  读取器
 	 * @param clazz   编解码器类型，确保type是{@link Class}或{@link TypeVariable}。
 	 * @param options 解码选项
 	 * @return 对象实例
 	 */
 	@Override
-	public Object decode(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
-		SyntaxToken token = buf.token();
+	public Object decode(ReaderContext context, JsonReader reader, Class<?> clazz, long options) {
+		SyntaxToken token = reader.token();
 		if (token == SyntaxToken.NULL) {
 			return null;
 		}
-		token = buf.nextToken();
-		if (token == SyntaxToken.STRING && buf.checkGetType()) {
-			buf.nextToken();
-			buf.assertExpectedSyntax(SyntaxToken.COLON);
-			buf.nextToken();
-			buf.assertExpectedSyntax(SyntaxToken.STRING);
-			String className = buf.stringValue();
-			token = buf.nextToken();
+		token = reader.nextToken();
+		if (token == SyntaxToken.STRING && reader.checkGetType()) {
+			reader.nextToken();
+			reader.assertExpectedSyntax(SyntaxToken.COLON);
+			reader.nextToken();
+			reader.assertExpectedSyntax(SyntaxToken.STRING);
+			String className = reader.stringValue();
+			token = reader.nextToken();
 			if (token == SyntaxToken.RBRACE) {
 				return null;
 			}
-			buf.nextToken();
+			reader.nextToken();
 			Class<?> excepted = ClassUtil.findClass(className); // 解析类中的名字
 			if (excepted == this.clazz) {
-				return decode0(context, buf, (Class<?>) clazz, options);
+				return decode0(context, reader, (Class<?>) clazz, options);
 			}
 			if (this.clazz.isAssignableFrom(excepted) || excepted.isAssignableFrom(this.clazz)) {
-				return decode0(context, buf, excepted, options);
+				return decode0(context, reader, excepted, options);
 			} else {
 				throw new IncompatibleTypeException(this.clazz, excepted);
 			}
 		}
 		// 确定这是一个class
 		if (this.clazz == clazz) {
-			return decode0(context, buf, clazz, options);
+			return decode0(context, reader, clazz, options);
 		}
 		throw new IncompatibleTypeException(this.clazz, clazz);
 	}
@@ -150,5 +150,5 @@ public abstract class ExtendedCodec extends AbstractOnlineCodec<Object> {
 	 */
 	public abstract void init(Class<?> clazz);
 
-	protected abstract Object decode0(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options);
+	protected abstract Object decode0(ReaderContext context, JsonReader reader, Class<?> clazz, long options);
 }

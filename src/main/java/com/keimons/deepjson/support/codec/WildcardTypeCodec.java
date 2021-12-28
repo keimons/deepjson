@@ -1,7 +1,7 @@
 package com.keimons.deepjson.support.codec;
 
 import com.keimons.deepjson.ICodec;
-import com.keimons.deepjson.ReaderBuffer;
+import com.keimons.deepjson.JsonReader;
 import com.keimons.deepjson.ReaderContext;
 import com.keimons.deepjson.support.CodecFactory;
 import com.keimons.deepjson.util.TypeNotFoundException;
@@ -26,26 +26,26 @@ public class WildcardTypeCodec extends PhantomCodec {
 	}
 
 	@Override
-	public Object decode(ReaderContext context, ReaderBuffer buf, Type type, long options) {
+	public Object decode(ReaderContext context, JsonReader reader, Type type, long options) {
 		assert type instanceof WildcardType;
 		WildcardType wildcardType = (WildcardType) type;
 		// 优先匹配 下界通配符
 		Type[] lowerBounds = wildcardType.getLowerBounds();
 		if (lowerBounds.length > 0) {
-			return decode0(context, buf, lowerBounds[0], options);
+			return decode0(context, reader, lowerBounds[0], options);
 		}
 		// 上界通配符
 		Type[] upperBounds = wildcardType.getUpperBounds();
 		if (upperBounds.length > 0) {
-			return decode0(context, buf, upperBounds[0], options);
+			return decode0(context, reader, upperBounds[0], options);
 		}
 		// 无法解析 上下界均为空
 		throw new TypeNotFoundException("unknown wildcard type " + type.getTypeName());
 	}
 
-	private Object decode0(ReaderContext context, ReaderBuffer buf, Type type, long options) {
+	private Object decode0(ReaderContext context, JsonReader reader, Type type, long options) {
 		ICodec<?> codec = CodecFactory.getCodec(type);
 		assert codec != null;
-		return codec.decode(context, buf, type, options);
+		return codec.decode(context, reader, type, options);
 	}
 }

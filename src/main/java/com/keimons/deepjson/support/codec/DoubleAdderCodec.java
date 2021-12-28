@@ -40,9 +40,9 @@ public class DoubleAdderCodec extends KlassCodec<DoubleAdder> {
 	}
 
 	@Override
-	public DoubleAdder decode(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
-		buf.assertExpectedSyntax(SyntaxToken.STRING, SyntaxToken.NUMBER);
-		double sum = buf.doubleValue();
+	public DoubleAdder decode(ReaderContext context, JsonReader reader, Class<?> clazz, long options) {
+		reader.assertExpectedSyntax(SyntaxToken.STRING, SyntaxToken.NUMBER);
+		double sum = reader.doubleValue();
 		DoubleAdder instance = new DoubleAdder();
 		instance.add(sum);
 		return instance;

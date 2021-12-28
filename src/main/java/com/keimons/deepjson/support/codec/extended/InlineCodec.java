@@ -28,7 +28,7 @@ public class InlineCodec extends ExtendedCodec {
 
 	private List<MethodHandle> writers = new ArrayList<MethodHandle>();
 
-	private Map<ReaderBuffer.Buffer, MethodHandle> readers = new HashMap<ReaderBuffer.Buffer, MethodHandle>();
+	private Map<JsonReader.Buffer, MethodHandle> readers = new HashMap<JsonReader.Buffer, MethodHandle>();
 
 	@Override
 	public void init(Class<?> clazz) {
@@ -84,27 +84,27 @@ public class InlineCodec extends ExtendedCodec {
 				MethodHandle setter = lookup.unreflectSetter(info.getField()).asType(MethodType.methodType(void.class, clazz, type));
 				MethodHandle reader = setter;
 				if (type.isPrimitive()) {
-					reader = MethodHandles.dropArguments(reader, 2, ReaderBuffer.class);
+					reader = MethodHandles.dropArguments(reader, 2, JsonReader.class);
 					reader = MethodHandles.foldArguments(reader, 1, read(type));
 					reader = MethodHandles.dropArguments(reader, 2, ReaderContext.class);
 					reader = MethodHandles.dropArguments(reader, 3, long.class);
 				} else {
 					MethodType mt = MethodType.methodType(
 							void.class,
-							Object.class, ReaderBuffer.class, ReaderContext.class, long.class, Type.class, MethodHandle.class
+							Object.class, JsonReader.class, ReaderContext.class, long.class, Type.class, MethodHandle.class
 					);
 					reader = lookup.findStatic(CodecUtil.class, "read", mt);
 					reader = MethodHandles.insertArguments(reader, 4, info.getField().getGenericType());
 					reader = MethodHandles.insertArguments(reader, 4, setter);
 				}
-				readers.put(new ReaderBuffer.Buffer(name), reader);
+				readers.put(new JsonReader.Buffer(name), reader);
 			}
 			MethodType mt = MethodType.methodType(
 					void.class,
-					Object.class, ReaderBuffer.class, ReaderContext.class, long.class
+					Object.class, JsonReader.class, ReaderContext.class, long.class
 			);
 			MethodHandle fSetId = lookup.findStatic(CodecUtil.class, "read", mt);
-			readers.put(new ReaderBuffer.Buffer(FIELD_SET_ID), fSetId);
+			readers.put(new JsonReader.Buffer(FIELD_SET_ID), fSetId);
 		} catch (NoSuchMethodException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
@@ -154,7 +154,7 @@ public class InlineCodec extends ExtendedCodec {
 	}
 
 	@Override
-	protected Object decode0(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
+	protected Object decode0(ReaderContext context, JsonReader buf, Class<?> clazz, long options) {
 		Object instance = newInstance(clazz);
 		SyntaxToken token = buf.token();
 		try {
@@ -187,7 +187,7 @@ public class InlineCodec extends ExtendedCodec {
 
 	private static MethodHandle read(Class<?> clazz) throws NoSuchMethodException, IllegalAccessException {
 		return MethodHandleUtil.Lookup().findVirtual(
-				ReaderBuffer.class, clazz.getSimpleName() + "Value", MethodType.methodType(clazz)
+				JsonReader.class, clazz.getSimpleName() + "Value", MethodType.methodType(clazz)
 		);
 	}
 

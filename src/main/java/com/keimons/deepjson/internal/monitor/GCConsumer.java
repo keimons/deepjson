@@ -4,6 +4,18 @@ import java.util.List;
 
 /**
  * 监视器消费者
+ * <p>
+ * Don’t Block the Consumer.
+ * <p>
+ * Examples of blocking include:
+ * <ul>
+ *     <li>Thread.sleep().</li>
+ *     <li>Waiting on a lock.</li>
+ *     <li>Waiting on a mutex or monitor (e.g. synchronized section).</li>
+ *     <li>Doing a long lived database operation and waiting for a result.</li>
+ *     <li>Doing a complex calculation that takes some significant time.</li>
+ *     <li>Spinning in a loop</li>
+ * </ul>
  *
  * @author houyn[monkey@keimons.com]
  * @version 1.0

@@ -263,12 +263,12 @@ public class ClassUtil {
 	 * <p>
 	 * 多层解析如果当前类型中无法解析，继续向上查找，直到能解析出来为止。
 	 *
-	 * @param types       查找起始位置{@link Class}或{@link ParameterizedType}。
-	 * @param readerIndex 开始读取位置
-	 * @param target      查找目标
-	 * @param name        类型变量，类型变量应该是{@link Class}、{@link TypeVariable}、
-	 *                    {@link ParameterizedType}、{@link GenericArrayType}或者
-	 *                    {@link WildcardType}中的一个。
+	 * @param types      查找起始位置{@link Class}或{@link ParameterizedType}。
+	 * @param startIndex 读取位置
+	 * @param target     查找目标
+	 * @param name       类型变量，类型变量应该是{@link Class}、{@link TypeVariable}、
+	 *                   {@link ParameterizedType}、{@link GenericArrayType}或者
+	 *                   {@link WildcardType}中的一个。
 	 * @return {@link Type}泛型类型，{@link TypeVariable}类型变量，{@code null}查找失败。
 	 * <ul>
 	 *     <li>
@@ -280,9 +280,9 @@ public class ClassUtil {
 	 *     </li>
 	 * </ul>
 	 */
-	public static @Nullable Type findGenericType(Type[] types, int readerIndex, Class<?> target, String name) {
+	public static @Nullable Type findGenericType(Type[] types, int startIndex, Class<?> target, String name) {
 		Type result = null;
-		for (int i = readerIndex - 1; i >= 0; i--) {
+		for (int i = startIndex - 1; i >= 0; i--) {
 			Type tmp = findGenericType(types[i], target, name);
 			if (tmp == null) { // 查找中断
 				return result;

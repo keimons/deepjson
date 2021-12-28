@@ -28,7 +28,7 @@ public class ReferenceCodec extends AbstractOnlineCodec<ReferenceNode> {
 	}
 
 	@Override
-	public ReferenceNode decode(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
+	public ReferenceNode decode(ReaderContext context, JsonReader reader, Class<?> clazz, long options) {
 		throw new UnsupportedOperationException();
 	}
 }

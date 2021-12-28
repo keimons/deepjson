@@ -29,21 +29,21 @@ public class LongArrayCodec extends AbstractArrayCodec<long[]> {
 	}
 
 	@Override
-	public long[] decode0(ReaderContext context, ReaderBuffer buf, Class<?> instanceType, Type componentType, long options) {
+	public long[] decode0(ReaderContext context, JsonReader reader, Class<?> instanceType, Type componentType, long options) {
 		List<Long> values = new ArrayList<Long>();
 		SyntaxToken token;
 		for (; ; ) {
-			token = buf.nextToken();
+			token = reader.nextToken();
 			if (token == SyntaxToken.RBRACKET) {
 				break;
 			}
-			buf.assertExpectedSyntax(numberExpects, stringExpects);
-			values.add(buf.longValue());
-			token = buf.nextToken();
+			reader.assertExpectedSyntax(numberExpects, stringExpects);
+			values.add(reader.longValue());
+			token = reader.nextToken();
 			if (token == SyntaxToken.RBRACKET) {
 				break;
 			}
-			buf.assertExpectedSyntax(SyntaxToken.COMMA);
+			reader.assertExpectedSyntax(SyntaxToken.COMMA);
 		}
 		long[] result = new long[values.size()];
 		for (int i = 0; i < result.length; i++) {

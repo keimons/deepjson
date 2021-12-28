@@ -80,63 +80,63 @@ public class MapCodec extends AbstractOnlineCodec<Object> {
 	}
 
 	@Override
-	public Object decode(final ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
-		buf.nextToken(); // 下一个有可能是对象也有可能是对象结束
-		Class<?> excepted = typeCheck(context, buf, options);
+	public Object decode(final ReaderContext context, JsonReader reader, Class<?> clazz, long options) {
+		reader.nextToken(); // 下一个有可能是对象也有可能是对象结束
+		Class<?> excepted = typeCheck(context, reader, options);
 		// 尝试解析成Map时，判断是否为Map，如果不是，转成相应的类型进行解析
 		if (excepted != null) {
 			if (!Map.class.isAssignableFrom(excepted)) {
 				// Map结构的包装类型，例如：{"$type":"int[]","@id":1,"$value":[1,2,3]}，跳转解析方案
 				// TODO 考虑安全漏洞
-				return context.decode(buf, excepted, options);
+				return context.decode(reader, excepted, options);
 			}
 			if (!clazz.isAssignableFrom(excepted)) {
 				throw new IncompatibleTypeException(clazz, excepted);
 			}
 			// 如果是 "," 则表示这一段结束，如果是 "}" 则表示对象结束。
-			buf.assertExpectedSyntax(SyntaxToken.COMMA, SyntaxToken.RBRACE);
+			reader.assertExpectedSyntax(SyntaxToken.COMMA, SyntaxToken.RBRACE);
 			// 例如：{"$type":"java.util.HashMap","key":"value"}需要移动token到"key"位置。
-			if (buf.token() == SyntaxToken.COMMA) {
-				buf.nextToken();
+			if (reader.token() == SyntaxToken.COMMA) {
+				reader.nextToken();
 			}
 		}
 		Class<?> instanceType = excepted == null ? clazz : excepted;
 		Type kt = context.findType(Map.class, "K");
 		Type vt = context.findType(Map.class, "V");
 		final Map<Object, Object> instance = createInstance(instanceType, kt, vt);
-		SyntaxToken token = buf.token();
+		SyntaxToken token = reader.token();
 		if (token == SyntaxToken.RBRACE) {
 			return instance;
 		}
 		for (; ; ) {
 			// 断言当前位置一定是一个对象
-			buf.assertExpectedSyntax(SyntaxToken.OBJECTS);
+			reader.assertExpectedSyntax(SyntaxToken.OBJECTS);
 			// 抹掉kt类型，判断是否 "@id"
-			if (!isInstanceId(instance, context, buf, options)) {
+			if (!isInstanceId(instance, context, reader, options)) {
 				final int kid;
 				final Object key;
 				// key 也有可能是一个循环引用
-				if (buf.token() == SyntaxToken.STRING && buf.check$Id()) {
-					kid = buf.get$Id();
+				if (reader.token() == SyntaxToken.STRING && reader.check$Id()) {
+					kid = reader.get$Id();
 					key = null;
 				} else {
 					kid = -1;
 					// 常规 key-value 结构
-					key = context.decode(buf, kt, options);
+					key = context.decode(reader, kt, options);
 				}
-				buf.nextToken();
-				buf.assertExpectedSyntax(colonExpects); // 预期当前语法是 ":"
-				token = buf.nextToken();
-				buf.assertExpectedSyntax(SyntaxToken.OBJECTS);
+				reader.nextToken();
+				reader.assertExpectedSyntax(colonExpects); // 预期当前语法是 ":"
+				token = reader.nextToken();
+				reader.assertExpectedSyntax(SyntaxToken.OBJECTS);
 				final int vid;
 				final Object value;
-				if (token == SyntaxToken.STRING && buf.check$Id()) {
-					vid = buf.get$Id();
+				if (token == SyntaxToken.STRING && reader.check$Id()) {
+					vid = reader.get$Id();
 					value = null;
 				} else {
 					vid = -1;
 					// 常规 key-value 结构
-					value = context.decode(buf, vt, options);
+					value = context.decode(reader, vt, options);
 				}
 				if (kid != -1 || vid != -1) {
 					context.addCompleteHook(new Runnable() {
@@ -157,11 +157,11 @@ public class MapCodec extends AbstractOnlineCodec<Object> {
 					instance.put(key, value);
 				}
 			}
-			token = buf.nextToken();
+			token = reader.nextToken();
 			if (token == SyntaxToken.RBRACE) {
 				break;
 			}
-			buf.nextToken();
+			reader.nextToken();
 		}
 		return instance;
 	}

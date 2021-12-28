@@ -2,7 +2,7 @@ package com.keimons.deepjson;
 
 import com.keimons.deepjson.internal.LocalCache;
 import com.keimons.deepjson.support.DefaultReader;
-import com.keimons.deepjson.support.context.TypeAndHookContext;
+import com.keimons.deepjson.support.context.HookContext;
 import com.keimons.deepjson.util.WriteFailedException;
 
 import java.io.IOException;
@@ -134,7 +134,7 @@ public class DeepJson {
 
 
 	public static <T> T parseObject(String json, Type type) {
-		ReaderContext context = new TypeAndHookContext();
+		ReaderContext context = new HookContext();
 		DefaultReader buf = new DefaultReader(json);
 		buf.nextToken();
 		buf.assertExpectedSyntax(SyntaxToken.OBJECTS);

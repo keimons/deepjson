@@ -95,20 +95,20 @@ public class CollectionCodec extends AbstractOnlineCodec<Collection<?>> {
 	}
 
 	@Override
-	public Collection<?> decode(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
-		buf.assertExpectedSyntax(SyntaxToken.LBRACKET); // 预期当前语法是 "["
+	public Collection<?> decode(ReaderContext context, JsonReader reader, Class<?> clazz, long options) {
+		reader.assertExpectedSyntax(SyntaxToken.LBRACKET); // 预期当前语法是 "["
 		Type et = context.findType(Collection.class, "E");
 		SyntaxToken token;
 		Collection<Object> instance = null;
 		int[] hooks = null;
 		int count = 0;
 		for (; ; ) {
-			token = buf.nextToken();
+			token = reader.nextToken();
 			if (token == SyntaxToken.RBRACKET) {
 				break;
 			}
-			if (token == SyntaxToken.STRING && buf.check$Type()) { // 检测是否类型
-				String typeName = buf.get$Type();
+			if (token == SyntaxToken.STRING && reader.check$Type()) { // 检测是否类型
+				String typeName = reader.get$Type();
 				Class<?> instanceType;
 				try {
 					instanceType = Class.forName(typeName);
@@ -124,15 +124,15 @@ public class CollectionCodec extends AbstractOnlineCodec<Collection<?>> {
 				clazz = instanceType;
 				instance = createInstance(clazz, et);
 
-				if (buf.checkAtId()) {
-					context.put(buf.getAtId(), instance);
+				if (reader.checkAtId()) {
+					context.put(reader.getAtId(), instance);
 				}
-			} else if (token == SyntaxToken.STRING && buf.checkAtId()) { // 检测是否设置ID
+			} else if (token == SyntaxToken.STRING && reader.checkAtId()) { // 检测是否设置ID
 				if (instance == null) {
 					instance = createInstance(clazz, et);
 				}
-				context.put(buf.getAtId(), instance);
-			} else if (token == SyntaxToken.STRING && buf.check$Id()) {
+				context.put(reader.getAtId(), instance);
+			} else if (token == SyntaxToken.STRING && reader.check$Id()) {
 				if (hooks == null) {
 					hooks = new int[16]; // 准备8个引用
 				}
@@ -144,19 +144,19 @@ public class CollectionCodec extends AbstractOnlineCodec<Collection<?>> {
 				}
 				int index = (count >> 1) + instance.size(); // 用于记录位置
 				hooks[count++] = index;
-				hooks[count++] = buf.get$Id();
+				hooks[count++] = reader.get$Id();
 			} else {
-				buf.assertExpectedSyntax(SyntaxToken.OBJECTS);
+				reader.assertExpectedSyntax(SyntaxToken.OBJECTS);
 				if (instance == null) {
 					instance = createInstance(clazz, et);
 				}
-				instance.add(context.decode(buf, et, options));
+				instance.add(context.decode(reader, et, options));
 			}
-			token = buf.nextToken();
+			token = reader.nextToken();
 			if (token == SyntaxToken.RBRACKET) {
 				break;
 			}
-			buf.assertExpectedSyntax(SyntaxToken.COMMA);
+			reader.assertExpectedSyntax(SyntaxToken.COMMA);
 		}
 		if (instance == null) {
 			instance = createInstance(clazz, et);

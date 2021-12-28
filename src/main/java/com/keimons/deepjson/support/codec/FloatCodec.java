@@ -1,7 +1,7 @@
 package com.keimons.deepjson.support.codec;
 
+import com.keimons.deepjson.JsonReader;
 import com.keimons.deepjson.JsonWriter;
-import com.keimons.deepjson.ReaderBuffer;
 import com.keimons.deepjson.ReaderContext;
 
 import java.io.IOException;
@@ -23,8 +23,8 @@ public class FloatCodec extends AbstractPrimitiveCodec<Float> {
 	}
 
 	@Override
-	protected Float decode0(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
-		buf.assertExpectedSyntax(numberExpects, stringExpects);
-		return buf.floatValue();
+	protected Float decode0(ReaderContext context, JsonReader reader, Class<?> clazz, long options) {
+		reader.assertExpectedSyntax(numberExpects, stringExpects);
+		return reader.floatValue();
 	}
 }

@@ -47,11 +47,11 @@ public abstract class AbstractArrayCodec<T> extends KlassCodec<T> {
 	}
 
 	@Override
-	public T decode(ReaderContext context, ReaderBuffer buf, Class<?> type, long options) {
+	public T decode(ReaderContext context, JsonReader reader, Class<?> type, long options) {
 		Type componentType = type.getComponentType();
 		Class<?> instanceType = type.getComponentType();
-		buf.assertExpectedSyntax(SyntaxToken.LBRACKET);
-		return decode0(context, buf, instanceType, componentType, options);
+		reader.assertExpectedSyntax(SyntaxToken.LBRACKET);
+		return decode0(context, reader, instanceType, componentType, options);
 	}
 
 	protected abstract void encode0(WriterContext context, JsonWriter writer, T values, long options) throws IOException;
@@ -60,11 +60,11 @@ public abstract class AbstractArrayCodec<T> extends KlassCodec<T> {
 	 * 解码数组
 	 *
 	 * @param context       上下文环境
-	 * @param buf           缓冲区
+	 * @param reader        读取器
 	 * @param instanceType  实例类型，用于反射创建对象
 	 * @param componentType 组件类型
 	 * @param options       解码选项
 	 * @return 数组对象
 	 */
-	protected abstract T decode0(ReaderContext context, ReaderBuffer buf, Class<?> instanceType, Type componentType, long options);
+	protected abstract T decode0(ReaderContext context, JsonReader reader, Class<?> instanceType, Type componentType, long options);
 }

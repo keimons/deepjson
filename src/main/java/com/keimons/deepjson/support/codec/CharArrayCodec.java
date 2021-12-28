@@ -29,21 +29,21 @@ public class CharArrayCodec extends AbstractArrayCodec<char[]> {
 	}
 
 	@Override
-	public char[] decode0(ReaderContext context, ReaderBuffer buf, Class<?> instanceType, Type componentType, long options) {
+	public char[] decode0(ReaderContext context, JsonReader reader, Class<?> instanceType, Type componentType, long options) {
 		List<Character> values = new ArrayList<Character>();
 		SyntaxToken token;
 		for (; ; ) {
-			token = buf.nextToken();
+			token = reader.nextToken();
 			if (token == SyntaxToken.RBRACKET) {
 				break;
 			}
-			buf.assertExpectedSyntax(stringExpects);
-			values.add(buf.charValue());
-			token = buf.nextToken();
+			reader.assertExpectedSyntax(stringExpects);
+			values.add(reader.charValue());
+			token = reader.nextToken();
 			if (token == SyntaxToken.RBRACKET) {
 				break;
 			}
-			buf.assertExpectedSyntax(SyntaxToken.COMMA);
+			reader.assertExpectedSyntax(SyntaxToken.COMMA);
 		}
 		char[] result = new char[values.size()];
 		for (int i = 0; i < result.length; i++) {

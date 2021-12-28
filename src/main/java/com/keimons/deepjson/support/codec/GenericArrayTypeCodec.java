@@ -1,6 +1,6 @@
 package com.keimons.deepjson.support.codec;
 
-import com.keimons.deepjson.ReaderBuffer;
+import com.keimons.deepjson.JsonReader;
 import com.keimons.deepjson.ReaderContext;
 import com.keimons.deepjson.SyntaxToken;
 import com.keimons.deepjson.support.IncompatibleTypeException;
@@ -29,28 +29,28 @@ public class GenericArrayTypeCodec extends PhantomCodec {
 	}
 
 	@Override
-	public Object decode(ReaderContext context, ReaderBuffer buf, Type type, long options) {
+	public Object decode(ReaderContext context, JsonReader reader, Type type, long options) {
 		assert type instanceof GenericArrayType;
-		SyntaxToken token = buf.token();
+		SyntaxToken token = reader.token();
 		if (token == SyntaxToken.LBRACKET) {
 			Class<?> clazz = context.findInstanceType(type, null);
 			Type componentType = ((GenericArrayType) type).getGenericComponentType();
 			if (componentType instanceof TypeVariable) {
-				return ObjectArrayCodec.instance.decode0(context, buf, clazz.getComponentType(), componentType, options);
+				return ObjectArrayCodec.instance.decode0(context, reader, clazz.getComponentType(), componentType, options);
 			} else if (componentType instanceof ParameterizedType) {
 				ParameterizedType pt = (ParameterizedType) componentType;
 				pt = ReflectUtil.makeParameterizedType(pt.getOwnerType(), clazz.getComponentType(), pt.getActualTypeArguments());
-				return ObjectArrayCodec.instance.decode0(context, buf, clazz.getComponentType(), pt, options);
+				return ObjectArrayCodec.instance.decode0(context, reader, clazz.getComponentType(), pt, options);
 			} else if (componentType instanceof GenericArrayType) {
 				GenericArrayType gat = (GenericArrayType) componentType;
-				return ObjectArrayCodec.instance.decode0(context, buf, clazz.getComponentType(), gat, options);
+				return ObjectArrayCodec.instance.decode0(context, reader, clazz.getComponentType(), gat, options);
 			} else {
 				throw new IncompatibleTypeException(type);
 			}
 		}
 		// 拓展进入 {"$type":"[X", "$values":[x, y, z]}
-		token = buf.nextToken(); // 下一个有可能是对象也有可能是对象结束
-		Class<?> excepted = typeCheck(context, buf, options);
+		token = reader.nextToken(); // 下一个有可能是对象也有可能是对象结束
+		Class<?> excepted = typeCheck(context, reader, options);
 		Class<?> clazz = context.findInstanceType(type, excepted);
 		if (excepted != null) {
 			if (!Object[].class.isAssignableFrom(excepted)) { // 必须是 对象数组类型 或 子类
@@ -60,47 +60,47 @@ public class GenericArrayTypeCodec extends PhantomCodec {
 				throw new IncompatibleTypeException(excepted, Object[].class);
 			}
 			clazz = excepted;
-			token = buf.nextToken();
+			token = reader.nextToken();
 		}
 		assert clazz.isArray();
 		int uniqueId = -1;
 		Object value = null;
 		for (; ; ) {
 			// 断言当前位置一定是一个对象
-			buf.assertExpectedSyntax(SyntaxToken.OBJECTS);
+			reader.assertExpectedSyntax(SyntaxToken.OBJECTS);
 			// 判断是否 "@id"
-			if (token == SyntaxToken.STRING && buf.checkPutId()) {
-				buf.nextToken();
-				buf.assertExpectedSyntax(SyntaxToken.COLON); // 预期当前语法是 ":"
-				buf.nextToken();
-				buf.assertExpectedSyntax(SyntaxToken.NUMBER, SyntaxToken.STRING);
-				uniqueId = buf.intValue();
-			} else if (token == SyntaxToken.STRING && buf.checkGetValue()) {
-				buf.nextToken();
-				buf.assertExpectedSyntax(SyntaxToken.COLON); // 预期当前语法是 ":"
-				buf.nextToken();
-				buf.assertExpectedSyntax(SyntaxToken.LBRACKET); // 预期当前语法是 "["
+			if (token == SyntaxToken.STRING && reader.checkPutId()) {
+				reader.nextToken();
+				reader.assertExpectedSyntax(SyntaxToken.COLON); // 预期当前语法是 ":"
+				reader.nextToken();
+				reader.assertExpectedSyntax(SyntaxToken.NUMBER, SyntaxToken.STRING);
+				uniqueId = reader.intValue();
+			} else if (token == SyntaxToken.STRING && reader.checkGetValue()) {
+				reader.nextToken();
+				reader.assertExpectedSyntax(SyntaxToken.COLON); // 预期当前语法是 ":"
+				reader.nextToken();
+				reader.assertExpectedSyntax(SyntaxToken.LBRACKET); // 预期当前语法是 "["
 				Type componentType = ((GenericArrayType) type).getGenericComponentType();
 				if (componentType instanceof TypeVariable) {
-					value = ObjectArrayCodec.instance.decode0(context, buf, clazz.getComponentType(), clazz.getComponentType(), options);
+					value = ObjectArrayCodec.instance.decode0(context, reader, clazz.getComponentType(), clazz.getComponentType(), options);
 				} else if (componentType instanceof ParameterizedType) {
 					ParameterizedType pt = (ParameterizedType) componentType;
 					pt = ReflectUtil.makeParameterizedType(pt.getOwnerType(), clazz.getComponentType(), pt.getActualTypeArguments());
-					value = ObjectArrayCodec.instance.decode0(context, buf, clazz.getComponentType(), pt, options);
+					value = ObjectArrayCodec.instance.decode0(context, reader, clazz.getComponentType(), pt, options);
 				} else if (componentType instanceof GenericArrayType) {
 					GenericArrayType gat = (GenericArrayType) componentType;
-					value = ObjectArrayCodec.instance.decode0(context, buf, clazz.getComponentType(), gat, options);
+					value = ObjectArrayCodec.instance.decode0(context, reader, clazz.getComponentType(), gat, options);
 				} else {
 					throw new IncompatibleTypeException(type);
 				}
 			} else {
 				throw new UnknownSyntaxException("array error");
 			}
-			token = buf.nextToken();
+			token = reader.nextToken();
 			if (token == SyntaxToken.RBRACE) {
 				break;
 			}
-			token = buf.nextToken();
+			token = reader.nextToken();
 		}
 		if (uniqueId != -1) {
 			context.put(uniqueId, value);

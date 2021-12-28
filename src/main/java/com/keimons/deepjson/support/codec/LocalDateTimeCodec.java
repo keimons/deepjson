@@ -23,7 +23,7 @@ public class LocalDateTimeCodec extends AbstractOnlineCodec<LocalDateTime> {
 	}
 
 	@Override
-	public LocalDateTime decode(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
+	public LocalDateTime decode(ReaderContext context, JsonReader reader, Class<?> clazz, long options) {
 		return null;
 	}
 }

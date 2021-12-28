@@ -26,8 +26,8 @@ public class CharCodec extends AbstractPrimitiveCodec<Character> {
 	}
 
 	@Override
-	protected Character decode0(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options) {
-		buf.assertExpectedSyntax(stringExpects);
-		return buf.charValue();
+	protected Character decode0(ReaderContext context, JsonReader reader, Class<?> clazz, long options) {
+		reader.assertExpectedSyntax(stringExpects);
+		return reader.charValue();
 	}
 }

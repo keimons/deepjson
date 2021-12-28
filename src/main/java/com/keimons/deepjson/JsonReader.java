@@ -11,7 +11,7 @@ import java.io.Closeable;
  * @version 1.0
  * @since 1.6
  **/
-public abstract class ReaderBuffer implements Closeable {
+public abstract class JsonReader implements Closeable {
 
 	/**
 	 * 获取缓冲区
@@ -60,7 +60,7 @@ public abstract class ReaderBuffer implements Closeable {
 	 *     assert readerIndex == readerIndex();
 	 * </pre>
 	 *
-	 * @param readerIndex 新的读取位置
+	 * @param readerIndex 读取位置
 	 */
 	public abstract void resetReaderIndex(int readerIndex);
 

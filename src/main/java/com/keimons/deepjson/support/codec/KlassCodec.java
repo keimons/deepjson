@@ -17,22 +17,22 @@ public abstract class KlassCodec<T> implements ICodec<T> {
 	/**
 	 * 循环引用中给一个对象标记一个唯一ID
 	 * <p>
-	 * {@link ReaderBuffer#checkPutId()}检测是否存放值
+	 * {@link JsonReader#checkPutId()}检测是否存放值
 	 */
 	public static final char[] FIELD_SET_ID = "@id".toCharArray();
 
 	/**
 	 * 循环引用中根据对象唯一ID获取对象
 	 * <p>
-	 * {@link ReaderBuffer#is$Id()} 是否引用对象
-	 * {@link ReaderBuffer#get$Id()} 引用对象
+	 * {@link JsonReader#is$Id()} 是否引用对象
+	 * {@link JsonReader#get$Id()} 引用对象
 	 */
 	public static final char[] FIELD_GET_ID = "$id".toCharArray();
 
 	/**
 	 * 编码对象时存入对象的类型
 	 * <p>
-	 * {@link ReaderBuffer#checkGetType()}检测是否获取类型
+	 * {@link JsonReader#checkGetType()}检测是否获取类型
 	 */
 	public static final char[] TYPE = "$type".toCharArray();
 
@@ -64,20 +64,20 @@ public abstract class KlassCodec<T> implements ICodec<T> {
 	}
 
 	@Override
-	public final T decode(ReaderContext context, ReaderBuffer buf, Type type, long options) {
-		return decode(context, buf, (Class<?>) type, options);
+	public final T decode(ReaderContext context, JsonReader reader, Type type, long options) {
+		return decode(context, reader, (Class<?>) type, options);
 	}
 
 	/**
 	 * 解码
 	 *
 	 * @param context 上下文环境
-	 * @param buf     缓冲区
+	 * @param reader  读取器
 	 * @param clazz   对象类型
 	 * @param options 解码选项
 	 * @return 解码后的对象
 	 */
-	protected abstract T decode(ReaderContext context, ReaderBuffer buf, Class<?> clazz, long options);
+	protected abstract T decode(ReaderContext context, JsonReader reader, Class<?> clazz, long options);
 
 	/**
 	 * 类型检测
@@ -85,19 +85,19 @@ public abstract class KlassCodec<T> implements ICodec<T> {
 	 * 从当前语法处检测，如果是{@link #TYPE}则表明这个json自带类型描述。
 	 *
 	 * @param context 上下文
-	 * @param buf     缓冲区
+	 * @param reader  读取器
 	 * @param options 解码选项
 	 * @return 类型
 	 */
-	protected Class<?> typeCheck(ReaderContext context, ReaderBuffer buf, long options) {
-		SyntaxToken token = buf.token();
-		if (token == SyntaxToken.STRING && buf.checkGetType()) {
-			buf.nextToken();
-			buf.assertExpectedSyntax(colonExpects); // 预期当前语法是 ":"
-			buf.nextToken();
-			buf.assertExpectedSyntax(stringExpects);
-			String type = buf.stringValue();
-			buf.nextToken(); // 读取下一个token
+	protected Class<?> typeCheck(ReaderContext context, JsonReader reader, long options) {
+		SyntaxToken token = reader.token();
+		if (token == SyntaxToken.STRING && reader.checkGetType()) {
+			reader.nextToken();
+			reader.assertExpectedSyntax(colonExpects); // 预期当前语法是 ":"
+			reader.nextToken();
+			reader.assertExpectedSyntax(stringExpects);
+			String type = reader.stringValue();
+			reader.nextToken(); // 读取下一个token
 			try {
 				return Class.forName(type);
 			} catch (ClassNotFoundException e) {
@@ -112,18 +112,18 @@ public abstract class KlassCodec<T> implements ICodec<T> {
 	 *
 	 * @param instance 对象实例
 	 * @param context  上下文
-	 * @param buf      缓冲区
+	 * @param reader   读取器
 	 * @param options  解码选项
 	 * @return 是否被引用
 	 */
-	protected boolean isInstanceId(Object instance, ReaderContext context, ReaderBuffer buf, long options) {
-		SyntaxToken token = buf.token();
-		if (token == SyntaxToken.STRING && buf.checkPutId()) {
-			buf.nextToken();
-			buf.assertExpectedSyntax(colonExpects); // 预期当前语法是 ":"
-			buf.nextToken();
-			buf.assertExpectedSyntax(numberExpects, stringExpects);
-			int uniqueId = buf.intValue();
+	protected boolean isInstanceId(Object instance, ReaderContext context, JsonReader reader, long options) {
+		SyntaxToken token = reader.token();
+		if (token == SyntaxToken.STRING && reader.checkPutId()) {
+			reader.nextToken();
+			reader.assertExpectedSyntax(colonExpects); // 预期当前语法是 ":"
+			reader.nextToken();
+			reader.assertExpectedSyntax(numberExpects, stringExpects);
+			int uniqueId = reader.intValue();
 			context.put(uniqueId, instance);
 			return true;
 		}

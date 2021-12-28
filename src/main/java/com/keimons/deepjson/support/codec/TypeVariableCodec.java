@@ -1,7 +1,7 @@
 package com.keimons.deepjson.support.codec;
 
 import com.keimons.deepjson.CodecConfig;
-import com.keimons.deepjson.ReaderBuffer;
+import com.keimons.deepjson.JsonReader;
 import com.keimons.deepjson.ReaderContext;
 import com.keimons.deepjson.support.IncompatibleTypeException;
 import com.keimons.deepjson.util.ClassUtil;
@@ -27,7 +27,7 @@ public class TypeVariableCodec extends PhantomCodec {
 	}
 
 	@Override
-	public Object decode(ReaderContext context, ReaderBuffer buf, Type type, long options) {
+	public Object decode(ReaderContext context, JsonReader reader, Type type, long options) {
 		assert type instanceof TypeVariable;
 		TypeVariable<?> tv = (TypeVariable<?>) type;
 		Type instanceType = context.findInstanceType(tv);
@@ -35,7 +35,7 @@ public class TypeVariableCodec extends PhantomCodec {
 			// 泛型已经不能被解析，所以这里实际上是在使用上边界判定
 			Type[] bounds = ((TypeVariable<?>) instanceType).getBounds(); // class(ParameterizedType) interface
 			if (bounds.length == 1) {
-				return context.decode(buf, bounds[0], options);
+				return context.decode(reader, bounds[0], options);
 			}
 			// more than one
 			if (ClassUtil.check(bounds)) {
@@ -49,6 +49,6 @@ public class TypeVariableCodec extends PhantomCodec {
 				}
 			}
 		}
-		return context.decode(buf, instanceType, options);
+		return context.decode(reader, instanceType, options);
 	}
 }
