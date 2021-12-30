@@ -152,26 +152,24 @@ public class GenericUtil {
 	 * <p>
 	 * 多层解析如果当前类型中无法解析，继续向上查找，直到能解析出来为止。
 	 *
-	 * @param types  查找起始位置{@link Class}或{@link ParameterizedType}。
+	 * @param types  查找范围{@link Class}或{@link ParameterizedType}，按照先进后出的堆栈式查找。
 	 * @param target 查找目标
 	 * @param name   类型变量，类型变量应该是{@link Class}、{@link TypeVariable}、
 	 *               {@link ParameterizedType}、{@link GenericArrayType}或者
 	 *               {@link WildcardType}中的一个。
 	 * @return {@link Type}泛型类型，{@link TypeVariable}类型变量，{@code null}查找失败。
 	 * <ul>
-	 *     <li>
-	 *         {@link Class}             基本类型(raw type)是一个普通的类。
-	 *         {@link TypeVariable}      类型变量，通过边界判断是否合法。
-	 *         {@link ParameterizedType} 参数化类型，需要进一步解析。
-	 *         {@link GenericArrayType}  泛型数组，需要进一步解析。
-	 *         {@link WildcardType}      通配符，可进一步解析为以上四个。
-	 *     </li>
+	 *     <li>{@link Class}             基本类型(raw type)是一个普通的类。</li>
+	 *     <li>{@link TypeVariable}      类型变量，通过边界判断是否合法。</li>
+	 *     <li>{@link ParameterizedType} 参数化类型，需要进一步解析。</li>
+	 *     <li>{@link GenericArrayType}  泛型数组，需要进一步解析。</li>
+	 *     <li>{@link WildcardType}      通配符，可进一步解析为以上四个。</li>
 	 * </ul>
 	 */
 	public static @Nullable Type findGenericType(Stack<Type> types, Class<?> target, String name) {
 		Type result = null;
-		for (Type type : types) {
-			Type tmp = findGenericType(type, target, name);
+		for (int i = 0; i < types.size(); i++) {
+			Type tmp = findGenericType(types.get(i), target, name);
 			if (tmp == null) { // 查找中断
 				return result;
 			} else {
@@ -202,7 +200,7 @@ public class GenericUtil {
 	 *     }
 	 * </pre>
 	 * <p>
-	 * 在泛型传递过程中，最坑的是有可能泛型名被改了，所以，我们需要递归的查找泛型的实际类型。
+	 * 在泛型传递过程中，很有可能发生参数名称被改了，所以，我们需要递归的查找泛型的实际类型。
 	 * <pre>
 	 *     class Node1&lt;S&gt; extends HashMap&lt;S, Integer&gt; {}
 	 *

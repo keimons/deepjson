@@ -1,7 +1,6 @@
 package com.keimons.deepjson.test.verification;
 
 import com.keimons.deepjson.JsonWriter;
-import com.keimons.deepjson.util.MethodHandleUtil;
 import org.junit.jupiter.api.Test;
 
 import java.lang.invoke.MethodHandle;
@@ -22,7 +21,7 @@ public class MethodHandleInlineTest {
 	@Test
 	public void testBound() throws Throwable {
 		Node node = new Node();
-		MethodHandles.Lookup lookup = MethodHandleUtil.Lookup();
+		MethodHandles.Lookup lookup = MethodHandles.lookup();
 
 		// 不绑定参数
 		MethodHandle handle = lookup.findSetter(Node.class, "value", int.class);
@@ -38,7 +37,7 @@ public class MethodHandleInlineTest {
 	@Test
 	public void testAdd() throws Throwable {
 		Node node = new Node();
-		MethodHandles.Lookup lookup = MethodHandleUtil.Lookup();
+		MethodHandles.Lookup lookup = MethodHandles.lookup();
 
 		// 未加参数
 		MethodHandle handle = lookup.findSetter(Node.class, "value", int.class);
@@ -54,7 +53,7 @@ public class MethodHandleInlineTest {
 	@Test
 	public void testFold() throws Throwable {
 		Node node = new Node();
-		MethodHandles.Lookup lookup = MethodHandleUtil.Lookup();
+		MethodHandles.Lookup lookup = MethodHandles.lookup();
 
 		// 未加参数
 		MethodHandle handle = lookup.findSetter(Node.class, "value", int.class);
@@ -82,7 +81,7 @@ public class MethodHandleInlineTest {
 
 	@Test
 	public void test() throws Throwable {
-		MethodHandles.Lookup lookup = MethodHandleUtil.Lookup();
+		MethodHandles.Lookup lookup = MethodHandles.lookup();
 
 		Class<?> clazz = this.getClass();
 

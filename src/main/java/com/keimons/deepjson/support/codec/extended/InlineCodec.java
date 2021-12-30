@@ -2,8 +2,8 @@ package com.keimons.deepjson.support.codec.extended;
 
 import com.keimons.deepjson.*;
 import com.keimons.deepjson.compiler.FieldInfo;
+import com.keimons.deepjson.internal.util.LookupUtil;
 import com.keimons.deepjson.util.ClassUtil;
-import com.keimons.deepjson.util.MethodHandleUtil;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -33,7 +33,7 @@ public class InlineCodec extends ExtendedCodec {
 	@Override
 	public void init(Class<?> clazz) {
 		acceptInstantiation(clazz);
-		MethodHandles.Lookup lookup = MethodHandleUtil.Lookup();
+		MethodHandles.Lookup lookup = LookupUtil.lookup();
 		List<FieldInfo> fields = new ArrayList<FieldInfo>();
 		for (Field field : ClassUtil.getFields(clazz)) {
 			fields.add(new FieldInfo(field));
@@ -186,7 +186,7 @@ public class InlineCodec extends ExtendedCodec {
 	}
 
 	private static MethodHandle read(Class<?> clazz) throws NoSuchMethodException, IllegalAccessException {
-		return MethodHandleUtil.Lookup().findVirtual(
+		return LookupUtil.lookup().findVirtual(
 				JsonReader.class, clazz.getSimpleName() + "Value", MethodType.methodType(clazz)
 		);
 	}

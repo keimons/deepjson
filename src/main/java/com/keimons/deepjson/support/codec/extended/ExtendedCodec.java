@@ -7,7 +7,7 @@ import com.keimons.deepjson.compiler.ExtendedCodecClassLoader;
 import com.keimons.deepjson.support.IncompatibleTypeException;
 import com.keimons.deepjson.support.codec.AbstractOnlineCodec;
 import com.keimons.deepjson.util.ClassUtil;
-import com.keimons.deepjson.util.MethodHandleUtil;
+import com.keimons.deepjson.util.ReflectionUtil;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -68,7 +68,7 @@ public abstract class ExtendedCodec extends AbstractOnlineCodec<Object> {
 				T instance = (T) unsafe.allocateInstance(clazz);
 				return instance;
 			} else {
-				return MethodHandleUtil.newInstance(clazz);
+				return ReflectionUtil.newInstance(clazz);
 			}
 		} catch (Throwable e) {
 			throw new RuntimeException(e);

@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Iterator;
 
 /**
- * 出栈顺序迭代的堆栈
+ * 按照出栈顺序迭代的堆栈
  * <p>
  * {@code Stack}表示对象后进先出(LIFO)的堆栈。将数组视为堆栈，提供了
  * 常用的{@code push}和{@code poll}操作，以及{@code peek}获取栈
@@ -38,12 +38,32 @@ public class Stack<E> implements Iterable<E> {
 		return old;
 	}
 
+	/**
+	 * 返回堆栈是否为空
+	 *
+	 * @return 如果此堆栈不包含任何元素，则为true
+	 */
 	public boolean isEmpty() {
 		return count == 0;
 	}
 
+	/**
+	 * 返回此堆栈中的元素数
+	 *
+	 * @return 此堆栈中的元素数
+	 */
 	public int size() {
 		return count;
+	}
+
+	/**
+	 * 按照出栈顺序返回此列表中指定位置的元素。
+	 *
+	 * @param index 按照出栈顺序，要返回的元素的索引
+	 * @return 按照出栈顺序的栈中指定位置的元素
+	 */
+	public E get(int index) {
+		return elementAt(count - 1 - index);
 	}
 
 	/**
