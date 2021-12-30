@@ -2,7 +2,7 @@ package com.keimons.deepjson.support.codec;
 
 import com.keimons.deepjson.*;
 import com.keimons.deepjson.internal.BridgeUtil;
-import com.keimons.deepjson.util.ReflectUtil;
+import com.keimons.deepjson.util.TypeUtil;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -20,13 +20,8 @@ public class JsonCodec extends AbstractOnlineCodec<Json> {
 
 	public static final JsonCodec instance = new JsonCodec();
 
-	public static final Type TYPE_LIST = ReflectUtil.makeParameterizedType(null, List.class,
-			ReflectUtil.makeTypeVariable(Map.class, "E", new Type[]{Object.class})
-	);
-	public static final Type TYPE_DICT = ReflectUtil.makeParameterizedType(null, Map.class,
-			ReflectUtil.makeTypeVariable(Map.class, "K", new Type[]{String.class}),
-			ReflectUtil.makeTypeVariable(Map.class, "V", new Type[]{Object.class})
-	);
+	public static final Type TYPE_LIST = TypeUtil.makeType(List.class, Object.class);
+	public static final Type TYPE_DICT = TypeUtil.makeType(Map.class, String.class, Object.class);
 
 	@Override
 	public void build(WriterContext context, Json value) {

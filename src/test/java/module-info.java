@@ -11,7 +11,7 @@ module deepjson.test {
 	exports com.keimons.deepjson.test.codec.clazz;
 	exports com.keimons.deepjson.test.codec.collection;
 	exports com.keimons.deepjson.test.codec.date;
-	exports com.keimons.deepjson.test.codec.parameterized;
+	exports com.keimons.deepjson.test.codec.generic;
 	exports com.keimons.deepjson.test.codec.primitive;
 	exports com.keimons.deepjson.test.codec.ref;
 	exports com.keimons.deepjson.test.map;

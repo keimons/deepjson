@@ -40,16 +40,15 @@ public class CollectionTest {
 
 	@Test
 	public void testFullList() {
-		List<String> list = new ArrayList<String>();
-		list.add("0");
-		list.add("1");
-		list.add("2");
-		list.add("3");
+		List<String> list = Arrays.asList("0", "1", "2", "3");
 		String json = DeepJson.toJsonString(list);
-		AssertUtil.assertEquals("List编码测试", json, "[\"0\",\"1\",\"2\",\"3\"]");
+		AssertUtil.assertEquals("List编码测试", "[\"0\",\"1\",\"2\",\"3\"]", json);
 
-		List<String> newList = DeepJson.parseObject(json, TypeUtil.makeType(List.class, String.class));
-		AssertUtil.assertEquals("List解码测试", newList, list);
+		List<String> newList0 = DeepJson.parseObject(json, TypeUtil.makeType(List.class, String.class));
+		AssertUtil.assertEquals("List解码测试", list, newList0);
+
+		List<Integer> newList1 = DeepJson.parseObject(json, TypeUtil.makeType(List.class, Integer.class));
+		AssertUtil.assertEquals("List解码测试", Arrays.asList(0, 1, 2, 3), newList1);
 	}
 
 	@Test
@@ -62,8 +61,11 @@ public class CollectionTest {
 		String json = DeepJson.toJsonString(set);
 		AssertUtil.assertEquals("Set编码测试", json, "[\"0\",\"1\",\"2\",\"3\"]");
 
-		HashSet<String> newSet = DeepJson.parseObject(json, TypeUtil.makeType(Set.class, String.class));
-		AssertUtil.assertEquals("Set解码测试", newSet, set);
+		HashSet<String> newSet0 = DeepJson.parseObject(json, TypeUtil.makeType(Set.class, String.class));
+		AssertUtil.assertEquals("Set解码测试", set, newSet0);
+
+		HashSet<Integer> newSet1 = DeepJson.parseObject(json, TypeUtil.makeType(Set.class, Integer.class));
+		AssertUtil.assertEquals("Set解码测试", Set.of(0, 1, 2, 3), newSet1);
 	}
 
 	@Test

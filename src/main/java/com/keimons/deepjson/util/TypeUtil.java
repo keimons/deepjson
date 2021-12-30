@@ -1,7 +1,9 @@
 package com.keimons.deepjson.util;
 
+import com.keimons.deepjson.internal.util.GenericUtil;
+
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.Collection;
 
 /**
  * 类型工具
@@ -143,13 +145,11 @@ public class TypeUtil {
 	/**
 	 * 生成一个泛型类型的参数化类型
 	 *
-	 * @param clazz     原始类型
-	 * @param innerType 参数类型
+	 * @param clazz 原始类型
+	 * @param types 参数类型
 	 * @return 参数化类型
 	 */
-	@SuppressWarnings("rawtypes")
-	public static Type makeType(Class<? extends Collection> clazz, Type innerType) {
-		Type et = ReflectUtil.makeTypeVariable(clazz, "E", new Type[]{innerType});
-		return ReflectUtil.makeParameterizedType(null, clazz, et);
+	public static ParameterizedType makeType(Class<?> clazz, Type... types) {
+		return GenericUtil.makeParameterizedType(null, clazz, types);
 	}
 }

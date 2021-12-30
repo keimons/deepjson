@@ -2,7 +2,6 @@ package com.keimons.deepjson.test.util;
 
 import com.keimons.deepjson.CodecConfig;
 import com.keimons.deepjson.internal.util.GenericUtil;
-import com.keimons.deepjson.util.ReflectUtil;
 import org.junit.jupiter.api.Test;
 
 import java.io.Serializable;
@@ -11,7 +10,7 @@ import java.lang.reflect.TypeVariable;
 import java.util.Map;
 
 /**
- * {@link ReflectUtil}测试
+ * {@link GenericUtil}测试
  *
  * @author houyn[monkey@keimons.com]
  * @version 1.0

@@ -3,9 +3,9 @@ package com.keimons.deepjson.support.codec;
 import com.keimons.deepjson.JsonReader;
 import com.keimons.deepjson.ReaderContext;
 import com.keimons.deepjson.SyntaxToken;
+import com.keimons.deepjson.internal.util.GenericUtil;
 import com.keimons.deepjson.support.IncompatibleTypeException;
 import com.keimons.deepjson.support.UnknownSyntaxException;
-import com.keimons.deepjson.util.ReflectUtil;
 
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
@@ -39,7 +39,7 @@ public class GenericArrayTypeCodec extends PhantomCodec {
 				return ObjectArrayCodec.instance.decode0(context, reader, clazz.getComponentType(), componentType, options);
 			} else if (componentType instanceof ParameterizedType) {
 				ParameterizedType pt = (ParameterizedType) componentType;
-				pt = ReflectUtil.makeParameterizedType(pt.getOwnerType(), clazz.getComponentType(), pt.getActualTypeArguments());
+				pt = GenericUtil.makeParameterizedType(pt.getOwnerType(), clazz.getComponentType(), pt.getActualTypeArguments());
 				return ObjectArrayCodec.instance.decode0(context, reader, clazz.getComponentType(), pt, options);
 			} else if (componentType instanceof GenericArrayType) {
 				GenericArrayType gat = (GenericArrayType) componentType;
@@ -85,7 +85,7 @@ public class GenericArrayTypeCodec extends PhantomCodec {
 					value = ObjectArrayCodec.instance.decode0(context, reader, clazz.getComponentType(), clazz.getComponentType(), options);
 				} else if (componentType instanceof ParameterizedType) {
 					ParameterizedType pt = (ParameterizedType) componentType;
-					pt = ReflectUtil.makeParameterizedType(pt.getOwnerType(), clazz.getComponentType(), pt.getActualTypeArguments());
+					pt = GenericUtil.makeParameterizedType(pt.getOwnerType(), clazz.getComponentType(), pt.getActualTypeArguments());
 					value = ObjectArrayCodec.instance.decode0(context, reader, clazz.getComponentType(), pt, options);
 				} else if (componentType instanceof GenericArrayType) {
 					GenericArrayType gat = (GenericArrayType) componentType;

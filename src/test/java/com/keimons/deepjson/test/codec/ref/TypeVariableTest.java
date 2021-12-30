@@ -3,7 +3,7 @@ package com.keimons.deepjson.test.codec.ref;
 import com.keimons.deepjson.CodecConfig;
 import com.keimons.deepjson.DeepJson;
 import com.keimons.deepjson.test.Node;
-import com.keimons.deepjson.util.ReflectUtil;
+import com.keimons.deepjson.util.TypeUtil;
 import org.junit.jupiter.api.Test;
 
 import java.io.Serializable;
@@ -28,9 +28,10 @@ public class TypeVariableTest {
 	@Test
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	public void test() throws Exception {
-		ParameterizedType pt = ReflectUtil.makeParameterizedType(null, Map.class, String.class, Node.class);
+		ParameterizedType pt = TypeUtil.makeType(Map.class, String.class, Node.class);
 		Field field = TypeVariableTest.class.getDeclaredField("map");
-		CodecConfig.registerMapper(new Type[]{pt, Serializable.class}, field.getGenericType()); // same as HashMap<String, Node>
+		Type tp = field.getGenericType();
+		CodecConfig.registerMapper(new Type[]{pt, Serializable.class}, tp); // same as HashMap<String, Node>
 
 //		CodecConfig.registerMapper(new Type[]{Node.class, Serializable.class}, Node.class); // same as HashMap<String, Node>
 

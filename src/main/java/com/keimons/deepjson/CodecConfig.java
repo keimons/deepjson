@@ -1,8 +1,9 @@
 package com.keimons.deepjson;
 
+import com.keimons.deepjson.internal.util.GenericUtil;
 import com.keimons.deepjson.util.ArrayUtil;
 import com.keimons.deepjson.util.PlatformUtil;
-import com.keimons.deepjson.util.ReflectUtil;
+import com.keimons.deepjson.util.TypeUtil;
 
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
@@ -182,15 +183,13 @@ public class CodecConfig {
 
 	static {
 		{
-			Type kt = ReflectUtil.makeTypeVariable(Map.class, "K", new Type[]{Object.class});
-			Type vt = ReflectUtil.makeTypeVariable(Map.class, "V", new Type[]{Object.class});
-			ParameterizedType pt = ReflectUtil.makeParameterizedType(null, Map.class, kt, vt);
+			ParameterizedType pt = TypeUtil.makeType(Map.class, Object.class, Object.class);
 			registerMapper(new Type[]{pt, Serializable.class}, HashMap.class); // same as HashMap<Object, Object>
 		}
 		{
-			Type kt = ReflectUtil.makeWildcardType(new Type[]{Object.class}, null);
-			Type vt = ReflectUtil.makeWildcardType(new Type[]{Object.class}, null);
-			ParameterizedType pt = ReflectUtil.makeParameterizedType(null, Map.class, kt, vt);
+			Type kt = GenericUtil.makeWildcardType(new Type[]{Object.class}, null);
+			Type vt = GenericUtil.makeWildcardType(new Type[]{Object.class}, null);
+			ParameterizedType pt = TypeUtil.makeType(Map.class, kt, vt);
 			registerMapper(new Type[]{pt, Serializable.class}, HashMap.class); // same as HashMap<?, ?>
 		}
 	}
