@@ -16,8 +16,6 @@ public class ClassUtil {
 
 	/**
 	 * 根据类型查找类型
-	 * <p>
-	 * TODO java 1.6 兼容性测试
 	 *
 	 * @param className 类名
 	 * @return 类型
@@ -89,6 +87,38 @@ public class ClassUtil {
 	}
 
 	/**
+	 * 获取类型描述符
+	 *
+	 * @param clazz 类型
+	 * @return 描述符
+	 */
+	public static char basicType(Class<?> clazz) {
+		if (clazz.isPrimitive()) {
+			if (void.class == clazz) {
+				return 'V';
+			} else if (int.class == clazz) {
+				return 'I';
+			} else if (boolean.class == clazz) {
+				return 'Z';
+			} else if (float.class == clazz) {
+				return 'F';
+			} else if (long.class == clazz) {
+				return 'J';
+			} else if (double.class == clazz) {
+				return 'D';
+			} else if (char.class == clazz) {
+				return 'C';
+			} else if (byte.class == clazz) {
+				return 'B';
+			} else if (short.class == clazz) {
+				return 'S';
+			}
+			throw new IllegalStateException("unknown primitive type: " + clazz);
+		}
+		return 'L';
+	}
+
+	/**
 	 * 获取一个类中的所有字段（包含父类）
 	 *
 	 * @param clazz 要获取所有字段的类
@@ -121,5 +151,19 @@ public class ClassUtil {
 	public static boolean isLambda(Class<?> clazz) {
 		String name = clazz.getName();
 		return name.contains("$$Lambda$") && name.contains("/");
+	}
+
+	/**
+	 * 获取类文件的名称
+	 * <p>
+	 * 相对于包含的包：例如 "String.class"
+	 *
+	 * @param clazz 获取文件名的类
+	 * @return 文件的文件名，以".class"结尾
+	 */
+	public static String getClassFileName(Class<?> clazz) {
+		String className = clazz.getName();
+		int lastDotIndex = className.lastIndexOf(".");
+		return className.substring(lastDotIndex + 1) + ".class";
 	}
 }
