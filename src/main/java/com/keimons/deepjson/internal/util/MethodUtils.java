@@ -1,9 +1,12 @@
 package com.keimons.deepjson.internal.util;
 
+import com.keimons.deepjson.annotation.CodecCreator;
 import com.keimons.deepjson.util.ClassUtil;
+import com.keimons.deepjson.util.IllegalAnnotationException;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
+import java.util.Arrays;
 
 /**
  * 方法工具类
@@ -65,11 +68,47 @@ public class MethodUtils {
 	 *
 	 * @param constructor 方法构造器
 	 * @return 参数名
+	 * @throws InternalIgnorableException 查找构造方法的参数名时的异常
+	 * @throws IllegalAnnotationException 属性名称数量不符
 	 */
 	public static @Nullable String[] getConstructorParameterNames(Constructor<?> constructor) throws InternalIgnorableException {
-		Class<?> clazz = constructor.getDeclaringClass();
-		String desc = getMethodDescriptor(void.class, constructor.getParameterTypes());
-		byte[] buf = BytecodeUtils.findBytecodes(clazz);
-		return BytecodeUtils.findConstructorParameterNames(buf, desc);
+		CodecCreator annotation = constructor.getAnnotation(CodecCreator.class);
+		if (annotation == null || annotation.value() == null || annotation.value().length == 0) {
+			Class<?> clazz = constructor.getDeclaringClass();
+			String desc = getMethodDescriptor(void.class, constructor.getParameterTypes());
+			byte[] buf = BytecodeUtils.findBytecodes(clazz);
+			return BytecodeUtils.findConstructorParameterNames(buf, desc);
+		} else {
+			if (annotation.value().length == constructor.getParameterTypes().length) {
+				return annotation.value();
+			}
+			throw new IllegalAnnotationException(
+					"number of incompatible parameters, class: " + constructor.getDeclaringClass() +
+							", constructor: " + constructor +
+							", names: " + Arrays.toString(annotation.value())
+			);
+		}
+	}
+
+	/**
+	 * 获取{@link CodecCreator}标注的构造方法
+	 *
+	 * @param clazz 要获取构造方法的类
+	 * @return {@link CodecCreator}标注的构造方法
+	 * @throws IllegalAnnotationException 类中包含多个{@link CodecCreator}标注的构造方法
+	 */
+	public static @Nullable Constructor<?> getConstructorWithAnnotation(Class<?> clazz) {
+		Constructor<?> result = null;
+		for (Constructor<?> constructor : clazz.getDeclaredConstructors()) {
+			CodecCreator ann = constructor.getAnnotation(CodecCreator.class);
+			if (ann != null) {
+				if (result == null) {
+					result = constructor;
+				} else {
+					throw new IllegalAnnotationException("more than one @CodecCreator in class: " + clazz);
+				}
+			}
+		}
+		return result;
 	}
 }

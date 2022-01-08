@@ -1,7 +1,7 @@
 package com.keimons.deepjson.test.util;
 
 import com.keimons.deepjson.internal.util.LookupUtil;
-import com.keimons.deepjson.test.AssertUtil;
+import com.keimons.deepjson.test.AssertUtils;
 import com.keimons.deepjson.util.IllegalCallerException;
 import org.junit.jupiter.api.Test;
 
@@ -27,7 +27,7 @@ public class LookupUtilFailedTest {
 		try {
 			MethodHandles.Lookup lookup = LookupUtil.lookup();
 		} catch (Exception e) {
-			AssertUtil.assertEquals("查找类不可用失败测试", IllegalCallerException.class, e.getClass());
+			AssertUtils.assertEquals("查找类不可用失败测试", IllegalCallerException.class, e.getClass());
 		}
 	}
 
@@ -42,7 +42,7 @@ public class LookupUtilFailedTest {
 		try {
 			LookupUtil.lookup();
 		} catch (Exception e) {
-			AssertUtil.assertEquals("查找类不可用失败测试", IllegalCallerException.class, e.getClass());
+			AssertUtils.assertEquals("查找类不可用失败测试", IllegalCallerException.class, e.getClass());
 		}
 	}
 }

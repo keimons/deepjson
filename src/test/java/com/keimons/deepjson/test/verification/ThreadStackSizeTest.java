@@ -1,6 +1,6 @@
 package com.keimons.deepjson.test.verification;
 
-import com.keimons.deepjson.test.AssertUtil;
+import com.keimons.deepjson.test.AssertUtils;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -17,8 +17,8 @@ public class ThreadStackSizeTest {
 		try {
 			test();
 		} catch (Error error) {
-			AssertUtil.assertEquals("异常捕获失败", StackOverflowError.class, error.getClass());
-			AssertUtil.assertTrue("栈深错误", error.getStackTrace().length == 1024);
+			AssertUtils.assertEquals("异常捕获失败", StackOverflowError.class, error.getClass());
+			AssertUtils.assertTrue("栈深错误", error.getStackTrace().length == 1024);
 		}
 	}
 }

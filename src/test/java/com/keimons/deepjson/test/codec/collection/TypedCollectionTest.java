@@ -1,7 +1,7 @@
 package com.keimons.deepjson.test.codec.collection;
 
 import com.keimons.deepjson.DeepJson;
-import com.keimons.deepjson.test.AssertUtil;
+import com.keimons.deepjson.test.AssertUtils;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -25,7 +25,7 @@ public class TypedCollectionTest {
 		node.value2.addAll(Arrays.asList(TestEnum.TEST, null, TestEnum.DEV));
 		String json = DeepJson.toJsonString(node);
 		String result = "{\"value0\":[\"test0\",null,\"test2\"],\"value1\":[{\"value0\":[],\"value1\":[],\"value2\":[]},null,{\"value0\":[],\"value1\":[],\"value2\":[]}],\"value2\":[\"TEST\",null,\"DEV\"]}";
-		AssertUtil.assertEquals("已知类型集合编码器测试", result, json);
+		AssertUtils.assertEquals("已知类型集合编码器测试", result, json);
 	}
 
 	private static class Node {

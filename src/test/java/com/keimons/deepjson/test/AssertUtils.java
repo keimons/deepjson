@@ -8,9 +8,9 @@ package com.keimons.deepjson.test;
  * @see AssertionError 断言错误
  * @since 1.6
  */
-public class AssertUtil {
+public class AssertUtils {
 
-	private AssertUtil() {
+	private AssertUtils() {
 	}
 
 	/**

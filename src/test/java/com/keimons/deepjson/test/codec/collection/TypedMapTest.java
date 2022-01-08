@@ -1,7 +1,7 @@
 package com.keimons.deepjson.test.codec.collection;
 
 import com.keimons.deepjson.DeepJson;
-import com.keimons.deepjson.test.AssertUtil;
+import com.keimons.deepjson.test.AssertUtils;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
@@ -42,7 +42,7 @@ public class TypedMapTest {
 				"\"value2\":{\"null\":\"DEV\",\"test0\":\"TEST\",\"test1\":null}," +
 				"\"value3\":{\"test0\":100,\"test1\":100}" +
 				"}";
-		AssertUtil.assertEquals("已知类型字典编码器测试", result, json);
+		AssertUtils.assertEquals("已知类型字典编码器测试", result, json);
 	}
 
 	private static class Node {

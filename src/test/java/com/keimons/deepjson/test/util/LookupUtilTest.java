@@ -1,7 +1,7 @@
 package com.keimons.deepjson.test.util;
 
 import com.keimons.deepjson.internal.util.LookupUtil;
-import com.keimons.deepjson.test.AssertUtil;
+import com.keimons.deepjson.test.AssertUtils;
 import org.junit.jupiter.api.Test;
 
 import java.lang.invoke.MethodHandle;
@@ -28,7 +28,7 @@ public class LookupUtilTest {
 			byte[] bytes = (byte[]) handle.invoke('a');
 			System.out.println("测试通过：" + Arrays.toString(bytes));
 		} catch (Throwable e) {
-			AssertUtil.assertEquals("包私有类权限测试", IllegalAccessException.class, e.getClass());
+			AssertUtils.assertEquals("包私有类权限测试", IllegalAccessException.class, e.getClass());
 		}
 
 		try {
@@ -36,8 +36,8 @@ public class LookupUtilTest {
 			MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(clazz, MethodHandles.lookup());
 			MethodHandle handle = lookup.findStatic(clazz, "toBytes", MethodType.methodType(byte[].class, char.class));
 			byte[] bytes = (byte[]) handle.invoke('a');
-			AssertUtil.assertTrue("包私有类权限测试", bytes[0] == 'a');
-			AssertUtil.assertTrue("包私有类权限测试", bytes[1] == 0);
+			AssertUtils.assertTrue("包私有类权限测试", bytes[0] == 'a');
+			AssertUtils.assertTrue("包私有类权限测试", bytes[1] == 0);
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
@@ -46,8 +46,8 @@ public class LookupUtilTest {
 			MethodHandles.Lookup lookup = LookupUtil.lookup();
 			MethodHandle handle = lookup.findStatic(clazz, "toBytes", MethodType.methodType(byte[].class, char.class));
 			byte[] bytes = (byte[]) handle.invoke('a');
-			AssertUtil.assertTrue("包私有类权限测试", bytes[0] == 'a');
-			AssertUtil.assertTrue("包私有类权限测试", bytes[1] == 0);
+			AssertUtils.assertTrue("包私有类权限测试", bytes[0] == 'a');
+			AssertUtils.assertTrue("包私有类权限测试", bytes[1] == 0);
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
@@ -61,7 +61,7 @@ public class LookupUtilTest {
 			String result = (String) handle.invoke(new byte[]{'k', 'e', 'i', 'm', 'o', 'n', 's'}, (byte) 0);
 			System.out.println("测试通过：" + result);
 		} catch (Throwable e) {
-			AssertUtil.assertEquals("包私有方法权限测试", IllegalAccessException.class, e.getClass());
+			AssertUtils.assertEquals("包私有方法权限测试", IllegalAccessException.class, e.getClass());
 		}
 
 		try {
@@ -69,7 +69,7 @@ public class LookupUtilTest {
 			MethodHandles.Lookup lookup = MethodHandles.privateLookupIn(String.class, MethodHandles.lookup());
 			MethodHandle handle = lookup.findConstructor(String.class, MethodType.methodType(void.class, byte[].class, byte.class));
 			String result = (String) handle.invoke(new byte[]{'k', 'e', 'i', 'm', 'o', 'n', 's'}, (byte) 0);
-			AssertUtil.assertEquals("包私有方法权限测试", "keimons", result);
+			AssertUtils.assertEquals("包私有方法权限测试", "keimons", result);
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
@@ -78,7 +78,7 @@ public class LookupUtilTest {
 			MethodHandles.Lookup lookup = LookupUtil.lookup();
 			MethodHandle handle = lookup.findConstructor(String.class, MethodType.methodType(void.class, byte[].class, byte.class));
 			String result = (String) handle.invoke(new byte[]{'k', 'e', 'i', 'm', 'o', 'n', 's'}, (byte) 0);
-			AssertUtil.assertEquals("包私有方法权限测试", "keimons", result);
+			AssertUtils.assertEquals("包私有方法权限测试", "keimons", result);
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
@@ -93,7 +93,7 @@ public class LookupUtilTest {
 			Object result = handle.invoke();
 			System.out.println("测试通过：" + result);
 		} catch (Throwable e) {
-			AssertUtil.assertEquals("未开放模块测试", IllegalAccessException.class, e.getClass());
+			AssertUtils.assertEquals("未开放模块测试", IllegalAccessException.class, e.getClass());
 		}
 
 		try {
@@ -103,14 +103,14 @@ public class LookupUtilTest {
 			Object result = handle.invoke();
 			System.out.println("测试通过：" + result);
 		} catch (Throwable e) {
-			AssertUtil.assertEquals("未开放模块测试", IllegalAccessException.class, e.getClass());
+			AssertUtils.assertEquals("未开放模块测试", IllegalAccessException.class, e.getClass());
 		}
 
 		try {
 			MethodHandles.Lookup lookup = LookupUtil.lookup();
 			MethodHandle handle = lookup.findStaticGetter(clazz, "lock", Object.class);
 			Object result = handle.invoke();
-			AssertUtil.assertEquals("未开放模块测试", Object.class, result.getClass());
+			AssertUtils.assertEquals("未开放模块测试", Object.class, result.getClass());
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}

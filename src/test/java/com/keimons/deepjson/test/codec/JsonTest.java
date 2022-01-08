@@ -2,7 +2,7 @@ package com.keimons.deepjson.test.codec;
 
 import com.keimons.deepjson.DeepJson;
 import com.keimons.deepjson.Json;
-import com.keimons.deepjson.test.AssertUtil;
+import com.keimons.deepjson.test.AssertUtils;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
@@ -26,14 +26,14 @@ public class JsonTest {
 		json.put("test3", "test1");
 
 		String str1 = DeepJson.toJsonString(json);
-		AssertUtil.assertEquals("Json编码测试", str1, "{\"test2\":1024,\"test3\":\"test1\",\"test1\":1024}");
+		AssertUtils.assertEquals("Json编码测试", str1, "{\"test2\":1024,\"test3\":\"test1\",\"test1\":1024}");
 
 		Json r1 = DeepJson.parseObject(str1);
-		AssertUtil.assertEquals("Json解码测试", json, r1);
+		AssertUtils.assertEquals("Json解码测试", json, r1);
 
 		json.clear();
 		String str2 = DeepJson.toJsonString(json);
-		AssertUtil.assertEquals("Json清空测试", str2, "{}");
+		AssertUtils.assertEquals("Json清空测试", str2, "{}");
 
 		json.add("test1");
 		json.add("test2");
@@ -42,14 +42,14 @@ public class JsonTest {
 		json.add(1024L);
 
 		String str3 = DeepJson.toJsonString(json);
-		AssertUtil.assertEquals("Json编码测试", str3, "[\"test1\",\"test2\",\"test3\",1024,1024]");
+		AssertUtils.assertEquals("Json编码测试", str3, "[\"test1\",\"test2\",\"test3\",1024,1024]");
 
 		Json r2 = DeepJson.parseObject(str3);
-		AssertUtil.assertEquals("Json解码测试", json, r2);
+		AssertUtils.assertEquals("Json解码测试", json, r2);
 
 		json.clear();
 		String str4 = DeepJson.toJsonString(json);
-		AssertUtil.assertEquals("Json清空测试", str4, "{}");
+		AssertUtils.assertEquals("Json清空测试", str4, "{}");
 	}
 
 	@Test
@@ -61,19 +61,19 @@ public class JsonTest {
 		Json json = new Json(map);
 
 		String str1 = DeepJson.toJsonString(json);
-		AssertUtil.assertEquals("JsonObject编码测试", str1, "{\"test2\":2,\"test0\":0,\"test1\":1}");
+		AssertUtils.assertEquals("JsonObject编码测试", str1, "{\"test2\":2,\"test0\":0,\"test1\":1}");
 
 		Object none = json.removeKey("test3");
-		AssertUtil.assertNull("JsonObject移除测试", none);
+		AssertUtils.assertNull("JsonObject移除测试", none);
 
 		Object t2 = json.removeKey("test2");
-		AssertUtil.assertEquals("JsonObject移除测试", 2, t2);
+		AssertUtils.assertEquals("JsonObject移除测试", 2, t2);
 
 		String str3 = DeepJson.toJsonString(json);
-		AssertUtil.assertEquals("JsonObject编码测试", str3, "{\"test0\":0,\"test1\":1}");
+		AssertUtils.assertEquals("JsonObject编码测试", str3, "{\"test0\":0,\"test1\":1}");
 
 		json.clear();
 		String str4 = DeepJson.toJsonString(json);
-		AssertUtil.assertEquals("JsonObject清空测试", str4, "{}");
+		AssertUtils.assertEquals("JsonObject清空测试", str4, "{}");
 	}
 }

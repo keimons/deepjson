@@ -1,7 +1,7 @@
 package com.keimons.deepjson.test.util;
 
 import com.keimons.deepjson.internal.util.Stack;
-import com.keimons.deepjson.test.AssertUtil;
+import com.keimons.deepjson.test.AssertUtils;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -21,11 +21,11 @@ public class StackTest {
 		}
 		int number = 63;
 		for (Integer value : stack) {
-			AssertUtil.assertTrue("Stack工具类测试", value == number--);
+			AssertUtils.assertTrue("Stack工具类测试", value == number--);
 		}
-		AssertUtil.assertTrue("Stack工具类测试", stack.poll() == 63);
-		AssertUtil.assertTrue("Stack工具类测试", stack.size() == 63);
-		AssertUtil.assertTrue("Stack工具类测试", stack.poll() == 62);
-		AssertUtil.assertTrue("Stack工具类测试", stack.size() == 62);
+		AssertUtils.assertTrue("Stack工具类测试", stack.poll() == 63);
+		AssertUtils.assertTrue("Stack工具类测试", stack.size() == 63);
+		AssertUtils.assertTrue("Stack工具类测试", stack.poll() == 62);
+		AssertUtils.assertTrue("Stack工具类测试", stack.size() == 62);
 	}
 }

@@ -1,7 +1,7 @@
 package com.keimons.deepjson.test.codec.generic;
 
 import com.keimons.deepjson.DeepJson;
-import com.keimons.deepjson.test.AssertUtil;
+import com.keimons.deepjson.test.AssertUtils;
 import com.keimons.deepjson.util.TypeUtil;
 import org.junit.jupiter.api.Test;
 
@@ -26,19 +26,19 @@ public class ParameterizedTypeTest {
 		node.value1 = 1024;
 
 		String json = DeepJson.toJsonString(node);
-		AssertUtil.assertEquals("泛型参数测试", "{\"value\":{\"1024\":1024},\"value0\":\"1024\",\"value1\":1024}", json);
+		AssertUtils.assertEquals("泛型参数测试", "{\"value\":{\"1024\":1024},\"value0\":\"1024\",\"value1\":1024}", json);
 		@SuppressWarnings("rawtypes")
 		Node result0 = DeepJson.parseObject("{\"value\":{\"1024\":1024},\"value0\":\"1024\",\"value1\":1024}", Node.class);
-		AssertUtil.assertEquals("泛型参数测试", "{\"value\":{\"1024\":1024},\"value0\":\"1024\",\"value1\":1024}", DeepJson.toJsonString(result0));
+		AssertUtils.assertEquals("泛型参数测试", "{\"value\":{\"1024\":1024},\"value0\":\"1024\",\"value1\":1024}", DeepJson.toJsonString(result0));
 
 		ParameterizedType pt = TypeUtil.makeType(Node.class, Integer.class, Integer.class);
 		Node<Integer, Integer> result1 = DeepJson.parseObject(json, pt);
 		for (Map.Entry<Integer, Integer> entry : result1.value.entrySet()) {
-			AssertUtil.assertTrue("泛型参数测试", entry.getKey() == 1024);
-			AssertUtil.assertTrue("泛型参数测试", entry.getValue() == 1024);
+			AssertUtils.assertTrue("泛型参数测试", entry.getKey() == 1024);
+			AssertUtils.assertTrue("泛型参数测试", entry.getValue() == 1024);
 		}
-		AssertUtil.assertTrue("泛型参数测试", result1.value0 == 1024);
-		AssertUtil.assertTrue("泛型参数测试", result1.value1 == 1024);
+		AssertUtils.assertTrue("泛型参数测试", result1.value0 == 1024);
+		AssertUtils.assertTrue("泛型参数测试", result1.value1 == 1024);
 	}
 
 	/**
