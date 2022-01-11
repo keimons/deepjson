@@ -5,6 +5,8 @@ import com.keimons.deepjson.util.ClassUtil;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 字节码工具类
@@ -15,7 +17,7 @@ import java.io.InputStream;
  * @version 1.0
  * @since 1.6
  */
-public class BytecodeUtils {
+class BytecodeUtils {
 
 	/**
 	 * 构造方法
@@ -119,14 +121,13 @@ public class BytecodeUtils {
 	}
 
 	/**
-	 * 在指定的缓冲区中查找构造方法的参数名
+	 * 读取指定的缓冲区并收集缓冲区中构造方法的信息
 	 *
-	 * @param buf  缓冲区
-	 * @param desc 构造方法签名
-	 * @return 构造方法的参数名
+	 * @param buf       缓冲区
+	 * @param collector 信息收集器
 	 * @throws InternalIgnorableException 查找构造方法参数名时发生的异常，该异常强制捕获，并需要提供替代方案
 	 */
-	public static String[] findConstructorParameterNames(final byte[] buf, String desc) throws InternalIgnorableException {
+	public static void findConstructorParameterNames(final byte[] buf, Collector collector) throws InternalIgnorableException {
 		// skip magic(4), minor_version(2)
 		int majorVersion = readUnsignedShort(buf, 6);
 		if (majorVersion < VERSION_MIN || VERSION_MAX < majorVersion) {
@@ -193,17 +194,15 @@ public class BytecodeUtils {
 		for (int i = 0; i < fields; i++) {
 			offset = skipField(buf, offset);
 		}
-		Node node = new Node();
 		// visit the methods
 		int methods = readUnsignedShort(buf, offset);
 		offset += 2;
 		for (int i = 0; i < methods; i++) {
-			offset = readMethod(buf, constants, offset, desc, node);
+			offset = readMethod(buf, constants, offset, collector);
 			if (offset == -1) {
 				break;
 			}
 		}
-		return node.value;
 	}
 
 	/**
@@ -226,15 +225,16 @@ public class BytecodeUtils {
 	}
 
 	/**
-	 * 读取方法结构并使用指定的访问者访问它
+	 * 读取方法结构并使用收集器收集信息
 	 *
 	 * @param buf       缓冲区
 	 * @param constants 常量池
 	 * @param offset    方法的起始偏移位置
+	 * @param collector 信息收集器
 	 * @return 方法结构后的第一个位置
 	 * @throws InternalIgnorableException 方法读取异常
 	 */
-	private static int readMethod(byte[] buf, int[] constants, int offset, String desc, Node node) throws InternalIgnorableException {
+	private static int readMethod(byte[] buf, int[] constants, int offset, Collector collector) throws InternalIgnorableException {
 		String methodName = readUTF8(buf, constants, offset + 2);
 		String methodDesc = readUTF8(buf, constants, offset + 4);
 		// skip access_flags(2), name_index(2), descriptor_index(2)
@@ -254,12 +254,11 @@ public class BytecodeUtils {
 			offset += length;
 		}
 
-		if (CONSTRUCTOR.equals(methodName) && desc.equals(methodDesc)) {
+		if (CONSTRUCTOR.equals(methodName)) {
 			if (codeOffset == 0) {
-				throw new InternalIgnorableException("no code of constructor: " + desc);
+				throw new InternalIgnorableException("no code of constructor: " + methodDesc);
 			}
-			node.value = findConstructorParameterNames(buf, constants, codeOffset);
-			offset = -1;
+			collector.collect(buf, constants, codeOffset, methodDesc);
 		}
 		return offset;
 	}
@@ -390,15 +389,54 @@ public class BytecodeUtils {
 	}
 
 	/**
-	 * 包装容器，用于解决多返回值问题
-	 *
-	 * @author houyn[monkey@keimons.com]
-	 * @version 1.0
-	 * @since 1.6
+	 * 信息收集器，用于收集缓冲区中的构造方法信息
 	 */
-	private static class Node {
+	public interface Collector {
 
-		String[] value;
+		/**
+		 * 收集信息
+		 *
+		 * @param buf       缓冲区
+		 * @param constants 常量池
+		 * @param offset    方法起始位置
+		 * @param desc      方法签名
+		 * @throws InternalIgnorableException 方法读取异常
+		 */
+		void collect(byte[] buf, int[] constants, int offset, String desc) throws InternalIgnorableException;
+	}
+
+	/**
+	 * 参数名称收集器
+	 */
+	public static class NamesCollector implements Collector {
+
+		final String desc;
+
+		String[] names;
+
+		public NamesCollector(String desc) {
+			this.desc = desc;
+		}
+
+		@Override
+		public void collect(byte[] buf, int[] constants, int offset, String desc) throws InternalIgnorableException {
+			if (this.desc.equals(desc)) {
+				names = findConstructorParameterNames(buf, constants, offset);
+			}
+		}
+	}
+
+	/**
+	 * 构造方法收集器
+	 */
+	public static class ConstructorCollector implements Collector {
+
+		List<String> mts = new ArrayList<String>();
+
+		@Override
+		public void collect(byte[] buf, int[] constants, int offset, String desc) throws InternalIgnorableException {
+			mts.add(desc);
+		}
 	}
 
 	/**

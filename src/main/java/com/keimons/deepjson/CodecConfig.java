@@ -1,5 +1,6 @@
 package com.keimons.deepjson;
 
+import com.keimons.deepjson.annotation.CodecCreator;
 import com.keimons.deepjson.internal.util.GenericUtil;
 import com.keimons.deepjson.util.ArrayUtil;
 import com.keimons.deepjson.util.PlatformUtil;
@@ -70,8 +71,14 @@ public class CodecConfig {
 	 */
 	public static final Set<Type> TYPED_CLASS = new HashSet<Type>();
 
+	/**
+	 * 构造器选项（全服配置）
+	 * <p>
+	 * 当类中没有{@link CodecCreator}指定的构造器和无参构造器时，使用的构造器选择策略。
+	 */
+	public static ConstructorOptions constructorSelector = ConstructorOptions.RANDOM;
+
 	static {
-		// 预热编译器
 		String property = System.getProperty("com.keimons.deepjson.Debug");
 		boolean debug = false;
 		if (property != null) {

@@ -11,17 +11,17 @@ import com.keimons.deepjson.CodecException;
  * @version 1.0
  * @since 1.6
  **/
-public class DeductionFailedException extends CodecException {
+public class InferenceFailedException extends CodecException {
 
-	public DeductionFailedException() {
+	public InferenceFailedException() {
 
 	}
 
-	public DeductionFailedException(String message) {
+	public InferenceFailedException(String message) {
 		super(message);
 	}
 
-	public DeductionFailedException(String message, Throwable cause) {
+	public InferenceFailedException(String message, Throwable cause) {
 		super(message, cause);
 	}
 }

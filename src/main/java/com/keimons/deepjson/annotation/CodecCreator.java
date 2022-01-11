@@ -1,7 +1,7 @@
 package com.keimons.deepjson.annotation;
 
-import com.keimons.deepjson.util.DeductionFailedException;
 import com.keimons.deepjson.util.IllegalAnnotationException;
+import com.keimons.deepjson.util.InferenceFailedException;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -31,7 +31,7 @@ import java.lang.annotation.Target;
  * @author houyn[monkey@keimons.com]
  * @version 1.0
  * @see ClassCastException 属性类型不兼容
- * @see DeductionFailedException 属性名称推导失败
+ * @see InferenceFailedException 属性名称推测失败
  * @see IllegalAnnotationException 类中出现超过一个注解
  * @since 1.6
  **/

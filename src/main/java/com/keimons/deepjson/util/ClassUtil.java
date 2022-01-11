@@ -119,6 +119,45 @@ public class ClassUtil {
 	}
 
 	/**
+	 * 根据类型描述符获取类型
+	 * <ul>
+	 *     <li>基础类型描述符返回基础类型</li>
+	 *     <li>{@code 'L'}和{@code '['}返回空</li>
+	 *     <li>其他抛出{@link IllegalStateException}异常</li>
+	 * </ul>
+	 *
+	 * @param type 类型描述符
+	 * @return 类型
+	 */
+	public static Class<?> basicType(char type) {
+		switch (type) {
+			case 'V':
+				return void.class;
+			case 'I':
+				return int.class;
+			case 'Z':
+				return boolean.class;
+			case 'F':
+				return float.class;
+			case 'J':
+				return long.class;
+			case 'D':
+				return double.class;
+			case 'C':
+				return char.class;
+			case 'B':
+				return byte.class;
+			case 'S':
+				return short.class;
+			case 'L':
+			case '[':
+				return null;
+			default:
+				throw new IllegalStateException("unknown primitive type: " + type);
+		}
+	}
+
+	/**
 	 * 获取一个类中的所有字段（包含父类）
 	 *
 	 * @param clazz 要获取所有字段的类
