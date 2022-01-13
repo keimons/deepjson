@@ -89,4 +89,16 @@ public class CodecUtil {
 			setter.invoke(instance, value);
 		}
 	}
+
+	static Object read(JsonReader reader, ReaderContext context, long options, Type type) {
+		if (reader.token() == SyntaxToken.NULL) {
+			return null;
+		} else if (reader.check$Id()) {
+			Hook hook = new Hook();
+			hook.id = reader.get$Id();
+			return hook;
+		} else {
+			return context.decode(reader, type, options);
+		}
+	}
 }

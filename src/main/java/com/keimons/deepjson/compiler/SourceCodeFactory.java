@@ -1,9 +1,8 @@
 package com.keimons.deepjson.compiler;
 
+import com.keimons.deepjson.internal.util.FieldUtils;
 import com.keimons.deepjson.util.ArrayUtil;
-import com.keimons.deepjson.util.ClassUtil;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,11 +29,7 @@ public class SourceCodeFactory {
 	 * @return 工具类
 	 */
 	public static String create(String packageName, String className, Class<?> clazz) {
-		List<FieldInfo> fields = new ArrayList<FieldInfo>();
-		for (Field field : ClassUtil.getFields(clazz)) {
-			fields.add(new FieldInfo(field));
-		}
-		return create(packageName, className, fields);
+		return create(packageName, className, FieldUtils.createProperties(clazz));
 	}
 
 	/**
@@ -45,14 +40,14 @@ public class SourceCodeFactory {
 	 * @param fields      字段
 	 * @return 工具类
 	 */
-	private static String create(String packageName, String className, List<FieldInfo> fields) {
+	private static String create(String packageName, String className, List<Property> fields) {
 		StringBuilder source = new StringBuilder();
 		packageClass(source, packageName);
 		importClass(source);
 		source.append("public class ").append(className).append(" extends ExtendedCodec {\n");
 		source.append("\n");
 
-		for (FieldInfo field : fields) {
+		for (Property field : fields) {
 			source.append("\tprivate final char[] $")
 					.append(field.getField().getName())
 					.append(" = \"")
@@ -62,7 +57,7 @@ public class SourceCodeFactory {
 			source.append("\n");
 		}
 
-		for (FieldInfo field : fields) {
+		for (Property field : fields) {
 			source.append("\tprivate Field $field$_")
 					.append(field.getFieldName())
 					.append(";\n")
@@ -73,7 +68,7 @@ public class SourceCodeFactory {
 		source.append("\t@Override\n");
 		source.append("\tpublic void init(Class<?> clazz) {\n");
 		source.append("\t\tacceptInstantiation(clazz);\n");
-		for (FieldInfo field : fields) {
+		for (Property field : fields) {
 			source.append("\t\t$field$_")
 					.append(field.getFieldName())
 					.append(" = findField(clazz, \"")
@@ -90,7 +85,7 @@ public class SourceCodeFactory {
 		source.append("\tpublic void build(WriterContext context, Object value) {\n");
 		for (int i = 0; i < fields.size(); i++) {
 			String fieldName = "value" + i;
-			FieldInfo field = fields.get(i);
+			Property field = fields.get(i);
 			Class<?> type = field.getFieldType();
 			if (!type.isPrimitive() && type != String.class) {
 				source.append("\t\tObject ")
@@ -119,7 +114,7 @@ public class SourceCodeFactory {
 
 		for (int i = 0; i < fields.size(); i++) {
 			String fieldName = "value" + i;
-			FieldInfo field = fields.get(i);
+			Property field = fields.get(i);
 			Class<?> type = field.getFieldType();
 			if (type.isPrimitive()) {
 				appendPrimitive(source, type, fieldName, field.getFieldName(), field.offset());
@@ -135,7 +130,7 @@ public class SourceCodeFactory {
 		source.append("\t\twriter.writeMark('}');\n");
 		source.append("\t}\n");
 
-		TreeMap<Integer, ArrayList<FieldInfo>> map = makeCase(fields);
+		TreeMap<Integer, ArrayList<Property>> map = makeCase(fields);
 
 		source.append("\n");
 		source.append("\t@Override\n");
@@ -159,8 +154,8 @@ public class SourceCodeFactory {
 		source.append("\t\t\t\tbreak;\n");
 
 		int count = 1;
-		for (Map.Entry<Integer, ArrayList<FieldInfo>> entry : map.entrySet()) {
-			for (FieldInfo info : entry.getValue()) {
+		for (Map.Entry<Integer, ArrayList<Property>> entry : map.entrySet()) {
+			for (Property info : entry.getValue()) {
 				appendCase(source, count++, info);
 			}
 		}
@@ -251,13 +246,13 @@ public class SourceCodeFactory {
 		source.append("\t\t}\n");
 	}
 
-	public static TreeMap<Integer, ArrayList<FieldInfo>> makeCase(List<FieldInfo> fields) {
-		TreeMap<Integer, ArrayList<FieldInfo>> map = new TreeMap<Integer, ArrayList<FieldInfo>>();
-		for (FieldInfo field : fields) {
+	public static TreeMap<Integer, ArrayList<Property>> makeCase(List<Property> fields) {
+		TreeMap<Integer, ArrayList<Property>> map = new TreeMap<Integer, ArrayList<Property>>();
+		for (Property field : fields) {
 			int hashcode = ArrayUtil.hashcode(field.getWriteName().toCharArray());
-			ArrayList<FieldInfo> list = map.get(hashcode);
+			ArrayList<Property> list = map.get(hashcode);
 			if (list == null) {
-				list = new ArrayList<FieldInfo>();
+				list = new ArrayList<Property>();
 				map.put(hashcode, list);
 			}
 			list.add(field);
@@ -265,7 +260,7 @@ public class SourceCodeFactory {
 		return map;
 	}
 
-	public static void appendCase(StringBuilder source, int index, FieldInfo info) {
+	public static void appendCase(StringBuilder source, int index, Property info) {
 		source.append("\t\t\t\tcase ").append(index).append(": {\n");
 		Class<?> type = info.getFieldType();
 		String name = type.getName();
@@ -298,7 +293,7 @@ public class SourceCodeFactory {
 		source.append("\t\t\t\tbreak;\n");
 	}
 
-	public static void appendSwitch(StringBuilder source, TreeMap<Integer, ArrayList<FieldInfo>> map) {
+	public static void appendSwitch(StringBuilder source, TreeMap<Integer, ArrayList<Property>> map) {
 		source.append("\tprivate int switch0(JsonReader buffer) {\n");
 		source.append("\t\tJsonReader.Buffer buf = buffer.buffer();\n");
 		source.append("\t\tint hashcode = buf.valueHashcode();\n");
@@ -307,10 +302,10 @@ public class SourceCodeFactory {
 		// 0 always @id
 
 		int count = 1;
-		for (Map.Entry<Integer, ArrayList<FieldInfo>> entry : map.entrySet()) {
+		for (Map.Entry<Integer, ArrayList<Property>> entry : map.entrySet()) {
 			int hashcode = entry.getKey();
 			source.append("\t\t\tcase ").append(hashcode).append(": {\n");
-			for (FieldInfo info : entry.getValue()) {
+			for (Property info : entry.getValue()) {
 				source.append("\t\t\t\tif (buf.isSame($").append(info.getWriteName()).append(")) {\n");
 				source.append("\t\t\t\t\treturn ").append(count++).append(";\n");
 				source.append("\t\t\t\t}\n");

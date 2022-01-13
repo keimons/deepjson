@@ -1,7 +1,8 @@
 package com.keimons.deepjson.internal.util;
 
 import com.google.common.collect.Sets;
-import com.keimons.deepjson.support.codec.extended.InlineCodec;
+import com.keimons.deepjson.support.codec.extended.ParamsEntityCodec;
+import com.keimons.deepjson.support.codec.extended.DefaultEntityCodec;
 import com.keimons.deepjson.support.transcoder.ByteStringTranscoder;
 import com.keimons.deepjson.util.IllegalCallerException;
 import com.keimons.deepjson.util.PlatformUtil;
@@ -25,7 +26,8 @@ public class LookupUtil {
 
 	private static final Set<String> WHITE = Collections.unmodifiableSet(Sets.newHashSet(
 			ByteStringTranscoder.class.getName(),
-			InlineCodec.class.getName(),
+			DefaultEntityCodec.class.getName(),
+			ParamsEntityCodec.class.getName(),
 			ReflectionUtil.class.getName(),
 			"com.keimons.deepjson.test.util.LookupUtilTest" // for test
 	));

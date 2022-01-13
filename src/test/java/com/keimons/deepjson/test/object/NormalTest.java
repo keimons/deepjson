@@ -16,8 +16,10 @@ public class NormalTest {
 	@Test
 	public void test() {
 		String expected = "{\"value0\":false,\"value1\":\"\\u0000\",\"value2\":0,\"value3\":0,\"value4\":0,\"value5\":0,\"value6\":0.0,\"value7\":0.0}";
-		String json = DeepJson.toJsonString(new Node());
+		String json = DeepJson.toJsonString(new Node(false, '\u0000', 0));
 		AssertUtils.assertEquals("基础类型对象测试", expected, json);
+		Node node = DeepJson.parseObject(json, Node.class);
+		AssertUtils.assertNotNull("构造方法测试", node);
 	}
 
 	public static class Node {
@@ -37,5 +39,9 @@ public class NormalTest {
 		private float value6;
 
 		private double value7;
+
+		public Node(boolean value0, char value1, int value4) {
+
+		}
 	}
 }

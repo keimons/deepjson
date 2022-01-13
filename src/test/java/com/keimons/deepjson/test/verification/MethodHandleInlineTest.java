@@ -1,11 +1,15 @@
 package com.keimons.deepjson.test.verification;
 
 import com.keimons.deepjson.JsonWriter;
+import com.keimons.deepjson.test.AssertUtils;
 import org.junit.jupiter.api.Test;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.lang.invoke.WrongMethodTypeException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * {@link MethodHandle}参数折叠验证
@@ -100,6 +104,41 @@ public class MethodHandleInlineTest {
 		write.invoke((JsonWriter) null, test);
 	}
 
+	@Test
+	public void testInvokeExact() {
+		try {
+			MethodHandles.Lookup lookup = MethodHandles.lookup();
+			MethodHandle handle = lookup.findStatic(MethodHandleInlineTest.class, "test", MethodType.methodType(void.class, int.class));
+			handle = MethodHandles.dropArguments(handle, 1, Integer.class);
+			MethodHandle cast = lookup.findStatic(MethodHandleInlineTest.class, "cast", MethodType.methodType(int.class, Integer.class));
+			handle = MethodHandles.foldArguments(handle, 0, cast);
+
+			Map<String, Integer> map = new HashMap<String, Integer>();
+			map.put("test", 1024);
+			handle.invokeExact(map.get("test"));
+		} catch (Throwable e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Test
+	public void testInvokeExactFailed() {
+		try {
+			MethodHandles.Lookup lookup = MethodHandles.lookup();
+			MethodHandle handle = lookup.findStatic(MethodHandleInlineTest.class, "test", MethodType.methodType(void.class, int.class));
+			Map<String, Integer> map = new HashMap<String, Integer>();
+			map.put("test", 1024);
+			handle.invokeExact((Integer) map.get("test"));
+			System.out.println("测试失败");
+		} catch (Throwable e) {
+			AssertUtils.assertEquals("严格的参数验证", WrongMethodTypeException.class, e.getClass());
+		}
+	}
+
+	public static int cast(Integer value) {
+		return value;
+	}
+
 	public static void write(JsonWriter writer, int value) {
 		System.out.println("测试打印值：" + value);
 	}
@@ -111,5 +150,9 @@ public class MethodHandleInlineTest {
 		public int sum(int a, int b) {
 			return a + b;
 		}
+	}
+
+	public static void test(int value) {
+		// do nothing
 	}
 }

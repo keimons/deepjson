@@ -1,10 +1,5 @@
 package com.keimons.deepjson.util;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Class文件工具类
  *
@@ -86,6 +81,65 @@ public class ClassUtil {
 		return null;
 	}
 
+	public static Class<?> findWrapperClass(Class<?> clazz) {
+		if (clazz == int.class) {
+			return Integer.class;
+		}
+		if (clazz == long.class) {
+			return Long.class;
+		}
+		if (clazz == float.class) {
+			return Float.class;
+		}
+		if (clazz == double.class) {
+			return Double.class;
+		}
+		if (clazz == boolean.class) {
+			return Boolean.class;
+		}
+		if (clazz == byte.class) {
+			return Byte.class;
+		}
+		if (clazz == char.class) {
+			return Character.class;
+		}
+		if (clazz == short.class) {
+			return Short.class;
+		}
+		if (clazz == void.class) {
+			return Void.class;
+		}
+		return clazz;
+	}
+
+	public static Object findDefaultValue(Class<?> clazz) {
+		if (clazz == int.class) {
+			return 0;
+		}
+		if (clazz == long.class) {
+			return 0L;
+		}
+		if (clazz == float.class) {
+			return 0F;
+		}
+		if (clazz == double.class) {
+			return 0D;
+		}
+		if (clazz == boolean.class) {
+			return false;
+		}
+		if (clazz == byte.class) {
+			return (byte) 0;
+		}
+		if (clazz == char.class) {
+			return '\u0000';
+		}
+		if (clazz == short.class) {
+			return (short) 0;
+		}
+		return null;
+	}
+
 	/**
 	 * 获取类型描述符
 	 *
@@ -155,30 +209,6 @@ public class ClassUtil {
 			default:
 				throw new IllegalStateException("unknown primitive type: " + type);
 		}
-	}
-
-	/**
-	 * 获取一个类中的所有字段（包含父类）
-	 *
-	 * @param clazz 要获取所有字段的类
-	 * @return 类中的所有字段
-	 */
-	public static List<Field> getFields(Class<?> clazz) {
-		List<Field> result = new ArrayList<Field>();
-		Class<?> current = clazz;
-		while (current != null && !current.equals(Object.class)) {
-			Field[] fields = current.getDeclaredFields();
-			for (Field field : fields) {
-				// jump static field
-				if (Modifier.isStatic(field.getModifiers())) {
-					continue;
-				}
-				// 子类覆盖父类的字段
-				result.add(field);
-			}
-			current = current.getSuperclass();
-		}
-		return result;
 	}
 
 	/**

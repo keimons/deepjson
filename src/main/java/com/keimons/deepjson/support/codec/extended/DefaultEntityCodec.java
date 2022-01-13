@@ -1,14 +1,13 @@
 package com.keimons.deepjson.support.codec.extended;
 
 import com.keimons.deepjson.*;
-import com.keimons.deepjson.compiler.FieldInfo;
+import com.keimons.deepjson.compiler.Property;
+import com.keimons.deepjson.internal.util.FieldUtils;
 import com.keimons.deepjson.internal.util.LookupUtil;
-import com.keimons.deepjson.util.ClassUtil;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,7 +21,7 @@ import java.util.Map;
  * @version 1.0
  * @since 9
  **/
-public class InlineCodec extends ExtendedCodec {
+public class DefaultEntityCodec extends ExtendedCodec {
 
 	private List<BuildNode> builds = new ArrayList<BuildNode>();
 
@@ -34,12 +33,9 @@ public class InlineCodec extends ExtendedCodec {
 	public void init(Class<?> clazz) {
 		acceptInstantiation(clazz);
 		MethodHandles.Lookup lookup = LookupUtil.lookup();
-		List<FieldInfo> fields = new ArrayList<FieldInfo>();
-		for (Field field : ClassUtil.getFields(clazz)) {
-			fields.add(new FieldInfo(field));
-		}
+		List<Property> fields = FieldUtils.createProperties(clazz);
 		try {
-			for (FieldInfo info : fields) {
+			for (Property info : fields) {
 				Class<?> type = info.getFieldType();
 				MethodHandle writer;
 				if (type.isPrimitive() || type == String.class) {
@@ -85,7 +81,7 @@ public class InlineCodec extends ExtendedCodec {
 				MethodHandle reader = setter;
 				if (type.isPrimitive()) {
 					reader = MethodHandles.dropArguments(reader, 2, JsonReader.class);
-					reader = MethodHandles.foldArguments(reader, 1, read(type));
+					reader = MethodHandles.foldArguments(reader, 1, makePrimitiveDecode(type));
 					reader = MethodHandles.dropArguments(reader, 2, ReaderContext.class);
 					reader = MethodHandles.dropArguments(reader, 3, long.class);
 				} else {
@@ -154,38 +150,46 @@ public class InlineCodec extends ExtendedCodec {
 	}
 
 	@Override
-	protected Object decode0(ReaderContext context, JsonReader buf, Class<?> clazz, long options) {
+	protected Object decode0(ReaderContext context, JsonReader buf, Class<?> clazz, long options) throws Throwable {
 		Object instance = newInstance(clazz);
 		SyntaxToken token = buf.token();
-		try {
-			for (; ; ) {
-				if (token == SyntaxToken.RBRACE) {
-					break;
-				}
-				buf.assertExpectedSyntax(SyntaxToken.STRING);
-				MethodHandle reader = readers.get(buf.buffer());
-				buf.nextToken();
-				buf.assertExpectedSyntax(SyntaxToken.COLON);
-				buf.nextToken();
-				if (reader == null) {
-					// 跳过一个对象，这个对象没有引用
-					context.decode(buf, Object.class, options);
-				} else {
-					reader.invoke(instance, buf, context, options);
-				}
-				token = buf.nextToken();
-				if (token == SyntaxToken.RBRACE) {
-					break;
-				}
-				token = buf.nextToken();
+		for (; ; ) {
+			if (token == SyntaxToken.RBRACE) {
+				break;
 			}
-		} catch (Throwable e) {
-			e.printStackTrace();
+			buf.assertExpectedSyntax(SyntaxToken.STRING);
+			MethodHandle reader = readers.get(buf.buffer());
+			buf.nextToken();
+			buf.assertExpectedSyntax(SyntaxToken.COLON);
+			buf.nextToken();
+			if (reader == null) {
+				// 跳过一个对象，这个对象没有引用
+				context.decode(buf, Object.class, options);
+			} else {
+				reader.invoke(instance, buf, context, options);
+			}
+			token = buf.nextToken();
+			if (token == SyntaxToken.RBRACE) {
+				break;
+			}
+			token = buf.nextToken();
 		}
 		return instance;
 	}
 
-	private static MethodHandle read(Class<?> clazz) throws NoSuchMethodException, IllegalAccessException {
+	/**
+	 * 生成一个基础类型的读取句柄
+	 *
+	 * @param clazz 要生成读取句柄的类型，仅包括基础类型
+	 * @return 基础类型的读取句柄
+	 * @throws NoSuchMethodException  方法查找失败
+	 * @throws IllegalAccessException 非法资源访问
+	 * @see JsonReader 读取器
+	 */
+	protected static MethodHandle makePrimitiveDecode(Class<?> clazz) throws NoSuchMethodException, IllegalAccessException {
+		if (!clazz.isPrimitive() || clazz == void.class) {
+			throw new IllegalAccessException("cannot make reader of " + clazz);
+		}
 		return LookupUtil.lookup().findVirtual(
 				JsonReader.class, clazz.getSimpleName() + "Value", MethodType.methodType(clazz)
 		);

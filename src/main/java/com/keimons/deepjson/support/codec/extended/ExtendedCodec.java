@@ -4,11 +4,13 @@ import com.keimons.deepjson.JsonReader;
 import com.keimons.deepjson.ReaderContext;
 import com.keimons.deepjson.SyntaxToken;
 import com.keimons.deepjson.compiler.ExtendedCodecClassLoader;
+import com.keimons.deepjson.internal.util.ConstructorUtils;
 import com.keimons.deepjson.support.IncompatibleTypeException;
 import com.keimons.deepjson.support.codec.AbstractOnlineCodec;
 import com.keimons.deepjson.util.ClassUtil;
 import com.keimons.deepjson.util.ReflectionUtil;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.TypeVariable;
@@ -110,35 +112,39 @@ public abstract class ExtendedCodec extends AbstractOnlineCodec<Object> {
 	 */
 	@Override
 	public Object decode(ReaderContext context, JsonReader reader, Class<?> clazz, long options) {
-		SyntaxToken token = reader.token();
-		if (token == SyntaxToken.NULL) {
-			return null;
-		}
-		token = reader.nextToken();
-		if (token == SyntaxToken.STRING && reader.checkGetType()) {
-			reader.nextToken();
-			reader.assertExpectedSyntax(SyntaxToken.COLON);
-			reader.nextToken();
-			reader.assertExpectedSyntax(SyntaxToken.STRING);
-			String className = reader.stringValue();
-			token = reader.nextToken();
-			if (token == SyntaxToken.RBRACE) {
+		try {
+			SyntaxToken token = reader.token();
+			if (token == SyntaxToken.NULL) {
 				return null;
 			}
-			reader.nextToken();
-			Class<?> excepted = ClassUtil.findClass(className); // 解析类中的名字
-			if (excepted == this.clazz) {
-				return decode0(context, reader, (Class<?>) clazz, options);
+			token = reader.nextToken();
+			if (token == SyntaxToken.STRING && reader.checkGetType()) {
+				reader.nextToken();
+				reader.assertExpectedSyntax(SyntaxToken.COLON);
+				reader.nextToken();
+				reader.assertExpectedSyntax(SyntaxToken.STRING);
+				String className = reader.stringValue();
+				token = reader.nextToken();
+				if (token == SyntaxToken.RBRACE) {
+					return null;
+				}
+				reader.nextToken();
+				Class<?> excepted = ClassUtil.findClass(className); // 解析类中的名字
+				if (excepted == this.clazz) {
+					return decode0(context, reader, (Class<?>) clazz, options);
+				}
+				if (this.clazz.isAssignableFrom(excepted) || excepted.isAssignableFrom(this.clazz)) {
+					return decode0(context, reader, excepted, options);
+				} else {
+					throw new IncompatibleTypeException(this.clazz, excepted);
+				}
 			}
-			if (this.clazz.isAssignableFrom(excepted) || excepted.isAssignableFrom(this.clazz)) {
-				return decode0(context, reader, excepted, options);
-			} else {
-				throw new IncompatibleTypeException(this.clazz, excepted);
+			// 确定这是一个class
+			if (this.clazz == clazz) {
+				return decode0(context, reader, clazz, options);
 			}
-		}
-		// 确定这是一个class
-		if (this.clazz == clazz) {
-			return decode0(context, reader, clazz, options);
+		} catch (Throwable e) {
+			e.printStackTrace();
 		}
 		throw new IncompatibleTypeException(this.clazz, clazz);
 	}
@@ -150,5 +156,25 @@ public abstract class ExtendedCodec extends AbstractOnlineCodec<Object> {
 	 */
 	public abstract void init(Class<?> clazz);
 
-	protected abstract Object decode0(ReaderContext context, JsonReader reader, Class<?> clazz, long options);
+	protected abstract Object decode0(ReaderContext context, JsonReader reader, Class<?> clazz, long options) throws Throwable;
+
+	/**
+	 * 根据类的构造方法，查找可用的编解码器
+	 *
+	 * @param clazz 即将生成编解码器的类
+	 * @return 编解码器
+	 */
+	public static ExtendedCodec create(Class<?> clazz) {
+		if (clazz.isSynthetic()) {
+			if (ClassUtil.isLambda(clazz)) {
+				return new DefaultEntityCodec();
+			}
+		}
+		Constructor<?> constructor = ConstructorUtils.findConstructor(clazz);
+		if (constructor.getParameterCount() == 0) {
+			return new DefaultEntityCodec();
+		} else {
+			return new ParamsEntityCodec();
+		}
+	}
 }

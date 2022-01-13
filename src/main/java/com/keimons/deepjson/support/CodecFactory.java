@@ -6,7 +6,6 @@ import com.keimons.deepjson.Json;
 import com.keimons.deepjson.compiler.SourceCodeFactory;
 import com.keimons.deepjson.support.codec.*;
 import com.keimons.deepjson.support.codec.extended.ExtendedCodec;
-import com.keimons.deepjson.support.codec.extended.InlineCodec;
 import com.keimons.deepjson.support.codec.guava.MultimapCodec;
 import com.keimons.deepjson.support.codec.guava.TableCodec;
 import com.keimons.deepjson.util.CompilerUtil;
@@ -229,7 +228,7 @@ public abstract class CodecFactory {
 								Class<? extends ExtendedCodec> codecClass = SourceCodeCodec.instance.create(clazz);
 								instance = codecClass.getDeclaredConstructor().newInstance();
 							} else {
-								instance = new InlineCodec();
+								instance = ExtendedCodec.create(clazz);
 							}
 							instance.init(clazz);
 							codec = instance;

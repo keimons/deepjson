@@ -143,7 +143,7 @@ class BytecodeUtils {
 		// record and skip entries
 		while (index < count) {
 			// tag of constant pool entries
-			byte tag = buf[offset++];
+			int tag = buf[offset++] & 0xFF;
 			constants[index++] = offset;
 			int size;
 			switch (tag) {
@@ -161,6 +161,7 @@ class BytecodeUtils {
 				case ConstantTag.CONSTANT_DOUBLE_TAG:
 					// double byte
 					size = 8;
+					index++;
 					break;
 				case ConstantTag.CONSTANT_UTF8_TAG:
 					// length(2), bytes
