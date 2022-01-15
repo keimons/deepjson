@@ -385,6 +385,7 @@ public class ConstructorUtilsTest {
 			System.err.println("测试失败：" + constructor);
 		} catch (Exception e) {
 			AssertUtils.assertEquals("禁用构造函数自动查找", InferenceFailedException.class, e.getClass());
+			CodecConfig.constructorSelector = ConstructorOptions.RANDOM;
 		}
 	}
 
@@ -393,6 +394,7 @@ public class ConstructorUtilsTest {
 		CodecConfig.constructorSelector = ConstructorOptions.RANDOM;
 		Constructor<?> constructor = ConstructorUtils.findConstructor(Node4.class);
 		AssertUtils.assertNotNull("随机使用构造函数自动查找", constructor);
+		CodecConfig.constructorSelector = ConstructorOptions.RANDOM;
 	}
 
 	@Test
@@ -402,6 +404,7 @@ public class ConstructorUtilsTest {
 		AssertUtils.assertTrue("使用第一个构造函数自动查找", constructor.getParameterCount() == 2);
 		AssertUtils.assertEquals("使用第一个构造函数自动查找", String.class, constructor.getParameterTypes()[0]);
 		AssertUtils.assertEquals("使用第一个构造函数自动查找", String.class, constructor.getParameterTypes()[1]);
+		CodecConfig.constructorSelector = ConstructorOptions.RANDOM;
 	}
 
 	@Test
@@ -412,6 +415,7 @@ public class ConstructorUtilsTest {
 		AssertUtils.assertEquals("使用最后一个构造函数", int.class, constructor.getParameterTypes()[0]);
 		AssertUtils.assertEquals("使用最后一个构造函数", int.class, constructor.getParameterTypes()[1]);
 		AssertUtils.assertEquals("使用最后一个构造函数", int.class, constructor.getParameterTypes()[2]);
+		CodecConfig.constructorSelector = ConstructorOptions.RANDOM;
 	}
 
 	@Test
@@ -420,6 +424,7 @@ public class ConstructorUtilsTest {
 		Constructor<?> constructor = ConstructorUtils.findConstructor(Node4.class);
 		AssertUtils.assertTrue("使用参数最少的构造函数", constructor.getParameterCount() == 1);
 		AssertUtils.assertEquals("使用参数最少的构造函数", String.class, constructor.getParameterTypes()[0]);
+		CodecConfig.constructorSelector = ConstructorOptions.RANDOM;
 	}
 
 	@Test
@@ -430,6 +435,7 @@ public class ConstructorUtilsTest {
 		AssertUtils.assertEquals("使用参数最多的构造函数", String.class, constructor.getParameterTypes()[0]);
 		AssertUtils.assertEquals("使用参数最多的构造函数", String.class, constructor.getParameterTypes()[1]);
 		AssertUtils.assertEquals("使用参数最多的构造函数", String.class, constructor.getParameterTypes()[2]);
+		CodecConfig.constructorSelector = ConstructorOptions.RANDOM;
 	}
 
 	static class Node0 {

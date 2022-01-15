@@ -33,7 +33,7 @@ public abstract class ExtendedCodec extends AbstractOnlineCodec<Object> {
 	/**
 	 * 编解码对象类型
 	 */
-	private Class<?> clazz;
+	protected Class<?> clazz;
 
 	/**
 	 * 是否{@code lambda}表达式
@@ -167,14 +167,14 @@ public abstract class ExtendedCodec extends AbstractOnlineCodec<Object> {
 	public static ExtendedCodec create(Class<?> clazz) {
 		if (clazz.isSynthetic()) {
 			if (ClassUtil.isLambda(clazz)) {
-				return new DefaultEntityCodec();
+				return new ParameterlessEntityCodec();
 			}
 		}
 		Constructor<?> constructor = ConstructorUtils.findConstructor(clazz);
 		if (constructor.getParameterCount() == 0) {
-			return new DefaultEntityCodec();
+			return new ParameterlessEntityCodec();
 		} else {
-			return new ParamsEntityCodec();
+			return new ParameterizedEntityCodec();
 		}
 	}
 }

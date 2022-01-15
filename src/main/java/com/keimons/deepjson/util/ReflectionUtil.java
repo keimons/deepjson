@@ -1,6 +1,6 @@
 package com.keimons.deepjson.util;
 
-import com.keimons.deepjson.internal.util.LookupUtil;
+import com.keimons.deepjson.internal.util.LookupUtils;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodType;
@@ -57,7 +57,7 @@ public class ReflectionUtil {
 	 */
 	@SuppressWarnings("unchecked")
 	private static <T> T newInstance1(Class<?> clazz) throws Throwable {
-		MethodHandle constructor = LookupUtil.lookup().findConstructor(clazz, MethodType.methodType(void.class));
+		MethodHandle constructor = LookupUtils.lookup().findConstructor(clazz, MethodType.methodType(void.class));
 		return (T) constructor.invoke();
 	}
 }

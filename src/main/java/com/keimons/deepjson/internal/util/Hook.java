@@ -1,4 +1,4 @@
-package com.keimons.deepjson.support.codec.extended;
+package com.keimons.deepjson.internal.util;
 
 import java.lang.invoke.MethodHandle;
 import java.util.Map;

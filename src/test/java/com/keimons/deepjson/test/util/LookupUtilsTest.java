@@ -1,6 +1,6 @@
 package com.keimons.deepjson.test.util;
 
-import com.keimons.deepjson.internal.util.LookupUtil;
+import com.keimons.deepjson.internal.util.LookupUtils;
 import com.keimons.deepjson.test.AssertUtils;
 import org.junit.jupiter.api.Test;
 
@@ -10,13 +10,13 @@ import java.lang.invoke.MethodType;
 import java.util.Arrays;
 
 /**
- * {@link LookupUtil}测试
+ * {@link LookupUtils}测试
  *
  * @author houyn[monkey@keimons.com]
  * @version 1.0
  * @since 9
  **/
-public class LookupUtilTest {
+public class LookupUtilsTest {
 
 	@Test
 	public void testPackagePrivateClass() throws ClassNotFoundException {
@@ -43,7 +43,7 @@ public class LookupUtilTest {
 		}
 
 		try {
-			MethodHandles.Lookup lookup = LookupUtil.lookup();
+			MethodHandles.Lookup lookup = LookupUtils.lookup();
 			MethodHandle handle = lookup.findStatic(clazz, "toBytes", MethodType.methodType(byte[].class, char.class));
 			byte[] bytes = (byte[]) handle.invoke('a');
 			AssertUtils.assertTrue("包私有类权限测试", bytes[0] == 'a');
@@ -75,7 +75,7 @@ public class LookupUtilTest {
 		}
 
 		try {
-			MethodHandles.Lookup lookup = LookupUtil.lookup();
+			MethodHandles.Lookup lookup = LookupUtils.lookup();
 			MethodHandle handle = lookup.findConstructor(String.class, MethodType.methodType(void.class, byte[].class, byte.class));
 			String result = (String) handle.invoke(new byte[]{'k', 'e', 'i', 'm', 'o', 'n', 's'}, (byte) 0);
 			AssertUtils.assertEquals("包私有方法权限测试", "keimons", result);
@@ -107,7 +107,7 @@ public class LookupUtilTest {
 		}
 
 		try {
-			MethodHandles.Lookup lookup = LookupUtil.lookup();
+			MethodHandles.Lookup lookup = LookupUtils.lookup();
 			MethodHandle handle = lookup.findStaticGetter(clazz, "lock", Object.class);
 			Object result = handle.invoke();
 			AssertUtils.assertEquals("未开放模块测试", Object.class, result.getClass());

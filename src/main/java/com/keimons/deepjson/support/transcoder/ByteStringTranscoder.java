@@ -2,7 +2,7 @@ package com.keimons.deepjson.support.transcoder;
 
 import com.keimons.deepjson.IConverter;
 import com.keimons.deepjson.ITranscoder;
-import com.keimons.deepjson.internal.util.LookupUtil;
+import com.keimons.deepjson.internal.util.LookupUtils;
 import com.keimons.deepjson.util.UnsafeUtil;
 import com.keimons.deepjson.util.UnsupportedException;
 import com.keimons.deepjson.util.WriteFailedException;
@@ -66,7 +66,7 @@ public class ByteStringTranscoder implements ITranscoder<String> {
 		MethodHandle compress_handle = null;
 		MethodHandle put_char_handle = null;
 		try {
-			MethodHandles.Lookup lookup = LookupUtil.lookup();
+			MethodHandles.Lookup lookup = LookupUtils.lookup();
 			MethodType type1 = MethodType.methodType(int.class, char[].class, int.class, byte[].class, int.class, int.class);
 			compress_handle = lookup.findStatic(Class.forName(CLASS_STRING_UTF16), "compress", type1);
 			MethodType type2 = MethodType.methodType(void.class, byte[].class, int.class, int.class);
