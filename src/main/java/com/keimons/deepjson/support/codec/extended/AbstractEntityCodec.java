@@ -13,23 +13,20 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 实体类编解码器
  * <p>
  * 实体类的序列化，无论对象有没有无参构造方法，是没有影响的，均使用抽象类中的{@link #encode(WriterContext,
  * JsonWriter, CodecModel, Object, int, long)}方法进行序列化。而对于反序列化，则有区分，出于节省内存的
- * 目标，使用带参数和使用无参数构造方法的实体类，会有两个编解码器：
+ * 目标，使用有参构造方法和使用无参构造方法的实体类，会有两个编解码器：
  * <ul>
  *     <li>{@link ParameterizedEntityCodec}使用有参构造方法解码</li>
  *     <li>{@link ParameterlessEntityCodec}使用无参构造方法解码</li>
  * </ul>
  * 当使用无参构造方法时，可以先{@code new Object()}，然后将对象中的属性一一赋值。而使用有参构造方法时，需要
- * 将对象中的所有属性解析并缓存，直到全部信息集齐，才能使用指定的参数生成对象。
+ * 将缓冲区中的所有属性解析并缓存，才能使用指定的参数生成对象。
  *
  * @author houyn[monkey@keimons.com]
  * @version 1.0
