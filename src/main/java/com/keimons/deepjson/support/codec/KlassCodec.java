@@ -24,7 +24,6 @@ public abstract class KlassCodec<T> implements ICodec<T> {
 	/**
 	 * 循环引用中根据对象唯一ID获取对象
 	 * <p>
-	 * {@link JsonReader#is$Id()} 是否引用对象
 	 * {@link JsonReader#get$Id()} 引用对象
 	 */
 	public static final char[] FIELD_GET_ID = "$id".toCharArray();

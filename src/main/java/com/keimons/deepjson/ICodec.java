@@ -91,6 +91,7 @@ public interface ICodec<T> {
 	 * @param value    对象值
 	 * @param uniqueId 对象唯一ID
 	 * @param options  编码选项
+	 * @throws IOException IO异常
 	 */
 	void encode(WriterContext context, JsonWriter writer, CodecModel model, T value, int uniqueId, long options) throws IOException;
 

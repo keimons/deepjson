@@ -18,8 +18,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.*;
 import java.time.ZoneId;
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.DoubleAdder;
 import java.util.concurrent.atomic.LongAdder;
@@ -59,7 +58,9 @@ public abstract class CodecFactory {
 	 */
 	private static final Map<String, Integer> VERSION = new ConcurrentHashMap<String, Integer>();
 
-	private static final Map<Type, ICodec<?>> CACHE = new ConcurrentHashMap<Type, ICodec<?>>();
+	private static final WeakHashMap<Type, ICodec<?>> CACHE = new WeakHashMap<Type, ICodec<?>>();
+
+	private static final List<Customize> CUSTOMIZES = new ArrayList<Customize>();
 
 	private static final Class<?> GUAVA_TABLE;
 	private static final Class<?> GUAVA_MULTIMAP;
@@ -132,6 +133,10 @@ public abstract class CodecFactory {
 		STRATEGY = Strategy.valueOf(strategy);
 	}
 
+	public static void register(Class<?> clazz, ICodec<?> codec) {
+		CUSTOMIZES.add(new Customize(clazz, codec));
+	}
+
 	public static void put(Class<?> clazz, ICodec<?> codec) {
 		CACHE.put(clazz, codec);
 	}
@@ -202,6 +207,16 @@ public abstract class CodecFactory {
 							break mark;
 						}
 					}
+
+					// region custom
+					for (Customize customize : CUSTOMIZES) {
+						if (customize.clazz.isAssignableFrom(clazz)) {
+							codec = customize.codec;
+							CACHE.put(clazz, codec);
+							break mark;
+						}
+					}
+					// endregion
 
 					// region Google Guava
 					// guava table instance
@@ -344,5 +359,23 @@ public abstract class CodecFactory {
 
 	private enum Strategy {
 		BC, MH
+	}
+
+	private static class Customize {
+
+		/**
+		 * 类型
+		 */
+		Class<?> clazz;
+
+		/**
+		 * 编解码器
+		 */
+		ICodec<?> codec;
+
+		public Customize(Class<?> clazz, ICodec<?> codec) {
+			this.clazz = clazz;
+			this.codec = codec;
+		}
 	}
 }

@@ -64,6 +64,7 @@ public abstract class WriterContext {
 	 * @param writer  写入器
 	 * @param model   编解码模式
 	 * @param options 编解码选项
+	 * @throws IOException IO异常
 	 */
 	public abstract void encode(JsonWriter writer, CodecModel model, long options) throws IOException;
 
@@ -71,6 +72,7 @@ public abstract class WriterContext {
 	 * 释放上下文
 	 *
 	 * @param writer 写入器
+	 * @throws IOException IO异常
 	 */
 	public abstract void release(JsonWriter writer) throws IOException;
 }

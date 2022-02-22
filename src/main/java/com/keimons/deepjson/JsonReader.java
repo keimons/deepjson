@@ -15,6 +15,8 @@ public abstract class JsonReader implements Closeable {
 
 	/**
 	 * 获取缓冲区
+	 *
+	 * @return 缓冲区
 	 */
 	public abstract Buffer buffer();
 

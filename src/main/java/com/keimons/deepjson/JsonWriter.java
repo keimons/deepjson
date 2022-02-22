@@ -83,6 +83,7 @@ public abstract class JsonWriter implements Closeable {
 	 * 写入一个分割标识
 	 *
 	 * @param mark 标识值
+	 * @throws IOException IO异常
 	 */
 	public abstract void writeMark(char mark) throws IOException;
 
@@ -90,6 +91,7 @@ public abstract class JsonWriter implements Closeable {
 	 * 写入boolean值
 	 *
 	 * @param value boolean值
+	 * @throws IOException IO异常
 	 */
 	public abstract void write(boolean value) throws IOException;
 
@@ -97,6 +99,7 @@ public abstract class JsonWriter implements Closeable {
 	 * 写入int值
 	 *
 	 * @param value int值
+	 * @throws IOException IO异常
 	 */
 	public abstract void write(int value) throws IOException;
 
@@ -104,6 +107,7 @@ public abstract class JsonWriter implements Closeable {
 	 * 写入long值
 	 *
 	 * @param value long值
+	 * @throws IOException IO异常
 	 */
 	public abstract void write(long value) throws IOException;
 
@@ -111,6 +115,7 @@ public abstract class JsonWriter implements Closeable {
 	 * 写入float值
 	 *
 	 * @param value float值
+	 * @throws IOException IO异常
 	 */
 	public abstract void write(float value) throws IOException;
 
@@ -118,6 +123,7 @@ public abstract class JsonWriter implements Closeable {
 	 * 写入double值
 	 *
 	 * @param value double值
+	 * @throws IOException IO异常
 	 */
 	public abstract void write(double value) throws IOException;
 
@@ -125,6 +131,7 @@ public abstract class JsonWriter implements Closeable {
 	 * 写入{@link String}值
 	 *
 	 * @param value {@link String}值
+	 * @throws IOException IO异常
 	 */
 	public abstract void write(String value) throws IOException;
 
@@ -132,6 +139,7 @@ public abstract class JsonWriter implements Closeable {
 	 * 写入char值和双引号
 	 *
 	 * @param value char值
+	 * @throws IOException IO异常
 	 */
 	public abstract void writeWithQuote(char value) throws IOException;
 
@@ -139,6 +147,7 @@ public abstract class JsonWriter implements Closeable {
 	 * 写入{@link String}值
 	 *
 	 * @param value {@link String}值
+	 * @throws IOException IO异常
 	 */
 	public final void writeWithQuote(String value) throws IOException {
 		write(value);
@@ -149,6 +158,7 @@ public abstract class JsonWriter implements Closeable {
 	 *
 	 * @param mark 前置标识
 	 * @param name 字段信息
+	 * @throws IOException IO异常
 	 */
 	public abstract void writeName(char mark, char[] name) throws IOException;
 
@@ -158,6 +168,7 @@ public abstract class JsonWriter implements Closeable {
 	 * @param mark  前置标识
 	 * @param name  字段信息
 	 * @param value boolean值
+	 * @throws IOException IO异常
 	 */
 	public final void writeValue(char mark, char[] name, boolean value) throws IOException {
 		writeName(mark, name);
@@ -170,6 +181,7 @@ public abstract class JsonWriter implements Closeable {
 	 * @param mark  前置标识
 	 * @param name  字段信息
 	 * @param value char值
+	 * @throws IOException IO异常
 	 */
 	public final void writeValue(char mark, char[] name, char value) throws IOException {
 		writeName(mark, name);
@@ -182,6 +194,7 @@ public abstract class JsonWriter implements Closeable {
 	 * @param mark  前置标识
 	 * @param name  字段信息
 	 * @param value int值
+	 * @throws IOException IO异常
 	 */
 	public final void writeValue(char mark, char[] name, int value) throws IOException {
 		writeName(mark, name);
@@ -194,6 +207,7 @@ public abstract class JsonWriter implements Closeable {
 	 * @param mark  前置标识
 	 * @param name  字段信息
 	 * @param value long值
+	 * @throws IOException IO异常
 	 */
 	public final void writeValue(char mark, char[] name, long value) throws IOException {
 		writeName(mark, name);
@@ -206,6 +220,7 @@ public abstract class JsonWriter implements Closeable {
 	 * @param mark  前置标识
 	 * @param name  字段信息
 	 * @param value long值
+	 * @throws IOException IO异常
 	 */
 	public final void writeValue(char mark, char[] name, float value) throws IOException {
 		writeName(mark, name);
@@ -218,6 +233,7 @@ public abstract class JsonWriter implements Closeable {
 	 * @param mark  前置标识
 	 * @param name  字段信息
 	 * @param value double值
+	 * @throws IOException IO异常
 	 */
 	public final void writeValue(char mark, char[] name, double value) throws IOException {
 		writeName(mark, name);
@@ -230,6 +246,7 @@ public abstract class JsonWriter implements Closeable {
 	 * @param mark  前置标识
 	 * @param name  字段信息
 	 * @param value {@link String}值
+	 * @throws IOException IO异常
 	 */
 	public final void writeValue(char mark, char[] name, @Nullable String value) throws IOException {
 		writeName(mark, name);
@@ -242,6 +259,8 @@ public abstract class JsonWriter implements Closeable {
 
 	/**
 	 * 写入{@code null}字符串
+	 *
+	 * @throws IOException IO异常
 	 */
 	public abstract void writeNull() throws IOException;
 
@@ -258,6 +277,8 @@ public abstract class JsonWriter implements Closeable {
 
 	/**
 	 * 释放缓冲区
+	 *
+	 * @throws IOException IO异常
 	 */
 	public abstract void close() throws IOException;
 }
