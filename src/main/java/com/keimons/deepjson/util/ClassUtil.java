@@ -50,35 +50,11 @@ public class ClassUtil {
 	 * @return 基础类型 或 基础类型数组
 	 */
 	private static Class<?> findPrimitive(String className) {
-		if ("int".equals(className)) {
-			return Integer.TYPE;
+		Wrapper wrapper = Wrapper.findWrapper(className);
+		if (wrapper == null || !wrapper.getPType().isPrimitive()) {
+			return null;
 		}
-		if ("long".equals(className)) {
-			return Long.TYPE;
-		}
-		if ("float".equals(className)) {
-			return Float.TYPE;
-		}
-		if ("double".equals(className)) {
-			return Double.TYPE;
-		}
-		if ("boolean".equals(className)) {
-			return Boolean.TYPE;
-		}
-		if ("byte".equals(className)) {
-			return Byte.TYPE;
-		}
-		if ("char".equals(className)) {
-			return Character.TYPE;
-		}
-		if ("short".equals(className)) {
-			return Short.TYPE;
-		}
-		if ("void".equals(className)) {
-			return Void.TYPE;
-		}
-		// 对于基础类型数组 java可以解析255维以内的数组，返回null，交由后续解析
-		return null;
+		return wrapper.getPType();
 	}
 
 	public static Class<?> findWrapperClass(Class<?> clazz) {

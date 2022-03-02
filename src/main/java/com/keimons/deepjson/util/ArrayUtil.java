@@ -2,6 +2,7 @@ package com.keimons.deepjson.util;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -29,9 +30,7 @@ public class ArrayUtil {
 	@SuppressWarnings("unchecked")
 	public static <T> List<T> asList(T... a) {
 		ArrayList<T> list = new ArrayList<T>(a.length);
-		for (T item : a) {
-			list.add(item);
-		}
+		list.addAll(Arrays.asList(a));
 		return list;
 	}
 

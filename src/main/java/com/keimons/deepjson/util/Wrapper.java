@@ -1,5 +1,8 @@
 package com.keimons.deepjson.util;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Wrapper
  *
@@ -20,15 +23,33 @@ public enum Wrapper {
 	OBJECT(Object.class, Object.class, 'L', null),
 	ARRAY(Object[].class, Object[].class, 'L', null);
 
+	private final String name;
 	private final Class<?> wType;
 	private final Class<?> pType;
 	private final char bType;
 	private final Object defaultValue;
 
 	Wrapper(Class<?> wType, Class<?> pType, char bType, Object defaultValue) {
+		this.name = pType.getName();
 		this.wType = wType;
 		this.pType = pType;
 		this.bType = bType;
 		this.defaultValue = defaultValue;
+	}
+
+	public Class<?> getPType() {
+		return pType;
+	}
+
+	private static Map<String, Wrapper> TYPES = new HashMap<>();
+
+	static {
+		for (Wrapper value : Wrapper.values()) {
+			TYPES.put(value.name, value);
+		}
+	}
+
+	public static Wrapper findWrapper(String name) {
+		return TYPES.get(name);
 	}
 }
