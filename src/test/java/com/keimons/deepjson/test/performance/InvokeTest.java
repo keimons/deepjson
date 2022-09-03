@@ -18,6 +18,7 @@ public class InvokeTest {
 
 	@Test
 	public void test() {
+		/**
 		try {
 			MethodHandles.Lookup lookup = MethodHandles.lookup();
 			MethodHandle test = lookup.findStatic(InvokeTest.class, "test", MethodType.methodType(int.class, Object.class));
@@ -55,6 +56,7 @@ public class InvokeTest {
 		} catch (Throwable e) {
 			e.printStackTrace();
 		}
+		*/
 	}
 
 	public static int cast(int value) {
